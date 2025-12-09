@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('contact_list_members', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('list_id');
-            $table->foreign('list_id')->references('id')->on('contact_lists')->onDelete('cascade');
+            // Foreign key will be added in a separate migration after contact_lists is created
             $table->string('name')->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('email')->nullable();

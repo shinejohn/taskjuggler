@@ -25,6 +25,33 @@ return new class extends Migration
         Schema::table('marketplace_listings', function (Blueprint $table) {
             $table->foreign('task_id')->references('id')->on('tasks');
         });
+        
+        // Add foreign key from ai_tool_configs to marketplace_vendors
+        Schema::table('ai_tool_configs', function (Blueprint $table) {
+            $table->foreign('vendor_id')->references('id')->on('marketplace_vendors')->onDelete('cascade');
+        });
+        
+        // Add foreign key from contact_list_members to contact_lists
+        Schema::table('contact_list_members', function (Blueprint $table) {
+            $table->foreign('list_id')->references('id')->on('contact_lists')->onDelete('cascade');
+        });
+        
+        // Add foreign keys from inbox_items
+        Schema::table('inbox_items', function (Blueprint $table) {
+            $table->foreign('routed_to_task_id')->references('id')->on('tasks');
+            $table->foreign('routing_rule_id')->references('id')->on('routing_rules');
+        });
+        
+        // Add foreign keys from marketplace_bids
+        Schema::table('marketplace_bids', function (Blueprint $table) {
+            $table->foreign('listing_id')->references('id')->on('marketplace_listings')->onDelete('cascade');
+            $table->foreign('vendor_id')->references('id')->on('marketplace_vendors');
+        });
+        
+        // Add foreign key from marketplace_listings
+        Schema::table('marketplace_listings', function (Blueprint $table) {
+            $table->foreign('assigned_vendor_id')->references('id')->on('marketplace_vendors');
+        });
     }
 
     /**
@@ -39,6 +66,28 @@ return new class extends Migration
         
         Schema::table('marketplace_listings', function (Blueprint $table) {
             $table->dropForeign(['task_id']);
+        });
+        
+        Schema::table('ai_tool_configs', function (Blueprint $table) {
+            $table->dropForeign(['vendor_id']);
+        });
+        
+        Schema::table('contact_list_members', function (Blueprint $table) {
+            $table->dropForeign(['list_id']);
+        });
+        
+        Schema::table('inbox_items', function (Blueprint $table) {
+            $table->dropForeign(['routed_to_task_id']);
+            $table->dropForeign(['routing_rule_id']);
+        });
+        
+        Schema::table('marketplace_bids', function (Blueprint $table) {
+            $table->dropForeign(['listing_id']);
+            $table->dropForeign(['vendor_id']);
+        });
+        
+        Schema::table('marketplace_listings', function (Blueprint $table) {
+            $table->dropForeign(['assigned_vendor_id']);
         });
     }
 };

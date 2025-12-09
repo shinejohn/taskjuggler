@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('marketplace_bids', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('listing_id');
-            $table->foreign('listing_id')->references('id')->on('marketplace_listings')->onDelete('cascade');
+            // Foreign keys will be added in a separate migration after marketplace_listings and marketplace_vendors are created
             $table->uuid('vendor_id');
-            $table->foreign('vendor_id')->references('id')->on('marketplace_vendors');
             
             // Bid details
             $table->decimal('amount', 10, 2);

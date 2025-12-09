@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Models\MarketplaceVendor;
 use App\Services\Marketplace\AiToolExecutor;
 use App\Services\Notifications\NotificationService;
+use App\Events\AiToolCompleted;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,6 +31,9 @@ class ExecuteAiTool implements ShouldQueue
         NotificationService $notifications,
     ): void {
         $execution = $executor->execute($this->task, $this->vendor);
+
+        // Dispatch event
+        event(new AiToolCompleted($execution));
 
         // Notify requestor of completion
         $notifications->sendTaskNotification($this->task->requestor, 'completed', [

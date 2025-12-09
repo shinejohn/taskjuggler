@@ -13,6 +13,7 @@ use App\Services\Routing\RoutingDecision;
 use App\Services\Notifications\NotificationService;
 use App\Services\SendGrid\EmailService;
 use App\Jobs\ExecuteAiTool;
+use App\Events\TaskCreated;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -113,6 +114,9 @@ class ProcessEmail implements ShouldQueue
 
             // 5. Assign task based on routing decision
             $this->assignTask($task, $decision);
+
+            // Dispatch event
+            event(new TaskCreated($task->fresh()));
 
             // 6. Send notifications
             foreach ($decision->notifications as $notificationConfig) {

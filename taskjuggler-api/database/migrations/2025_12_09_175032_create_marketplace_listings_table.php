@@ -40,7 +40,7 @@ return new class extends Migration
             
             // Assignment
             $table->uuid('assigned_vendor_id')->nullable();
-            $table->foreign('assigned_vendor_id')->references('id')->on('marketplace_vendors');
+            // Foreign key will be added in a separate migration after marketplace_vendors is created
             $table->timestampTz('assigned_at')->nullable();
             
             // Timing

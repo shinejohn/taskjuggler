@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Webhooks;
 use App\Http\Controllers\Controller;
 use App\Models\AssistantChannel;
 use App\Jobs\ProcessEmail;
+use App\Events\InboxItemReceived;
 use Illuminate\Http\Request;
 
 class SendGridController extends Controller

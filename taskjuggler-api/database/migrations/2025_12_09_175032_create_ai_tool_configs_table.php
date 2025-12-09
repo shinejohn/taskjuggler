@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('ai_tool_configs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('vendor_id');
-            $table->foreign('vendor_id')->references('id')->on('marketplace_vendors')->onDelete('cascade');
+            // Foreign key will be added in a separate migration after marketplace_vendors is created
             
             // Execution
             $table->string('provider', 50); // 'openrouter', 'direct', 'webhook'

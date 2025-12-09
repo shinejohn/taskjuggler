@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Task;
+use App\Events\TaskCreated;
+use App\Events\TaskAssigned;
+use App\Events\TaskCompleted;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -41,6 +44,8 @@ class TaskController extends Controller
             'status' => Task::STATUS_PENDING,
             'priority' => $validated['priority'] ?? Task::PRIORITY_NORMAL,
         ]);
+
+        event(new TaskCreated($task));
 
         return response()->json($task, 201);
     }
@@ -90,6 +95,8 @@ class TaskController extends Controller
         $this->authorize('update', $task);
         
         $task->markCompleted();
+        
+        event(new TaskCompleted($task));
 
         return response()->json($task);
     }
