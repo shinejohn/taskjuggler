@@ -58,15 +58,15 @@ Task Juggler is a comprehensive task management platform with:
 - [x] SendGridController (email)
 - [x] Signature validation middleware
 
-### Phase 5: API Controllers
-- [ ] AuthController
-- [ ] TaskController
-- [ ] InboxController
-- [ ] RoutingRuleController
-- [ ] TeamController
-- [ ] ContactListController
-- [ ] ChannelController
-- [ ] Marketplace controllers
+### Phase 5: API Controllers ✅
+- [x] AuthController
+- [x] TaskController
+- [x] InboxController
+- [x] RoutingRuleController
+- [x] TeamController
+- [x] ContactListController
+- [x] ChannelController
+- [x] Marketplace controllers
 
 ### Phase 6: Marketplace System
 - [ ] VendorMatcher service
