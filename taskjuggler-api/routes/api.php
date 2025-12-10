@@ -48,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('contact-lists', ContactListController::class);
     Route::post('/contact-lists/{contactList}/members', [ContactListController::class, 'addMember']);
     Route::delete('/contact-lists/{contactList}/members/{member}', [ContactListController::class, 'removeMember']);
+    Route::post('/contact-lists/import', [ContactListController::class, 'importContacts']);
 
     // Channels
     Route::get('/channels', [ChannelController::class, 'index']);

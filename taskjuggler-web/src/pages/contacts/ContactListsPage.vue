@@ -2,7 +2,10 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">Contact Lists</h1>
-      <button @click="showCreateModal = true" class="btn btn-primary">New Contact List</button>
+      <div class="flex gap-2">
+        <button @click="showImportModal = true" class="btn btn-secondary">📥 Import Contacts</button>
+        <button @click="showCreateModal = true" class="btn btn-primary">New Contact List</button>
+      </div>
     </div>
 
     <div v-if="loading && contactLists.length === 0" class="text-center py-8">
@@ -175,6 +178,90 @@
         </form>
       </div>
     </div>
+
+    <!-- Import Contacts Modal -->
+    <div
+      v-if="showImportModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      @click.self="closeImportModal"
+    >
+      <div class="bg-white rounded-lg p-6 w-full max-w-md" @click.stop>
+        <h2 class="text-xl font-bold mb-4">Import Contacts</h2>
+        
+        <div v-if="!importResult" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Select Contact List</label>
+            <select
+              v-model="importListId"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="">Choose a list...</option>
+              <option v-for="list in contactLists" :key="list.id" :value="list.id">
+                {{ list.name }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Upload File</label>
+            <p class="text-xs text-gray-500 mb-2">
+              Supported formats: .vcf (Apple/Android contacts), .csv (Outlook)
+            </p>
+            <input
+              type="file"
+              accept=".vcf,.csv,.txt"
+              @change="handleFileSelect"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+            <p v-if="importFile" class="text-sm text-gray-600 mt-2">
+              Selected: {{ importFile.name }}
+            </p>
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              type="button"
+              @click="importContacts"
+              :disabled="!importFile || !importListId || importing"
+              class="btn btn-primary flex-1"
+            >
+              {{ importing ? 'Importing...' : 'Import' }}
+            </button>
+            <button
+              type="button"
+              @click="closeImportModal"
+              class="btn btn-secondary flex-1"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div v-else class="space-y-4">
+          <div class="p-4 bg-green-50 rounded-lg">
+            <h3 class="font-semibold text-green-800 mb-2">Import Complete!</h3>
+            <p class="text-sm text-green-700">
+              <strong>{{ importResult.imported }}</strong> contacts imported<br>
+              <strong>{{ importResult.skipped }}</strong> contacts skipped (duplicates)<br>
+              <strong>{{ importResult.total }}</strong> total contacts in file
+            </p>
+            <div v-if="importResult.errors && importResult.errors.length > 0" class="mt-2">
+              <p class="text-xs font-medium text-red-700">Errors:</p>
+              <ul class="text-xs text-red-600 list-disc list-inside">
+                <li v-for="(error, idx) in importResult.errors" :key="idx">{{ error }}</li>
+              </ul>
+            </div>
+          </div>
+          <button
+            @click="closeImportModal"
+            class="btn btn-primary w-full"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -182,6 +269,7 @@
 import { onMounted, ref, computed } from 'vue'
 import { useContactListsStore } from '@/stores/contactLists'
 import type { ContactList } from '@/types'
+import api from '@/utils/api'
 
 const contactListsStore = useContactListsStore()
 const contactLists = computed(() => contactListsStore.contactLists)
@@ -189,8 +277,13 @@ const loading = computed(() => contactListsStore.loading)
 
 const showCreateModal = ref(false)
 const showAddMemberModal = ref(false)
+const showImportModal = ref(false)
 const selectedList = ref<ContactList | null>(null)
 const editingList = ref<ContactList | null>(null)
+const importing = ref(false)
+const importFile = ref<File | null>(null)
+const importListId = ref<string>('')
+const importResult = ref<any>(null)
 
 const listForm = ref({
   name: '',
@@ -287,6 +380,58 @@ async function removeMember(listId: string, memberId: string) {
     }
   } catch (error) {
     // Error handled by API interceptor
+  }
+}
+
+function handleFileSelect(event: Event) {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    importFile.value = target.files[0]
+  }
+}
+
+function closeImportModal() {
+  showImportModal.value = false
+  importFile.value = null
+  importListId.value = ''
+  importResult.value = null
+}
+
+async function importContacts() {
+  if (!importFile.value || !importListId.value) return
+  
+  importing.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', importFile.value)
+    formData.append('list_id', importListId.value)
+    
+    const response = await api.post('/contact-lists/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    
+    importResult.value = response.data
+    
+    // Refresh the selected list if it's the one we imported to
+    if (selectedList.value?.id === importListId.value) {
+      await contactListsStore.fetchContactList(selectedList.value.id)
+    }
+    
+    // Refresh all lists
+    await contactListsStore.fetchContactLists()
+    
+    if ((window as any).$toast) {
+      (window as any).$toast.success(`Imported ${response.data.imported} contacts`)
+    }
+  } catch (error: any) {
+    if ((window as any).$toast) {
+      const message = error.response?.data?.error || 'Failed to import contacts'
+      ;(window as any).$toast.error(message)
+    }
+  } finally {
+    importing.value = false
   }
 }
 </script>
