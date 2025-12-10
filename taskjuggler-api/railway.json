@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "composer install --no-dev --optimize-autoloader && composer dump-autoload --optimize && cd ../taskjuggler-web && npm ci && VITE_API_URL=https://taskjuggler-production.up.railway.app/api npm run build && cd ../taskjuggler-api && cp -r ../taskjuggler-web/dist/* public/ && chmod -R 775 storage bootstrap/cache && php artisan config:cache && php artisan route:cache && php artisan view:cache"
+    "buildCommand": "composer install --no-dev --optimize-autoloader && composer dump-autoload --optimize && (cd ../taskjuggler-web && npm ci && VITE_API_URL=https://taskjuggler-production.up.railway.app/api npm run build && cd ../taskjuggler-api && cp -r ../taskjuggler-web/dist/* public/) || echo 'Frontend build skipped (not needed for worker/scheduler)' && chmod -R 775 storage bootstrap/cache && php artisan config:cache && php artisan route:cache && php artisan view:cache"
   },
   "deploy": {
     "startCommand": "php artisan serve --host=0.0.0.0 --port=$PORT",
