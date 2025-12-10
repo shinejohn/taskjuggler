@@ -1,12 +1,16 @@
-import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useInboxStore } from '../../stores/inbox';
+import { showToast } from '../../utils/toast';
 
 export default function InboxScreen() {
   const router = useRouter();
   const { inboxItems, loading, fetchInboxItems, processItem, dismissItem } = useInboxStore();
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [sourceFilter, setSourceFilter] = useState<string>('');
 
   useEffect(() => {
     fetchInboxItems();
@@ -18,23 +22,35 @@ export default function InboxScreen() {
     setRefreshing(false);
   };
 
+  const filteredItems = useMemo(() => {
+    return inboxItems.filter((item) => {
+      const matchesSearch = !searchQuery ||
+        (item.subject && item.subject.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        item.from_identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.body.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = !statusFilter || item.status === statusFilter;
+      const matchesSource = !sourceFilter || item.source_type === sourceFilter;
+      return matchesSearch && matchesStatus && matchesSource;
+    });
+  }, [inboxItems, searchQuery, statusFilter, sourceFilter]);
+
   const handleProcess = async (id: string) => {
     try {
       await processItem(id);
-      Alert.alert('Success', 'Inbox item processed successfully');
+      showToast.success('Inbox item processed successfully');
       fetchInboxItems();
     } catch (error) {
-      Alert.alert('Error', 'Failed to process inbox item');
+      showToast.error('Failed to process inbox item');
     }
   };
 
   const handleDismiss = async (id: string) => {
     try {
       await dismissItem(id);
-      Alert.alert('Success', 'Inbox item dismissed');
+      showToast.success('Inbox item dismissed');
       fetchInboxItems();
     } catch (error) {
-      Alert.alert('Error', 'Failed to dismiss inbox item');
+      showToast.error('Failed to dismiss inbox item');
     }
   };
 
@@ -72,17 +88,80 @@ export default function InboxScreen() {
       <View className="p-4">
         <Text className="text-2xl font-bold mb-4">Inbox</Text>
 
+        <View className="mb-4 space-y-2">
+          <TextInput
+            className="border border-gray-300 rounded-lg p-2 bg-white"
+            placeholder="Search inbox items..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${!statusFilter ? 'bg-blue-600' : 'bg-gray-200'}`}
+              onPress={() => setStatusFilter('')}
+            >
+              <Text className={`text-center text-xs ${!statusFilter ? 'text-white' : 'text-gray-700'}`}>All Status</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${statusFilter === 'unprocessed' ? 'bg-blue-600' : 'bg-gray-200'}`}
+              onPress={() => setStatusFilter('unprocessed')}
+            >
+              <Text className={`text-center text-xs ${statusFilter === 'unprocessed' ? 'text-white' : 'text-gray-700'}`}>Unprocessed</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${statusFilter === 'processed' ? 'bg-blue-600' : 'bg-gray-200'}`}
+              onPress={() => setStatusFilter('processed')}
+            >
+              <Text className={`text-center text-xs ${statusFilter === 'processed' ? 'text-white' : 'text-gray-700'}`}>Processed</Text>
+            </TouchableOpacity>
+          </View>
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${!sourceFilter ? 'bg-green-600' : 'bg-gray-200'}`}
+              onPress={() => setSourceFilter('')}
+            >
+              <Text className={`text-center text-xs ${!sourceFilter ? 'text-white' : 'text-gray-700'}`}>All Sources</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${sourceFilter === 'phone' ? 'bg-green-600' : 'bg-gray-200'}`}
+              onPress={() => setSourceFilter('phone')}
+            >
+              <Text className={`text-center text-xs ${sourceFilter === 'phone' ? 'text-white' : 'text-gray-700'}`}>📞 Phone</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${sourceFilter === 'email' ? 'bg-green-600' : 'bg-gray-200'}`}
+              onPress={() => setSourceFilter('email')}
+            >
+              <Text className={`text-center text-xs ${sourceFilter === 'email' ? 'text-white' : 'text-gray-700'}`}>📧 Email</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${sourceFilter === 'sms' ? 'bg-green-600' : 'bg-gray-200'}`}
+              onPress={() => setSourceFilter('sms')}
+            >
+              <Text className={`text-center text-xs ${sourceFilter === 'sms' ? 'text-white' : 'text-gray-700'}`}>💬 SMS</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {loading && inboxItems.length === 0 ? (
           <View className="py-8">
             <ActivityIndicator size="large" color="#2563eb" />
           </View>
-        ) : inboxItems.length === 0 ? (
-          <View className="py-8">
-            <Text className="text-gray-500 text-center">No inbox items</Text>
+        ) : filteredItems.length === 0 ? (
+          <View className="py-12 items-center">
+            <Text className="text-4xl mb-4">📥</Text>
+            <Text className="text-lg font-semibold text-gray-700 mb-2">
+              {inboxItems.length === 0 ? 'No inbox items' : 'No items match your filters'}
+            </Text>
+            <Text className="text-gray-500 text-center">
+              {inboxItems.length === 0 
+                ? 'Inbox items will appear here when you receive messages' 
+                : 'Try adjusting your search or filters'}
+            </Text>
           </View>
         ) : (
           <View className="space-y-3">
-            {inboxItems.map((item) => (
+            {filteredItems.map((item) => (
               <View key={item.id} className="bg-white rounded-lg p-4 shadow-sm">
                 <View className="flex-row items-center mb-2">
                   <Text className="text-2xl mr-2">{getSourceIcon(item.source_type)}</Text>

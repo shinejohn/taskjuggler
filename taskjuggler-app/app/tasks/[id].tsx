@@ -1,8 +1,9 @@
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTasksStore } from '../../stores/tasks';
 import { useTeamStore } from '../../stores/team';
+import { showToast } from '../../utils/toast';
 
 export default function TaskDetailScreen() {
   const router = useRouter();
@@ -41,10 +42,10 @@ export default function TaskDetailScreen() {
     if (!id) return;
     try {
       await updateTask(id, form);
-      Alert.alert('Success', 'Task updated successfully');
+      showToast.success('Task updated successfully');
       setEditing(false);
     } catch (error) {
-      Alert.alert('Error', 'Failed to update task');
+      showToast.error('Failed to update task');
     }
   };
 
@@ -52,35 +53,22 @@ export default function TaskDetailScreen() {
     if (!id) return;
     try {
       await completeTask(id);
-      Alert.alert('Success', 'Task completed!');
+      showToast.success('Task completed!');
       router.back();
     } catch (error) {
-      Alert.alert('Error', 'Failed to complete task');
+      showToast.error('Failed to complete task');
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!id) return;
-    Alert.alert(
-      'Delete Task',
-      'Are you sure you want to delete this task?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteTask(id);
-              Alert.alert('Success', 'Task deleted');
-              router.back();
-            } catch (error) {
-              Alert.alert('Error', 'Failed to delete task');
-            }
-          },
-        },
-      ]
-    );
+    try {
+      await deleteTask(id);
+      showToast.success('Task deleted');
+      router.back();
+    } catch (error) {
+      showToast.error('Failed to delete task');
+    }
   };
 
   const getStatusColor = (status: string) => {

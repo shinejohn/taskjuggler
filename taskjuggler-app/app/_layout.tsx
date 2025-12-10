@@ -1,5 +1,6 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect, useRef } from 'react';
+import Toast from 'react-native-toast-message';
 import '../global.css';
 import { useAuthStore } from '../stores/auth';
 import { registerForPushNotificationsAsync, addNotificationReceivedListener, addNotificationResponseReceivedListener } from '../utils/notifications';
@@ -55,16 +56,19 @@ export default function RootLayout() {
   }, [isAuthenticated, segments]);
 
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/login" options={{ title: 'Login', headerShown: false }} />
-      <Stack.Screen name="auth/register" options={{ title: 'Register', headerShown: false }} />
-      <Stack.Screen name="tasks/[id]" options={{ title: 'Task Details', presentation: 'modal' }} />
-      <Stack.Screen name="tasks/new" options={{ title: 'Create Task', presentation: 'modal' }} />
-      <Stack.Screen name="routing" options={{ title: 'Routing Rules' }} />
-      <Stack.Screen name="team" options={{ title: 'Team Management' }} />
-      <Stack.Screen name="channels" options={{ title: 'Channels' }} />
-      <Stack.Screen name="marketplace" options={{ title: 'Marketplace' }} />
-    </Stack>
+    <>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/login" options={{ title: 'Login', headerShown: false }} />
+        <Stack.Screen name="auth/register" options={{ title: 'Register', headerShown: false }} />
+        <Stack.Screen name="tasks/[id]" options={{ title: 'Task Details', presentation: 'modal' }} />
+        <Stack.Screen name="tasks/new" options={{ title: 'Create Task', presentation: 'modal' }} />
+        <Stack.Screen name="routing" options={{ title: 'Routing Rules' }} />
+        <Stack.Screen name="team" options={{ title: 'Team Management' }} />
+        <Stack.Screen name="channels" options={{ title: 'Channels' }} />
+        <Stack.Screen name="marketplace" options={{ title: 'Marketplace' }} />
+      </Stack>
+      <Toast />
+    </>
   );
 }

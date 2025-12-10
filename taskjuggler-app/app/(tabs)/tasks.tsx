@@ -1,12 +1,16 @@
-import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useTasksStore } from '../../stores/tasks';
+import { showToast } from '../../utils/toast';
 
 export default function TasksScreen() {
   const router = useRouter();
   const { tasks, loading, fetchTasks, completeTask, deleteTask } = useTasksStore();
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [priorityFilter, setPriorityFilter] = useState<string>('');
 
   useEffect(() => {
     fetchTasks();
@@ -18,34 +22,33 @@ export default function TasksScreen() {
     setRefreshing(false);
   };
 
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      const matchesSearch = !searchQuery || 
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesStatus = !statusFilter || task.status === statusFilter;
+      const matchesPriority = !priorityFilter || task.priority === priorityFilter;
+      return matchesSearch && matchesStatus && matchesPriority;
+    });
+  }, [tasks, searchQuery, statusFilter, priorityFilter]);
+
   const handleComplete = async (id: string) => {
     try {
       await completeTask(id);
-      Alert.alert('Success', 'Task completed!');
+      showToast.success('Task completed!');
     } catch (error) {
-      Alert.alert('Error', 'Failed to complete task');
+      showToast.error('Failed to complete task');
     }
   };
 
-  const handleDelete = (id: string) => {
-    Alert.alert(
-      'Delete Task',
-      'Are you sure you want to delete this task?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteTask(id);
-            } catch (error) {
-              Alert.alert('Error', 'Failed to delete task');
-            }
-          },
-        },
-      ]
-    );
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTask(id);
+      showToast.success('Task deleted');
+    } catch (error) {
+      showToast.error('Failed to delete task');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -90,17 +93,68 @@ export default function TasksScreen() {
           </TouchableOpacity>
         </View>
 
+        <View className="mb-4 space-y-2">
+          <TextInput
+            className="border border-gray-300 rounded-lg p-2 bg-white"
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${!statusFilter ? 'bg-blue-600' : 'bg-gray-200'}`}
+              onPress={() => setStatusFilter('')}
+            >
+              <Text className={`text-center text-sm ${!statusFilter ? 'text-white' : 'text-gray-700'}`}>All</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${statusFilter === 'pending' ? 'bg-blue-600' : 'bg-gray-200'}`}
+              onPress={() => setStatusFilter('pending')}
+            >
+              <Text className={`text-center text-sm ${statusFilter === 'pending' ? 'text-white' : 'text-gray-700'}`}>Pending</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${statusFilter === 'in_progress' ? 'bg-blue-600' : 'bg-gray-200'}`}
+              onPress={() => setStatusFilter('in_progress')}
+            >
+              <Text className={`text-center text-sm ${statusFilter === 'in_progress' ? 'text-white' : 'text-gray-700'}`}>Active</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${statusFilter === 'completed' ? 'bg-blue-600' : 'bg-gray-200'}`}
+              onPress={() => setStatusFilter('completed')}
+            >
+              <Text className={`text-center text-sm ${statusFilter === 'completed' ? 'text-white' : 'text-gray-700'}`}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {loading && tasks.length === 0 ? (
           <View className="py-8">
             <ActivityIndicator size="large" color="#2563eb" />
           </View>
-        ) : tasks.length === 0 ? (
-          <View className="py-8">
-            <Text className="text-gray-500 text-center">No tasks yet</Text>
+        ) : filteredTasks.length === 0 ? (
+          <View className="py-12 items-center">
+            <Text className="text-4xl mb-4">📋</Text>
+            <Text className="text-lg font-semibold text-gray-700 mb-2">
+              {tasks.length === 0 ? 'No tasks yet' : 'No tasks match your filters'}
+            </Text>
+            <Text className="text-gray-500 text-center mb-4">
+              {tasks.length === 0 
+                ? 'Create your first task to get started' 
+                : 'Try adjusting your search or filters'}
+            </Text>
+            {tasks.length === 0 && (
+              <TouchableOpacity
+                className="bg-blue-600 rounded-lg px-6 py-3"
+                onPress={() => router.push('/tasks/new')}
+              >
+                <Text className="text-white font-semibold">Create Task</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : (
           <View className="space-y-3">
-            {tasks.map((task) => (
+            {filteredTasks.map((task) => (
               <TouchableOpacity
                 key={task.id}
                 onPress={() => router.push(`/tasks/${task.id}`)}

@@ -1,16 +1,20 @@
 import { Tabs } from 'expo-router';
-import { Text, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useAuthStore } from '../../stores/auth';
+import { Text, View } from 'react-native';
+import { useInboxStore } from '../../stores/inbox';
+import { useTasksStore } from '../../stores/tasks';
+import { useEffect } from 'react';
 
 export default function TabLayout() {
-  const router = useRouter();
-  const { logout } = useAuthStore();
+  const { inboxItems, fetchInboxItems } = useInboxStore();
+  const { tasks, fetchTasks } = useTasksStore();
 
-  const handleLogout = async () => {
-    await logout();
-    router.replace('/auth/login');
-  };
+  useEffect(() => {
+    fetchInboxItems();
+    fetchTasks();
+  }, []);
+
+  const unprocessedCount = inboxItems.filter(item => item.status === 'unprocessed').length;
+  const pendingTasksCount = tasks.filter(task => task.status === 'pending').length;
 
   return (
     <Tabs>
@@ -25,6 +29,7 @@ export default function TabLayout() {
         name="tasks"
         options={{
           title: 'Tasks',
+          tabBarBadge: pendingTasksCount > 0 ? (pendingTasksCount > 9 ? '9+' : pendingTasksCount) : undefined,
           tabBarIcon: () => <Text>✓</Text>,
         }}
       />
@@ -32,6 +37,7 @@ export default function TabLayout() {
         name="inbox"
         options={{
           title: 'Inbox',
+          tabBarBadge: unprocessedCount > 0 ? (unprocessedCount > 9 ? '9+' : unprocessedCount) : undefined,
           tabBarIcon: () => <Text>📥</Text>,
         }}
       />

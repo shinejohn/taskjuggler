@@ -1,7 +1,8 @@
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../stores/auth';
+import { showToast } from '../../utils/toast';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -13,28 +14,26 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!name || !email || !password || !passwordConfirmation) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showToast.error('Please fill in all fields');
       return;
     }
 
     if (password !== passwordConfirmation) {
-      Alert.alert('Error', 'Passwords do not match');
+      showToast.error('Passwords do not match');
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters');
+      showToast.error('Password must be at least 8 characters');
       return;
     }
 
     try {
       await register({ name, email, password, password_confirmation: passwordConfirmation });
+      showToast.success('Registration successful');
       router.replace('/(tabs)');
     } catch (error: any) {
-      Alert.alert(
-        'Registration Failed',
-        error.response?.data?.message || 'Failed to create account'
-      );
+      showToast.error(error.response?.data?.message || 'Failed to create account');
     }
   };
 

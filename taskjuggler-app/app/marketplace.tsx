@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useMarketplaceStore } from '../stores/marketplace';
+import { showToast } from '../utils/toast';
 
 export default function MarketplaceScreen() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function MarketplaceScreen() {
           <Text className="text-2xl font-bold">Marketplace</Text>
           <TouchableOpacity
             className="bg-blue-600 rounded px-4 py-2"
-            onPress={() => Alert.alert('Info', 'Create listing coming soon')}
+            onPress={() => showToast.info('Create listing coming soon')}
           >
             <Text className="text-white font-semibold">+ New</Text>
           </TouchableOpacity>
@@ -52,15 +53,23 @@ export default function MarketplaceScreen() {
             <ActivityIndicator size="large" color="#2563eb" />
           </View>
         ) : listings.length === 0 ? (
-          <View className="py-8">
-            <Text className="text-gray-500 text-center">No marketplace listings found</Text>
+          <View className="py-12 items-center">
+            <Text className="text-4xl mb-4">🏪</Text>
+            <Text className="text-lg font-semibold text-gray-700 mb-2">No marketplace listings found</Text>
+            <Text className="text-gray-500 text-center mb-4">Create a listing to find vendors for your tasks</Text>
+            <TouchableOpacity
+              className="bg-blue-600 rounded-lg px-6 py-3"
+              onPress={() => showToast.info('Create listing coming soon')}
+            >
+              <Text className="text-white font-semibold">Create Listing</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View className="space-y-3">
             {listings.map((listing) => (
               <TouchableOpacity
                 key={listing.id}
-                onPress={() => Alert.alert('Listing Details', `Viewing "${listing.title}" - Full details coming soon`)}
+                onPress={() => showToast.info(`Viewing "${listing.title}" - Full details coming soon`)}
                 className="bg-white rounded-lg p-4 shadow-sm"
               >
                 <View className="flex-row items-start justify-between mb-2">

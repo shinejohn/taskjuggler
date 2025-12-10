@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator, Modal } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useTasksStore } from '../../stores/tasks';
@@ -23,7 +23,7 @@ export default function TaskCreateScreen() {
 
   const handleSubmit = async () => {
     if (!form.title.trim()) {
-      Alert.alert('Error', 'Please enter a task title');
+      showToast.error('Please enter a task title');
       return;
     }
 
@@ -43,10 +43,10 @@ export default function TaskCreateScreen() {
       }
 
       await createTask(taskData);
-      Alert.alert('Success', 'Task created successfully');
+      showToast.success('Task created successfully');
       router.back();
     } catch (error) {
-      Alert.alert('Error', 'Failed to create task');
+      showToast.error('Failed to create task');
     }
   };
 
@@ -101,15 +101,37 @@ export default function TaskCreateScreen() {
             </View>
           </View>
 
-          <View>
-            <Text className="text-sm font-medium text-gray-700 mb-1">Assign to Team Member</Text>
-            <View className="border border-gray-300 rounded p-2">
-              <Text className="text-gray-500">
-                {form.team_member_id ? teamMembers.find(m => m.id === form.team_member_id)?.name || 'None' : 'None'}
-              </Text>
+          {teamMembers.length > 0 && (
+            <View>
+              <Text className="text-sm font-medium text-gray-700 mb-1">Assign to Team Member</Text>
+              <View className="border border-gray-300 rounded p-2 mb-2">
+                <Text className="text-gray-900">
+                  {form.team_member_id ? teamMembers.find(m => m.id === form.team_member_id)?.name || 'None' : 'None'}
+                </Text>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-2">
+                <View className="flex-row gap-2">
+                  <TouchableOpacity
+                    className={`px-3 py-2 rounded ${!form.team_member_id ? 'bg-blue-600' : 'bg-gray-200'}`}
+                    onPress={() => setForm({ ...form, team_member_id: '' })}
+                  >
+                    <Text className={!form.team_member_id ? 'text-white' : 'text-gray-700'}>None</Text>
+                  </TouchableOpacity>
+                  {teamMembers.map((member) => (
+                    <TouchableOpacity
+                      key={member.id}
+                      className={`px-3 py-2 rounded ${form.team_member_id === member.id ? 'bg-blue-600' : 'bg-gray-200'}`}
+                      onPress={() => setForm({ ...form, team_member_id: member.id })}
+                    >
+                      <Text className={form.team_member_id === member.id ? 'text-white' : 'text-gray-700'}>
+                        {member.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
             </View>
-            <Text className="text-xs text-gray-500 mt-1">Team member selection coming soon</Text>
-          </View>
+          )}
 
           <View>
             <Text className="text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</Text>

@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useTeamStore } from '../stores/team';
+import { showToast } from '../utils/toast';
 
 export default function TeamScreen() {
   const router = useRouter();
@@ -18,26 +19,13 @@ export default function TeamScreen() {
     setRefreshing(false);
   };
 
-  const handleDelete = (id: string, name: string) => {
-    Alert.alert(
-      'Delete Team Member',
-      `Are you sure you want to delete "${name}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteTeamMember(id);
-              Alert.alert('Success', 'Team member deleted');
-            } catch (error) {
-              Alert.alert('Error', 'Failed to delete team member');
-            }
-          },
-        },
-      ]
-    );
+  const handleDelete = async (id: string, name: string) => {
+    try {
+      await deleteTeamMember(id);
+      showToast.success('Team member deleted');
+    } catch (error) {
+      showToast.error('Failed to delete team member');
+    }
   };
 
   return (
@@ -50,7 +38,7 @@ export default function TeamScreen() {
           <Text className="text-2xl font-bold">Team Members</Text>
           <TouchableOpacity
             className="bg-blue-600 rounded px-4 py-2"
-            onPress={() => Alert.alert('Info', 'Add team member coming soon')}
+            onPress={() => showToast.info('Add team member coming soon')}
           >
             <Text className="text-white font-semibold">+ Add</Text>
           </TouchableOpacity>
@@ -61,8 +49,16 @@ export default function TeamScreen() {
             <ActivityIndicator size="large" color="#2563eb" />
           </View>
         ) : teamMembers.length === 0 ? (
-          <View className="py-8">
-            <Text className="text-gray-500 text-center">No team members yet</Text>
+          <View className="py-12 items-center">
+            <Text className="text-4xl mb-4">👥</Text>
+            <Text className="text-lg font-semibold text-gray-700 mb-2">No team members yet</Text>
+            <Text className="text-gray-500 text-center mb-4">Add team members to collaborate on tasks</Text>
+            <TouchableOpacity
+              className="bg-blue-600 rounded-lg px-6 py-3"
+              onPress={() => showToast.info('Add team member coming soon')}
+            >
+              <Text className="text-white font-semibold">Add Member</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View className="space-y-3">
@@ -101,7 +97,7 @@ export default function TeamScreen() {
                 <View className="flex-row gap-2 mt-3">
                   <TouchableOpacity
                     className="flex-1 bg-blue-600 rounded px-3 py-2"
-                    onPress={() => Alert.alert('Info', 'Edit team member coming soon')}
+                    onPress={() => showToast.info('Edit team member coming soon')}
                   >
                     <Text className="text-white text-center text-sm font-medium">Edit</Text>
                   </TouchableOpacity>

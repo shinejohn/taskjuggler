@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useRulesStore } from '../stores/rules';
+import { showToast } from '../utils/toast';
 
 export default function RoutingRulesScreen() {
   const router = useRouter();
@@ -18,26 +19,13 @@ export default function RoutingRulesScreen() {
     setRefreshing(false);
   };
 
-  const handleDelete = (id: string, name: string) => {
-    Alert.alert(
-      'Delete Rule',
-      `Are you sure you want to delete "${name}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteRule(id);
-              Alert.alert('Success', 'Rule deleted');
-            } catch (error) {
-              Alert.alert('Error', 'Failed to delete rule');
-            }
-          },
-        },
-      ]
-    );
+  const handleDelete = async (id: string, name: string) => {
+    try {
+      await deleteRule(id);
+      showToast.success('Rule deleted');
+    } catch (error) {
+      showToast.error('Failed to delete rule');
+    }
   };
 
   return (
@@ -50,7 +38,7 @@ export default function RoutingRulesScreen() {
           <Text className="text-2xl font-bold">Routing Rules</Text>
           <TouchableOpacity
             className="bg-blue-600 rounded px-4 py-2"
-            onPress={() => Alert.alert('Info', 'Rule creation coming soon')}
+            onPress={() => showToast.info('Rule creation coming soon')}
           >
             <Text className="text-white font-semibold">+ New</Text>
           </TouchableOpacity>
@@ -61,8 +49,16 @@ export default function RoutingRulesScreen() {
             <ActivityIndicator size="large" color="#2563eb" />
           </View>
         ) : rules.length === 0 ? (
-          <View className="py-8">
-            <Text className="text-gray-500 text-center">No routing rules yet</Text>
+          <View className="py-12 items-center">
+            <Text className="text-4xl mb-4">🔀</Text>
+            <Text className="text-lg font-semibold text-gray-700 mb-2">No routing rules yet</Text>
+            <Text className="text-gray-500 text-center mb-4">Create your first routing rule to automate task assignment</Text>
+            <TouchableOpacity
+              className="bg-blue-600 rounded-lg px-6 py-3"
+              onPress={() => showToast.info('Rule creation coming soon')}
+            >
+              <Text className="text-white font-semibold">Create Rule</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View className="space-y-3">
@@ -101,7 +97,7 @@ export default function RoutingRulesScreen() {
                 <View className="flex-row gap-2 mt-3">
                   <TouchableOpacity
                     className="flex-1 bg-blue-600 rounded px-3 py-2"
-                    onPress={() => Alert.alert('Info', 'Rule editing coming soon')}
+                    onPress={() => showToast.info('Rule editing coming soon')}
                   >
                     <Text className="text-white text-center text-sm font-medium">Edit</Text>
                   </TouchableOpacity>

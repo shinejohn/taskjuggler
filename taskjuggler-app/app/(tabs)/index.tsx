@@ -53,7 +53,17 @@ export default function DashboardScreen() {
           {loading && tasks.length === 0 ? (
             <ActivityIndicator size="small" color="#2563eb" />
           ) : tasks.length === 0 ? (
-            <Text className="text-gray-500 text-center py-4">No tasks yet</Text>
+            <View className="py-12 items-center">
+              <Text className="text-4xl mb-4">📋</Text>
+              <Text className="text-lg font-semibold text-gray-700 mb-2">No tasks yet</Text>
+              <Text className="text-gray-500 text-center mb-4">Create your first task to get started</Text>
+              <TouchableOpacity
+                className="bg-blue-600 rounded-lg px-6 py-3"
+                onPress={() => router.push('/tasks/new')}
+              >
+                <Text className="text-white font-semibold">Create Task</Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <View className="space-y-2">
               {tasks.slice(0, 5).map((task) => (

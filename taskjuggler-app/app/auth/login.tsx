@@ -1,7 +1,8 @@
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../stores/auth';
+import { showToast } from '../../utils/toast';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -11,18 +12,16 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showToast.error('Please fill in all fields');
       return;
     }
 
     try {
       await login(email, password);
+      showToast.success('Login successful');
       router.replace('/(tabs)');
     } catch (error: any) {
-      Alert.alert(
-        'Login Failed',
-        error.response?.data?.message || 'Invalid email or password'
-      );
+      showToast.error(error.response?.data?.message || 'Invalid email or password');
     }
   };
 
