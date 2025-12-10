@@ -1,16 +1,41 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
+import { useAuthStore } from '../../stores/auth';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { register, loading } = useAuthStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
-  const handleRegister = () => {
-    // TODO: Implement registration
-    router.push('/(tabs)');
+  const handleRegister = async () => {
+    if (!name || !email || !password || !passwordConfirmation) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (password !== passwordConfirmation) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters');
+      return;
+    }
+
+    try {
+      await register({ name, email, password, password_confirmation: passwordConfirmation });
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      Alert.alert(
+        'Registration Failed',
+        error.response?.data?.message || 'Failed to create account'
+      );
+    }
   };
 
   return (
@@ -21,6 +46,7 @@ export default function RegisterScreen() {
         placeholder="Name"
         value={name}
         onChangeText={setName}
+        autoCapitalize="words"
       />
       <TextInput
         className="w-full border border-gray-300 rounded-lg p-3 mb-4"
@@ -29,19 +55,40 @@ export default function RegisterScreen() {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        autoComplete="email"
       />
       <TextInput
-        className="w-full border border-gray-300 rounded-lg p-3 mb-6"
+        className="w-full border border-gray-300 rounded-lg p-3 mb-4"
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        autoComplete="password"
+      />
+      <TextInput
+        className="w-full border border-gray-300 rounded-lg p-3 mb-6"
+        placeholder="Confirm Password"
+        value={passwordConfirmation}
+        onChangeText={setPasswordConfirmation}
+        secureTextEntry
+        autoComplete="password"
       />
       <TouchableOpacity
-        className="w-full bg-primary-600 rounded-lg p-4 items-center"
+        className="w-full bg-blue-600 rounded-lg p-4 items-center"
         onPress={handleRegister}
+        disabled={loading}
       >
-        <Text className="text-white font-semibold">Create Account</Text>
+        {loading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text className="text-white font-semibold">Create Account</Text>
+        )}
+      </TouchableOpacity>
+      <TouchableOpacity
+        className="mt-4"
+        onPress={() => router.back()}
+      >
+        <Text className="text-blue-600">Already have an account? Sign In</Text>
       </TouchableOpacity>
     </View>
   );

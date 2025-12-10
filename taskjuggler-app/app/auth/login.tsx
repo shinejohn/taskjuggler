@@ -1,15 +1,29 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
+import { useAuthStore } from '../../stores/auth';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login, loading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // TODO: Implement login
-    router.push('/(tabs)');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    try {
+      await login(email, password);
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      Alert.alert(
+        'Login Failed',
+        error.response?.data?.message || 'Invalid email or password'
+      );
+    }
   };
 
   return (
@@ -22,6 +36,7 @@ export default function LoginScreen() {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        autoComplete="email"
       />
       <TextInput
         className="w-full border border-gray-300 rounded-lg p-3 mb-6"
@@ -29,12 +44,24 @@ export default function LoginScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        autoComplete="password"
       />
       <TouchableOpacity
-        className="w-full bg-primary-600 rounded-lg p-4 items-center"
+        className="w-full bg-blue-600 rounded-lg p-4 items-center"
         onPress={handleLogin}
+        disabled={loading}
       >
-        <Text className="text-white font-semibold">Sign In</Text>
+        {loading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text className="text-white font-semibold">Sign In</Text>
+        )}
+      </TouchableOpacity>
+      <TouchableOpacity
+        className="mt-4"
+        onPress={() => router.push('/auth/register')}
+      >
+        <Text className="text-blue-600">Don't have an account? Register</Text>
       </TouchableOpacity>
     </View>
   );
