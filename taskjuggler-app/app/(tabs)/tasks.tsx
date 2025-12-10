@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useTasksStore } from '../../stores/tasks';
@@ -11,6 +11,8 @@ export default function TasksScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [priorityFilter, setPriorityFilter] = useState<string>('');
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
 
   useEffect(() => {
     fetchTasks();
@@ -77,6 +79,57 @@ export default function TasksScreen() {
     }
   };
 
+  const handleBulkComplete = async () => {
+    if (selectedTasks.size === 0) return;
+    
+    Alert.alert(
+      'Complete Tasks',
+      `Mark ${selectedTasks.size} task(s) as complete?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Complete',
+          onPress: async () => {
+            try {
+              await Promise.all(Array.from(selectedTasks).map(id => completeTask(id)));
+              showToast.success(`Completed ${selectedTasks.size} task(s)`);
+              setSelectedTasks(new Set());
+              setSelectionMode(false);
+            } catch (error) {
+              showToast.error('Failed to complete tasks');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedTasks.size === 0) return;
+    
+    Alert.alert(
+      'Delete Tasks',
+      `Delete ${selectedTasks.size} task(s)? This cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await Promise.all(Array.from(selectedTasks).map(id => deleteTask(id)));
+              showToast.success(`Deleted ${selectedTasks.size} task(s)`);
+              setSelectedTasks(new Set());
+              setSelectionMode(false);
+            } catch (error) {
+              showToast.error('Failed to delete tasks');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollView
       className="flex-1 bg-gray-50"
@@ -126,6 +179,69 @@ export default function TasksScreen() {
               <Text className={`text-center text-sm ${statusFilter === 'completed' ? 'text-white' : 'text-gray-700'}`}>Done</Text>
             </TouchableOpacity>
           </View>
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${!priorityFilter ? 'bg-blue-600' : 'bg-gray-200'}`}
+              onPress={() => setPriorityFilter('')}
+            >
+              <Text className={`text-center text-sm ${!priorityFilter ? 'text-white' : 'text-gray-700'}`}>All Priority</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${priorityFilter === 'urgent' ? 'bg-red-600' : 'bg-gray-200'}`}
+              onPress={() => setPriorityFilter('urgent')}
+            >
+              <Text className={`text-center text-sm ${priorityFilter === 'urgent' ? 'text-white' : 'text-gray-700'}`}>Urgent</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${priorityFilter === 'high' ? 'bg-orange-600' : 'bg-gray-200'}`}
+              onPress={() => setPriorityFilter('high')}
+            >
+              <Text className={`text-center text-sm ${priorityFilter === 'high' ? 'text-white' : 'text-gray-700'}`}>High</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 rounded px-3 py-2 ${priorityFilter === 'normal' ? 'bg-blue-600' : 'bg-gray-200'}`}
+              onPress={() => setPriorityFilter('normal')}
+            >
+              <Text className={`text-center text-sm ${priorityFilter === 'normal' ? 'text-white' : 'text-gray-700'}`}>Normal</Text>
+            </TouchableOpacity>
+          </View>
+          {selectedTasks.size > 0 && (
+            <View className="flex-row gap-2">
+              <TouchableOpacity
+                className="flex-1 bg-green-600 rounded px-3 py-2"
+                onPress={handleBulkComplete}
+              >
+                <Text className="text-white text-center text-sm font-medium">
+                  Complete ({selectedTasks.size})
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="flex-1 bg-red-600 rounded px-3 py-2"
+                onPress={handleBulkDelete}
+              >
+                <Text className="text-white text-center text-sm font-medium">
+                  Delete ({selectedTasks.size})
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-gray-600 rounded px-3 py-2"
+                onPress={() => {
+                  setSelectedTasks(new Set());
+                  setSelectionMode(false);
+                }}
+              >
+                <Text className="text-white text-center text-sm">Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {selectedTasks.size === 0 && (
+            <TouchableOpacity
+              className="bg-gray-200 rounded px-3 py-2"
+              onPress={() => setSelectionMode(!selectionMode)}
+            >
+              <Text className="text-center text-sm">{selectionMode ? 'Exit Selection' : 'Select Tasks'}</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {loading && tasks.length === 0 ? (
@@ -157,9 +273,36 @@ export default function TasksScreen() {
             {filteredTasks.map((task) => (
               <TouchableOpacity
                 key={task.id}
-                onPress={() => router.push(`/tasks/${task.id}`)}
-                className="bg-white rounded-lg p-4 shadow-sm"
+                onPress={() => {
+                  if (selectionMode) {
+                    const newSelected = new Set(selectedTasks);
+                    if (newSelected.has(task.id)) {
+                      newSelected.delete(task.id);
+                    } else {
+                      newSelected.add(task.id);
+                    }
+                    setSelectedTasks(newSelected);
+                  } else {
+                    router.push(`/tasks/${task.id}`);
+                  }
+                }}
+                onLongPress={() => {
+                  setSelectionMode(true);
+                  const newSelected = new Set(selectedTasks);
+                  newSelected.add(task.id);
+                  setSelectedTasks(newSelected);
+                }}
+                className={`bg-white rounded-lg p-4 shadow-sm ${selectedTasks.has(task.id) ? 'border-2 border-blue-500' : ''}`}
               >
+                {selectionMode && (
+                  <View className="absolute top-2 right-2">
+                    <View className={`w-6 h-6 rounded-full border-2 ${selectedTasks.has(task.id) ? 'bg-blue-600 border-blue-600' : 'border-gray-300'}`}>
+                      {selectedTasks.has(task.id) && (
+                        <Text className="text-white text-xs text-center leading-6">✓</Text>
+                      )}
+                    </View>
+                  </View>
+                )}
                 <Text className="text-lg font-semibold mb-2">{task.title}</Text>
                 {task.description && (
                   <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>

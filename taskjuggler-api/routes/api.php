@@ -26,6 +26,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tasks/{task}/assign', [TaskController::class, 'assign']);
     Route::get('/tasks/{task}/export/ical', [TaskController::class, 'exportIcal']);
     Route::post('/tasks/export/ical', [TaskController::class, 'exportIcalMultiple']);
+    Route::post('/tasks/export/csv', [TaskController::class, 'exportCsv']);
+    Route::post('/tasks/export/pdf', [TaskController::class, 'exportPdf']);
     Route::get('/tasks/{task}/calendar/google', [TaskController::class, 'googleCalendarUrl']);
     Route::get('/tasks/{task}/calendar/outlook', [TaskController::class, 'outlookCalendarUrl']);
 

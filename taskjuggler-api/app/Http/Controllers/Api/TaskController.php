@@ -8,6 +8,7 @@ use App\Events\TaskCreated;
 use App\Events\TaskAssigned;
 use App\Events\TaskCompleted;
 use App\Services\Calendar\CalendarService;
+use App\Services\Export\TaskExportService;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -186,5 +187,61 @@ class TaskController extends Controller
         $url = $calendarService->generateOutlookCalendarUrl($task);
         
         return response()->json(['url' => $url]);
+    }
+
+    /**
+     * Export tasks to CSV
+     */
+    public function exportCsv(Request $request, TaskExportService $exportService)
+    {
+        $request->validate([
+            'task_ids' => 'nullable|array',
+            'task_ids.*' => 'required|uuid|exists:tasks,id',
+        ]);
+
+        $query = $request->user()->tasks();
+        
+        if ($request->has('task_ids') && !empty($request->task_ids)) {
+            $query->whereIn('id', $request->task_ids);
+        }
+        
+        $tasks = $query->get();
+        
+        $csv = $exportService->exportToCsv($tasks);
+        
+        $filename = 'tasks-' . now()->format('Y-m-d') . '.csv';
+        
+        return response($csv, 200)
+            ->header('Content-Type', 'text/csv; charset=utf-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Export tasks to PDF
+     */
+    public function exportPdf(Request $request, TaskExportService $exportService)
+    {
+        $request->validate([
+            'task_ids' => 'nullable|array',
+            'task_ids.*' => 'required|uuid|exists:tasks,id',
+        ]);
+
+        $query = $request->user()->tasks();
+        
+        if ($request->has('task_ids') && !empty($request->task_ids)) {
+            $query->whereIn('id', $request->task_ids);
+        }
+        
+        $tasks = $query->get();
+        
+        $html = $exportService->exportToPdf($tasks);
+        
+        $filename = 'tasks-' . now()->format('Y-m-d') . '.html';
+        
+        // Note: For true PDF, you'd want to use a library like dompdf or wkhtmltopdf
+        // For now, returning HTML that can be printed to PDF by the browser
+        return response($html, 200)
+            ->header('Content-Type', 'text/html; charset=utf-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }
