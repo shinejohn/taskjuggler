@@ -33,6 +33,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/tasks/new',
+      name: 'task-create',
+      component: () => import('@/pages/tasks/TaskCreatePage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/tasks/:id',
       name: 'task-detail',
       component: () => import('@/pages/tasks/TaskDetailPage.vue'),

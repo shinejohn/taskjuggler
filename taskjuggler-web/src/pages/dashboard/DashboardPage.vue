@@ -32,10 +32,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed } from 'vue'
 import { useTasksStore } from '@/stores/tasks'
+import { useAuthStore } from '@/stores/auth'
+import { getEcho } from '@/utils/echo'
 
 const tasksStore = useTasksStore()
+const authStore = useAuthStore()
 
 const tasks = computed(() => tasksStore.tasks)
 const loading = computed(() => tasksStore.loading)
@@ -43,7 +46,41 @@ const pendingCount = computed(() => tasksStore.pendingTasks.length)
 const activeCount = computed(() => tasksStore.activeTasks.length)
 const completedCount = computed(() => tasksStore.completedTasks.length)
 
+let echoChannel: any = null
+
 onMounted(() => {
   tasksStore.fetchTasks()
+  
+  // Listen for real-time updates
+  if (authStore.user) {
+    try {
+      const echo = getEcho()
+      if (echo) {
+        echoChannel = echo.private(`user.${authStore.user.id}`)
+          .listen('.TaskCreated', () => {
+            tasksStore.fetchTasks()
+            if ((window as any).$toast) {
+              (window as any).$toast.info('New task created')
+            }
+          })
+          .listen('.TaskAssigned', () => {
+            tasksStore.fetchTasks()
+          })
+          .listen('.TaskCompleted', () => {
+            tasksStore.fetchTasks()
+          })
+      }
+    } catch (error) {
+      console.error('Echo not initialized:', error)
+    }
+  }
+})
+
+onUnmounted(() => {
+  if (echoChannel) {
+    echoChannel.stopListening('.TaskCreated')
+    echoChannel.stopListening('.TaskAssigned')
+    echoChannel.stopListening('.TaskCompleted')
+  }
 })
 </script>

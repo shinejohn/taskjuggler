@@ -31,8 +31,15 @@ onMounted(() => {
 
 async function completeTask() {
   if (task.value) {
-    await tasksStore.completeTask(task.value.id)
-    router.push('/tasks')
+    try {
+      await tasksStore.completeTask(task.value.id)
+      if ((window as any).$toast) {
+        (window as any).$toast.success('Task completed successfully')
+      }
+      router.push('/tasks')
+    } catch (error) {
+      // Error handled by API interceptor
+    }
   }
 }
 </script>

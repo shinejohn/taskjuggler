@@ -62,9 +62,12 @@ async function handleLogin() {
   loading.value = true
   try {
     await authStore.login(email.value, password.value)
+    if ((window as any).$toast) {
+      (window as any).$toast.success('Login successful')
+    }
     router.push('/dashboard')
   } catch (error) {
-    alert('Login failed')
+    // Error handled by API interceptor
   } finally {
     loading.value = false
   }

@@ -72,3 +72,4 @@ If you don't need Redis features:
 ## Note
 
 The `REDIS_HOST=valkey.railway.internal` was set manually, but Railway's internal hostnames only work when services are properly linked. Railway automatically provides `REDIS_URL` when you add a Redis/Valkey service, which is the recommended approach.
+

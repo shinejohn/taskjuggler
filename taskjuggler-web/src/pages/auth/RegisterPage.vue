@@ -91,9 +91,12 @@ async function handleRegister() {
       password: password.value,
       password_confirmation: passwordConfirmation.value,
     })
+    if ((window as any).$toast) {
+      (window as any).$toast.success('Registration successful')
+    }
     router.push('/dashboard')
   } catch (error) {
-    alert('Registration failed')
+    // Error handled by API interceptor
   } finally {
     loading.value = false
   }
