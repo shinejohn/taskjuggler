@@ -1,12 +1,10 @@
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, TextInput, Linking, Platform } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, TextInput, Linking, Platform, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTasksStore } from '../../stores/tasks';
 import { useTeamStore } from '../../stores/team';
 import { showToast } from '../../utils/toast';
 import api from '../../utils/api';
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 
 export default function TaskDetailScreen() {
   const router = useRouter();
@@ -77,31 +75,24 @@ export default function TaskDetailScreen() {
   const handleExportIcal = async () => {
     if (!id) return;
     try {
-      const response = await api.get(`/tasks/${id}/export/ical`, {
-        responseType: 'blob',
-      });
+      // For mobile, we'll open the download URL directly
+      // The browser/calendar app will handle the .ics file
+      const apiUrl = api.defaults.baseURL?.replace('/api', '') || 'https://taskjuggler-production.up.railway.app';
+      const url = `${apiUrl}/api/tasks/${id}/export/ical`;
       
-      // Convert blob to base64
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64data = reader.result as string;
-        const base64 = base64data.split(',')[1];
-        
-        // Save file
-        const fileUri = FileSystem.documentDirectory + `task-${id}.ics`;
-        await FileSystem.writeAsStringAsync(fileUri, base64, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        
-        // Share file
-        if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(fileUri);
-          showToast.success('Calendar file ready to share');
-        } else {
-          showToast.error('Sharing not available on this device');
-        }
-      };
-      reader.readAsDataURL(response.data);
+      // Try to open the URL - on mobile, this will trigger download or open in calendar app
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+        showToast.info('Opening calendar file...');
+      } else {
+        // Fallback: show URL to copy
+        Alert.alert(
+          'Calendar Export',
+          `Copy this URL to download the calendar file:\n\n${url}`,
+          [{ text: 'OK' }]
+        );
+      }
     } catch (error) {
       showToast.error('Failed to export calendar');
     }
