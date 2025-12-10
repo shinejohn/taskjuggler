@@ -60,10 +60,17 @@ export default function SettingsScreen() {
             <Text className="text-sm text-gray-500">Manage phone and email channels</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            className="border-b border-gray-200 pb-3 mb-3"
             onPress={() => router.push('/marketplace')}
           >
             <Text className="text-base">Marketplace</Text>
             <Text className="text-sm text-gray-500">Browse and manage marketplace listings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/contacts')}
+          >
+            <Text className="text-base">Contact Lists</Text>
+            <Text className="text-sm text-gray-500">Manage contact lists and import contacts</Text>
           </TouchableOpacity>
         </View>
 
