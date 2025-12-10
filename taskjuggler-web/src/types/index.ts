@@ -206,3 +206,24 @@ export interface AiToolConfig {
   created_at: string;
   updated_at: string;
 }
+
+export interface ContactList {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+  members?: ContactListMember[];
+}
+
+export interface ContactListMember {
+  id: string;
+  list_id: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  metadata?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}

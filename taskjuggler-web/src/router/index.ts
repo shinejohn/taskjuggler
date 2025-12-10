@@ -74,6 +74,12 @@ const router = createRouter({
       component: () => import('@/pages/marketplace/MarketplacePage.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/contacts',
+      name: 'contacts',
+      component: () => import('@/pages/contacts/ContactListsPage.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 });
 
