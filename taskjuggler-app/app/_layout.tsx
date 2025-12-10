@@ -1,10 +1,13 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect, useRef } from 'react';
+import { Platform, Linking } from 'react-native';
 import Toast from 'react-native-toast-message';
 import '../global.css';
 import { useAuthStore } from '../stores/auth';
 import { registerForPushNotificationsAsync, addNotificationReceivedListener, addNotificationResponseReceivedListener } from '../utils/notifications';
 import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../utils/api';
 
 export default function RootLayout() {
   const { isAuthenticated, initialize } = useAuthStore();
@@ -22,10 +25,8 @@ export default function RootLayout() {
         console.log('Push notification token:', token);
         try {
           // Send token to backend API
-          const AsyncStorage = require('@react-native-async-storage/async-storage').default;
           const storedToken = await AsyncStorage.getItem('token');
           if (storedToken) {
-            const api = require('../utils/api').default;
             const platform = Platform.OS === 'ios' ? 'ios' : 'android';
             await api.post('/auth/push-token', {
               push_token: token,
@@ -38,6 +39,45 @@ export default function RootLayout() {
         }
       }
     });
+
+    // Handle deep linking
+    const handleDeepLink = (url: string) => {
+      console.log('Deep link received:', url);
+      // Parse URL: taskjuggler://tasks/123 or taskjuggler://inbox
+      try {
+        const urlObj = new URL(url);
+        const path = urlObj.pathname;
+        
+        if (path.startsWith('/tasks/')) {
+          const taskId = path.split('/tasks/')[1];
+          if (taskId) {
+            router.push(`/tasks/${taskId}`);
+          }
+        } else if (path === '/inbox' || path.startsWith('/inbox/')) {
+          router.push('/inbox');
+        } else if (path === '/tasks') {
+          router.push('/tasks');
+        }
+      } catch (error) {
+        console.error('Error parsing deep link:', error);
+      }
+    };
+
+    // Handle initial URL (if app was opened via deep link)
+    Linking.getInitialURL().then(url => {
+      if (url) {
+        handleDeepLink(url);
+      }
+    });
+
+    // Listen for deep links while app is running
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      handleDeepLink(url);
+    });
+
+    return () => {
+      subscription.remove();
+    };
 
     // Listen for notifications received while app is foregrounded
     notificationListener.current = addNotificationReceivedListener(notification => {
@@ -58,16 +98,6 @@ export default function RootLayout() {
         router.push('/tasks');
       }
     });
-
-    return () => {
-      if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(notificationListener.current);
-      }
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     const inAuthGroup = segments[0] === 'auth';
