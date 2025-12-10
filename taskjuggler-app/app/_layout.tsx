@@ -75,10 +75,6 @@ export default function RootLayout() {
       handleDeepLink(url);
     });
 
-    return () => {
-      subscription.remove();
-    };
-
     // Listen for notifications received while app is foregrounded
     notificationListener.current = addNotificationReceivedListener(notification => {
       console.log('Notification received:', notification);
@@ -98,6 +94,17 @@ export default function RootLayout() {
         router.push('/tasks');
       }
     });
+
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+      subscription.remove();
+    };
+  }, []);
 
   useEffect(() => {
     const inAuthGroup = segments[0] === 'auth';
