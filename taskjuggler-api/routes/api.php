@@ -24,6 +24,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('tasks', TaskController::class);
     Route::post('/tasks/{task}/complete', [TaskController::class, 'complete']);
     Route::post('/tasks/{task}/assign', [TaskController::class, 'assign']);
+    Route::get('/tasks/{task}/export/ical', [TaskController::class, 'exportIcal']);
+    Route::post('/tasks/export/ical', [TaskController::class, 'exportIcalMultiple']);
+    Route::get('/tasks/{task}/calendar/google', [TaskController::class, 'googleCalendarUrl']);
+    Route::get('/tasks/{task}/calendar/outlook', [TaskController::class, 'outlookCalendarUrl']);
 
     // Inbox
     Route::get('/inbox', [InboxController::class, 'index']);

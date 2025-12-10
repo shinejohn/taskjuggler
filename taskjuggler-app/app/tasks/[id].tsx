@@ -1,9 +1,12 @@
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, TextInput, Linking, Platform } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTasksStore } from '../../stores/tasks';
 import { useTeamStore } from '../../stores/team';
 import { showToast } from '../../utils/toast';
+import api from '../../utils/api';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 export default function TaskDetailScreen() {
   const router = useRouter();
@@ -68,6 +71,73 @@ export default function TaskDetailScreen() {
       router.back();
     } catch (error) {
       showToast.error('Failed to delete task');
+    }
+  };
+
+  const handleExportIcal = async () => {
+    if (!id) return;
+    try {
+      const response = await api.get(`/tasks/${id}/export/ical`, {
+        responseType: 'blob',
+      });
+      
+      // Convert blob to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64data = reader.result as string;
+        const base64 = base64data.split(',')[1];
+        
+        // Save file
+        const fileUri = FileSystem.documentDirectory + `task-${id}.ics`;
+        await FileSystem.writeAsStringAsync(fileUri, base64, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        
+        // Share file
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(fileUri);
+          showToast.success('Calendar file ready to share');
+        } else {
+          showToast.error('Sharing not available on this device');
+        }
+      };
+      reader.readAsDataURL(response.data);
+    } catch (error) {
+      showToast.error('Failed to export calendar');
+    }
+  };
+
+  const handleOpenGoogleCalendar = async () => {
+    if (!id) return;
+    try {
+      const response = await api.get(`/tasks/${id}/calendar/google`);
+      const url = response.data.url;
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+        showToast.info('Opening Google Calendar...');
+      } else {
+        showToast.error('Cannot open Google Calendar');
+      }
+    } catch (error) {
+      showToast.error('Failed to open Google Calendar');
+    }
+  };
+
+  const handleOpenOutlookCalendar = async () => {
+    if (!id) return;
+    try {
+      const response = await api.get(`/tasks/${id}/calendar/outlook`);
+      const url = response.data.url;
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+        showToast.info('Opening Outlook Calendar...');
+      } else {
+        showToast.error('Cannot open Outlook Calendar');
+      }
+    } catch (error) {
+      showToast.error('Failed to open Outlook Calendar');
     }
   };
 
@@ -236,6 +306,31 @@ export default function TaskDetailScreen() {
 
         {!editing && (
           <View className="space-y-2">
+            {(currentTask.due_date || currentTask.start_date) && (
+              <View className="bg-gray-50 rounded-lg p-4 mb-2">
+                <Text className="font-semibold mb-2">Add to Calendar</Text>
+                <View className="space-y-2">
+                  <TouchableOpacity
+                    className="bg-blue-600 rounded-lg p-3"
+                    onPress={handleExportIcal}
+                  >
+                    <Text className="text-white text-center font-medium">📅 Download iCal (.ics)</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="bg-blue-500 rounded-lg p-3"
+                    onPress={handleOpenGoogleCalendar}
+                  >
+                    <Text className="text-white text-center font-medium">📅 Add to Google Calendar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="bg-blue-400 rounded-lg p-3"
+                    onPress={handleOpenOutlookCalendar}
+                  >
+                    <Text className="text-white text-center font-medium">📅 Add to Outlook</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
             {currentTask.status !== 'completed' && (
               <TouchableOpacity
                 className="bg-green-600 rounded-lg p-4"

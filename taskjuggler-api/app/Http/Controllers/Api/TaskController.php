@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Events\TaskCreated;
 use App\Events\TaskAssigned;
 use App\Events\TaskCompleted;
+use App\Services\Calendar\CalendarService;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -119,5 +120,71 @@ class TaskController extends Controller
         $task->update(['status' => Task::STATUS_ACCEPTED]);
 
         return response()->json($task->fresh());
+    }
+
+    /**
+     * Export a single task as iCal file
+     */
+    public function exportIcal(Task $task, CalendarService $calendarService)
+    {
+        $this->authorize('view', $task);
+        
+        $ical = $calendarService->generateIcalForTask($task, request()->user());
+        
+        $filename = 'task-' . $task->id . '.ics';
+        
+        return response($ical, 200)
+            ->header('Content-Type', 'text/calendar; charset=utf-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Export multiple tasks as iCal file
+     */
+    public function exportIcalMultiple(Request $request, CalendarService $calendarService)
+    {
+        $request->validate([
+            'task_ids' => 'required|array',
+            'task_ids.*' => 'required|uuid|exists:tasks,id',
+        ]);
+
+        $tasks = Task::whereIn('id', $request->task_ids)
+            ->where(function ($query) use ($request) {
+                $query->where('requestor_id', $request->user()->id)
+                    ->orWhere('owner_id', $request->user()->id);
+            })
+            ->get();
+
+        $ical = $calendarService->generateIcalForTasks($tasks, $request->user());
+        
+        $filename = 'tasks-' . now()->format('Y-m-d') . '.ics';
+        
+        return response($ical, 200)
+            ->header('Content-Type', 'text/calendar; charset=utf-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Get Google Calendar URL for a task
+     */
+    public function googleCalendarUrl(Task $task, CalendarService $calendarService)
+    {
+        $this->authorize('view', $task);
+        
+        $url = $calendarService->generateGoogleCalendarUrl($task);
+        
+        return response()->json(['url' => $url]);
+    }
+
+    /**
+     * Get Outlook Calendar URL for a task
+     */
+    public function outlookCalendarUrl(Task $task, CalendarService $calendarService)
+    {
+        $this->authorize('view', $task);
+        
+        $url = $calendarService->generateOutlookCalendarUrl($task);
+        
+        return response()->json(['url' => $url]);
     }
 }
