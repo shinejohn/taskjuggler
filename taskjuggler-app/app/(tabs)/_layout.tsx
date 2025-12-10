@@ -1,7 +1,17 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useAuthStore } from '../../stores/auth';
 
 export default function TabLayout() {
+  const router = useRouter();
+  const { logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/auth/login');
+  };
+
   return (
     <Tabs>
       <Tabs.Screen
@@ -23,6 +33,13 @@ export default function TabLayout() {
         options={{
           title: 'Inbox',
           tabBarIcon: () => <Text>📥</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: () => <Text>⚙️</Text>,
         }}
       />
     </Tabs>

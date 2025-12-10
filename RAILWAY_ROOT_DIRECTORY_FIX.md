@@ -51,7 +51,19 @@ If Railway detects `railway.json` in the service root, it will use that. Make su
 ## Current Status
 
 - ✅ `railway.json` exists in `taskjuggler-api/` with correct configuration
-- ⚠️ Railway service needs root directory set to `taskjuggler-api`
-- ✅ Root `railway.json` created as fallback (uses `cd taskjuggler-api`)
+- ✅ Root `railway.json` created with build/start commands (uses `cd taskjuggler-api`)
+- ✅ `start.sh` script created at root (changes to `taskjuggler-api` and starts server)
+- ✅ `nixpacks.toml` created at root to explicitly configure PHP build
+- ⚠️ **RECOMMENDED:** Railway service root directory should be set to `taskjuggler-api` in dashboard
 
-**Action Required:** Set root directory in Railway dashboard to `taskjuggler-api`
+## Files Created
+
+1. **`railway.json`** (root) - Railway configuration with build and start commands
+2. **`start.sh`** (root) - Startup script that Railway was looking for
+3. **`nixpacks.toml`** (root) - Explicit Nixpacks configuration for PHP
+
+## Important Note
+
+Even with these files, Railway/Nixpacks may still have trouble auto-detecting PHP because it looks for `composer.json` in the root directory. The **most reliable solution** is to set the root directory to `taskjuggler-api` in the Railway dashboard.
+
+**Action Required:** Set root directory in Railway dashboard to `taskjuggler-api` (Settings → Root Directory)

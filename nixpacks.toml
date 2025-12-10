@@ -1,0 +1,18 @@
+[phases.setup]
+nixPkgs = ["php82", "composer"]
+
+[phases.install]
+cmds = [
+  "cd taskjuggler-api && composer install --no-dev --optimize-autoloader",
+  "cd taskjuggler-api && composer dump-autoload --optimize",
+  "cd taskjuggler-web && npm ci",
+  "cd taskjuggler-web && VITE_API_URL=https://taskjuggler-production.up.railway.app/api npm run build",
+  "cd taskjuggler-api && cp -r ../taskjuggler-web/dist/* public/",
+  "cd taskjuggler-api && chmod -R 775 storage bootstrap/cache",
+  "cd taskjuggler-api && php artisan config:cache",
+  "cd taskjuggler-api && php artisan route:cache",
+  "cd taskjuggler-api && php artisan view:cache"
+]
+
+[start]
+cmd = "cd taskjuggler-api && php artisan serve --host=0.0.0.0 --port=$PORT"

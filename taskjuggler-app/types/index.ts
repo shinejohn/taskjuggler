@@ -85,3 +85,110 @@ export interface Channel {
   created_at: string;
   updated_at: string;
 }
+
+export interface RoutingRule {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  priority: number;
+  is_active: boolean;
+  conditions: RuleConditions;
+  actions: RuleActions;
+  times_matched: number;
+  last_matched_at?: string;
+}
+
+export interface RuleConditions {
+  match_type: 'all' | 'any';
+  rules: RuleCondition[];
+}
+
+export interface RuleCondition {
+  field: string;
+  operator: string;
+  value: any;
+}
+
+export interface RuleActions {
+  create_task: boolean;
+  assignee_type: 'self' | 'team_member' | 'marketplace_human' | 'marketplace_ai';
+  assignee_id?: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  notifications: RuleNotification[];
+  auto_response?: string;
+  tags: string[];
+}
+
+export interface RuleNotification {
+  type: 'immediate' | 'digest';
+  recipient: 'owner' | 'assignee';
+}
+
+export interface TeamMember {
+  id: string;
+  owner_id: string;
+  user_id?: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  role?: string;
+  can_receive_tasks: boolean;
+  notification_preferences?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+  user?: User;
+}
+
+export interface MarketplaceListing {
+  id: string;
+  requestor_id: string;
+  task_id?: string;
+  title: string;
+  description?: string;
+  category: string;
+  location_required: boolean;
+  location?: any;
+  location_radius_miles?: number;
+  budget_type: 'fixed' | 'hourly' | 'quote';
+  budget_min?: number;
+  budget_max?: number;
+  status: 'open' | 'assigned' | 'completed' | 'cancelled';
+  assigned_vendor_id?: string;
+  assigned_at?: string;
+  needed_by?: string;
+  expires_at?: string;
+  created_at: string;
+  updated_at: string;
+  requestor?: User;
+  task?: Task;
+  assignedVendor?: MarketplaceVendor;
+  bids?: MarketplaceBid[];
+}
+
+export interface MarketplaceBid {
+  id: string;
+  listing_id: string;
+  vendor_id: string;
+  amount: number;
+  message?: string;
+  estimated_completion?: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  created_at: string;
+  updated_at: string;
+  vendor?: MarketplaceVendor;
+}
+
+export interface MarketplaceVendor {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  vendor_type: 'human' | 'ai_tool';
+  category?: string;
+  is_active: boolean;
+  rating?: number;
+  total_jobs?: number;
+  created_at: string;
+  updated_at: string;
+}
