@@ -70,4 +70,22 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
+
+    /**
+     * Register push notification token
+     */
+    public function registerPushToken(Request $request)
+    {
+        $validated = $request->validate([
+            'push_token' => 'required|string',
+            'platform' => 'required|in:ios,android,web',
+        ]);
+
+        $request->user()->update([
+            'push_token' => $validated['push_token'],
+            'push_platform' => $validated['platform'],
+        ]);
+
+        return response()->json(['message' => 'Push token registered successfully']);
+    }
 }

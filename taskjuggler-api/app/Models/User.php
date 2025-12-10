@@ -22,6 +22,8 @@ class User extends Authenticatable
         'plan_expires_at',
         'stripe_customer_id',
         'settings',
+        'push_token',
+        'push_platform',
     ];
 
     protected $hidden = ['password'];

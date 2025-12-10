@@ -17,10 +17,25 @@ export default function RootLayout() {
     initialize();
     
     // Register for push notifications
-    registerForPushNotificationsAsync().then(token => {
+    registerForPushNotificationsAsync().then(async token => {
       if (token) {
         console.log('Push notification token:', token);
-        // TODO: Send token to backend API
+        try {
+          // Send token to backend API
+          const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+          const storedToken = await AsyncStorage.getItem('token');
+          if (storedToken) {
+            const api = require('../utils/api').default;
+            const platform = Platform.OS === 'ios' ? 'ios' : 'android';
+            await api.post('/auth/push-token', {
+              push_token: token,
+              platform: platform,
+            });
+            console.log('Push token registered with backend');
+          }
+        } catch (error) {
+          console.error('Failed to register push token:', error);
+        }
       }
     });
 
@@ -32,7 +47,16 @@ export default function RootLayout() {
     // Listen for user tapping on notifications
     responseListener.current = addNotificationResponseReceivedListener(response => {
       console.log('Notification response:', response);
-      // TODO: Navigate to relevant screen based on notification data
+      const data = response.notification.request.content.data;
+      
+      // Navigate to relevant screen based on notification data
+      if (data?.task_id) {
+        router.push(`/tasks/${data.task_id}`);
+      } else if (data?.inbox_id) {
+        router.push('/inbox');
+      } else if (data?.type === 'task_created' || data?.type === 'task_assigned') {
+        router.push('/tasks');
+      }
     });
 
     return () => {

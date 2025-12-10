@@ -36,9 +36,64 @@ class NotificationService
 
     private function sendPush(Notification $notification): void
     {
-        // TODO: Implement push notification via Pusher or similar
-        // For now, just log
-        Log::info('Push notification sent', ['notification_id' => $notification->id]);
+        $user = $notification->user;
+        
+        // Check if user has a push token
+        if (!$user->push_token) {
+            Log::info('User has no push token registered', ['user_id' => $user->id]);
+            return;
+        }
+        
+        // For Expo push notifications, we need to send to Expo Push Notification service
+        // This requires the expo-server-sdk-php package or HTTP requests to Expo API
+        // For now, we'll use HTTP requests to Expo Push Notification API
+        
+        $expoPushUrl = 'https://exp.host/--/api/v2/push/send';
+        
+        $message = [
+            'to' => $user->push_token,
+            'sound' => 'default',
+            'title' => $notification->title,
+            'body' => $notification->body,
+            'data' => array_merge($notification->data ?? [], [
+                'notification_id' => $notification->id,
+                'type' => $notification->type,
+            ]),
+            'badge' => $user->notifications()->where('read_at', null)->count(),
+        ];
+        
+        try {
+            $ch = curl_init($expoPushUrl);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([$message]));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode === 200) {
+                Log::info('Push notification sent successfully', [
+                    'notification_id' => $notification->id,
+                    'user_id' => $user->id,
+                ]);
+            } else {
+                Log::warning('Failed to send push notification', [
+                    'notification_id' => $notification->id,
+                    'http_code' => $httpCode,
+                    'response' => $response,
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error sending push notification', [
+                'notification_id' => $notification->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function sendEmail(Notification $notification): void
