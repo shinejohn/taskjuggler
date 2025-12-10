@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Serve frontend SPA - catch all routes except API
+Route::get('/{any}', function () {
+    return file_exists(public_path('index.html'))
+        ? file_get_contents(public_path('index.html'))
+        : view('welcome');
+})->where('any', '^(?!api).*$');
