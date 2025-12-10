@@ -39,6 +39,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "https://taskjuggler-production.up.railway.app/api",
+      "eas": {
+        "projectId": ""
+      }
     }
   }
 }
