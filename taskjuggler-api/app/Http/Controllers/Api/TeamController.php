@@ -7,12 +7,14 @@ use App\Models\Team;
 use App\Models\TeamInvitation;
 use App\Models\User;
 use App\Services\Notifications\NotificationService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TeamController extends Controller
 {
+    use AuthorizesRequests;
     public function __construct(
         private NotificationService $notifications
     ) {}

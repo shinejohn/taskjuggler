@@ -2,7 +2,7 @@ import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, TextInput,
 import { useEffect, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTasksStore } from '../../stores/tasks';
-import { useTeamStore } from '../../stores/team';
+import { useMessagesStore } from '../../stores/messages';
 import { showToast } from '../../utils/toast';
 import api from '../../utils/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -11,8 +11,11 @@ export default function TaskDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { currentTask, loading, fetchTask, updateTask, completeTask, deleteTask } = useTasksStore();
-  const { teamMembers, fetchTeamMembers } = useTeamStore();
+  const { taskMessages, loading: messagesLoading, fetchTaskMessages, sendTaskMessage, markTaskMessagesRead } = useMessagesStore();
   const [editing, setEditing] = useState(false);
+  const [messageInput, setMessageInput] = useState('');
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ email: '', name: '', role: 'owner' as 'owner' | 'watcher' | 'collaborator' });
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -26,9 +29,12 @@ export default function TaskDetailScreen() {
   useEffect(() => {
     if (id) {
       fetchTask(id);
-      fetchTeamMembers();
+      fetchTaskMessages(id);
+      markTaskMessagesRead(id);
     }
   }, [id]);
+
+  const messages = taskMessages[id] || [];
 
   useEffect(() => {
     if (currentTask) {
@@ -371,6 +377,52 @@ export default function TaskDetailScreen() {
           )}
         </View>
 
+        {/* Messages Section */}
+        {!editing && (
+          <View className="bg-white rounded-lg p-4 shadow-sm mb-4">
+            <Text className="text-lg font-semibold mb-4">Messages</Text>
+            <ScrollView className="max-h-64 mb-4 space-y-2">
+              {messages.length === 0 ? (
+                <Text className="text-center text-gray-500 py-4">No messages yet</Text>
+              ) : (
+                messages.map((message) => (
+                  <View
+                    key={message.id}
+                    className={`p-3 rounded-lg ${
+                      message.sender_type === 'system' ? 'bg-gray-100' : 'bg-blue-50'
+                    }`}
+                  >
+                    {message.sender && (
+                      <Text className="font-medium text-sm mb-1">{message.sender.name}</Text>
+                    )}
+                    <Text className={`text-sm ${message.sender_type === 'system' ? 'text-gray-600 italic' : 'text-gray-900'}`}>
+                      {message.content}
+                    </Text>
+                    <Text className="text-xs text-gray-500 mt-1">
+                      {new Date(message.created_at).toLocaleString()}
+                    </Text>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+            <View className="flex-row gap-2">
+              <TextInput
+                className="flex-1 border border-gray-300 rounded p-2"
+                value={messageInput}
+                onChangeText={setMessageInput}
+                placeholder="Type a message..."
+                multiline
+              />
+              <TouchableOpacity
+                className="bg-blue-600 rounded px-4 py-2"
+                onPress={handleSendMessage}
+              >
+                <Text className="text-white font-medium">Send</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
         {!editing && (
           <View className="space-y-2">
             {(currentTask.due_date || currentTask.start_date) && (
@@ -398,14 +450,22 @@ export default function TaskDetailScreen() {
                 </View>
               </View>
             )}
-            {currentTask.status !== 'completed' && (
+            <View className="flex-row gap-2">
+              {currentTask.status !== 'completed' && (
+                <TouchableOpacity
+                  className="flex-1 bg-green-600 rounded-lg p-4"
+                  onPress={handleComplete}
+                >
+                  <Text className="text-white text-center font-semibold">Mark Complete</Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
-                className="bg-green-600 rounded-lg p-4"
-                onPress={handleComplete}
+                className="flex-1 bg-blue-600 rounded-lg p-4"
+                onPress={() => setShowInviteModal(true)}
               >
-                <Text className="text-white text-center font-semibold">Mark as Complete</Text>
+                <Text className="text-white text-center font-semibold">Invite</Text>
               </TouchableOpacity>
-            )}
+            </View>
             <TouchableOpacity
               className="bg-red-600 rounded-lg p-4"
               onPress={handleDelete}
@@ -415,6 +475,123 @@ export default function TaskDetailScreen() {
           </View>
         )}
       </View>
+
+      {/* Invite Modal */}
+      {showInviteModal && (
+        <View className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <View className="bg-white rounded-lg w-full max-w-md p-6">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-xl font-bold">Invite to Task</Text>
+              <TouchableOpacity onPress={() => setShowInviteModal(false)}>
+                <Text className="text-gray-400 text-xl">×</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View className="space-y-4">
+              <View>
+                <Text className="text-sm font-medium text-gray-700 mb-1">Email or Phone *</Text>
+                <TextInput
+                  className="border border-gray-300 rounded p-2"
+                  value={inviteForm.email}
+                  onChangeText={(text) => setInviteForm({ ...inviteForm, email: text })}
+                  placeholder="email@example.com or +1234567890"
+                  keyboardType="email-address"
+                />
+              </View>
+
+              <View>
+                <Text className="text-sm font-medium text-gray-700 mb-1">Name (optional)</Text>
+                <TextInput
+                  className="border border-gray-300 rounded p-2"
+                  value={inviteForm.name}
+                  onChangeText={(text) => setInviteForm({ ...inviteForm, name: text })}
+                  placeholder="John Doe"
+                />
+              </View>
+
+              <View>
+                <Text className="text-sm font-medium text-gray-700 mb-1">Role</Text>
+                <View className="flex-row gap-2">
+                  {(['owner', 'watcher', 'collaborator'] as const).map((role) => (
+                    <TouchableOpacity
+                      key={role}
+                      className={`flex-1 rounded px-3 py-2 ${
+                        inviteForm.role === role ? 'bg-blue-600' : 'bg-gray-200'
+                      }`}
+                      onPress={() => setInviteForm({ ...inviteForm, role })}
+                    >
+                      <Text
+                        className={`text-center text-sm ${
+                          inviteForm.role === role ? 'text-white' : 'text-gray-700'
+                        }`}
+                      >
+                        {role.charAt(0).toUpperCase() + role.slice(1)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              <View className="flex-row gap-2 pt-4 border-t">
+                <TouchableOpacity
+                  className="flex-1 bg-blue-600 rounded px-4 py-2"
+                  onPress={handleInvite}
+                >
+                  <Text className="text-white text-center font-medium">Send Invitation</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="flex-1 bg-gray-300 rounded px-4 py-2"
+                  onPress={() => {
+                    setShowInviteModal(false);
+                    setInviteForm({ email: '', name: '', role: 'owner' });
+                  }}
+                >
+                  <Text className="text-gray-800 text-center font-medium">Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
+
+  async function handleSendMessage() {
+    if (!id || !messageInput.trim()) return;
+    try {
+      await sendTaskMessage(id, messageInput);
+      setMessageInput('');
+    } catch (error) {
+      showToast.error('Failed to send message');
+    }
+  }
+
+  async function handleInvite() {
+    if (!id || (!inviteForm.email.trim())) {
+      showToast.error('Email or phone is required');
+      return;
+    }
+
+    try {
+      const response = await api.post(`/tasks/${id}/invite`, {
+        email: inviteForm.email.includes('@') ? inviteForm.email : undefined,
+        phone: !inviteForm.email.includes('@') ? inviteForm.email : undefined,
+        name: inviteForm.name || undefined,
+        role: inviteForm.role,
+      });
+      showToast.success('Invitation sent');
+      setShowInviteModal(false);
+      setInviteForm({ email: '', name: '', role: 'owner' });
+      
+      if (response.data.invite_url) {
+        Alert.alert(
+          'Invitation Created',
+          `Invitation link: ${response.data.invite_url}\n\nShare this link with the person you want to invite.`,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      showToast.error('Failed to send invitation');
+    }
+  }
 }

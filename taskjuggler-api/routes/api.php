@@ -125,7 +125,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/with/{user}', [DirectMessageController::class, 'messages']);
         Route::post('/to/{user}', [DirectMessageController::class, 'send']);
     });
-}
+});
 
 // Public booking routes (no auth required)
 Route::prefix('public/booking')->group(function () {

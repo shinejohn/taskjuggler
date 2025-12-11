@@ -11,25 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('team_members', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('owner_id');
-            $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');
-            
-            // Member info (may or may not have TJ account)
-            $table->uuid('user_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->string('name');
-            $table->string('email')->nullable();
-            $table->string('phone', 20)->nullable();
-            $table->string('role', 100)->nullable();
-            
-            // Task receiving
-            $table->boolean('can_receive_tasks')->default(true);
-            $table->jsonb('notification_preferences')->default('{}');
-            
-            $table->timestampTz('created_at');
-        });
+        // This creates the old contact_team_members table (different from new team_members)
+        // Only create if it doesn't exist to avoid conflicts
+        if (!Schema::hasTable('contact_team_members')) {
+            Schema::create('contact_team_members', function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->uuid('owner_id');
+                $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');
+                
+                // Member info (may or may not have TJ account)
+                $table->uuid('user_id')->nullable();
+                $table->foreign('user_id')->references('id')->on('users');
+                $table->string('name');
+                $table->string('email')->nullable();
+                $table->string('phone', 20)->nullable();
+                $table->string('role', 100)->nullable();
+                
+                // Task receiving
+                $table->boolean('can_receive_tasks')->default(true);
+                $table->jsonb('notification_preferences')->default('{}');
+                
+                $table->timestampTz('created_at');
+            });
+        }
     }
 
     /**
@@ -37,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('team_members');
+        Schema::dropIfExists('contact_team_members');
     }
 };

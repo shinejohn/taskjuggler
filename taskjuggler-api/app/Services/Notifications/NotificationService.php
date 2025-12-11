@@ -21,6 +21,7 @@ class NotificationService
             'body' => $body,
             'data' => $data,
             'channels' => $channels,
+            'created_at' => now(),
         ]);
 
         // Send via configured channels

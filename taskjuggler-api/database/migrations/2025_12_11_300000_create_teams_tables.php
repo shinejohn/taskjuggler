@@ -21,6 +21,8 @@ return new class extends Migration
         });
 
         // Team members (simple - no roles for now)
+        // Drop old table if it exists (from old migration) and create new one
+        Schema::dropIfExists('team_members');
         Schema::create('team_members', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('team_id');

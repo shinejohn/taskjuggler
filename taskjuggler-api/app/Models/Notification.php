@@ -9,6 +9,8 @@ class Notification extends Model
 {
     use HasUuids;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'user_id',
         'type',
@@ -18,6 +20,7 @@ class Notification extends Model
         'channels',
         'sent_at',
         'read_at',
+        'created_at',
     ];
 
     protected $casts = [

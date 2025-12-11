@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Team extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'name',
@@ -83,9 +84,14 @@ class Team extends Model
     public function addMember(User $user, bool $isAdmin = false): void
     {
         if (!$this->hasMember($user)) {
-            $this->members()->attach($user->id, [
+            \Illuminate\Support\Facades\DB::table('team_members')->insert([
+                'id' => \Illuminate\Support\Str::uuid(),
+                'team_id' => $this->id,
+                'user_id' => $user->id,
                 'is_admin' => $isAdmin,
                 'joined_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }

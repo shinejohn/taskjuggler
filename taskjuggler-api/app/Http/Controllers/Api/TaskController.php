@@ -15,10 +15,12 @@ use App\Services\Tasks\TaskInvitationService;
 use App\Services\Tasks\TaskMessageService;
 use App\Models\TaskMessage;
 use App\TaskExchange\TaskExchangeFormat;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
+    use AuthorizesRequests;
     public function __construct(
         private TaskStateMachine $stateMachine,
         private TaskInvitationService $invitationService,

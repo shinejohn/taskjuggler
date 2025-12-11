@@ -90,15 +90,35 @@ class TaskMessageService
     public function markAsRead(Task $task, User $user, ?TaskMessage $upToMessage = null): void
     {
         $messageId = $upToMessage?->id ?? $task->messages()->latest()->value('id');
-
-        DB::table('task_message_reads')->updateOrInsert(
-            ['task_id' => $task->id, 'user_id' => $user->id],
-            [
+        
+        // Check if record exists
+        $existing = DB::table('task_message_reads')
+            ->where('task_id', $task->id)
+            ->where('user_id', $user->id)
+            ->first();
+        
+        if ($existing) {
+            // Update existing
+            DB::table('task_message_reads')
+                ->where('task_id', $task->id)
+                ->where('user_id', $user->id)
+                ->update([
+                    'last_read_message_id' => $messageId,
+                    'last_read_at' => now(),
+                    'updated_at' => now(),
+                ]);
+        } else {
+            // Insert new with UUID
+            DB::table('task_message_reads')->insert([
+                'id' => \Illuminate\Support\Str::uuid(),
+                'task_id' => $task->id,
+                'user_id' => $user->id,
                 'last_read_message_id' => $messageId,
                 'last_read_at' => now(),
+                'created_at' => now(),
                 'updated_at' => now(),
-            ]
-        );
+            ]);
+        }
     }
 
     /**

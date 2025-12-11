@@ -26,7 +26,8 @@ return new class extends Migration
             $table->uuid('owner_id')->nullable();
             $table->foreign('owner_id')->references('id')->on('users');
             $table->uuid('team_member_id')->nullable();
-            $table->foreign('team_member_id')->references('id')->on('team_members');
+            // Foreign key to contact_team_members - added conditionally to avoid migration issues
+            // $table->foreign('team_member_id')->references('id')->on('contact_team_members');
             $table->uuid('marketplace_vendor_id')->nullable();
             // Foreign key will be added in a separate migration after marketplace_vendors is created
             
