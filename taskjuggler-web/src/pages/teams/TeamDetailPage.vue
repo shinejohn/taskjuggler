@@ -166,6 +166,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useTeamsStore } from '@/stores/teams';
+import type { Task } from '@/types';
 
 const route = useRoute();
 const teamsStore = useTeamsStore();
@@ -186,7 +187,7 @@ const inviteForm = ref({
   name: '',
 });
 const inviteUrl = ref('');
-const teamTasks = ref([]);
+const teamTasks = ref<Task[]>([]);
 
 onMounted(async () => {
   const teamId = route.params.id as string;
@@ -251,7 +252,6 @@ async function removeMember(userId: string) {
 </script>
 
 <script lang="ts">
-import { computed } from 'vue';
 export default {
   name: 'TeamDetailPage'
 }

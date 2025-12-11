@@ -4,7 +4,7 @@ import Pusher from 'pusher-js';
 declare global {
   interface Window {
     Pusher: typeof Pusher;
-    Echo: Echo;
+    Echo: Echo<any>;
   }
 }
 
@@ -25,6 +25,6 @@ export function initializeEcho(token: string) {
   });
 }
 
-export function getEcho(): Echo {
-  return window.Echo;
+export function getEcho(): Echo<any> | null {
+  return window.Echo || null;
 }

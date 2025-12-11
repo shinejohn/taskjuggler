@@ -385,7 +385,7 @@ async function removeMember(listId: string, memberId: string) {
 
 function handleFileSelect(event: Event) {
   const target = event.target as HTMLInputElement
-  if (target.files && target.files.length > 0) {
+  if (target.files && target.files.length > 0 && target.files[0]) {
     importFile.value = target.files[0]
   }
 }
@@ -403,7 +403,7 @@ async function importContacts() {
   importing.value = true
   try {
     const formData = new FormData()
-    formData.append('file', importFile.value)
+    formData.append('file', importFile.value as File)
     formData.append('list_id', importListId.value)
     
     const response = await api.post('/contact-lists/import', formData, {

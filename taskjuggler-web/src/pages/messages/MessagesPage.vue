@@ -44,10 +44,8 @@
 
 <script setup lang="ts">
 import { onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { useMessagesStore } from '@/stores/messages';
 
-const router = useRouter();
 const messagesStore = useMessagesStore();
 
 const conversations = computed(() => messagesStore.conversations);

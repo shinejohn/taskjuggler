@@ -9,7 +9,7 @@
         <div class="space-y-2">
           <p><strong>Status:</strong> {{ task.status }}</p>
           <p><strong>Priority:</strong> {{ task.priority }}</p>
-          <div v-if="task.due_date || task.start_date" class="mt-4 p-4 bg-gray-50 rounded-lg">
+          <div v-if="task.due_date" class="mt-4 p-4 bg-gray-50 rounded-lg">
             <h3 class="font-semibold mb-2">Add to Calendar</h3>
             <div class="flex flex-wrap gap-2">
               <button @click="exportIcal" class="btn btn-secondary text-sm">

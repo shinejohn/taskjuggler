@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import api from '@/utils/api'
-import type { ContactList, ContactListMember } from '@/types'
+import type { ContactList } from '@/types'
 
 export const useContactListsStore = defineStore('contactLists', () => {
   const contactLists = ref<ContactList[]>([])

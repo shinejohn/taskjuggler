@@ -55,6 +55,7 @@ export interface RoutingRule {
   conditions: RuleConditions;
   actions: RuleActions;
   times_matched: number;
+  last_matched_at?: string;
 }
 
 export interface RuleConditions {

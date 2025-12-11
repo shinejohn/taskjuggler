@@ -74,7 +74,7 @@ export const useTasksStore = defineStore('tasks', () => {
 
   async function deleteTask(id: string) {
     await api.delete(`/tasks/${id}`);
-    tasks.value = tasks.value.filter(t => t.id !== id);
+    tasks.value = tasks.value.filter((t: Task) => t.id !== id);
   }
 
   async function createInvitation(taskId: string, data: { email?: string; phone?: string; name?: string; role?: string }) {

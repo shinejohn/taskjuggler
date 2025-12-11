@@ -152,31 +152,61 @@ return [
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
-        'default' => [
-            'url' => env('REDIS_URL'),
-            'host' => env('REDIS_URL') ? null : (env('REDIS_HOST') ?: '127.0.0.1'),
-            'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_URL') ? null : (env('REDIS_PORT') ?: '6379'),
-            'database' => env('REDIS_DB', '0'),
-            'max_retries' => env('REDIS_MAX_RETRIES', 3),
-            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-            'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-            'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-        ],
+        'default' => function() {
+            // Prioritize VALKEY_URL if set (Railway provides this when Valkey service is linked)
+            $redisUrl = env('VALKEY_URL') ?: env('REDIS_URL');
+            // If URL is set, use it exclusively - it contains all connection info including auth
+            if ($redisUrl) {
+                return [
+                    'url' => $redisUrl,
+                    'database' => env('REDIS_DB', '0'),
+                    'max_retries' => env('REDIS_MAX_RETRIES', 3),
+                    'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
+                    'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
+                    'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+                ];
+            }
+            // Fallback to host/port only if no URL is set
+            return array_filter([
+                'host' => env('REDIS_HOST', '127.0.0.1'),
+                'username' => env('REDIS_USERNAME'),
+                'password' => env('REDIS_PASSWORD'),
+                'port' => env('REDIS_PORT', '6379'),
+                'database' => env('REDIS_DB', '0'),
+                'max_retries' => env('REDIS_MAX_RETRIES', 3),
+                'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
+                'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
+                'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+            ], fn($value) => $value !== null);
+        }(),
 
-        'cache' => [
-            'url' => env('REDIS_URL'),
-            'host' => env('REDIS_URL') ? null : (env('REDIS_HOST') ?: '127.0.0.1'),
-            'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_URL') ? null : (env('REDIS_PORT') ?: '6379'),
-            'database' => env('REDIS_CACHE_DB', '1'),
-            'max_retries' => env('REDIS_MAX_RETRIES', 3),
-            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-            'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-            'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-        ],
+        'cache' => function() {
+            // Prioritize VALKEY_URL if set (Railway provides this when Valkey service is linked)
+            $redisUrl = env('VALKEY_URL') ?: env('REDIS_URL');
+            // If URL is set, use it exclusively
+            if ($redisUrl) {
+                return [
+                    'url' => $redisUrl,
+                    'database' => env('REDIS_CACHE_DB', '1'),
+                    'max_retries' => env('REDIS_MAX_RETRIES', 3),
+                    'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
+                    'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
+                    'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+                ];
+            }
+            // Fallback to host/port only if no URL is set
+            return array_filter([
+                'host' => env('REDIS_HOST', '127.0.0.1'),
+                'username' => env('REDIS_USERNAME'),
+                'password' => env('REDIS_PASSWORD'),
+                'port' => env('REDIS_PORT', '6379'),
+                'database' => env('REDIS_CACHE_DB', '1'),
+                'max_retries' => env('REDIS_MAX_RETRIES', 3),
+                'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
+                'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
+                'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+            ], fn($value) => $value !== null);
+        }(),
 
     ],
 

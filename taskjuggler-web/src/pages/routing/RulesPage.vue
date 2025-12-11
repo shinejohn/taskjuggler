@@ -258,7 +258,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRulesStore } from '@/stores/rules'
 import { useTeamStore } from '@/stores/team'
-import type { RoutingRule, RuleCondition } from '@/types'
+import type { RoutingRule, RuleCondition, RuleActions } from '@/types'
 
 const rulesStore = useRulesStore()
 const teamStore = useTeamStore()
@@ -275,20 +275,31 @@ const showCreateModal = ref(false)
 const editingRule = ref<RoutingRule | null>(null)
 const tagsInput = ref('')
 
-const ruleForm = ref({
+const ruleForm = ref<{
+  name: string;
+  description: string;
+  is_active: boolean;
+  conditions: {
+    match_type: 'all' | 'any';
+    rules: RuleCondition[];
+  };
+  actions: RuleActions;
+}>({
   name: '',
   description: '',
   is_active: true,
   conditions: {
-    match_type: 'all' as 'all' | 'any',
-    rules: [] as RuleCondition[],
+    match_type: 'all',
+    rules: [],
   },
   actions: {
-    assignee_type: 'self' as 'self' | 'team_member' | 'marketplace_human' | 'marketplace_ai',
+    create_task: true,
+    assignee_type: 'self',
     assignee_id: '',
-    priority: 'normal' as 'low' | 'normal' | 'high' | 'urgent',
+    priority: 'normal',
+    notifications: [],
     auto_response: '',
-    tags: [] as string[],
+    tags: [],
   },
 })
 
@@ -320,9 +331,11 @@ function editRule(rule: RoutingRule) {
       rules: [...rule.conditions.rules],
     },
     actions: {
+      create_task: rule.actions.create_task,
       assignee_type: rule.actions.assignee_type,
       assignee_id: rule.actions.assignee_id || '',
       priority: rule.actions.priority,
+      notifications: rule.actions.notifications || [],
       auto_response: rule.actions.auto_response || '',
       tags: rule.actions.tags || [],
     },
@@ -343,9 +356,11 @@ function closeModal() {
       rules: [],
     },
     actions: {
+      create_task: true,
       assignee_type: 'self',
       assignee_id: '',
       priority: 'normal',
+      notifications: [],
       auto_response: '',
       tags: [],
     },
