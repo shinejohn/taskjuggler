@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useInboxStore } from '../../stores/inbox';
@@ -6,7 +6,7 @@ import { showToast } from '../../utils/toast';
 
 export default function InboxScreen() {
   const router = useRouter();
-  const { inboxItems, loading, fetchInboxItems, processItem, dismissItem } = useInboxStore();
+  const { inboxItems, loading, fetchInboxItems, processItem, dismissItem, createTaskFromItem } = useInboxStore();
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -52,6 +52,35 @@ export default function InboxScreen() {
     } catch (error) {
       showToast.error('Failed to dismiss inbox item');
     }
+  };
+
+  const handleCreateTask = async (item: any) => {
+    Alert.alert(
+      'Create Task',
+      `Create a task from this ${item.source_type}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Create Task',
+          onPress: async () => {
+            try {
+              const title = item.subject || `Task from ${item.from_name || item.from_identifier}`;
+              const description = item.body || '';
+              await createTaskFromItem(item.id, {
+                title,
+                description,
+                priority: 'normal',
+              });
+              showToast.success('Task created successfully');
+              fetchInboxItems();
+              router.push('/tasks');
+            } catch (error) {
+              showToast.error('Failed to create task');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const getSourceIcon = (sourceType: string) => {
@@ -184,15 +213,23 @@ export default function InboxScreen() {
                   {new Date(item.received_at).toLocaleString()}
                 </Text>
                 {item.status === 'unprocessed' && (
-                  <View className="flex-row gap-2">
+                  <View className="space-y-2">
+                    <View className="flex-row gap-2">
+                      <TouchableOpacity
+                        className="flex-1 bg-green-600 rounded px-3 py-2"
+                        onPress={() => handleCreateTask(item)}
+                      >
+                        <Text className="text-white text-center text-sm font-medium">Create Task</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        className="flex-1 bg-blue-600 rounded px-3 py-2"
+                        onPress={() => handleProcess(item.id)}
+                      >
+                        <Text className="text-white text-center text-sm font-medium">Process</Text>
+                      </TouchableOpacity>
+                    </View>
                     <TouchableOpacity
-                      className="flex-1 bg-blue-600 rounded px-3 py-2"
-                      onPress={() => handleProcess(item.id)}
-                    >
-                      <Text className="text-white text-center text-sm font-medium">Process</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      className="flex-1 bg-gray-600 rounded px-3 py-2"
+                      className="bg-gray-600 rounded px-3 py-2"
                       onPress={() => handleDismiss(item.id)}
                     >
                       <Text className="text-white text-center text-sm font-medium">Dismiss</Text>

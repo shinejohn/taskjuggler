@@ -4,6 +4,10 @@ namespace App\Services\Notifications;
 
 use App\Models\User;
 use App\Models\Notification;
+use App\Models\Task;
+use App\Models\TaskMessage;
+use App\Models\DirectMessage;
+use App\Models\TeamInvitation;
 use Illuminate\Support\Facades\Log;
 
 class NotificationService
@@ -127,5 +131,59 @@ class NotificationService
             $message['body'],
             ['task_id' => $taskData['id'] ?? null]
         );
+    }
+
+    /**
+     * Notify user of new task message
+     */
+    public function notifyNewMessage(Task $task, TaskMessage $message, User $recipient): void
+    {
+        $senderName = $message->sender?->name ?? 'Someone';
+        
+        $this->send(
+            $recipient,
+            "task.new_message",
+            "New message on: {$task->title}",
+            "{$senderName}: {$this->truncate($message->content, 100)}",
+            ['task_id' => $task->id, 'message_id' => $message->id]
+        );
+    }
+
+    /**
+     * Notify user of direct message
+     */
+    public function notifyDirectMessage(DirectMessage $message): void
+    {
+        $this->send(
+            $message->recipient,
+            "direct_message",
+            "Message from {$message->sender->name}",
+            $this->truncate($message->content, 100),
+            ['message_id' => $message->id, 'sender_id' => $message->sender_id]
+        );
+    }
+
+    /**
+     * Notify of team invitation accepted
+     */
+    public function notifyTeamInvitationAccepted(TeamInvitation $invitation, User $acceptedBy): void
+    {
+        $this->send(
+            $invitation->inviter,
+            "team.invitation_accepted",
+            "{$acceptedBy->name} joined your team",
+            "{$acceptedBy->name} has joined {$invitation->team->name}",
+            ['team_id' => $invitation->team_id, 'user_id' => $acceptedBy->id]
+        );
+    }
+
+    /**
+     * Truncate string
+     */
+    private function truncate(string $text, int $length): string
+    {
+        return strlen($text) > $length 
+            ? substr($text, 0, $length) . '...' 
+            : $text;
     }
 }

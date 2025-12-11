@@ -48,6 +48,13 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+        <TouchableOpacity
+          className="bg-blue-600 rounded-lg p-4 mb-4 shadow-sm"
+          onPress={() => router.push('/tasks/new')}
+        >
+          <Text className="text-white text-center font-semibold text-lg">+ Create New Task</Text>
+        </TouchableOpacity>
+
         <View className="bg-white rounded-lg p-4 shadow-sm">
           <Text className="text-lg font-semibold mb-4">Recent Tasks</Text>
           {loading && tasks.length === 0 ? (

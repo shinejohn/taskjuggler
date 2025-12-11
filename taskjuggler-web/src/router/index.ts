@@ -57,9 +57,27 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/team',
-      name: 'team',
-      component: () => import('@/pages/team/TeamPage.vue'),
+      path: '/teams',
+      name: 'teams',
+      component: () => import('@/pages/teams/TeamsPage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/teams/:id',
+      name: 'team-detail',
+      component: () => import('@/pages/teams/TeamDetailPage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/messages',
+      name: 'messages',
+      component: () => import('@/pages/messages/MessagesPage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/messages/:userId',
+      name: 'direct-message',
+      component: () => import('@/pages/messages/DirectMessagePage.vue'),
       meta: { requiresAuth: true },
     },
     {

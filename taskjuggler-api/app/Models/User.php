@@ -24,6 +24,7 @@ class User extends Authenticatable
         'settings',
         'push_token',
         'push_platform',
+        'actor_type',
     ];
 
     protected $hidden = ['password'];
@@ -83,6 +84,39 @@ class User extends Authenticatable
     public function marketplaceVendors()
     {
         return $this->hasMany(MarketplaceVendor::class);
+    }
+
+    public function appointmentTypes()
+    {
+        return $this->hasMany(AppointmentType::class);
+    }
+
+    public function availabilitySlots()
+    {
+        return $this->hasMany(AvailabilitySlot::class);
+    }
+
+    public function hostedAppointments()
+    {
+        return $this->hasMany(Appointment::class, 'host_id');
+    }
+
+    /**
+     * Teams the user belongs to
+     */
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_members')
+            ->withPivot(['is_admin', 'joined_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Teams the user administers
+     */
+    public function adminTeams()
+    {
+        return $this->teams()->wherePivot('is_admin', true);
     }
 
     // Helpers

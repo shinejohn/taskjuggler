@@ -77,6 +77,24 @@ export const useTasksStore = defineStore('tasks', () => {
     tasks.value = tasks.value.filter(t => t.id !== id);
   }
 
+  async function createInvitation(taskId: string, data: { email?: string; phone?: string; name?: string; role?: string }) {
+    const response = await api.post(`/tasks/${taskId}/invite`, data);
+    return response.data;
+  }
+
+  async function exportTef(taskId: string) {
+    const response = await api.get(`/tasks/${taskId}/export/tef`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  }
+
+  async function importTef(tefData: any) {
+    const response = await api.post('/tasks/import/tef', { tef: tefData });
+    tasks.value.unshift(response.data.task);
+    return response.data.task;
+  }
+
   return {
     tasks,
     currentTask,
@@ -91,5 +109,8 @@ export const useTasksStore = defineStore('tasks', () => {
     updateTask,
     completeTask,
     deleteTask,
+    createInvitation,
+    exportTef,
+    importTef,
   };
 });

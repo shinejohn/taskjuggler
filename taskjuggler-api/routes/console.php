@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use App\Console\Commands\UpdateTaskColorStates;
 use App\Models\Notification;
 use App\Models\InboxItem;
 use App\Models\Task;
@@ -45,3 +46,6 @@ Schedule::call(function () {
         ->where('failed_at', '<', Carbon::now()->subDays(7))
         ->delete();
 })->daily()->at('04:00')->name('cleanup-failed-jobs');
+
+// Update task color states hourly
+Schedule::command('tasks:update-colors')->hourly()->name('update-task-color-states');
