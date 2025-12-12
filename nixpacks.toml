@@ -41,6 +41,13 @@ nixPkgs = [
     "nodejs_20"
 ]
 
+# Install Composer manually (needed because composer.json is in subdirectory)
+cmds = [
+    "curl -sS https://getcomposer.org/installer | php",
+    "mv composer.phar /usr/local/bin/composer",
+    "chmod +x /usr/local/bin/composer"
+]
+
 [phases.install]
 # Install dependencies and build frontend
 cmds = [
