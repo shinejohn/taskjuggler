@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -22,6 +23,21 @@ return new class extends Migration
 
         // Team members (simple - no roles for now)
         // Drop old table if it exists (from old migration) and create new one
+        // First drop foreign key constraint from tasks table if it exists
+        if (Schema::hasTable('tasks')) {
+            // Use raw SQL to drop the constraint if it exists (PostgreSQL specific)
+            DB::statement('
+                DO $$ 
+                BEGIN 
+                    IF EXISTS (
+                        SELECT 1 FROM pg_constraint 
+                        WHERE conname = \'tasks_team_member_id_foreign\'
+                    ) THEN
+                        ALTER TABLE tasks DROP CONSTRAINT tasks_team_member_id_foreign;
+                    END IF;
+                END $$;
+            ');
+        }
         Schema::dropIfExists('team_members');
         Schema::create('team_members', function (Blueprint $table) {
             $table->uuid('id')->primary();
