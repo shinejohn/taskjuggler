@@ -1,4 +1,12 @@
+# =============================================================================
+# NIXPACKS.TOML - Laravel 12 + Vue 3 + Tailwind 4 Build Configuration
+# =============================================================================
+# This file tells Railway/Nixpacks how to build your application.
+# Drop this file in your project root.
+# =============================================================================
+
 [phases.setup]
+# All PHP extensions your app needs
 nixPkgs = [
     # PHP 8.3 core
     "php83",
@@ -38,6 +46,7 @@ nixPkgs = [
 ]
 
 [phases.install]
+# Install dependencies and build frontend
 cmds = [
     # PHP dependencies (production only, optimized)
     "cd taskjuggler-api && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress",
