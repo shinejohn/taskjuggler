@@ -38,10 +38,10 @@ nixPkgs = [
 
 [phases.install]
 cmds = [
-    # Install Node.js 22 (required for Vite 7)
-    # Download and install Node.js 22 LTS to /usr/local
-    "curl -fsSL https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.xz -o /tmp/node.tar.xz && tar -xJf /tmp/node.tar.xz -C /tmp && rm /tmp/node.tar.xz",
-    "cp -r /tmp/node-v22.12.0-linux-x64/* /usr/local/ && rm -rf /tmp/node-v22.12.0-linux-x64",
+    # Install Node.js 24 (required for Vite 7)
+    # Download and install Node.js 24 LTS to /usr/local
+    "curl -fsSL https://nodejs.org/dist/v24.0.0/node-v24.0.0-linux-x64.tar.xz -o /tmp/node.tar.xz && tar -xJf /tmp/node.tar.xz -C /tmp && rm /tmp/node.tar.xz",
+    "cp -r /tmp/node-v24.0.0-linux-x64/* /usr/local/ && rm -rf /tmp/node-v24.0.0-linux-x64",
     
     # PHP dependencies (production only, optimized)
     "cd taskjuggler-api && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress",
