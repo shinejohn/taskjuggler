@@ -50,11 +50,21 @@ cmds = [
     # PHP dependencies (production only, optimized)
     "cd taskjuggler-api && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress",
     
-    # Node dependencies (install since package-lock.json may not exist)
+    # Node dependencies for API (Laravel Vite assets)
     "cd taskjuggler-api && npm install --no-audit --no-fund",
     
-    # Build frontend assets
+    # Build Laravel frontend assets
     "cd taskjuggler-api && npm run build",
+    
+    # Node dependencies for Vue.js frontend
+    "cd taskjuggler-web && npm install --no-audit --no-fund",
+    
+    # Build Vue.js frontend (outputs to taskjuggler-web/dist)
+    # VITE_API_URL: use provided value, or construct from APP_URL, or use default
+    "cd taskjuggler-web && VITE_API_URL=\"${VITE_API_URL:-${APP_URL:+$APP_URL/api:-https://taskjuggler-production.up.railway.app/api}}\" npm run build",
+    
+    # Copy Vue.js frontend build to API public directory
+    "cp -r taskjuggler-web/dist/* taskjuggler-api/public/",
     
     # Ensure storage directories exist
     "cd taskjuggler-api && mkdir -p storage/framework/sessions",
