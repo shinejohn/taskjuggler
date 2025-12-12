@@ -54,6 +54,13 @@ return new class extends Migration
             $table->index('user_id');
         });
 
+        // Add foreign key from tasks to team_members if the column exists
+        if (Schema::hasTable('tasks') && Schema::hasColumn('tasks', 'team_member_id')) {
+            Schema::table('tasks', function (Blueprint $table) {
+                $table->foreign('team_member_id')->references('id')->on('team_members')->nullOnDelete();
+            });
+        }
+
         // Team invitations
         Schema::create('team_invitations', function (Blueprint $table) {
             $table->uuid('id')->primary();
