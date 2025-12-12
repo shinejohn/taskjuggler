@@ -1,6 +1,6 @@
-# Explicitly set up only PHP 8.2 - Composer will be auto-detected and installed separately
+# Explicitly set up PHP 8.2 and Composer
 [phases.setup]
-nixPkgs = ["php82"]
+nixPkgs = ["php82", "php82Packages.composer"]
 
 [phases.install]
 cmds = [
