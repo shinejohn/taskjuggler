@@ -2,7 +2,7 @@
 # NIXPACKS.TOML - Laravel 12 + Vue 3 + Tailwind 4 Build Configuration
 # =============================================================================
 # This file tells Railway/Nixpacks how to build your application.
-# Adapted for taskjuggler-api subdirectory structure.
+# This version is for when Railway root directory is set to taskjuggler-api
 # =============================================================================
 
 [phases.setup]
@@ -37,51 +37,51 @@ nixPkgs = [
     "php83Extensions.openssl",
     "php83Extensions.sodium",
     
-    # Node.js for frontend build
+    # Node.js for Laravel Vite asset compilation
     "nodejs_20",
     "npm"
 ]
 
 [phases.install]
-# Install dependencies and build frontend
+# Install dependencies and build assets
 cmds = [
     # PHP dependencies (production only, optimized)
-    "cd taskjuggler-api && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress",
+    "composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress",
     
     # Node dependencies (clean install, faster and more reliable)
-    "cd taskjuggler-api && npm ci --prefer-offline --no-audit --no-fund",
+    "npm ci --prefer-offline --no-audit --no-fund",
     
-    # Build frontend assets
-    "cd taskjuggler-api && npm run build",
+    # Build Laravel assets (CSS/JS via Vite)
+    "npm run build",
     
     # Ensure storage directories exist
-    "cd taskjuggler-api && mkdir -p storage/framework/sessions",
-    "cd taskjuggler-api && mkdir -p storage/framework/views",
-    "cd taskjuggler-api && mkdir -p storage/framework/cache/data",
-    "cd taskjuggler-api && mkdir -p storage/logs",
-    "cd taskjuggler-api && mkdir -p bootstrap/cache",
+    "mkdir -p storage/framework/sessions",
+    "mkdir -p storage/framework/views",
+    "mkdir -p storage/framework/cache/data",
+    "mkdir -p storage/logs",
+    "mkdir -p bootstrap/cache",
     
     # Set permissions
-    "cd taskjuggler-api && chmod -R 775 storage",
-    "cd taskjuggler-api && chmod -R 775 bootstrap/cache"
+    "chmod -R 775 storage",
+    "chmod -R 775 bootstrap/cache"
 ]
 
 [phases.build]
 # Laravel optimizations - these cache config for faster boot
 # The "|| true" ensures build doesn't fail if these commands error
 cmds = [
-    "cd taskjuggler-api && php artisan package:discover --ansi || true",
-    "cd taskjuggler-api && php artisan config:cache || true",
-    "cd taskjuggler-api && php artisan route:cache || true",
-    "cd taskjuggler-api && php artisan view:cache || true",
-    "cd taskjuggler-api && php artisan event:cache || true"
+    "php artisan package:discover --ansi || true",
+    "php artisan config:cache || true",
+    "php artisan route:cache || true",
+    "php artisan view:cache || true",
+    "php artisan event:cache || true"
 ]
 
 [start]
 # Default start command for web service
 # Runs migrations, creates storage link, starts server
 cmd = """
-cd taskjuggler-api && php artisan migrate --force --no-interaction && \
+php artisan migrate --force --no-interaction && \
 php artisan storage:link --force || true && \
 php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
 """

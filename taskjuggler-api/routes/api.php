@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\InboxController;
@@ -15,6 +17,69 @@ use App\Http\Controllers\Api\AvailabilitySlotController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\PublicBookingController;
 use App\Http\Controllers\Api\DirectMessageController;
+
+// Health check endpoint (for Railway)
+Route::get('/health', function () {
+    $status = 'healthy';
+    $checks = [];
+    $httpCode = 200;
+
+    // Check Database
+    try {
+        DB::connection()->getPdo();
+        DB::select('SELECT 1');
+        $checks['database'] = 'connected';
+    } catch (\Exception $e) {
+        $checks['database'] = 'failed: ' . $e->getMessage();
+        $status = 'unhealthy';
+        $httpCode = 500;
+    }
+
+    // Check Redis
+    try {
+        $cacheKey = 'health_check_' . time();
+        Cache::store('redis')->put($cacheKey, true, 10);
+        Cache::store('redis')->forget($cacheKey);
+        $checks['redis'] = 'connected';
+    } catch (\Exception $e) {
+        $checks['redis'] = 'failed: ' . $e->getMessage();
+        // Redis failure is not fatal - app can still work
+        $checks['redis_warning'] = 'degraded performance expected';
+    }
+
+    // Check Storage
+    try {
+        $storagePath = storage_path('framework/cache');
+        if (is_writable($storagePath)) {
+            $checks['storage'] = 'writable';
+        } else {
+            $checks['storage'] = 'not writable';
+            $status = 'degraded';
+        }
+    } catch (\Exception $e) {
+        $checks['storage'] = 'failed: ' . $e->getMessage();
+    }
+
+    // App info
+    $info = [
+        'app_name' => config('app.name'),
+        'environment' => config('app.env'),
+        'laravel_version' => app()->version(),
+        'php_version' => PHP_VERSION,
+    ];
+
+    return response()->json([
+        'status' => $status,
+        'timestamp' => now()->toIso8601String(),
+        'checks' => $checks,
+        'info' => $info,
+    ], $httpCode);
+});
+
+// Simple ping endpoint
+Route::get('/ping', function () {
+    return response()->json(['pong' => true, 'time' => now()->toIso8601String()]);
+});
 
 // Auth
 Route::post('/auth/register', [AuthController::class, 'register']);
