@@ -37,9 +37,8 @@ nixPkgs = [
     "php83Extensions.openssl",
     "php83Extensions.sodium",
     
-    # Node.js for frontend build
+    # Node.js for frontend build (npm is included with nodejs_20)
     "nodejs_20",
-    "npm",
     
     # Composer for PHP dependency management
     "php83Packages.composer"
