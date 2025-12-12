@@ -51,8 +51,8 @@ cmds = [
     "cd taskjuggler-web && npm install --no-audit --no-fund",
     
     # Build Vue.js frontend (outputs to taskjuggler-web/dist)
-    # VITE_API_URL should be set in Railway environment variables, or it will use default from vite.config.ts
-    "cd taskjuggler-web && npm run build",
+    # Construct VITE_API_URL from APP_URL if not already set, or use default
+    "cd taskjuggler-web && VITE_API_URL=${VITE_API_URL:-${APP_URL:+$APP_URL/api}}${VITE_API_URL:-${APP_URL:-https://taskjuggler-production.up.railway.app/api}} npm run build",
     
     # Copy Vue.js frontend build to API public directory
     "cp -r taskjuggler-web/dist/* taskjuggler-api/public/",
