@@ -1,5 +1,5 @@
-[phases.setup]
-nixPkgs = ["php82"]
+# Nixpacks will auto-detect PHP 8.2 and Composer from composer.json
+# No need to specify nixPkgs - let Nixpacks handle it automatically
 
 [phases.install]
 cmds = [
