@@ -10,7 +10,6 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  define: {
-    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'https://taskjuggler-production.up.railway.app/api')
-  }
+  // VITE_API_URL will be available via import.meta.env.VITE_API_URL at runtime
+  // Set it in Railway environment variables for production
 })
