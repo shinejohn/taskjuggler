@@ -5,9 +5,6 @@
 # Drop this file in your project root.
 # =============================================================================
 
-[variables]
-NODE_VERSION = "22"
-
 [phases.setup]
 # All PHP extensions your app needs
 nixPkgs = [
@@ -40,9 +37,9 @@ nixPkgs = [
     "php83Extensions.openssl",
     "php83Extensions.sodium",
     
-    # Node.js (latest available) for frontend build (npm is included)
-    # Using nodejs to get the latest available version in nixpkgs
-    "nodejs",
+    # Node.js 20 for frontend build (npm is included)
+    # Using nodejs_20 which is available in nixpkgs (Vite 6 supports Node.js 18.17.0+ or 20.0.0+)
+    "nodejs_20",
     
     # Composer for PHP dependency management
     "php83Packages.composer"
