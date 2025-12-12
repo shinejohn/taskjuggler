@@ -5,6 +5,9 @@
 # Drop this file in your project root.
 # =============================================================================
 
+[variables]
+NODE_VERSION = "22"
+
 [phases.setup]
 # All PHP extensions your app needs
 nixPkgs = [

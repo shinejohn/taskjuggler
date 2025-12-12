@@ -1,3 +1,6 @@
+[variables]
+NODE_VERSION = "22"
+
 [phases.setup]
 nixPkgs = [
     # PHP 8.3 core
