@@ -177,7 +177,7 @@ return [
                 'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
                 'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
                 'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-            ], fn($value) => $value !== null);
+            ], function($value) { return $value !== null; });
         }(),
 
         'cache' => function() {
@@ -205,7 +205,7 @@ return [
                 'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
                 'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
                 'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-            ], fn($value) => $value !== null);
+            ], function($value) { return $value !== null; });
         }(),
 
     ],
