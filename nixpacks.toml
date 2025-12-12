@@ -29,8 +29,9 @@ nixPkgs = [
     "php83Extensions.openssl",
     "php83Extensions.sodium",
     
-    # Node.js for frontend build (npm is included with nodejs_20)
-    "nodejs_20",
+    # Node.js for frontend build (npm is included with nodejs_22)
+    # Using nodejs_22 because Vite 7 requires Node.js 20.19+ or 22.12+
+    "nodejs_22",
     
     # Composer for PHP dependency management
     "php83Packages.composer"
