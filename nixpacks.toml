@@ -41,8 +41,8 @@ cmds = [
     # PHP dependencies (production only, optimized)
     "cd taskjuggler-api && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress",
     
-    # Node dependencies (clean install, faster and more reliable)
-    "cd taskjuggler-api && npm ci --prefer-offline --no-audit --no-fund",
+    # Node dependencies (install since package-lock.json may not exist)
+    "cd taskjuggler-api && npm install --no-audit --no-fund",
     
     # Build frontend assets
     "cd taskjuggler-api && npm run build",
