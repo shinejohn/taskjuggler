@@ -37,9 +37,8 @@ nixPkgs = [
     "php83Extensions.openssl",
     "php83Extensions.sodium",
     
-    # Node.js for frontend build
-    "nodejs_20",
-    "npm"
+    # Node.js for frontend build (npm is included with nodejs)
+    "nodejs_20"
 ]
 
 [phases.install]

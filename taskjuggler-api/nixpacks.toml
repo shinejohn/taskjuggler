@@ -37,9 +37,8 @@ nixPkgs = [
     "php83Extensions.openssl",
     "php83Extensions.sodium",
     
-    # Node.js for Laravel Vite asset compilation
-    "nodejs_20",
-    "npm"
+    # Node.js for Laravel Vite asset compilation (npm is included with nodejs)
+    "nodejs_20"
 ]
 
 [phases.install]
