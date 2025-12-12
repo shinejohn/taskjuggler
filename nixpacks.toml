@@ -1,6 +1,12 @@
-# Explicitly set up PHP 8.2 and Composer
+# Explicitly set up PHP 8.2 and install Composer manually
 [phases.setup]
-nixPkgs = ["php82", "php82Packages.composer"]
+nixPkgs = ["php82"]
+cmds = [
+  "curl -sS https://getcomposer.org/installer | php",
+  "mv composer.phar /usr/local/bin/composer",
+  "chmod +x /usr/local/bin/composer",
+  "composer --version"
+]
 
 [phases.install]
 cmds = [
