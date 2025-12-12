@@ -29,8 +29,7 @@ nixPkgs = [
     "php83Extensions.openssl",
     "php83Extensions.sodium",
     
-    # Node.js 20 for frontend build (npm is included)
-    # Using nodejs_20 which is available in nixpkgs (Vite 6 supports Node.js 18.17.0+ or 20.0.0+)
+    # Node.js 20 (base) - will upgrade to Node.js 22 in install phase for Vite 7
     "nodejs_20",
     
     # Composer for PHP dependency management
@@ -39,6 +38,15 @@ nixPkgs = [
 
 [phases.install]
 cmds = [
+    # Install Node.js 22 (required for Vite 7)
+    # Download and install Node.js 22 LTS
+    "curl -fsSL https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.xz -o /tmp/node.tar.xz",
+    "tar -xJf /tmp/node.tar.xz -C /tmp",
+    "rm -rf /tmp/node.tar.xz",
+    "export PATH=\"/tmp/node-v22.12.0-linux-x64/bin:$PATH\"",
+    "ln -sf /tmp/node-v22.12.0-linux-x64/bin/node /usr/local/bin/node",
+    "ln -sf /tmp/node-v22.12.0-linux-x64/bin/npm /usr/local/bin/npm",
+    
     # PHP dependencies (production only, optimized)
     "cd taskjuggler-api && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress",
     
