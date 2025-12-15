@@ -11,20 +11,47 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add foreign key from tasks to marketplace_vendors
-        Schema::table('tasks', function (Blueprint $table) {
-            $table->foreign('marketplace_vendor_id')->references('id')->on('marketplace_vendors');
-        });
+        // Add foreign key from tasks to marketplace_vendors (only if column exists)
+        if (Schema::hasTable('tasks') && Schema::hasColumn('tasks', 'marketplace_vendor_id')) {
+            try {
+                Schema::table('tasks', function (Blueprint $table) {
+                    $table->foreign('marketplace_vendor_id')->references('id')->on('marketplace_vendors');
+                });
+            } catch (\Exception $e) {
+                // Foreign key might already exist, ignore
+                if (strpos($e->getMessage(), 'already exists') === false && strpos($e->getMessage(), 'duplicate') === false) {
+                    throw $e;
+                }
+            }
+        }
         
-        // Add foreign key from tasks to marketplace_listings
-        Schema::table('tasks', function (Blueprint $table) {
-            $table->foreign('marketplace_listing_id')->references('id')->on('marketplace_listings');
-        });
+        // Add foreign key from tasks to marketplace_listings (only if column exists)
+        if (Schema::hasTable('tasks') && Schema::hasColumn('tasks', 'marketplace_listing_id')) {
+            try {
+                Schema::table('tasks', function (Blueprint $table) {
+                    $table->foreign('marketplace_listing_id')->references('id')->on('marketplace_listings');
+                });
+            } catch (\Exception $e) {
+                // Foreign key might already exist, ignore
+                if (strpos($e->getMessage(), 'already exists') === false && strpos($e->getMessage(), 'duplicate') === false) {
+                    throw $e;
+                }
+            }
+        }
         
-        // Add foreign key from marketplace_listings to tasks
-        Schema::table('marketplace_listings', function (Blueprint $table) {
-            $table->foreign('task_id')->references('id')->on('tasks');
-        });
+        // Add foreign key from marketplace_listings to tasks (only if column exists)
+        if (Schema::hasTable('marketplace_listings') && Schema::hasColumn('marketplace_listings', 'task_id')) {
+            try {
+                Schema::table('marketplace_listings', function (Blueprint $table) {
+                    $table->foreign('task_id')->references('id')->on('tasks');
+                });
+            } catch (\Exception $e) {
+                // Foreign key might already exist, ignore
+                if (strpos($e->getMessage(), 'already exists') === false && strpos($e->getMessage(), 'duplicate') === false) {
+                    throw $e;
+                }
+            }
+        }
         
         // Add foreign key from ai_tool_configs to marketplace_vendors
         Schema::table('ai_tool_configs', function (Blueprint $table) {

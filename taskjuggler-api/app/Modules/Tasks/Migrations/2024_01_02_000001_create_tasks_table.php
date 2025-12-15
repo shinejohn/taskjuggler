@@ -23,6 +23,9 @@ return new class extends Migration
             $table->uuid('requestor_id');
             $table->uuid('owner_id')->nullable();
             $table->uuid('team_id')->nullable();
+            $table->uuid('team_member_id')->nullable();
+            $table->uuid('marketplace_vendor_id')->nullable();
+            $table->uuid('marketplace_listing_id')->nullable();
             
             $table->timestamp('due_date')->nullable();
             $table->timestamp('started_at')->nullable();
