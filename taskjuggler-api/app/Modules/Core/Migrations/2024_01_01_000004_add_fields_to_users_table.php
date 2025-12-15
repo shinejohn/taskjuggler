@@ -11,13 +11,19 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Only add columns if they don't exist
             if (!Schema::hasColumn('users', 'phone')) {
-                $table->string('phone', 20)->nullable()->after('email');
+                $table->string('phone', 20)->nullable();
             }
             if (!Schema::hasColumn('users', 'avatar_url')) {
                 $table->string('avatar_url')->nullable();
             }
             if (!Schema::hasColumn('users', 'settings')) {
-                $table->json('settings')->nullable();
+                // Use jsonb for PostgreSQL, json for MySQL/SQLite
+                $driver = Schema::getConnection()->getDriverName();
+                if ($driver === 'pgsql') {
+                    $table->jsonb('settings')->nullable();
+                } else {
+                    $table->json('settings')->nullable();
+                }
             }
             if (!Schema::hasColumn('users', 'current_team_id')) {
                 $table->uuid('current_team_id')->nullable();
