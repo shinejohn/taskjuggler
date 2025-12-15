@@ -2,36 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Model;
+use App\Modules\Tasks\Models\TaskAction as TasksTaskAction;
 
-class TaskAction extends Model
+class TaskAction extends TasksTaskAction
 {
-    use HasUuids;
-
-    protected $fillable = [
-        'task_id',
-        'user_id',
-        'action_type',
-        'action_data',
-        'previous_value',
-        'new_value',
-        'reason',
-    ];
-
-    protected $casts = [
-        'action_data' => 'array',
-        'created_at' => 'datetime',
-    ];
-
-    // Relationships
-    public function task()
-    {
-        return $this->belongsTo(Task::class);
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    // Alias for backward compatibility
 }

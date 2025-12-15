@@ -149,3 +149,5 @@ All variables prefixed with `EXPO_PUBLIC_` are available in the app via `process
 Run `npm run build:ios:preview` or `npm run build:android:preview` to start building!
 
 
+
+

@@ -22,7 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'twilio.signature' => \App\Http\Middleware\ValidateTwilioSignature::class,
             'sendgrid.signature' => \App\Http\Middleware\ValidateSendGridSignature::class,
+            'module' => \App\Http\Middleware\ModuleAccess::class,
+            'profile.context' => \App\Http\Middleware\ProfileContext::class,
         ]);
+        
+        // Add profile context middleware to API routes
+        $middleware->append(\App\Http\Middleware\ProfileContext::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

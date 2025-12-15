@@ -152,65 +152,36 @@ return [
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
-        'default' => (function() {
-            $redisUrl = env('VALKEY_URL') ?: env('REDIS_URL');
-            if ($redisUrl) {
-                return [
-                    'url' => $redisUrl,
-                    'database' => env('REDIS_DB', '0'),
-                    'max_retries' => env('REDIS_MAX_RETRIES', 3),
-                    'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-                    'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-                    'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-                ];
-            }
-            $config = [
-                'host' => env('REDIS_HOST', '127.0.0.1'),
-                'port' => env('REDIS_PORT', '6379'),
-                'database' => env('REDIS_DB', '0'),
-                'max_retries' => env('REDIS_MAX_RETRIES', 3),
-                'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-                'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-                'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-            ];
-            if (env('REDIS_USERNAME') !== null) {
-                $config['username'] = env('REDIS_USERNAME');
-            }
-            if (env('REDIS_PASSWORD') !== null) {
-                $config['password'] = env('REDIS_PASSWORD');
-            }
-            return $config;
-        })(),
+        'default' => [
+            // Railway automatically provides REDIS_URL when Redis service is linked
+            // Always prioritize REDIS_URL - when set, it contains all connection info and host/port are ignored
+            'url' => env('REDIS_URL'),
+            // Only use host/port if REDIS_URL is NOT set
+            // If REDIS_URL is set, host and port are ignored by Laravel/Predis
+            'host' => env('REDIS_URL') ? null : (env('REDIS_HOST') ?: '127.0.0.1'),
+            'username' => env('REDIS_USERNAME'),
+            'password' => env('REDIS_PASSWORD'),
+            'port' => env('REDIS_URL') ? null : (env('REDIS_PORT') ?: '6379'),
+            'database' => env('REDIS_DB', '0'),
+            'max_retries' => env('REDIS_MAX_RETRIES', 3),
+            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
+            'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
+            'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+        ],
 
-        'cache' => (function() {
-            $redisUrl = env('VALKEY_URL') ?: env('REDIS_URL');
-            if ($redisUrl) {
-                return [
-                    'url' => $redisUrl,
-                    'database' => env('REDIS_CACHE_DB', '1'),
-                    'max_retries' => env('REDIS_MAX_RETRIES', 3),
-                    'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-                    'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-                    'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-                ];
-            }
-            $config = [
-                'host' => env('REDIS_HOST', '127.0.0.1'),
-                'port' => env('REDIS_PORT', '6379'),
-                'database' => env('REDIS_CACHE_DB', '1'),
-                'max_retries' => env('REDIS_MAX_RETRIES', 3),
-                'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-                'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-                'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-            ];
-            if (env('REDIS_USERNAME') !== null) {
-                $config['username'] = env('REDIS_USERNAME');
-            }
-            if (env('REDIS_PASSWORD') !== null) {
-                $config['password'] = env('REDIS_PASSWORD');
-            }
-            return $config;
-        })(),
+        'cache' => [
+            // Railway automatically provides REDIS_URL when Redis service is linked
+            'url' => env('REDIS_URL'),
+            'host' => env('REDIS_URL') ? null : (env('REDIS_HOST') ?: '127.0.0.1'),
+            'username' => env('REDIS_USERNAME'),
+            'password' => env('REDIS_PASSWORD'),
+            'port' => env('REDIS_URL') ? null : (env('REDIS_PORT') ?: '6379'),
+            'database' => env('REDIS_CACHE_DB', '1'),
+            'max_retries' => env('REDIS_MAX_RETRIES', 3),
+            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
+            'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
+            'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+        ],
 
     ],
 
