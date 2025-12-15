@@ -10,7 +10,7 @@ return new class extends Migration
     {
         if (Schema::hasTable('tasks') && !Schema::hasColumn('tasks', 'profile_id')) {
             Schema::table('tasks', function (Blueprint $table) {
-                $table->uuid('profile_id')->nullable()->after('team_id');
+                $table->uuid('profile_id')->nullable();
                 $table->index('profile_id');
                 if (Schema::hasTable('profiles')) {
                     $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade');
