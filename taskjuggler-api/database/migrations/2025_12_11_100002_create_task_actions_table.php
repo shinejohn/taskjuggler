@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip if table already exists (module migration may have created it)
+        if (Schema::hasTable('task_actions')) {
+            return;
+        }
+
         Schema::create('task_actions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('task_id');
