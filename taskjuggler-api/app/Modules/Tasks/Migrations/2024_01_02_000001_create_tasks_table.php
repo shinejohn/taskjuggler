@@ -31,7 +31,10 @@ return new class extends Migration
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             
+            $table->string('source_type')->nullable();
+            $table->uuid('source_channel_id')->nullable();
             $table->string('source_channel')->nullable();
+            $table->text('source_channel_ref')->nullable();
             $table->json('metadata')->nullable();
             $table->json('tags')->nullable();
             
