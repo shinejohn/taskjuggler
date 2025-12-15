@@ -32,12 +32,15 @@ class AuthController extends \App\Http\Controllers\Controller
         ]);
 
         // Create default profile for new user
-        Profile::create([
+        $profile = Profile::create([
             'user_id' => $user->id,
             'name' => 'Default',
             'slug' => 'default',
             'is_default' => true,
         ]);
+
+        // Set current_profile_id on user
+        $user->update(['current_profile_id' => $profile->id]);
 
         $token = $user->createToken('auth-token')->plainTextToken;
 

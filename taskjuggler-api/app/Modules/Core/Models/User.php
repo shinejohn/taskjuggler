@@ -38,6 +38,9 @@ class User extends Authenticatable
         'push_token',
         'push_platform',
         'actor_type',
+        'avatar_url',
+        'current_team_id',
+        'current_profile_id',
     ];
 
     protected $hidden = ['password'];
