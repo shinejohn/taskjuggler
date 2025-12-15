@@ -78,6 +78,7 @@ cmds = [
 
 [start]
 # Default start command for web service
-# Runs migrations, creates storage link, starts server
-cmd = "php artisan migrate --force --no-interaction && php artisan storage:link --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+# TEMPORARY: Using migrate:fresh to reset database and create all tables
+# After tables are created, change back to: migrate --force --no-interaction
+cmd = "php artisan migrate:fresh --force && php artisan storage:link --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
 
