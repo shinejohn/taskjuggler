@@ -9,6 +9,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Skip if teams table already exists (module migration may have created it)
+        if (Schema::hasTable('teams')) {
+            return;
+        }
+
         // Teams table
         Schema::create('teams', function (Blueprint $table) {
             $table->uuid('id')->primary();

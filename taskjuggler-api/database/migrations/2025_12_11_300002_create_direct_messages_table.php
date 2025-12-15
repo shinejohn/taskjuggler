@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Skip if table already exists
+        if (Schema::hasTable('direct_messages')) {
+            return;
+        }
+
         Schema::create('direct_messages', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('sender_id');
