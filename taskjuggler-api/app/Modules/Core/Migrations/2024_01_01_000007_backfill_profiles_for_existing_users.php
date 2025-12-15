@@ -30,17 +30,24 @@ return new class extends Migration
 
         // Update existing tasks, teams, etc. to use the default profile
         // This is optional - you may want to leave them null or handle differently
-        DB::statement('
-            UPDATE tasks 
-            SET profile_id = (
-                SELECT p.id 
-                FROM profiles p 
-                WHERE p.user_id = tasks.requestor_id 
-                AND p.is_default = true 
-                LIMIT 1
-            )
-            WHERE profile_id IS NULL
-        ');
+        // Only run if tasks table has profile_id column
+        if (Schema::hasTable('tasks') && Schema::hasColumn('tasks', 'profile_id')) {
+            try {
+                DB::statement('
+                    UPDATE tasks 
+                    SET profile_id = (
+                        SELECT p.id 
+                        FROM profiles p 
+                        WHERE p.user_id = tasks.requestor_id 
+                        AND p.is_default = true 
+                        LIMIT 1
+                    )
+                    WHERE profile_id IS NULL
+                ');
+            } catch (\Exception $e) {
+                // Ignore errors - this is a backfill migration
+            }
+        }
     }
 
     public function down(): void

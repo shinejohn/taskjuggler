@@ -28,22 +28,20 @@ return new class extends Migration
         });
 
         // Add foreign key only if teams table exists and column was added
-        if (Schema::hasTable('teams') && Schema::hasColumn('users', 'current_team_id')) {
-            Schema::table('users', function (Blueprint $table) {
-                // Check if foreign key doesn't exist before adding
-                $foreignKeys = Schema::getConnection()
-                    ->getDoctrineSchemaManager()
-                    ->listTableForeignKeys('users');
-                
-                $hasForeignKey = collect($foreignKeys)->contains(function ($fk) {
-                    return count($fk->getLocalColumns()) === 1 && 
-                           $fk->getLocalColumns()[0] === 'current_team_id';
-                });
-                
-                if (!$hasForeignKey) {
+        // Skip foreign key if using SQLite (handled separately for PostgreSQL)
+        if (Schema::hasTable('teams') && 
+            Schema::hasColumn('users', 'current_team_id') &&
+            config('database.default') !== 'sqlite') {
+            try {
+                Schema::table('users', function (Blueprint $table) {
                     $table->foreign('current_team_id')->references('id')->on('teams')->nullOnDelete();
+                });
+            } catch (\Exception $e) {
+                // Foreign key might already exist, ignore
+                if (strpos($e->getMessage(), 'already exists') === false) {
+                    throw $e;
                 }
-            });
+            }
         }
     }
 
