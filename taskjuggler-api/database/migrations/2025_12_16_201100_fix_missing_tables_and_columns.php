@@ -29,7 +29,7 @@ return new class extends Migration
         // Step 2: Add current_profile_id to users table if it doesn't exist
         if (!Schema::hasColumn('users', 'current_profile_id')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->uuid('current_profile_id')->nullable()->after('current_team_id');
+                $table->uuid('current_profile_id')->nullable();
             });
 
             // Add index
@@ -68,8 +68,9 @@ return new class extends Migration
 
                 // If no default profile exists, create one
                 if (!$profile) {
-                    $profileId = DB::table('profiles')->insertGetId([
-                        'id' => \Illuminate\Support\Str::uuid()->toString(),
+                    $profileId = (string) \Illuminate\Support\Str::uuid();
+                    DB::table('profiles')->insert([
+                        'id' => $profileId,
                         'user_id' => $user->id,
                         'name' => 'Default',
                         'slug' => 'default',
