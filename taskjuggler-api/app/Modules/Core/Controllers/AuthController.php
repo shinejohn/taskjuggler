@@ -96,11 +96,11 @@ class AuthController extends \App\Http\Controllers\Controller
             
             // Load profiles if table exists
             try {
-                if (\Schema::hasTable('profiles')) {
+                if (Schema::hasTable('profiles')) {
                     $user->load('profiles');
                 }
             } catch (\Exception $e) {
-                \Log::warning('Could not load profiles for user: ' . $e->getMessage());
+                Log::warning('Could not load profiles for user: ' . $e->getMessage());
                 // Continue without profiles
             }
 
@@ -111,7 +111,7 @@ class AuthController extends \App\Http\Controllers\Controller
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
-            \Log::error('Login error: ' . $e->getMessage(), [
+            Log::error('Login error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
