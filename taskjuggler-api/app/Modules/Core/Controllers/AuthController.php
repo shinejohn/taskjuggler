@@ -37,25 +37,16 @@ class AuthController extends \App\Http\Controllers\Controller
                 'timezone' => $validated['timezone'] ?? 'America/New_York',
             ]);
 
-            // Create default profile for new user (if profiles table exists)
-            try {
-                if (\Schema::hasTable('profiles')) {
-                    $profile = Profile::create([
-                        'user_id' => $user->id,
-                        'name' => 'Default',
-                        'slug' => 'default',
-                        'is_default' => true,
-                    ]);
+            // Create default profile for new user
+            $profile = Profile::create([
+                'user_id' => $user->id,
+                'name' => 'Default',
+                'slug' => 'default',
+                'is_default' => true,
+            ]);
 
-                    // Set current_profile_id on user (if column exists)
-                    if (\Schema::hasColumn('users', 'current_profile_id')) {
-                        $user->update(['current_profile_id' => $profile->id]);
-                    }
-                }
-            } catch (\Exception $e) {
-                // Profiles table doesn't exist or other error, continue without profile
-                \Log::warning('Could not create profile for user: ' . $e->getMessage());
-            }
+            // Set current_profile_id on user
+            $user->update(['current_profile_id' => $profile->id]);
 
             $token = $user->createToken('auth-token')->plainTextToken;
 
