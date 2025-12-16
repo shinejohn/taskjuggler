@@ -29,12 +29,12 @@
         >
           Login
         </router-link>
-        <button
+        <router-link
+          to="/register"
           class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
-          @click="$emit('get-started')"
         >
-          Get Started
-        </button>
+          Sign Up
+        </router-link>
       </nav>
       <!-- Mobile Menu Button -->
       <button
@@ -86,15 +86,13 @@
         >
           Login
         </router-link>
-        <button
-          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md w-full"
-          @click="
-            isMenuOpen = false;
-            $emit('get-started');
-          "
+        <router-link
+          to="/register"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md w-full text-center"
+          @click="isMenuOpen = false"
         >
-          Get Started
-        </button>
+          Sign Up
+        </router-link>
       </nav>
     </div>
   </header>
