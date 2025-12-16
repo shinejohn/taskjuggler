@@ -16,10 +16,19 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true;
     try {
       const response = await api.post('/auth/login', { email, password });
-      token.value = response.data.token;
-      user.value = response.data.user;
-      localStorage.setItem('token', response.data.token);
-      initializeEcho(response.data.token);
+      // Handle both response formats: { data: { token, user } } or { token, user }
+      const responseData = response.data.data || response.data;
+      token.value = responseData.token;
+      user.value = responseData.user;
+      if (token.value) {
+        localStorage.setItem('token', token.value);
+        initializeEcho(token.value);
+      } else {
+        throw new Error('No token received from server');
+      }
+    } catch (error: any) {
+      // Re-throw to let the component handle it
+      throw error;
     } finally {
       loading.value = false;
     }
@@ -29,10 +38,19 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true;
     try {
       const response = await api.post('/auth/register', data);
-      token.value = response.data.token;
-      user.value = response.data.user;
-      localStorage.setItem('token', response.data.token);
-      initializeEcho(response.data.token);
+      // Handle both response formats: { data: { token, user } } or { token, user }
+      const responseData = response.data.data || response.data;
+      token.value = responseData.token;
+      user.value = responseData.user;
+      if (token.value) {
+        localStorage.setItem('token', token.value);
+        initializeEcho(token.value);
+      } else {
+        throw new Error('No token received from server');
+      }
+    } catch (error: any) {
+      // Re-throw to let the component handle it
+      throw error;
     } finally {
       loading.value = false;
     }
@@ -42,7 +60,8 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return;
     try {
       const response = await api.get('/auth/user');
-      user.value = response.data;
+      // Handle both response formats: { data: { ... } } or { ... }
+      user.value = response.data.data || response.data;
     } catch {
       logout();
     }

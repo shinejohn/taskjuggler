@@ -31,9 +31,9 @@
         </router-link>
         <router-link
           to="/register"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
-          Sign Up
+          Sign-up
         </router-link>
       </nav>
       <!-- Mobile Menu Button -->
@@ -88,10 +88,10 @@
         </router-link>
         <router-link
           to="/register"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md w-full text-center"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md w-full text-center transition-colors"
           @click="isMenuOpen = false"
         >
-          Sign Up
+          Sign-up
         </router-link>
       </nav>
     </div>

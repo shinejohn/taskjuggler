@@ -20,6 +20,19 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
+    // Log network errors for debugging
+    if (!error.response) {
+      console.error('Network Error:', {
+        message: error.message,
+        code: error.code,
+        config: {
+          url: error.config?.url,
+          baseURL: error.config?.baseURL,
+          method: error.config?.method,
+        },
+      });
+    }
+
     if (error.response?.status === 401) {
       const authStore = useAuthStore();
       authStore.logout();
