@@ -8,6 +8,7 @@ cmds = [
 
 [phases.build]
 cmds = [
+    "echo 'VITE_API_URL='$VITE_API_URL",
     "npm run build"
 ]
 
