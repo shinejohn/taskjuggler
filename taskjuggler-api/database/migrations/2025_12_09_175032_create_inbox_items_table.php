@@ -38,9 +38,8 @@ return new class extends Migration
             
             // Routing
             $table->uuid('routed_to_task_id')->nullable();
-            $table->foreign('routed_to_task_id')->references('id')->on('tasks');
+            // Foreign keys will be added in a separate migration after tasks and routing_rules are created
             $table->uuid('routing_rule_id')->nullable();
-            $table->foreign('routing_rule_id')->references('id')->on('routing_rules');
             
             // Auto-response
             $table->boolean('auto_response_sent')->default(false);

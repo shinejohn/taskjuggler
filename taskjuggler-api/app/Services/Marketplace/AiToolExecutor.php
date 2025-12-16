@@ -88,13 +88,16 @@ class AiToolExecutor
         );
 
         $content = $response['choices'][0]['message']['content'];
-        $tokens = $response['usage']['total_tokens'] ?? 0;
+        $usage = $response['usage'] ?? [];
+        $promptTokens = $usage['prompt_tokens'] ?? 0;
+        $completionTokens = $usage['completion_tokens'] ?? 0;
+        $totalTokens = $usage['total_tokens'] ?? ($promptTokens + $completionTokens);
 
         return [
             'data' => ['response' => $content],
             'deliverables' => [],
-            'tokens' => $tokens,
-            'cost' => $this->calculateCost($tokens, $config->model),
+            'tokens' => $totalTokens,
+            'cost' => $this->calculateCost($promptTokens, $completionTokens, $config->model),
         ];
     }
 
@@ -168,9 +171,63 @@ class AiToolExecutor
         return str_replace(array_keys($replacements), array_values($replacements), $template);
     }
 
-    private function calculateCost(int $tokens, string $model): float
+    /**
+     * Calculate cost based on model pricing (per 1M tokens)
+     * Prices are from OpenRouter as of December 2024
+     * 
+     * @param int $promptTokens Input tokens
+     * @param int $completionTokens Output tokens
+     * @param string $model Model identifier (e.g., 'openai/gpt-4o')
+     * @return float Total cost in USD
+     */
+    private function calculateCost(int $promptTokens, int $completionTokens, string $model): float
     {
-        // TODO: Implement cost calculation based on model pricing
-        return 0.0;
+        // OpenRouter pricing per 1M tokens (input, output)
+        // Format: [input_price_per_1M, output_price_per_1M]
+        $pricing = [
+            // OpenAI models
+            'openai/gpt-5.1' => [1.25, 10.00],
+            'openai/gpt-5.1-chat' => [1.25, 10.00],
+            'openai/gpt-5.1-codex' => [1.25, 10.00],
+            'openai/gpt-4o' => [5.00, 15.00],
+            'openai/gpt-4o-mini' => [0.15, 0.60],
+            'openai/gpt-4-turbo' => [10.00, 30.00],
+            'openai/gpt-4' => [30.00, 60.00],
+            'openai/gpt-3.5-turbo' => [0.50, 1.50],
+            
+            // Anthropic models
+            'anthropic/claude-3-opus' => [15.00, 75.00],
+            'anthropic/claude-3.5-sonnet' => [3.00, 15.00],
+            'anthropic/claude-3-sonnet' => [3.00, 15.00],
+            'anthropic/claude-3-haiku' => [0.25, 1.25],
+            'anthropic/claude-3-5-haiku' => [0.80, 4.00],
+            
+            // Google models
+            'google/gemini-2.5-flash' => [0.15, 0.60],
+            'google/gemini-pro' => [0.50, 1.50],
+            'google/gemini-ultra' => [1.25, 5.00],
+            
+            // Mistral models
+            'mistralai/mistral-large-2' => [2.00, 6.00],
+            'mistralai/mistral-medium' => [2.70, 8.10],
+            'mistralai/mistral-small' => [0.20, 0.60],
+            
+            // DeepSeek models
+            'deepseek/deepseek-coder-v2' => [0.27, 1.10],
+            'deepseek/deepseek-chat' => [0.14, 0.28],
+        ];
+
+        // Get pricing for model, default to gpt-4o-mini if not found
+        $modelPricing = $pricing[$model] ?? $pricing['openai/gpt-4o-mini'];
+        [$inputPricePer1M, $outputPricePer1M] = $modelPricing;
+
+        // Calculate cost: (tokens / 1,000,000) * price_per_1M
+        $inputCost = ($promptTokens / 1_000_000) * $inputPricePer1M;
+        $outputCost = ($completionTokens / 1_000_000) * $outputPricePer1M;
+        
+        $totalCost = $inputCost + $outputCost;
+
+        // Round to 6 decimal places for precision
+        return round($totalCost, 6);
     }
 }

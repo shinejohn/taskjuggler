@@ -1,0 +1,25 @@
+{
+  "name": "taskjuggler-e2e-tests",
+  "version": "1.0.0",
+  "description": "End-to-end UI tests for Task Juggler applications",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:taskjuggler": "playwright test --project=taskjuggler-web",
+    "test:projects": "playwright test --project=projects-web",
+    "test:process": "playwright test --project=process-web",
+    "test:auth": "playwright test tests/auth",
+    "test:report": "playwright show-report",
+    "test:codegen": "playwright codegen",
+    "install:browsers": "playwright install"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^24.10.2",
+    "typescript": "^5.9.3"
+  }
+}
+

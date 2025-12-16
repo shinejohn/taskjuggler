@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', env('DATABASE_URL') ? 'pgsql' : 'sqlite'),
 
     /*
     |--------------------------------------------------------------------------
@@ -85,7 +85,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
+            'url' => env('DATABASE_URL') ?: env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),
@@ -144,7 +144,7 @@ return [
 
     'redis' => [
 
-        'client' => env('REDIS_CLIENT', 'phpredis'),
+        'client' => env('REDIS_CLIENT', 'predis'),
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
@@ -153,11 +153,15 @@ return [
         ],
 
         'default' => [
+            // Railway automatically provides REDIS_URL when Redis service is linked
+            // Always prioritize REDIS_URL - when set, it contains all connection info and host/port are ignored
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
+            // Only use host/port if REDIS_URL is NOT set
+            // If REDIS_URL is set, host and port are ignored by Laravel/Predis
+            'host' => env('REDIS_URL') ? null : (env('REDIS_HOST') ?: '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
+            'port' => env('REDIS_URL') ? null : (env('REDIS_PORT') ?: '6379'),
             'database' => env('REDIS_DB', '0'),
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
@@ -166,11 +170,12 @@ return [
         ],
 
         'cache' => [
+            // Railway automatically provides REDIS_URL when Redis service is linked
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'host' => env('REDIS_URL') ? null : (env('REDIS_HOST') ?: '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
+            'port' => env('REDIS_URL') ? null : (env('REDIS_PORT') ?: '6379'),
             'database' => env('REDIS_CACHE_DB', '1'),
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),

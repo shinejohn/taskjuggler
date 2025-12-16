@@ -1,0 +1,92 @@
+[phases.setup]
+nixPkgs = [
+    # PHP 8.3 core
+    "php83",
+    
+    # Database extensions
+    "php83Extensions.pdo",
+    "php83Extensions.pdo_pgsql",
+    "php83Extensions.pgsql",
+    
+    # Cache/Queue extensions
+    "php83Extensions.redis",
+    
+    # Process control (required for Horizon)
+    "php83Extensions.pcntl",
+    
+    # Common extensions
+    "php83Extensions.bcmath",
+    "php83Extensions.gd",
+    "php83Extensions.intl",
+    "php83Extensions.mbstring",
+    "php83Extensions.xml",
+    "php83Extensions.dom",
+    "php83Extensions.zip",
+    "php83Extensions.curl",
+    "php83Extensions.fileinfo",
+    "php83Extensions.tokenizer",
+    "php83Extensions.ctype",
+    "php83Extensions.openssl",
+    "php83Extensions.sodium",
+    
+    # Node.js 20 (base) - will upgrade to Node.js 22 in install phase for Vite 7
+    "nodejs_20",
+    
+    # Composer for PHP dependency management
+    "php83Packages.composer"
+]
+
+[phases.install]
+cmds = [
+    # Install Node.js 24 (required for Vite 7)
+    # Download and install latest Node.js 24 to /usr/local
+    "curl -fsSL https://nodejs.org/dist/v24.11.1/node-v24.11.1-linux-x64.tar.xz -o /tmp/node.tar.xz && tar -xJf /tmp/node.tar.xz -C /tmp && rm /tmp/node.tar.xz",
+    "cp -r /tmp/node-v24.11.1-linux-x64/* /usr/local/ && rm -rf /tmp/node-v24.11.1-linux-x64",
+    "export PATH=\"/usr/local/bin:$PATH\" && node --version && npm --version",
+    
+    # PHP dependencies (production only, optimized)
+    "cd taskjuggler-api && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress",
+    
+    # Node dependencies for API (Laravel Vite assets)
+    "export PATH=\"/usr/local/bin:$PATH\" && cd taskjuggler-api && npm install --no-audit --no-fund",
+    
+    # Build Laravel frontend assets
+    "export PATH=\"/usr/local/bin:$PATH\" && cd taskjuggler-api && npm run build",
+    
+    # Node dependencies for Vue.js frontend
+    "export PATH=\"/usr/local/bin:$PATH\" && cd taskjuggler-web && npm install --no-audit --no-fund",
+    
+    # Build Vue.js frontend (outputs to taskjuggler-web/dist)
+    # VITE_API_URL: use provided value, or construct from APP_URL, or use default
+    "export PATH=\"/usr/local/bin:$PATH\" && cd taskjuggler-web && VITE_API_URL=\"${VITE_API_URL:-${APP_URL:+$APP_URL/api:-https://taskjuggler-production.up.railway.app/api}}\" npm run build",
+    
+    # Copy Vue.js frontend build to API public directory
+    "cp -r taskjuggler-web/dist/* taskjuggler-api/public/",
+    
+    # Ensure storage directories exist
+    "cd taskjuggler-api && mkdir -p storage/framework/sessions",
+    "cd taskjuggler-api && mkdir -p storage/framework/views",
+    "cd taskjuggler-api && mkdir -p storage/framework/cache/data",
+    "cd taskjuggler-api && mkdir -p storage/logs",
+    "cd taskjuggler-api && mkdir -p bootstrap/cache",
+    
+    # Set permissions
+    "cd taskjuggler-api && chmod -R 775 storage",
+    "cd taskjuggler-api && chmod -R 775 bootstrap/cache"
+]
+
+[phases.build]
+# Laravel optimizations - these cache config for faster boot
+# The "|| true" ensures build doesn't fail if these commands error
+cmds = [
+    "cd taskjuggler-api && php artisan package:discover --ansi || true",
+    "cd taskjuggler-api && php artisan config:cache || true",
+    "cd taskjuggler-api && php artisan route:cache || true",
+    "cd taskjuggler-api && php artisan view:cache || true",
+    "cd taskjuggler-api && php artisan event:cache || true"
+]
+
+[start]
+# Default start command for web service
+# Runs migrations, creates storage link, starts server
+cmd = "cd taskjuggler-api && php artisan migrate --force --no-interaction && php artisan storage:link --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"

@@ -29,10 +29,43 @@ return [
     ],
 
     'slack' => [
+        'bot_token' => env('SLACK_BOT_TOKEN'),
+        'signing_secret' => env('SLACK_SIGNING_SECRET'),
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+    ],
+
+    'twilio' => [
+        'sid' => env('TWILIO_ACCOUNT_SID'),
+        'token' => env('TWILIO_AUTH_TOKEN'),
+        'verify_signature' => env('TWILIO_VERIFY_SIGNATURE', true),
+    ],
+
+    'sendgrid' => [
+        'api_key' => env('SENDGRID_API_KEY'),
+        'inbound_domain' => env('SENDGRID_INBOUND_DOMAIN', 'assistant.taskjuggler.com'),
+        'webhook_secret' => env('SENDGRID_WEBHOOK_SECRET'),
+    ],
+
+    'openrouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'base_url' => env('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1'),
+        'default_model' => env('OPENROUTER_DEFAULT_MODEL', 'openai/gpt-4o'),
+        'extraction_model' => env('OPENROUTER_EXTRACTION_MODEL', 'openai/gpt-4o'),
+    ],
+
+    'stripe' => [
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
 ];
