@@ -69,46 +69,28 @@ class AuthController extends \App\Http\Controllers\Controller
 
     public function login(Request $request)
     {
-        try {
-            $request->validate([
-                'email' => 'required|email',
-                'password' => 'required',
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
             ]);
-
-            $user = User::where('email', $request->email)->first();
-
-            if (!$user || !Hash::check($request->password, $user->password)) {
-                throw ValidationException::withMessages([
-                    'email' => ['The provided credentials are incorrect.'],
-                ]);
-            }
-
-            $token = $user->createToken('auth-token')->plainTextToken;
-            
-            // Load profiles if table exists
-            try {
-                if (Schema::hasTable('profiles')) {
-                    $user->load('profiles');
-                }
-            } catch (\Exception $e) {
-                Log::warning('Could not load profiles for user: ' . $e->getMessage());
-                // Continue without profiles
-            }
-
-            return $this->success([
-                'user' => $user,
-                'token' => $token,
-            ], 'Logged in successfully');
-        } catch (ValidationException $e) {
-            throw $e;
-        } catch (\Exception $e) {
-            Log::error('Login error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
-            return $this->error('Login failed: ' . $e->getMessage(), 500);
         }
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+        
+        // Load profiles - migrations should ensure this works
+        $user->load('profiles');
+
+        return $this->success([
+            'user' => $user,
+            'token' => $token,
+        ], 'Logged in successfully');
     }
 
     public function logout(Request $request)

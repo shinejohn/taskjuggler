@@ -28,19 +28,37 @@ return new class extends Migration
             if (!Schema::hasColumn('users', 'current_team_id')) {
                 $table->uuid('current_team_id')->nullable();
             }
+            if (!Schema::hasColumn('users', 'current_profile_id')) {
+                $table->uuid('current_profile_id')->nullable();
+            }
             if (!Schema::hasColumn('users', 'deleted_at')) {
                 $table->softDeletes();
             }
         });
 
-        // Add foreign key only if teams table exists and column was added
-        // Skip foreign key if using SQLite (handled separately for PostgreSQL)
+        // Add foreign key for current_team_id
         if (Schema::hasTable('teams') && 
             Schema::hasColumn('users', 'current_team_id') &&
             config('database.default') !== 'sqlite') {
             try {
                 Schema::table('users', function (Blueprint $table) {
                     $table->foreign('current_team_id')->references('id')->on('teams')->nullOnDelete();
+                });
+            } catch (\Exception $e) {
+                // Foreign key might already exist, ignore
+                if (strpos($e->getMessage(), 'already exists') === false) {
+                    throw $e;
+                }
+            }
+        }
+        
+        // Add foreign key for current_profile_id
+        if (Schema::hasTable('profiles') && 
+            Schema::hasColumn('users', 'current_profile_id') &&
+            config('database.default') !== 'sqlite') {
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->foreign('current_profile_id')->references('id')->on('profiles')->nullOnDelete();
                 });
             } catch (\Exception $e) {
                 // Foreign key might already exist, ignore
