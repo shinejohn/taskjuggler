@@ -49,4 +49,40 @@ class VoiceService
         $transcription = $this->client->transcriptions($transcriptionSid)->fetch();
         return $transcription->transcriptionText;
     }
+
+    /**
+     * Provision a new phone number from Twilio
+     */
+    public function provisionPhoneNumber(\App\Models\User $user): array
+    {
+        try {
+            // Search for available phone numbers
+            $availableNumbers = $this->client->availablePhoneNumbers(config('services.twilio.country_code', 'US'))
+                ->local
+                ->read(['limit' => 1]);
+
+            if (empty($availableNumbers)) {
+                throw new \Exception('No available phone numbers');
+            }
+
+            $phoneNumber = $availableNumbers[0]->phoneNumber;
+
+            // Purchase the phone number
+            $incomingPhoneNumber = $this->client->incomingPhoneNumbers->create([
+                'phoneNumber' => $phoneNumber,
+                'voiceUrl' => route('webhooks.twilio.voice', ['user' => $user->id]),
+                'voiceMethod' => 'POST',
+                'statusCallback' => route('webhooks.twilio.recording', ['user' => $user->id]),
+                'statusCallbackMethod' => 'POST',
+            ]);
+
+            return [
+                'phone_number' => $phoneNumber,
+                'sid' => $incomingPhoneNumber->sid,
+            ];
+        } catch (\Exception $e) {
+            \Log::error('Twilio phone provisioning failed', ['error' => $e->getMessage()]);
+            throw $e;
+        }
+    }
 }

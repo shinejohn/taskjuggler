@@ -17,14 +17,17 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('task_id');
             $table->uuid('user_id')->nullable();
-            $table->string('actor_type')->default('human'); // human, system, ai
-            $table->string('action');
-            $table->string('from_value')->nullable();
-            $table->string('to_value')->nullable();
-            $table->json('metadata')->nullable();
-            $table->timestamps();
+            $table->string('action_type', 50)->notNull(); // 'status_change', 'assign', 'complete', 'decline', 'watch', etc.
+            $table->jsonb('action_data')->default('{}'); // Store additional context
+            $table->string('previous_value')->nullable(); // Previous status/state
+            $table->string('new_value')->nullable(); // New status/state
+            $table->text('reason')->nullable(); // Optional reason for the action
+            $table->timestampTz('created_at')->default(now());
+            $table->timestampTz('updated_at')->nullable();
             
-            $table->index('task_id');
+            $table->index(['task_id', 'created_at']);
+            $table->index(['user_id', 'created_at']);
+            $table->index('action_type');
             
             // Only add foreign keys if tables exist
             if (Schema::hasTable('tasks')) {

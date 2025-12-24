@@ -30,7 +30,6 @@ class TaskFactory extends Factory
             'status' => $this->faker->randomElement(['pending', 'accepted', 'in_progress', 'completed']),
             'priority' => $this->faker->randomElement(['low', 'normal', 'high', 'urgent']),
             'due_date' => $this->faker->optional()->dateTimeBetween('now', '+1 month'),
-            'start_date' => $this->faker->optional()->dateTimeBetween('-1 month', 'now'),
             'color_state' => $this->faker->randomElement(['blue', 'green', 'yellow', 'red']),
         ];
     }

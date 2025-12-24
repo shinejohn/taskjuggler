@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class SlackAdapter implements ChannelAdapter
 {
+    use HandlesTefFormats;
     public function getChannel(): string
     {
         return 'slack';
@@ -22,9 +23,11 @@ class SlackAdapter implements ChannelAdapter
 
     public function sendTask(array $tef, string $recipient): bool
     {
-        $blocks = $this->formatTaskAsBlocks($tef);
+        // Extract task data (handles both TEF 1.0 and 2.0.0)
+        $taskData = $this->extractTaskData($tef);
+        $blocks = $this->formatTaskAsBlocks($taskData);
         
-        return $this->sendMessage($recipient, $this->formatTask($tef), $blocks);
+        return $this->sendMessage($recipient, $this->formatTask($taskData), $blocks);
     }
 
     public function sendNotification(User $user, Task $task, string $type): bool
@@ -42,7 +45,9 @@ class SlackAdapter implements ChannelAdapter
 
     public function formatTask(array $tef): string
     {
-        return "📋 *Task:* {$tef['title']}";
+        // Ensure we have normalized task data
+        $taskData = $this->extractTaskData($tef);
+        return "📋 *Task:* {$taskData['title']}";
     }
 
     /**
@@ -50,22 +55,25 @@ class SlackAdapter implements ChannelAdapter
      */
     private function formatTaskAsBlocks(array $tef): array
     {
+        // Ensure we have normalized task data
+        $taskData = $this->extractTaskData($tef);
+        
         $blocks = [
             [
                 'type' => 'header',
                 'text' => [
                     'type' => 'plain_text',
-                    'text' => "📋 {$tef['title']}",
+                    'text' => "📋 {$taskData['title']}",
                 ],
             ],
         ];
 
-        if (!empty($tef['description'])) {
+        if (!empty($taskData['description'])) {
             $blocks[] = [
                 'type' => 'section',
                 'text' => [
                     'type' => 'mrkdwn',
-                    'text' => $tef['description'],
+                    'text' => $taskData['description'],
                 ],
             ];
         }
@@ -73,24 +81,24 @@ class SlackAdapter implements ChannelAdapter
         // Add metadata fields
         $fields = [];
         
-        if (!empty($tef['organizer']['name'])) {
+        if (!empty($taskData['organizer']['name'])) {
             $fields[] = [
                 'type' => 'mrkdwn',
-                'text' => "*From:*\n{$tef['organizer']['name']}",
+                'text' => "*From:*\n{$taskData['organizer']['name']}",
             ];
         }
 
-        if (!empty($tef['dtdue'])) {
+        if (!empty($taskData['dtdue'])) {
             $fields[] = [
                 'type' => 'mrkdwn',
-                'text' => "*Due:*\n" . date('M j, Y', strtotime($tef['dtdue'])),
+                'text' => "*Due:*\n" . date('M j, Y', strtotime($taskData['dtdue'])),
             ];
         }
 
-        if (!empty($tef['location']['address'])) {
+        if (!empty($taskData['location']['address'])) {
             $fields[] = [
                 'type' => 'mrkdwn',
-                'text' => "*Location:*\n{$tef['location']['address']}",
+                'text' => "*Location:*\n{$taskData['location']['address']}",
             ];
         }
 
@@ -102,29 +110,35 @@ class SlackAdapter implements ChannelAdapter
         }
 
         // Add action buttons
+        $taskId = $taskData['id'] ?? $taskData['task_id'] ?? '';
+        $elements = [
+            [
+                'type' => 'button',
+                'text' => ['type' => 'plain_text', 'text' => '✅ Accept'],
+                'style' => 'primary',
+                'action_id' => 'accept_task',
+                'value' => $taskId,
+            ],
+            [
+                'type' => 'button',
+                'text' => ['type' => 'plain_text', 'text' => '❌ Decline'],
+                'style' => 'danger',
+                'action_id' => 'decline_task',
+                'value' => $taskId,
+            ],
+        ];
+        
+        if (!empty($taskData['actions']['view'])) {
+            $elements[] = [
+                'type' => 'button',
+                'text' => ['type' => 'plain_text', 'text' => '👁️ View'],
+                'url' => $taskData['actions']['view'],
+            ];
+        }
+        
         $blocks[] = [
             'type' => 'actions',
-            'elements' => [
-                [
-                    'type' => 'button',
-                    'text' => ['type' => 'plain_text', 'text' => '✅ Accept'],
-                    'style' => 'primary',
-                    'action_id' => 'accept_task',
-                    'value' => $tef['id'],
-                ],
-                [
-                    'type' => 'button',
-                    'text' => ['type' => 'plain_text', 'text' => '❌ Decline'],
-                    'style' => 'danger',
-                    'action_id' => 'decline_task',
-                    'value' => $tef['id'],
-                ],
-                [
-                    'type' => 'button',
-                    'text' => ['type' => 'plain_text', 'text' => '👁️ View'],
-                    'url' => $tef['actions']['view'],
-                ],
-            ],
+            'elements' => $elements,
         ];
 
         $blocks[] = [
@@ -132,7 +146,7 @@ class SlackAdapter implements ChannelAdapter
             'elements' => [
                 [
                     'type' => 'mrkdwn',
-                    'text' => "Task ID: `{$tef['id']}` | via Task Juggler",
+                    'text' => "Task ID: `{$taskId}` | via Task Juggler",
                 ],
             ],
         ];

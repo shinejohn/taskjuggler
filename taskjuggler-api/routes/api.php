@@ -14,9 +14,21 @@ use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\PublicBookingController;
 use App\Http\Controllers\Api\DirectMessageController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\TEF\ActorController;
+use App\Http\Controllers\Api\TEF\RelationshipController;
+use App\Http\Controllers\Api\TEF\MessageController;
+use App\Http\Controllers\Api\TEF\ConversationController;
+use App\Http\Controllers\Api\IoT\DeviceController;
+use App\Http\Controllers\Api\AI\AgentController;
 
 // Note: Auth routes are now in app/Modules/Core/Routes/api.php
 // Note: Task routes are now in app/Modules/Tasks/Routes/api.php
+
+// Load Core module routes (auth, profiles)
+require base_path('app/Modules/Core/Routes/api.php');
+
+// Load Tasks module routes
+require base_path('app/Modules/Tasks/Routes/api.php');
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -94,6 +106,86 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/unread', [DirectMessageController::class, 'unreadCount']);
         Route::get('/with/{user}', [DirectMessageController::class, 'messages']);
         Route::post('/to/{user}', [DirectMessageController::class, 'send']);
+    });
+
+    // TEF 2.0.0 API endpoints
+    Route::prefix('tef/v1')->group(function () {
+        // Actors
+        Route::post('/actors', [ActorController::class, 'register']);
+        Route::post('/actors/claim', [ActorController::class, 'claim']);
+        Route::get('/actors/{id}', [ActorController::class, 'show']);
+        Route::put('/actors/{id}', [ActorController::class, 'update']);
+        Route::delete('/actors/{id}', [ActorController::class, 'destroy']);
+        Route::get('/actors/{id}/capabilities', [ActorController::class, 'capabilities']);
+        Route::post('/actors/{id}/authenticate', [ActorController::class, 'authenticate']);
+
+        // Relationships
+        Route::post('/relationships', [RelationshipController::class, 'store']);
+        Route::get('/relationships', [RelationshipController::class, 'index']);
+        Route::get('/relationships/{id}', [RelationshipController::class, 'show']);
+        Route::put('/relationships/{id}', [RelationshipController::class, 'update']);
+        Route::delete('/relationships/{id}', [RelationshipController::class, 'destroy']);
+        Route::get('/relationships/{id}/history', [RelationshipController::class, 'history']);
+        
+        // Trust Scores
+        Route::get('/relationships/{id}/trust-score', [\App\Http\Controllers\Api\TEF\TrustScoreController::class, 'show']);
+        Route::put('/relationships/{id}/trust-score', [\App\Http\Controllers\Api\TEF\TrustScoreController::class, 'update']);
+        Route::post('/relationships/{id}/trust-score/recalculate', [\App\Http\Controllers\Api\TEF\TrustScoreController::class, 'recalculate']);
+
+        // Messages
+        Route::post('/messages', [MessageController::class, 'store']);
+        Route::get('/messages', [MessageController::class, 'index']);
+        Route::get('/messages/{id}', [MessageController::class, 'show']);
+        Route::post('/messages/{id}/read', [MessageController::class, 'markRead']);
+
+        // Conversations
+        Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+        Route::get('/conversations/task/{taskId}', [ConversationController::class, 'byTask']);
+    });
+
+    // IoT Device endpoints
+    Route::prefix('iot/devices')->group(function () {
+        Route::post('/register', [DeviceController::class, 'register']);
+        Route::post('/claim', [DeviceController::class, 'claim']);
+        Route::get('/', [DeviceController::class, 'index']);
+        Route::get('/{id}', [DeviceController::class, 'show']);
+        Route::put('/{id}/capabilities', [DeviceController::class, 'updateCapabilities']);
+        Route::post('/{id}/claim-code', [DeviceController::class, 'generateClaimCode']);
+        Route::post('/{id}/send-task', [DeviceController::class, 'sendTask']);
+        Route::delete('/{id}', [DeviceController::class, 'destroy']);
+    });
+
+    // AI Agent endpoints
+    Route::prefix('ai/agents')->group(function () {
+        Route::post('/register', [AgentController::class, 'register']);
+        Route::post('/claim', [AgentController::class, 'claim']);
+        Route::get('/', [AgentController::class, 'index']);
+        Route::get('/{id}', [AgentController::class, 'show']);
+        Route::put('/{id}/capabilities', [AgentController::class, 'updateCapabilities']);
+        Route::post('/{id}/claim-code', [AgentController::class, 'generateClaimCode']);
+        Route::post('/{id}/delegate-task', [AgentController::class, 'delegateTask']);
+        Route::delete('/{id}', [AgentController::class, 'destroy']);
+    });
+
+    // Performance endpoints
+    Route::prefix('performance')->group(function () {
+        Route::get('/cache/stats', [\App\Http\Controllers\Api\Performance\CacheController::class, 'stats']);
+        Route::post('/cache/warm-up', [\App\Http\Controllers\Api\Performance\CacheController::class, 'warmUp']);
+        Route::delete('/cache/user', [\App\Http\Controllers\Api\Performance\CacheController::class, 'clearUserCache']);
+    });
+
+    // Test Results endpoints (admin only in production)
+    Route::prefix('test-results')->group(function () {
+        Route::post('/run', [\App\Http\Controllers\TestResultsController::class, 'runTests']);
+        Route::get('/latest', [\App\Http\Controllers\TestResultsController::class, 'getLatestResults']);
+        Route::get('/all', [\App\Http\Controllers\TestResultsController::class, 'getAllResults']);
+        Route::get('/{filename}', [\App\Http\Controllers\TestResultsController::class, 'getResult']);
+    });
+
+    // Test Fix endpoints
+    Route::prefix('test-fix')->group(function () {
+        Route::post('/analyze', [\App\Http\Controllers\TestFixController::class, 'analyze']);
+        Route::post('/apply', [\App\Http\Controllers\TestFixController::class, 'applyFixes']);
     });
 });
 

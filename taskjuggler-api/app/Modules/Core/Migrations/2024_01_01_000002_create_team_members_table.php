@@ -17,6 +17,8 @@ return new class extends Migration
             $table->uuid('team_id');
             $table->uuid('user_id');
             $table->string('role')->default('member');
+            $table->boolean('is_admin')->default(false);
+            $table->timestamp('joined_at')->nullable();
             $table->timestamps();
             
             $table->primary(['team_id', 'user_id']);

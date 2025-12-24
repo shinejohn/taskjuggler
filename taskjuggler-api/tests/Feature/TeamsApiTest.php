@@ -60,7 +60,7 @@ class TeamsApiTest extends TestCase
 
         $this->assertDatabaseHas('teams', [
             'name' => 'Test Team',
-            'created_by' => $this->user->id,
+            'owner_id' => $this->user->id,
         ]);
 
         $this->logTestEnd('passed');
@@ -71,7 +71,7 @@ class TeamsApiTest extends TestCase
         $this->logTestStart('List Teams', 'api');
 
         // Create a team
-        $team = Team::factory()->create(['created_by' => $this->user->id]);
+        $team = Team::factory()->create(['owner_id' => $this->user->id]);
         $team->addMember($this->user, true);
 
         $this->logApiRequest('GET', '/api/teams');
@@ -101,7 +101,7 @@ class TeamsApiTest extends TestCase
     {
         $this->logTestStart('Invite Team Member', 'api');
 
-        $team = Team::factory()->create(['created_by' => $this->user->id]);
+        $team = Team::factory()->create(['owner_id' => $this->user->id]);
         $team->addMember($this->user, true);
 
         $this->logApiRequest('POST', "/api/teams/{$team->id}/invite", [

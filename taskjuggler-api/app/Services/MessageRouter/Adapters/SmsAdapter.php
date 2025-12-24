@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class SmsAdapter implements ChannelAdapter
 {
+    use HandlesTefFormats;
     public function __construct(
         private SmsService $smsService
     ) {}
@@ -26,7 +27,9 @@ class SmsAdapter implements ChannelAdapter
 
     public function sendTask(array $tef, string $recipient): bool
     {
-        $message = $this->formatTask($tef);
+        // Extract task data (handles both TEF 1.0 and 2.0.0)
+        $taskData = $this->extractTaskData($tef);
+        $message = $this->formatTask($taskData);
         
         return $this->smsService->send($recipient, $message);
     }
@@ -44,21 +47,26 @@ class SmsAdapter implements ChannelAdapter
 
     public function formatTask(array $tef): string
     {
+        // Ensure we have normalized task data
+        $taskData = $this->extractTaskData($tef);
+        
         $lines = [
-            "📋 TASK: {$tef['title']}",
+            "📋 TASK: {$taskData['title']}",
         ];
 
-        if (!empty($tef['dtdue'])) {
-            $lines[] = "Due: " . date('M j', strtotime($tef['dtdue']));
+        if (!empty($taskData['dtdue'])) {
+            $lines[] = "Due: " . date('M j', strtotime($taskData['dtdue']));
         }
 
-        if (!empty($tef['organizer']['name'])) {
-            $lines[] = "From: {$tef['organizer']['name']}";
+        if (!empty($taskData['organizer']['name'])) {
+            $lines[] = "From: {$taskData['organizer']['name']}";
         }
 
         $lines[] = "";
         $lines[] = "Reply ACCEPT or DECLINE";
-        $lines[] = "View: " . $this->shortenUrl($tef['actions']['view']);
+        if (!empty($taskData['actions']['view'])) {
+            $lines[] = "View: " . $this->shortenUrl($taskData['actions']['view']);
+        }
 
         return implode("\n", $lines);
     }

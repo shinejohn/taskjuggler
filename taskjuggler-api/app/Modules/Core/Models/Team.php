@@ -19,10 +19,13 @@ class Team extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'avatar_url',
+        'owner_id',
         'created_by',
         'profile_id',
+        'settings',
     ];
 
     /**
@@ -97,14 +100,12 @@ class Team extends Model
     public function addMember(User $user, bool $isAdmin = false): void
     {
         if (!$this->hasMember($user)) {
-            \Illuminate\Support\Facades\DB::table('team_members')->insert([
-                'id' => \Illuminate\Support\Str::uuid(),
-                'team_id' => $this->id,
-                'user_id' => $user->id,
+            // Use Laravel's attach method for pivot tables
+            // Convert UUID to string for SQLite compatibility
+            $userId = is_string($user->id) ? $user->id : (string) $user->id;
+            $this->members()->attach($userId, [
                 'is_admin' => $isAdmin,
                 'joined_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
     }

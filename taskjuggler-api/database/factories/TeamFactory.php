@@ -21,12 +21,12 @@ class TeamFactory extends Factory
      */
     public function definition(): array
     {
+        $name = $this->faker->company();
         return [
             'id' => Str::uuid(),
-            'name' => $this->faker->company(),
+            'name' => $name,
+            'slug' => Str::slug($name),
             'description' => $this->faker->optional()->sentence(),
-            'avatar_url' => $this->faker->optional()->imageUrl(),
-            'created_by' => User::factory(),
         ];
     }
 }

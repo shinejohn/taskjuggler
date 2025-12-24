@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class TeamController extends Controller
 {
@@ -43,10 +44,18 @@ class TeamController extends Controller
         ]);
 
         $team = DB::transaction(function () use ($validated, $request) {
-            $team = Team::create([
-                ...$validated,
-                'created_by' => $request->user()->id,
-            ]);
+            $teamData = $validated;
+            // Generate slug if needed
+            if (Schema::hasColumn('teams', 'slug') && !isset($teamData['slug'])) {
+                $teamData['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+            }
+            // Use owner_id if column exists, otherwise created_by
+            if (Schema::hasColumn('teams', 'owner_id')) {
+                $teamData['owner_id'] = $request->user()->id;
+            } elseif (Schema::hasColumn('teams', 'created_by')) {
+                $teamData['created_by'] = $request->user()->id;
+            }
+            $team = Team::create($teamData);
 
             // Add creator as admin
             $team->addMember($request->user(), true);

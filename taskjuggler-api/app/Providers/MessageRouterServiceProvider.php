@@ -14,13 +14,11 @@ class MessageRouterServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(MessageRouter::class, function ($app) {
-            $router = new MessageRouter();
+            // MessageRouter constructor requires TEFMessageFactory and TEFValidator
+            $tefMessageFactory = $app->make(\App\Services\TEF\TEFMessageFactory::class);
+            $tefValidator = $app->make(\App\Services\TEF\TEFValidator::class);
             
-            // Register adapters
-            $router->registerAdapter('email', $app->make(EmailAdapter::class));
-            $router->registerAdapter('sms', $app->make(SmsAdapter::class));
-            $router->registerAdapter('slack', $app->make(SlackAdapter::class));
-            $router->registerAdapter('in_app', $app->make(InAppAdapter::class));
+            $router = new MessageRouter($tefMessageFactory, $tefValidator);
             
             return $router;
         });

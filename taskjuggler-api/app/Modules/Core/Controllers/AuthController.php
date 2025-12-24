@@ -28,6 +28,19 @@ class AuthController extends \App\Http\Controllers\Controller
                 'phone' => 'nullable|string|max:20',
                 'timezone' => 'nullable|string|max:50',
             ]);
+        } catch (ValidationException $e) {
+            // Re-throw validation exceptions so Laravel handles them properly
+            throw $e;
+        } catch (\Exception $e) {
+            \Log::error('Registration error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return $this->error('Registration failed: ' . $e->getMessage(), 500);
+        }
+
+        try {
 
             $user = User::create([
                 'name' => $validated['name'],
@@ -37,21 +50,33 @@ class AuthController extends \App\Http\Controllers\Controller
                 'timezone' => $validated['timezone'] ?? 'America/New_York',
             ]);
 
-            // Create default profile for new user
-            $profile = Profile::create([
-                'user_id' => $user->id,
-                'name' => 'Default',
-                'slug' => 'default',
-                'is_default' => true,
-            ]);
+            // Create default profile for new user if profiles table exists
+            if (Schema::hasTable('profiles')) {
+                try {
+                    $profile = Profile::create([
+                        'user_id' => $user->id,
+                        'name' => 'Default',
+                        'slug' => 'default',
+                        'is_default' => true,
+                    ]);
 
-            // Set current_profile_id on user
-            $user->update(['current_profile_id' => $profile->id]);
+                    // Set current_profile_id on user
+                    $user->update(['current_profile_id' => $profile->id]);
+                } catch (\Exception $e) {
+                    Log::warning('Could not create profile for new user: ' . $e->getMessage());
+                }
+            }
 
             $token = $user->createToken('auth-token')->plainTextToken;
 
-            // Load profiles with user
-            $user->load('profiles');
+            // Load profiles with user if table exists
+            try {
+                if (Schema::hasTable('profiles')) {
+                    $user->load('profiles');
+                }
+            } catch (\Exception $e) {
+                Log::warning('Could not load profiles for user: ' . $e->getMessage());
+            }
 
             return $this->created([
                 'user' => $user,
@@ -69,28 +94,46 @@ class AuthController extends \App\Http\Controllers\Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
             ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials are incorrect.'],
+                ]);
+            }
+
+            $token = $user->createToken('auth-token')->plainTextToken;
+            
+            // Load profiles if table exists, otherwise skip
+            try {
+                if (Schema::hasTable('profiles')) {
+                    $user->load('profiles');
+                }
+            } catch (\Exception $e) {
+                // Profiles table doesn't exist or relationship fails - continue without it
+                Log::warning('Could not load profiles for user: ' . $e->getMessage());
+            }
+
+            return $this->success([
+                'user' => $user,
+                'token' => $token,
+            ], 'Logged in successfully');
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Login error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return $this->error('Login failed: ' . $e->getMessage(), 500);
         }
-
-        $token = $user->createToken('auth-token')->plainTextToken;
-        
-        // Load profiles - migrations should ensure this works
-        $user->load('profiles');
-
-        return $this->success([
-            'user' => $user,
-            'token' => $token,
-        ], 'Logged in successfully');
     }
 
     public function logout(Request $request)

@@ -129,11 +129,15 @@ class VendorController extends Controller
             return response()->json(['error' => 'No active vendor profile'], 404);
         }
 
-        // TODO: Calculate earnings from transactions
+        // Calculate earnings from transactions
+        $transactions = \App\Models\Transaction::where('vendor_id', $vendor->id)->get();
+        
         $earnings = [
-            'total' => 0,
-            'pending' => 0,
-            'completed' => 0,
+            'total' => $transactions->where('status', 'completed')->sum('amount'),
+            'pending' => $transactions->where('status', 'pending')->sum('amount'),
+            'completed' => $transactions->where('status', 'completed')->sum('amount'),
+            'currency' => 'USD',
+            'transaction_count' => $transactions->count(),
         ];
 
         return response()->json(['vendor' => $vendor, 'earnings' => $earnings]);

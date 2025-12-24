@@ -36,4 +36,32 @@ class SmsService
     {
         return $this->sendSms($channel, $to, $message);
     }
+
+    /**
+     * Send SMS without channel (for notifications)
+     */
+    public function send(string $to, string $message, string $from = null): bool
+    {
+        try {
+            $from = $from ?? config('services.twilio.from_number');
+            
+            if (!$from) {
+                \Log::error('No Twilio from number configured');
+                return false;
+            }
+
+            $this->client->messages->create(
+                $to,
+                [
+                    'from' => $from,
+                    'body' => $message,
+                ]
+            );
+
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('SMS send failed', ['error' => $e->getMessage()]);
+            return false;
+        }
+    }
 }

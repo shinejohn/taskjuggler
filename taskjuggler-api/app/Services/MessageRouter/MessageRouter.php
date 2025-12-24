@@ -4,20 +4,29 @@ namespace App\Services\MessageRouter;
 
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Actor;
 use App\Services\MessageRouter\Adapters\ChannelAdapter;
 use App\Services\MessageRouter\Adapters\EmailAdapter;
 use App\Services\MessageRouter\Adapters\SmsAdapter;
 use App\Services\MessageRouter\Adapters\SlackAdapter;
 use App\Services\MessageRouter\Adapters\InAppAdapter;
 use App\TaskExchange\TaskExchangeFormat;
+use App\Services\TEF\TEFMessageFactory;
+use App\Services\TEF\TEFValidator;
 use Illuminate\Support\Facades\Log;
 
 class MessageRouter
 {
     private array $adapters = [];
+    private TEFMessageFactory $tefMessageFactory;
+    private TEFValidator $tefValidator;
 
-    public function __construct()
-    {
+    public function __construct(
+        TEFMessageFactory $tefMessageFactory,
+        TEFValidator $tefValidator
+    ) {
+        $this->tefMessageFactory = $tefMessageFactory;
+        $this->tefValidator = $tefValidator;
         $this->registerDefaultAdapters();
     }
 
@@ -76,9 +85,9 @@ class MessageRouter
     }
 
     /**
-     * Send a task via specified channel
+     * Send a task via specified channel (supports TEF 1.0 and 2.0.0)
      */
-    public function sendTask(Task $task, string $channel, string $recipient): bool
+    public function sendTask(Task $task, string $channel, string $recipient, bool $useTef2 = true): bool
     {
         $adapter = $this->getAdapter($channel);
         
@@ -87,11 +96,175 @@ class MessageRouter
             return false;
         }
 
-        // Convert task to TEF
-        $tef = TaskExchangeFormat::fromTask($task);
+        if ($useTef2) {
+            // Use TEF 2.0.0 format with envelope
+            return $this->sendTaskV2($task, $channel, $recipient, $adapter);
+        }
 
-        // Let adapter format and send
+        // Use TEF 1.0 format (backward compatibility)
+        $tef = TaskExchangeFormat::fromTask($task, null, TaskExchangeFormat::VERSION_1_0);
         return $adapter->sendTask($tef, $recipient);
+    }
+
+    /**
+     * Send task using TEF 2.0.0 envelope format
+     */
+    private function sendTaskV2(Task $task, string $channel, string $recipient, ChannelAdapter $adapter): bool
+    {
+        // Get or create actors
+        $requestorActor = $this->getOrCreateActorForUser($task->requestor);
+        $targetActor = $this->getOrCreateActorForRecipient($recipient, $channel);
+
+        if (!$requestorActor || !$targetActor) {
+            Log::error("MessageRouter: Failed to get actors for task send", [
+                'task_id' => $task->id,
+                'channel' => $channel,
+                'recipient' => $recipient,
+            ]);
+            return false;
+        }
+
+        // Create TEF 2.0.0 envelope
+        $envelope = $this->tefMessageFactory->createTaskCreate(
+            $task,
+            $requestorActor,
+            $targetActor
+        );
+
+        // Validate envelope
+        $validation = $this->tefValidator->validateMessage($envelope);
+        if (!$validation['valid']) {
+            Log::error("MessageRouter: TEF validation failed", [
+                'errors' => $validation['errors'],
+            ]);
+            return false;
+        }
+
+        // Store message in database
+        $this->storeTefMessage($envelope, $task);
+
+        // Send via adapter - adapters now support TEF 2.0.0 envelope format
+        // They will extract task data using HandlesTefFormats trait
+        return $adapter->sendTask($envelope, $recipient);
+    }
+
+    /**
+     * Get or create actor for user
+     */
+    private function getOrCreateActorForUser(?User $user): ?Actor
+    {
+        if (!$user) {
+            return null;
+        }
+
+        $actor = Actor::where('user_id', $user->id)
+            ->where('actor_type', Actor::TYPE_HUMAN)
+            ->first();
+
+        if (!$actor) {
+            $actor = Actor::create([
+                'actor_type' => Actor::TYPE_HUMAN,
+                'display_name' => $user->name,
+                'user_id' => $user->id,
+                'capabilities' => [],
+                'contact_methods' => [
+                    ['protocol' => 'email', 'endpoint' => $user->email],
+                    ...($user->phone ? [['protocol' => 'sms', 'endpoint' => $user->phone]] : []),
+                ],
+                'status' => Actor::STATUS_ACTIVE,
+            ]);
+        }
+
+        return $actor;
+    }
+
+    /**
+     * Get or create actor for recipient
+     */
+    private function getOrCreateActorForRecipient(string $recipient, string $channel): ?Actor
+    {
+        // Try to find existing actor by contact method
+        // Note: JSON contains search might not work perfectly, so we'll search more broadly
+        $protocol = $channel === 'email' ? 'email' : 'sms';
+        
+        // Try to find by searching JSON array
+        $actors = Actor::where('contact_methods', '!=', null)->get();
+        $actor = $actors->first(function ($a) use ($recipient, $protocol) {
+            $methods = $a->contact_methods ?? [];
+            foreach ($methods as $method) {
+                if (($method['protocol'] ?? null) === $protocol && ($method['endpoint'] ?? null) === $recipient) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        if (!$actor) {
+            // Try to find user by email/phone
+            $user = null;
+            if ($channel === 'email') {
+                $user = User::where('email', $recipient)->first();
+            } elseif ($channel === 'sms') {
+                $user = User::where('phone', $recipient)->first();
+            }
+
+            if ($user) {
+                return $this->getOrCreateActorForUser($user);
+            }
+
+            // Create external actor (not linked to user)
+            $actor = Actor::create([
+                'actor_type' => Actor::TYPE_HUMAN,
+                'display_name' => $recipient,
+                'user_id' => null,
+                'capabilities' => [],
+                'contact_methods' => [
+                    ['protocol' => $channel === 'email' ? 'email' : 'sms', 'endpoint' => $recipient],
+                ],
+                'status' => Actor::STATUS_ACTIVE,
+            ]);
+        }
+
+        return $actor;
+    }
+
+    /**
+     * Store TEF message in database
+     */
+    private function storeTefMessage(array $envelope, Task $task): void
+    {
+        try {
+            // Get or create conversation
+            $conversation = \App\Models\Conversation::firstOrCreate(
+                ['task_id' => $task->id],
+                [
+                    'participants' => [
+                        $envelope['source_actor']['actor_id'],
+                        $envelope['target_actor']['actor_id'],
+                    ],
+                    'message_count' => 0,
+                ]
+            );
+
+            // Create message record
+            \App\Models\Message::create([
+                'conversation_id' => $conversation->id,
+                'task_id' => $task->id,
+                'message_type' => $envelope['message_type'],
+                'source_actor_id' => $envelope['source_actor']['actor_id'],
+                'target_actor_id' => $envelope['target_actor']['actor_id'],
+                'reply_to_id' => $envelope['reply_to_message_id'] ?? null,
+                'payload' => $envelope,
+                'delivered_at' => now(),
+            ]);
+
+            $conversation->incrementMessageCount();
+        } catch (\Exception $e) {
+            Log::error("MessageRouter: Failed to store TEF message", [
+                'error' => $e->getMessage(),
+                'task_id' => $task->id,
+            ]);
+        }
     }
 
     /**

@@ -17,6 +17,10 @@ use App\Services\Tasks\TaskInvitationService;
 use App\Services\Tasks\TaskMessageService;
 use App\Models\TaskMessage;
 use App\TaskExchange\TaskExchangeFormat;
+use App\Services\TEF\TEFMessageFactory;
+use App\Services\TEF\TEFValidator;
+use App\Services\TEF\ActorService;
+use App\Models\Actor;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -26,7 +30,10 @@ class TaskController extends Controller
     public function __construct(
         private TaskStateMachine $stateMachine,
         private TaskInvitationService $invitationService,
-        private TaskMessageService $messageService
+        private TaskMessageService $messageService,
+        private TEFMessageFactory $tefMessageFactory,
+        private TEFValidator $tefValidator,
+        private ActorService $actorService
     ) {}
     public function index(Request $request)
     {
@@ -371,35 +378,98 @@ class TaskController extends Controller
     }
 
     /**
-     * Export task as TEF file
+     * Export task as TEF file (supports version parameter: ?version=1.0 or ?version=2.0.0)
      */
-    public function exportTef(Task $task)
+    public function exportTef(Request $request, Task $task)
     {
         $this->authorize('view', $task);
 
-        $file = TaskExchangeFormat::toFile($task);
+        $version = $request->input('version', TaskExchangeFormat::VERSION_2_0);
+        $tefData = TaskExchangeFormat::fromTask($task, $request->user(), $version);
+        $json = json_encode($tefData, JSON_PRETTY_PRINT);
+        $filename = \Illuminate\Support\Str::slug($task->title) . '.' . TaskExchangeFormat::EXTENSION;
 
-        return response($file['content'])
-            ->header('Content-Type', $file['mime_type'])
-            ->header('Content-Disposition', 'attachment; filename="' . $file['filename'] . '"');
+        return response($json)
+            ->header('Content-Type', TaskExchangeFormat::MIME_TYPE)
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
     /**
-     * Export task as TEF JSON (for API consumption)
+     * Export task as TEF JSON (for API consumption, supports version parameter)
      */
-    public function toTef(Task $task)
+    public function toTef(Request $request, Task $task)
     {
         $this->authorize('view', $task);
 
+        $version = $request->input('version', TaskExchangeFormat::VERSION_2_0);
+        $tefData = TaskExchangeFormat::fromTask($task, $request->user(), $version);
+
         return response()->json(
-            TaskExchangeFormat::fromTask($task),
+            $tefData,
             200,
             ['Content-Type' => TaskExchangeFormat::MIME_TYPE]
         );
     }
 
     /**
-     * Import task from TEF format
+     * Export task as TEF 2.0.0 envelope (with message wrapper)
+     */
+    public function exportTefEnvelope(Request $request, Task $task)
+    {
+        $this->authorize('view', $task);
+
+        // Get or create actors
+        $requestorActor = Actor::where('user_id', $task->requestor_id)
+            ->where('actor_type', Actor::TYPE_HUMAN)
+            ->first();
+        
+        if (!$requestorActor) {
+            $requestorActor = Actor::create([
+                'actor_type' => Actor::TYPE_HUMAN,
+                'display_name' => $task->requestor->name,
+                'user_id' => $task->requestor_id,
+                'capabilities' => [],
+                'contact_methods' => [
+                    ['protocol' => 'email', 'endpoint' => $task->requestor->email],
+                ],
+                'status' => Actor::STATUS_ACTIVE,
+            ]);
+        }
+
+        $targetActor = $requestorActor; // Default to requestor, can be overridden
+        if ($task->owner_id) {
+            $targetActor = Actor::where('user_id', $task->owner_id)
+                ->where('actor_type', Actor::TYPE_HUMAN)
+                ->first();
+            
+            if (!$targetActor) {
+                $targetActor = Actor::create([
+                    'actor_type' => Actor::TYPE_HUMAN,
+                    'display_name' => $task->owner->name,
+                    'user_id' => $task->owner_id,
+                    'capabilities' => [],
+                    'contact_methods' => [
+                        ['protocol' => 'email', 'endpoint' => $task->owner->email],
+                    ],
+                    'status' => Actor::STATUS_ACTIVE,
+                ]);
+            }
+        }
+
+        // Create TEF 2.0.0 envelope with task
+        $envelope = $this->tefMessageFactory->createTaskCreate(
+            $task,
+            $requestorActor,
+            $targetActor
+        );
+
+        return response()->json($envelope, 200, [
+            'Content-Type' => TaskExchangeFormat::MIME_TYPE,
+        ]);
+    }
+
+    /**
+     * Import task from TEF format (supports both 1.0 and 2.0.0)
      */
     public function importTef(Request $request)
     {
@@ -407,18 +477,72 @@ class TaskController extends Controller
             'tef' => 'required|array',
         ]);
 
-        $errors = TaskExchangeFormat::validate($request->tef);
+        $tef = $request->tef;
+        // Default to TEF 2.0.0, but check if it's an envelope first
+        if (isset($tef['message_type']) && isset($tef['task'])) {
+            // TEF 2.0.0 envelope format
+            $version = $tef['task']['tef_version'] ?? TaskExchangeFormat::VERSION_2_0;
+        } else {
+            // Direct TEF format
+            $version = $tef['tef_version'] ?? TaskExchangeFormat::VERSION_2_0;
+        }
+
+        // Validate TEF format
+        $errors = TaskExchangeFormat::validate($tef);
         
         if (!empty($errors)) {
             return response()->json(['errors' => $errors], 422);
         }
 
-        $taskData = TaskExchangeFormat::toTaskData($request->tef);
-        $taskData['requestor_id'] = $request->user()->id;
-        $taskData['source_channel'] = 'api';
-        $taskData['source_channel_ref'] = $request->tef['uid'] ?? null;
+        // Extract task data based on version
+        if ($version === TaskExchangeFormat::VERSION_2_0 && isset($tef['task'])) {
+            // TEF 2.0.0 envelope format
+            $taskData = TaskExchangeFormat::toTaskData($tef['task']);
+            
+            // Handle actor references for requestor
+            if (isset($tef['task']['requestor']['actor_id'])) {
+                $requestorActor = Actor::find($tef['task']['requestor']['actor_id']);
+                if ($requestorActor && $requestorActor->user_id) {
+                    $taskData['requestor_id'] = $requestorActor->user_id;
+                } else {
+                    $taskData['requestor_id'] = $request->user()->id;
+                }
+            } else {
+                $taskData['requestor_id'] = $request->user()->id;
+            }
+            
+            // Handle owner actor reference
+            if (isset($tef['task']['owner']['actor_id'])) {
+                $ownerActor = Actor::find($tef['task']['owner']['actor_id']);
+                if ($ownerActor && $ownerActor->user_id) {
+                    $taskData['owner_id'] = $ownerActor->user_id;
+                }
+            }
+            
+            $taskData['source_channel'] = 'api';
+            $taskData['source_channel_ref'] = $tef['task']['task_id'] ?? $tef['message_id'] ?? null;
+        } else {
+            // TEF 1.0 format
+            $taskData = TaskExchangeFormat::toTaskData($tef);
+            $taskData['requestor_id'] = $request->user()->id;
+            $taskData['source_channel'] = 'api';
+            $taskData['source_channel_ref'] = $tef['uid'] ?? null;
+        }
 
         $task = Task::create($taskData);
+
+        // Create conversation if TEF 2.0.0
+        if ($version === TaskExchangeFormat::VERSION_2_0 && isset($tef['task']['conversation_id'])) {
+            \App\Models\Conversation::create([
+                'id' => $tef['task']['conversation_id'],
+                'task_id' => $task->id,
+                'participants' => [
+                    $taskData['requestor_id'],
+                    ...($taskData['owner_id'] ? [$taskData['owner_id']] : []),
+                ],
+                'message_count' => 0,
+            ]);
+        }
 
         event(new TaskCreated($task));
 

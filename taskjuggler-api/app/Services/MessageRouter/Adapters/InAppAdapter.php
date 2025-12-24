@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class InAppAdapter implements ChannelAdapter
 {
+    use HandlesTefFormats;
     public function __construct(
         private NotificationService $notificationService
     ) {}
@@ -31,11 +32,21 @@ class InAppAdapter implements ChannelAdapter
             return false;
         }
 
-        // Create task from TEF
-        $taskData = \App\TaskExchange\TaskExchangeFormat::toTaskData($tef);
+        // Extract task data (handles both TEF 1.0 and 2.0.0)
+        // Check if this is a TEF 2.0.0 envelope
+        if (isset($tef['message_type']) && isset($tef['task'])) {
+            // TEF 2.0.0 envelope - extract task from envelope
+            $taskData = \App\TaskExchange\TaskExchangeFormat::toTaskData($tef['task']);
+            $sourceRef = $tef['task']['task_id'] ?? $tef['message_id'] ?? null;
+        } else {
+            // TEF 1.0 or direct TEF 2.0.0 task format
+            $taskData = \App\TaskExchange\TaskExchangeFormat::toTaskData($tef);
+            $sourceRef = $tef['uid'] ?? $tef['task_id'] ?? null;
+        }
+        
         $taskData['requestor_id'] = $user->id;
         $taskData['source_channel'] = 'in_app';
-        $taskData['source_channel_ref'] = $tef['uid'] ?? null;
+        $taskData['source_channel_ref'] = $sourceRef;
 
         $task = \App\Models\Task::create($taskData);
 
@@ -76,6 +87,8 @@ class InAppAdapter implements ChannelAdapter
 
     public function formatTask(array $tef): string
     {
-        return "Task: {$tef['title']}";
+        // Ensure we have normalized task data
+        $taskData = $this->extractTaskData($tef);
+        return "Task: {$taskData['title']}";
     }
 }

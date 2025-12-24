@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AssistantChannel;
 use App\Services\Twilio\VoiceService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ChannelController extends Controller
 {
@@ -26,12 +27,27 @@ class ChannelController extends Controller
             'voicemail_greeting' => 'nullable|string',
         ]);
 
-        // TODO: Integrate with Twilio to provision phone number
-        // For now, create channel record
+        // Provision phone number via Twilio if not provided
+        $phoneNumber = $validated['phone_number'] ?? null;
+        $twilioSid = null;
+
+        if (!$phoneNumber && config('services.twilio.account_sid')) {
+            try {
+                $twilio = app(\App\Services\Twilio\VoiceService::class);
+                $twilioNumber = $twilio->provisionPhoneNumber($request->user());
+                $phoneNumber = $twilioNumber['phone_number'] ?? null;
+                $twilioSid = $twilioNumber['sid'] ?? null;
+            } catch (\Exception $e) {
+                Log::error('Failed to provision Twilio number', ['error' => $e->getMessage()]);
+                // Continue with manual phone number if provided
+            }
+        }
+
         $channel = AssistantChannel::create([
             'user_id' => $request->user()->id,
             'channel_type' => AssistantChannel::TYPE_PHONE,
-            'phone_number' => $validated['phone_number'] ?? null,
+            'phone_number' => $phoneNumber,
+            'twilio_sid' => $twilioSid,
             'greeting_message' => $validated['greeting_message'] ?? null,
             'voicemail_greeting' => $validated['voicemail_greeting'] ?? null,
             'is_active' => true,

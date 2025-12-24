@@ -9,19 +9,26 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
-    protected TestLogger $testLogger;
+    protected ?TestLogger $testLogger = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->testLogger = new TestLogger();
+        // Only create TestLogger if class exists
+        if (class_exists(TestLogger::class)) {
+            $this->testLogger = new TestLogger();
+        }
     }
 
     protected function tearDown(): void
     {
         // Generate report if test completed
-        if (isset($this->testLogger)) {
-            $this->testLogger->generateReport();
+        if ($this->testLogger !== null) {
+            try {
+                $this->testLogger->generateReport();
+            } catch (\Exception $e) {
+                // Ignore errors in test logger
+            }
         }
         parent::tearDown();
     }

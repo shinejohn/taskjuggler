@@ -103,16 +103,89 @@ class NotificationService
 
     private function sendEmail(Notification $notification): void
     {
-        // TODO: Implement email notification via SendGrid
-        // For now, just log
-        Log::info('Email notification sent', ['notification_id' => $notification->id]);
+        $user = $notification->user;
+        
+        if (!$user->email) {
+            Log::info('User has no email address', ['user_id' => $user->id]);
+            return;
+        }
+
+        try {
+            // Get user's email channel or use default
+            $channel = $user->assistantChannels()
+                ->where('channel_type', 'email')
+                ->where('is_active', true)
+                ->first();
+
+            if (!$channel) {
+                // Create a default email channel for notifications
+                $channel = \App\Models\AssistantChannel::create([
+                    'user_id' => $user->id,
+                    'channel_type' => 'email',
+                    'email_address' => config('mail.from.address'),
+                    'is_active' => true,
+                ]);
+            }
+
+            $emailService = app(\App\Services\SendGrid\EmailService::class);
+            
+            $htmlContent = "<h2>{$notification->title}</h2><p>{$notification->body}</p>";
+            $textContent = "{$notification->title}\n\n{$notification->body}";
+
+            $success = $emailService->sendEmail(
+                $channel,
+                $user->email,
+                $notification->title,
+                $htmlContent,
+                $textContent
+            );
+
+            if ($success) {
+                Log::info('Email notification sent', ['notification_id' => $notification->id]);
+            } else {
+                Log::warning('Failed to send email notification', ['notification_id' => $notification->id]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error sending email notification', [
+                'notification_id' => $notification->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function sendSms(Notification $notification): void
     {
-        // TODO: Implement SMS notification via Twilio
-        // For now, just log
-        Log::info('SMS notification sent', ['notification_id' => $notification->id]);
+        $user = $notification->user;
+        
+        if (!$user->phone) {
+            Log::info('User has no phone number', ['user_id' => $user->id]);
+            return;
+        }
+
+        try {
+            // Get user's SMS channel
+            $channel = $user->assistantChannels()
+                ->where('channel_type', 'sms')
+                ->where('is_active', true)
+                ->first();
+
+            if (!$channel) {
+                Log::warning('User has no active SMS channel', ['user_id' => $user->id]);
+                return;
+            }
+
+            $smsService = app(\App\Services\Twilio\SmsService::class);
+            
+            $message = "{$notification->title}: {$notification->body}";
+            $smsService->send($user->phone, $message);
+
+            Log::info('SMS notification sent', ['notification_id' => $notification->id]);
+        } catch (\Exception $e) {
+            Log::error('Error sending SMS notification', [
+                'notification_id' => $notification->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function sendTaskNotification(User $user, string $event, array $taskData): void

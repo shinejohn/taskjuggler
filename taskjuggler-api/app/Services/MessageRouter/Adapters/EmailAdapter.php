@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class EmailAdapter implements ChannelAdapter
 {
+    use HandlesTefFormats;
     public function getChannel(): string
     {
         return 'email';
@@ -22,10 +23,13 @@ class EmailAdapter implements ChannelAdapter
 
     public function sendTask(array $tef, string $recipient): bool
     {
-        $subject = "Task: {$tef['title']}";
-        $body = $this->formatTask($tef);
+        // Extract task data (handles both TEF 1.0 and 2.0.0)
+        $taskData = $this->extractTaskData($tef);
+        
+        $subject = "Task: {$taskData['title']}";
+        $body = $this->formatTask($taskData);
 
-        // Create .tef file attachment
+        // Create .tef file attachment (use original format)
         $attachment = [
             'content' => json_encode($tef, JSON_PRETTY_PRINT),
             'filename' => 'task.' . TaskExchangeFormat::EXTENSION,
@@ -71,32 +75,39 @@ class EmailAdapter implements ChannelAdapter
 
     public function formatTask(array $tef): string
     {
+        // Ensure we have normalized task data
+        $taskData = $this->extractTaskData($tef);
+        
         $lines = [
             "📋 TASK REQUEST",
             "═══════════════════════════════════════",
             "",
-            "Title: {$tef['title']}",
+            "Title: {$taskData['title']}",
         ];
 
-        if (!empty($tef['description'])) {
+        if (!empty($taskData['description'])) {
             $lines[] = "";
             $lines[] = "Description:";
-            $lines[] = $tef['description'];
+            $lines[] = $taskData['description'];
         }
 
-        if (!empty($tef['dtdue'])) {
+        if (!empty($taskData['dtdue'])) {
             $lines[] = "";
-            $lines[] = "Due: " . date('M j, Y g:ia', strtotime($tef['dtdue']));
+            $lines[] = "Due: " . date('M j, Y g:ia', strtotime($taskData['dtdue']));
         }
 
-        if (!empty($tef['organizer'])) {
+        if (!empty($taskData['organizer'])) {
+            $organizerInfo = $taskData['organizer']['name'] ?? '';
+            if (!empty($taskData['organizer']['email'])) {
+                $organizerInfo .= " ({$taskData['organizer']['email']})";
+            }
             $lines[] = "";
-            $lines[] = "From: {$tef['organizer']['name']} ({$tef['organizer']['email']})";
+            $lines[] = "From: {$organizerInfo}";
         }
 
-        if (!empty($tef['location']['address'])) {
+        if (!empty($taskData['location']['address'])) {
             $lines[] = "";
-            $lines[] = "Location: {$tef['location']['address']}";
+            $lines[] = "Location: {$taskData['location']['address']}";
         }
 
         $lines[] = "";
@@ -105,10 +116,13 @@ class EmailAdapter implements ChannelAdapter
         $lines[] = "RESPOND:";
         $lines[] = "• Reply ACCEPT to accept this task";
         $lines[] = "• Reply DECLINE to decline";
-        $lines[] = "• Or click: {$tef['actions']['view']}";
+        if (!empty($taskData['actions']['view'])) {
+            $lines[] = "• Or click: {$taskData['actions']['view']}";
+        }
         $lines[] = "";
         $lines[] = "---";
-        $lines[] = "Sent via Task Juggler | Task ID: {$tef['id']}";
+        $taskId = $taskData['id'] ?? $taskData['task_id'] ?? 'unknown';
+        $lines[] = "Sent via Task Juggler | Task ID: {$taskId}";
 
         return implode("\n", $lines);
     }

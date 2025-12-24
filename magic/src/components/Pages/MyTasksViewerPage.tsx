@@ -26,63 +26,68 @@ export function MyTasksViewerPage({
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   useEffect(() => {
-    // In a real app, this would be an API call to fetch tasks
+    // TODO: Implement API call to fetch tasks
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // Mock data
-        const mockTasks: Task[] = [{
-          id: '1',
-          title: 'Website Redesign',
-          description: 'Redesign the company website with modern UI/UX principles',
-          status: 'in_progress',
-          dueDate: '2023-12-15',
-          doerName: 'Alex Johnson',
-          isVendorTask: false
-        }, {
-          id: '2',
-          title: 'Content Creation for Blog',
-          description: 'Create 5 blog posts about industry trends',
-          status: 'pending',
-          dueDate: '2023-12-20',
-          doerName: 'Sarah Miller',
-          isVendorTask: false
-        }, {
-          id: '3',
-          title: 'Social Media Strategy',
-          description: 'Develop a comprehensive social media strategy for Q1',
-          status: 'completed',
-          dueDate: '2023-11-30',
-          doerName: 'Michael Wong',
-          isVendorTask: false
-        }, {
-          id: '4',
-          title: 'Logo Design for Client',
-          description: 'Design a new logo for ABC Corp',
-          status: 'in_progress',
-          dueDate: '2023-12-10',
-          clientName: 'David Chen',
-          isVendorTask: true
-        }, {
-          id: '5',
-          title: 'Marketing Materials',
-          description: 'Create brochures and flyers for upcoming event',
-          status: 'pending',
-          dueDate: '2023-12-25',
-          clientName: 'Emily Rodriguez',
-          isVendorTask: true
-        }, {
-          id: '6',
-          title: 'Website Maintenance',
-          description: 'Monthly website updates and security patches',
-          status: 'completed',
-          dueDate: '2023-11-28',
-          clientName: 'Robert Kim',
-          isVendorTask: true
-        }];
-        setTasks(mockTasks);
+        // TODO: Replace with real API call
+        // const response = await fetch('/api/tasks');
+        // const data = await response.json();
+        // setTasks(data.tasks || []);
+        
+        // Mock data - COMMENTED OUT per user rule
+        // const mockTasks: Task[] = [{
+        //   id: '1',
+        //   title: 'Website Redesign',
+        //   description: 'Redesign the company website with modern UI/UX principles',
+        //   status: 'in_progress',
+        //   dueDate: '2023-12-15',
+        //   doerName: 'Alex Johnson',
+        //   isVendorTask: false
+        // }, {
+        //   id: '2',
+        //   title: 'Content Creation for Blog',
+        //   description: 'Create 5 blog posts about industry trends',
+        //   status: 'pending',
+        //   dueDate: '2023-12-20',
+        //   doerName: 'Sarah Miller',
+        //   isVendorTask: false
+        // }, {
+        //   id: '3',
+        //   title: 'Social Media Strategy',
+        //   description: 'Develop a comprehensive social media strategy for Q1',
+        //   status: 'completed',
+        //   dueDate: '2023-11-30',
+        //   doerName: 'Michael Wong',
+        //   isVendorTask: false
+        // }, {
+        //   id: '4',
+        //   title: 'Logo Design for Client',
+        //   description: 'Design a new logo for ABC Corp',
+        //   status: 'in_progress',
+        //   dueDate: '2023-12-10',
+        //   clientName: 'David Chen',
+        //   isVendorTask: true
+        // }, {
+        //   id: '5',
+        //   title: 'Marketing Materials',
+        //   description: 'Create brochures and flyers for upcoming event',
+        //   status: 'pending',
+        //   dueDate: '2023-12-25',
+        //   clientName: 'Emily Rodriguez',
+        //   isVendorTask: true
+        // }, {
+        //   id: '6',
+        //   title: 'Website Maintenance',
+        //   description: 'Monthly website updates and security patches',
+        //   status: 'completed',
+        //   dueDate: '2023-11-28',
+        //   clientName: 'Robert Kim',
+        //   isVendorTask: true
+        // }];
+        // setTasks(mockTasks);
+        
+        setTasks([]); // Empty until API is implemented
       } catch (error) {
         console.error('Error fetching tasks:', error);
       } finally {

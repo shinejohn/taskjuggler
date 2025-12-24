@@ -2,7 +2,7 @@
 
 return [
     'tef' => [
-        'version' => '1.0',
+        'version' => '2.0.0',
         'mime_type' => 'application/vnd.taskjuggler.tef+json',
         'extension' => 'tef',
     ],
