@@ -37,6 +37,7 @@ Route::middleware(['auth:sanctum', 'module:tasks'])->group(function () {
     // Task Exchange Format (TEF)
     Route::get('/tasks/{task}/tef', [TaskController::class, 'toTef']);
     Route::get('/tasks/{task}/export/tef', [TaskController::class, 'exportTef']);
+    Route::get('/tasks/{task}/tef/envelope', [TaskController::class, 'exportTefEnvelope']); // TEF 2.0.0 envelope
     Route::post('/tasks/import/tef', [TaskController::class, 'importTef']);
     
     // Task messages

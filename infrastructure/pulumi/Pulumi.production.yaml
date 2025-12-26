@@ -1,0 +1,16 @@
+encryptionsalt: v1:FZTP9sb0YCU=:v1:k0i0xxCRP5CUTd7E:19Fp1sZtsLw4oatwdXpNljDZxUmjwQ==
+config:
+  aws:region: us-east-1
+  taskjuggler-aws:app_key:
+    secure: v1:7RuiI1cMVAisyOlb:QLKlBW5bqu4meNsF2ucAroyKZoh5NVPF+k04E6TD
+  taskjuggler-aws:db_allocated_storage: "100"
+  taskjuggler-aws:db_instance_class: db.t3.medium
+  taskjuggler-aws:db_password:
+    secure: v1:xKHq+8lMuxfaRKNn:/RjUkPhTNJYCUvIb4IR54Jfuc2vakBISSXqjB++I5zM=
+  taskjuggler-aws:db_username: taskjuggler
+  taskjuggler-aws:domain_name: taskjuggler.com
+  taskjuggler-aws:environment: production
+  taskjuggler-aws:project_name: taskjuggler
+  taskjuggler-aws:redis_auth_token:
+    secure: v1:M1Ua75XqrQTxHUIL:z+Aswrb6NPpTKzKuAzorsYRoTAVCN/zWxj9A+FZzY3K2IQ==
+  taskjuggler-aws:redis_node_type: cache.t3.micro

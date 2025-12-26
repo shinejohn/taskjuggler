@@ -56,6 +56,30 @@ return new class extends Migration
             \Log::info('Added current_profile_id column to users table');
         }
 
+        // Create profiles table if it doesn't exist
+        if (!Schema::hasTable('profiles')) {
+            Schema::create('profiles', function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->uuid('user_id');
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+                $table->string('name');
+                $table->string('slug');
+                $table->text('description')->nullable();
+                $table->string('color', 7)->nullable();
+                $table->string('icon')->nullable();
+                $table->boolean('is_default')->default(false);
+                $table->jsonb('settings')->default('{}');
+                $table->softDeletes();
+                $table->timestampsTz();
+                
+                $table->index('user_id');
+                $table->index(['user_id', 'is_default']);
+                $table->unique(['user_id', 'slug']);
+            });
+            
+            \Log::info('Created profiles table');
+        }
+
         // Ensure all users have profiles
         if (Schema::hasTable('profiles') && Schema::hasColumn('users', 'current_profile_id')) {
             $usersWithoutProfile = DB::table('users')
