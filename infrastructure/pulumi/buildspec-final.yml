@@ -5,14 +5,24 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo Downloading source from S3...
+      - aws s3 cp s3://taskjuggler-build-source/source.tar.gz /tmp/source.tar.gz
+      - cd /tmp && tar -xzf source.tar.gz
+      - echo Current directory:
+      - pwd
+      - echo Listing files:
+      - ls -la
+      - echo Finding Dockerfile:
+      - find . -name "Dockerfile" -type f
+      - if [ -d "taskjuggler-api" ]; then cd taskjuggler-api; else DOCKERFILE_DIR=$(find . -name "Dockerfile" -type f | head -1 | xargs dirname); if [ -n "$DOCKERFILE_DIR" ]; then cd "$DOCKERFILE_DIR"; fi; fi
+      - echo Final working directory:
+      - pwd
+      - echo Files in directory:
+      - ls -la
   build:
     commands:
       - echo Build started
       - echo Building the Docker image...
-      - pwd
-      - ls -la
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:latest
