@@ -1,0 +1,43 @@
+{
+  "name": "taskjuggler-production-build",
+  "description": "Build Docker image for Task Juggler API",
+  "source": {
+    "type": "NO_SOURCE",
+    "location": "taskjuggler-build-source/source.tar.gz",
+    "buildspec": "{\"version\": 0.2, \"phases\": {\"pre_build\": {\"commands\": [\"echo Logging in to Amazon ECR...\", \"aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com\", \"REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME\", \"COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)\", \"IMAGE_TAG=${COMMIT_HASH:=latest}\"]}, \"build\": {\"commands\": [\"echo Build started\", \"echo Building the Docker image...\", \"pwd\", \"ls -la\", \"docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .\", \"docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG\", \"docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:latest\"]}, \"post_build\": {\"commands\": [\"echo Build completed\", \"echo Pushing the Docker images...\", \"docker push $REPOSITORY_URI:$IMAGE_TAG\", \"docker push $REPOSITORY_URI:latest\", {\"echo Image URI\": \"$REPOSITORY_URI:latest\"}]}}}"
+  },
+  "artifacts": {
+    "type": "NO_ARTIFACTS"
+  },
+  "environment": {
+    "type": "LINUX_CONTAINER",
+    "image": "aws/codebuild/standard:7.0",
+    "computeType": "BUILD_GENERAL1_SMALL",
+    "privilegedMode": true,
+    "environmentVariables": [
+      {
+        "name": "AWS_DEFAULT_REGION",
+        "value": "us-east-1"
+      },
+      {
+        "name": "AWS_ACCOUNT_ID",
+        "value": "195430954683"
+      },
+      {
+        "name": "IMAGE_REPO_NAME",
+        "value": "taskjuggler-production"
+      },
+      {
+        "name": "IMAGE_TAG",
+        "value": "latest"
+      }
+    ]
+  },
+  "serviceRole": "arn:aws:iam::195430954683:role/taskjuggler-production-codebuild-role",
+  "logsConfig": {
+    "cloudWatchLogs": {
+      "status": "ENABLED",
+      "groupName": "/aws/codebuild/taskjuggler-production-build"
+    }
+  }
+}

@@ -1,55 +1,98 @@
 <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="card">
-        <h3 class="text-lg font-semibold mb-2">Pending Tasks</h3>
-        <p class="text-3xl font-bold text-primary-600">{{ pendingCount }}</p>
+  <AppLayout>
+    <div class="dashboard">
+      <h1 class="dashboard__title">Dashboard</h1>
+      
+      <!-- Key Metrics -->
+      <div class="dashboard__metrics">
+        <Card class="dashboard__metric-card">
+          <h3 class="dashboard__metric-label">Pending Tasks</h3>
+          <p class="dashboard__metric-value">{{ pendingCount }}</p>
+        </Card>
+        <Card class="dashboard__metric-card">
+          <h3 class="dashboard__metric-label">Active Tasks</h3>
+          <p class="dashboard__metric-value dashboard__metric-value--active">{{ activeCount }}</p>
+        </Card>
+        <Card class="dashboard__metric-card">
+          <h3 class="dashboard__metric-label">Completed Tasks</h3>
+          <p class="dashboard__metric-value dashboard__metric-value--completed">{{ completedCount }}</p>
+        </Card>
+        <Card class="dashboard__metric-card">
+          <h3 class="dashboard__metric-label">Inbox Items</h3>
+          <p class="dashboard__metric-value dashboard__metric-value--info">{{ inboxCount }}</p>
+        </Card>
       </div>
-      <div class="card">
-        <h3 class="text-lg font-semibold mb-2">Active Tasks</h3>
-        <p class="text-3xl font-bold text-blue-600">{{ activeCount }}</p>
-      </div>
-      <div class="card">
-        <h3 class="text-lg font-semibold mb-2">Completed Tasks</h3>
-        <p class="text-3xl font-bold text-green-600">{{ completedCount }}</p>
-      </div>
-    </div>
-    <div class="card">
-      <h2 class="text-xl font-bold mb-4">Recent Tasks</h2>
-      <div v-if="loading">Loading...</div>
-      <div v-else-if="tasks.length === 0" class="text-gray-500">No tasks yet</div>
-      <div v-else class="space-y-2">
-        <div v-for="task in tasks.slice(0, 5)" :key="task.id" class="border-b pb-2">
-          <router-link :to="`/tasks/${task.id}`" class="text-primary-600 hover:underline">
-            {{ task.title }}
-          </router-link>
-          <span class="ml-2 text-sm text-gray-500">{{ task.status }}</span>
+
+      <!-- Recent Tasks -->
+      <Card class="dashboard__section">
+        <h2 class="dashboard__section-title">Recent Tasks</h2>
+        <div v-if="loading" class="dashboard__loading">
+          <LoadingSpinner />
+          <span>Loading tasks...</span>
         </div>
-      </div>
+        <div v-else-if="tasks.length === 0" class="dashboard__empty">
+          <p class="dashboard__empty-text">No tasks yet</p>
+          <Button variant="primary" @click="$router.push('/tasks/new')">
+            Create Your First Task
+          </Button>
+        </div>
+        <div v-else class="dashboard__tasks">
+          <router-link
+            v-for="task in tasks.slice(0, 5)"
+            :key="task.id"
+            :to="`/tasks/${task.id}`"
+            class="dashboard__task-item"
+          >
+            <span class="dashboard__task-title">{{ task.title }}</span>
+            <Badge :variant="getStatusVariant(task.status)" size="sm">
+              {{ task.status }}
+            </Badge>
+          </router-link>
+        </div>
+      </Card>
     </div>
-  </div>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed } from 'vue'
 import { useTasksStore } from '@/stores/tasks'
 import { useAuthStore } from '@/stores/auth'
+import { useInboxStore } from '@/stores/inbox'
 import { getEcho } from '@/utils/echo'
+import AppLayout from '@/components/layout/AppLayout.vue'
+import Card from '@/components/ui/Card.vue'
+import Button from '@/components/ui/Button.vue'
+import Badge from '@/components/ui/Badge.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const tasksStore = useTasksStore()
 const authStore = useAuthStore()
+const inboxStore = useInboxStore()
 
 const tasks = computed(() => tasksStore.tasks)
 const loading = computed(() => tasksStore.loading)
 const pendingCount = computed(() => tasksStore.pendingTasks.length)
 const activeCount = computed(() => tasksStore.activeTasks.length)
 const completedCount = computed(() => tasksStore.completedTasks.length)
+const inboxCount = computed(() => inboxStore.items.length)
+
+const getStatusVariant = (status: string) => {
+  const statusMap: Record<string, 'pending' | 'accepted' | 'in-progress' | 'completed' | 'cancelled'> = {
+    pending: 'pending',
+    accepted: 'accepted',
+    in_progress: 'in-progress',
+    completed: 'completed',
+    cancelled: 'cancelled',
+  }
+  return statusMap[status] || 'pending'
+}
 
 let echoChannel: any = null
 
 onMounted(() => {
   tasksStore.fetchTasks()
+  inboxStore.fetchInbox()
   
   // Listen for real-time updates
   if (authStore.user) {
@@ -84,3 +127,124 @@ onUnmounted(() => {
   }
 })
 </script>
+
+<style scoped>
+.dashboard {
+  width: 100%;
+}
+
+.dashboard__title {
+  font-size: var(--font-display-medium);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-8);
+}
+
+.dashboard__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.dashboard__metric-card {
+  padding: var(--space-6);
+}
+
+.dashboard__metric-label {
+  font-size: var(--font-title-medium);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.dashboard__metric-value {
+  font-size: var(--font-display-medium);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+  color: var(--color-primary);
+}
+
+.dashboard__metric-value--active {
+  color: var(--color-status-in-progress);
+}
+
+.dashboard__metric-value--completed {
+  color: var(--color-status-completed);
+}
+
+.dashboard__metric-value--info {
+  color: var(--color-info);
+}
+
+.dashboard__section {
+  padding: var(--space-6);
+}
+
+.dashboard__section-title {
+  font-size: var(--font-headline);
+  font-weight: 600;
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-6);
+}
+
+.dashboard__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-12);
+  color: var(--color-text-secondary);
+}
+
+.dashboard__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-12);
+  text-align: center;
+}
+
+.dashboard__empty-text {
+  font-size: var(--font-body-large);
+  color: var(--color-text-secondary);
+}
+
+.dashboard__tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dashboard__task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--color-text-primary);
+  transition: all var(--duration-fast) var(--ease-out);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.dashboard__task-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.dashboard__task-item:last-child {
+  border-bottom: none;
+}
+
+.dashboard__task-title {
+  font-size: var(--font-body-large);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+</style>

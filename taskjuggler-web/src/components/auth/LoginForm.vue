@@ -1,18 +1,18 @@
 <template>
   <div>
-    <div v-if="error" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md flex items-start">
-      <ExclamationCircleIcon class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+    <div v-if="error" class="auth-form__error">
+      <ExclamationCircleIcon class="auth-form__error-icon" />
       <span>{{ error }}</span>
     </div>
 
-    <form @submit.prevent="handleLogin" class="space-y-6">
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700">
+    <form @submit.prevent="handleLogin" class="auth-form">
+      <div class="auth-form__field">
+        <label for="email" class="label">
           Email address
         </label>
-        <div class="mt-1 relative rounded-md shadow-sm">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <EnvelopeIcon class="h-5 w-5 text-gray-400" />
+        <div class="auth-form__input-wrapper">
+          <div class="auth-form__input-icon">
+            <EnvelopeIcon class="w-5 h-5" />
           </div>
           <input
             id="email"
@@ -20,19 +20,19 @@
             type="email"
             autocomplete="email"
             required
-            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            class="input auth-form__input"
             placeholder="you@example.com"
           />
         </div>
       </div>
 
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700">
+      <div class="auth-form__field">
+        <label for="password" class="label">
           Password
         </label>
-        <div class="mt-1 relative rounded-md shadow-sm">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <LockClosedIcon class="h-5 w-5 text-gray-400" />
+        <div class="auth-form__input-wrapper">
+          <div class="auth-form__input-icon">
+            <LockClosedIcon class="w-5 h-5" />
           </div>
           <input
             id="password"
@@ -40,113 +40,91 @@
             type="password"
             autocomplete="current-password"
             required
-            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            class="input auth-form__input"
             placeholder="••••••••"
           />
         </div>
       </div>
 
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
+      <div class="auth-form__options">
+        <div class="auth-form__checkbox-wrapper">
           <input
             id="remember-me"
             v-model="rememberMe"
             name="remember-me"
             type="checkbox"
-            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+            class="auth-form__checkbox"
           />
-          <label for="remember-me" class="ml-2 block text-sm text-gray-700">
+          <label for="remember-me" class="auth-form__checkbox-label">
             Remember me
           </label>
         </div>
 
-        <div class="text-sm">
-          <a
-            href="#"
-            @click.prevent="onForgotPassword"
-            class="font-medium text-primary-600 hover:text-primary-500"
-          >
-            Forgot your password?
-          </a>
-        </div>
+        <button
+          type="button"
+          @click.prevent="onForgotPassword"
+          class="auth-form__link"
+        >
+          Forgot your password?
+        </button>
       </div>
 
-      <div>
-        <button
+      <div class="auth-form__submit">
+        <Button
           type="submit"
           :disabled="loading"
-          class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          variant="primary"
+          size="md"
+          class="w-full"
         >
-          <span v-if="loading" class="flex items-center">
-            <svg
-              class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-            Signing in...
-          </span>
+          <template v-if="loading" #icon-left>
+            <LoadingSpinner size="sm" />
+          </template>
+          <span v-if="loading">Signing in...</span>
           <span v-else>Sign in</span>
-        </button>
+        </Button>
       </div>
     </form>
 
     <!-- Google SSO -->
-    <div class="mt-6">
-      <div class="relative">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-gray-300" />
-        </div>
-        <div class="relative flex justify-center text-sm">
-          <span class="px-2 bg-white text-gray-500">
-            Or continue with
-          </span>
-        </div>
-      </div>
+    <div class="auth-form__divider">
+      <div class="auth-form__divider-line"></div>
+      <span class="auth-form__divider-text">Or continue with</span>
+      <div class="auth-form__divider-line"></div>
+    </div>
 
-      <div class="mt-6">
-        <button
-          type="button"
-          :disabled="loading || googleLoading"
-          @click="handleGoogleLogin"
-          class="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+    <div class="auth-form__google">
+      <Button
+        type="button"
+        :disabled="loading || googleLoading"
+        variant="secondary"
+        size="md"
+        class="w-full"
+        @click="handleGoogleLogin"
+      >
+        <template #icon-left>
+          <svg class="w-5 h-5" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
             />
           </svg>
-          <span v-if="googleLoading">Connecting...</span>
-          <span v-else>Sign in with Google</span>
-        </button>
-      </div>
+        </template>
+        <span v-if="googleLoading">Connecting...</span>
+        <span v-else>Sign in with Google</span>
+      </Button>
     </div>
 
-    <div class="mt-6 text-center">
-      <p class="text-sm text-gray-600">
+    <div class="auth-form__footer">
+      <p class="auth-form__footer-text">
         Don't have an account?
-        <a
-          href="#"
+        <button
+          type="button"
           @click.prevent="onSignUp"
-          class="font-medium text-primary-600 hover:text-primary-500"
+          class="auth-form__link"
         >
           Sign up
-        </a>
+        </button>
       </p>
     </div>
   </div>
@@ -157,6 +135,8 @@ import { ref } from 'vue'
 import { EnvelopeIcon, LockClosedIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/utils/api'
+import Button from '@/components/ui/Button.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 interface Props {
   appName?: string
@@ -242,4 +222,138 @@ function onForgotPassword() {
   emit('forgotPassword')
 }
 </script>
+
+<style scoped>
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.auth-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.auth-form__input-wrapper {
+  position: relative;
+}
+
+.auth-form__input-icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+
+.auth-form__input {
+  padding-left: calc(var(--space-3) + var(--space-3) + 20px);
+}
+
+.auth-form__options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.auth-form__checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.auth-form__checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.auth-form__checkbox-label {
+  font-size: var(--font-body-small);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.auth-form__link {
+  font-size: var(--font-body-small);
+  font-weight: 500;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.auth-form__link:hover {
+  color: var(--color-primary-hover);
+}
+
+.auth-form__submit {
+  width: 100%;
+}
+
+.auth-form__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
+}
+
+.auth-form__divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.auth-form__divider-text {
+  font-size: var(--font-body-small);
+  color: var(--color-text-tertiary);
+}
+
+.auth-form__google {
+  width: 100%;
+}
+
+.auth-form__footer {
+  text-align: center;
+  margin-top: var(--space-6);
+}
+
+.auth-form__footer-text {
+  font-size: var(--font-body-small);
+  color: var(--color-text-secondary);
+}
+
+.auth-form__footer-text .auth-form__link {
+  margin-left: var(--space-1);
+}
+
+.auth-form__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: rgba(255, 59, 48, 0.1);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  color: var(--color-destructive);
+  font-size: var(--font-body-medium);
+}
+
+.auth-form__error-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+</style>
 
