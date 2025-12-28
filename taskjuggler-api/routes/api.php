@@ -20,6 +20,10 @@ use App\Http\Controllers\Api\TEF\MessageController;
 use App\Http\Controllers\Api\TEF\ConversationController;
 use App\Http\Controllers\Api\IoT\DeviceController;
 use App\Http\Controllers\Api\AI\AgentController;
+use App\Modules\SiteHealth\Http\Controllers\SiteController;
+use App\Modules\SiteHealth\Http\Controllers\ScanController;
+use App\Modules\SiteHealth\Http\Controllers\IssueController;
+use App\Modules\SiteHealth\Http\Controllers\DashboardController;
 
 // Note: Auth routes are now in app/Modules/Core/Routes/api.php
 // Note: Task routes are now in app/Modules/Tasks/Routes/api.php
@@ -186,6 +190,28 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('test-fix')->group(function () {
         Route::post('/analyze', [\App\Http\Controllers\TestFixController::class, 'analyze']);
         Route::post('/apply', [\App\Http\Controllers\TestFixController::class, 'applyFixes']);
+    });
+
+    // SiteHealth Scanner endpoints
+    Route::prefix('scanner')->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [DashboardController::class, 'index']);
+        
+        // Sites
+        Route::apiResource('sites', SiteController::class);
+        Route::post('/sites/{site}/scan', [ScanController::class, 'store']);
+        Route::get('/sites/{site}/scans', [ScanController::class, 'index']);
+        
+        // Scans
+        Route::get('/scans/{scan}', [ScanController::class, 'show']);
+        Route::get('/scans/{scan}/report', [ScanController::class, 'report']);
+        
+        // Issues
+        Route::get('/issues', [IssueController::class, 'index']);
+        Route::get('/issues/{issue}', [IssueController::class, 'show']);
+        Route::put('/issues/{issue}', [IssueController::class, 'update']);
+        Route::post('/issues/{issue}/fix', [IssueController::class, 'generateFix']);
+        Route::post('/issues/bulk', [IssueController::class, 'bulkUpdate']);
     });
 });
 
