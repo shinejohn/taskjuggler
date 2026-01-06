@@ -320,6 +320,7 @@ def create_compute(
                 {"name": "DB_DATABASE", "value": str(args["db_name"])},
                 {"name": "REDIS_HOST", "value": str(args["redis_endpoint"])},
                 {"name": "AWS_S3_BUCKET", "value": str(args["app_bucket_name"])},
+                {"name": "APP_SEED_DB", "value": config.get("seed_db", "false")},
             ],
             "secrets": [
                 {
@@ -638,6 +639,9 @@ def create_compute(
         "ecr_repo": ecr_repo,
         "alb": alb,
         "load_balancer_dns": alb.dns_name,
+        "load_balancer_arn": alb.arn,
+        "load_balancer_zone_id": alb.zone_id,
+        "http_listener": http_listener,
         "api_service": api_service,
         "worker_service": worker_service,
         "scheduler_rule": scheduler_rule,
