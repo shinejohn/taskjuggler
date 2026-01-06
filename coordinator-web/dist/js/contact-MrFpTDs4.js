@@ -1,0 +1,1 @@
+function a(n){if(!n.contact)return"Unknown";const{first_name:t,last_name:o}=n.contact;return`${t||""} ${o||""}`.trim()||"Unknown"}function c(n){return a(n).charAt(0).toUpperCase()}function r(n,t="Coordinator"){return n.coordinator&&n.coordinator.display_name||t}function i(n){return r(n).charAt(0).toUpperCase()}export{r as a,c as b,i as c,a as g};

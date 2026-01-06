@@ -1,0 +1,382 @@
+<template>
+  <DashboardLayout>
+    <div class="space-y-6">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 class="text-3xl font-heading font-bold text-[#1B4F72]">
+            Call History
+          </h1>
+          <p class="text-slate-500 mt-1">{{ callsStore.total }} total calls</p>
+        </div>
+        <div class="flex gap-3">
+          <button
+            @click="showDateFilter = !showDateFilter"
+            class="px-4 py-2.5 border border-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2"
+          >
+            <Calendar :size="18" />
+            Last 30 Days
+          </button>
+          <button
+            @click="exportCalls"
+            class="px-4 py-2.5 border border-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2"
+          >
+            <Download :size="18" />
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Summary -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="p-3 bg-blue-50 text-[#1B4F72] rounded-lg">
+            <Phone :size="24" />
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-slate-900">
+              {{ callsStore.stats?.calls_today || 0 }}
+            </div>
+            <div class="text-sm text-slate-500">Calls Today</div>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="p-3 bg-amber-50 text-amber-600 rounded-lg">
+            <Clock :size="24" />
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-slate-900">
+              {{ formatDuration(callsStore.stats?.avg_duration || 0) }}
+            </div>
+            <div class="text-sm text-slate-500">Avg Duration</div>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="p-3 bg-green-50 text-green-600 rounded-lg">
+            <Calendar :size="24" />
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-slate-900">
+              {{ callsStore.stats?.booking_rate || 0 }}%
+            </div>
+            <div class="text-sm text-slate-500">Booking Rate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div class="relative">
+          <Search class="absolute left-3 top-3 text-slate-400" :size="20" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search by contact name or phone..."
+            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72]"
+            @input="handleSearch"
+          />
+        </div>
+
+        <div class="flex flex-wrap gap-3 items-center">
+          <div class="relative">
+            <select
+              v-model="filterDirection"
+              class="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72] cursor-pointer hover:bg-slate-50"
+              @change="handleFilter"
+            >
+              <option value="">Direction: All</option>
+              <option value="inbound">Inbound</option>
+              <option value="outbound">Outbound</option>
+            </select>
+            <Filter class="absolute right-2.5 top-2 text-slate-400 pointer-events-none" :size="12" />
+          </div>
+          <div class="relative">
+            <select
+              v-model="filterOutcome"
+              class="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72] cursor-pointer hover:bg-slate-50"
+              @change="handleFilter"
+            >
+              <option value="">Outcome: All</option>
+              <option value="booked">Appointment Booked</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="info">Info Only</option>
+            </select>
+            <Filter class="absolute right-2.5 top-2 text-slate-400 pointer-events-none" :size="12" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="callsStore.loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B4F72]"></div>
+        <p class="mt-4 text-slate-500">Loading calls...</p>
+      </div>
+
+      <!-- Table -->
+      <div v-else class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
+              <tr>
+                <th class="px-6 py-3">Date/Time</th>
+                <th class="px-6 py-3">Contact</th>
+                <th class="px-6 py-3">Phone</th>
+                <th class="px-6 py-3">Coordinator</th>
+                <th class="px-6 py-3">Direction</th>
+                <th class="px-6 py-3">Duration</th>
+                <th class="px-6 py-3">Outcome</th>
+                <th class="px-6 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr
+                v-for="call in callsStore.calls"
+                :key="call.id"
+                class="hover:bg-slate-50 transition-colors cursor-pointer"
+                @click="viewCall(call)"
+              >
+                <td class="px-6 py-4 text-slate-500">
+                  <div class="font-medium text-slate-900">
+                    {{ formatTime(call.started_at) }}
+                  </div>
+                  <div class="text-xs">{{ formatDate(call.started_at) }}</div>
+                </td>
+                <td class="px-6 py-4 font-medium text-slate-900">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+                      {{ getContactInitial(call) }}
+                    </div>
+                    {{ getContactName(call) }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-slate-500 font-mono text-xs">
+                  {{ call.from_number }}
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-blue-50 text-[#1B4F72] flex items-center justify-center text-[10px] font-bold">
+                      {{ getCoordinatorInitial(call) }}
+                    </div>
+                    <span class="text-sm text-slate-600">
+                      {{ getCoordinatorName(call) }}
+                    </span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div
+                    :class="[
+                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
+                      call.direction === 'inbound' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'
+                    ]"
+                  >
+                    <ArrowDownLeft v-if="call.direction === 'inbound'" :size="12" />
+                    <ArrowUpRight v-else :size="12" />
+                    {{ call.direction === 'inbound' ? 'Inbound' : 'Outbound' }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-slate-500 font-mono text-xs">
+                  {{ formatDuration(call.duration_seconds) }}
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    :class="[
+                      'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                      getOutcomeClass(call.outcome)
+                    ]"
+                  >
+                    {{ call.outcome || 'Completed' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right" @click.stop>
+                  <div class="flex items-center justify-end gap-2">
+                    <button
+                      v-if="call.recording_url"
+                      @click.stop="playRecording(call)"
+                      class="p-1.5 text-slate-400 hover:text-[#1B4F72] rounded hover:bg-slate-100"
+                      title="Play Recording"
+                    >
+                      <Play :size="16" />
+                    </button>
+                    <button
+                      v-if="call.transcript"
+                      @click.stop="viewTranscript(call)"
+                      class="p-1.5 text-slate-400 hover:text-[#1B4F72] rounded hover:bg-slate-100"
+                      title="View Transcript"
+                    >
+                      <FileText :size="16" />
+                    </button>
+                    <button
+                      @click.stop="viewCall(call)"
+                      class="p-1.5 text-slate-400 hover:text-[#1B4F72] rounded hover:bg-slate-100"
+                    >
+                      <MoreVertical :size="16" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="callsStore.calls.length === 0">
+                <td colspan="8" class="px-6 py-8 text-center text-slate-500">
+                  No calls found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+          <span class="text-sm text-slate-500">
+            Showing {{ (callsStore.page - 1) * callsStore.perPage + 1 }}-
+            {{ Math.min(callsStore.page * callsStore.perPage, callsStore.total) }}
+            of {{ callsStore.total }}
+          </span>
+          <div class="flex gap-2">
+            <button
+              :disabled="callsStore.page === 1"
+              @click="goToPage(callsStore.page - 1)"
+              class="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+            >
+              <ChevronLeft :size="16" />
+            </button>
+            <button
+              :disabled="callsStore.page * callsStore.perPage >= callsStore.total"
+              @click="goToPage(callsStore.page + 1)"
+              class="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50"
+            >
+              <ChevronRight :size="16" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call Detail Panel -->
+    <CallDetailPanel
+      :call="selectedCall"
+      :is-open="showCallPanel"
+      @close="showCallPanel = false"
+    />
+  </DashboardLayout>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import {
+  Search,
+  Filter,
+  Download,
+  Calendar,
+  Play,
+  FileText,
+  MoreVertical,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Clock,
+  Phone,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-vue-next';
+import DashboardLayout from '@/components/layout/DashboardLayout.vue';
+import CallDetailPanel from '@/components/calls/CallDetailPanel.vue';
+import { useCallsStore } from '@/stores/calls';
+import { useOrganizationsStore } from '@/stores/organizations';
+import type { CallLog } from '@/api/calls';
+import { formatTime, formatRelativeDate, formatDurationSeconds } from '@/utils/format';
+import { getCallOutcomeClass } from '@/utils/status';
+import { getContactName as getContactNameUtil, getContactInitial as getContactInitialUtil, getCoordinatorName as getCoordinatorNameUtil, getCoordinatorInitial as getCoordinatorInitialUtil } from '@/utils/contact';
+import { createDebounced } from '@/utils/request';
+
+const callsStore = useCallsStore();
+const organizationsStore = useOrganizationsStore();
+
+const searchQuery = ref('');
+const filterDirection = ref<'inbound' | 'outbound' | ''>('');
+const filterOutcome = ref('');
+const showDateFilter = ref(false);
+
+// Use utility functions for formatting
+const formatDate = formatRelativeDate;
+const formatDuration = formatDurationSeconds;
+const getOutcomeClass = getCallOutcomeClass;
+const getContactName = (call: CallLog) => getContactNameUtil(call as any);
+const getContactInitial = (call: CallLog) => getContactInitialUtil(call as any);
+const getCoordinatorName = (call: CallLog) => getCoordinatorNameUtil(call as any);
+const getCoordinatorInitial = (call: CallLog) => getCoordinatorInitialUtil(call as any);
+
+const selectedCall = ref<CallLog | null>(null);
+const showCallPanel = ref(false);
+
+function viewCall(call: CallLog) {
+  selectedCall.value = call;
+  showCallPanel.value = true;
+}
+
+function playRecording(call: CallLog) {
+  if (call.recording_url) {
+    window.open(call.recording_url, '_blank');
+  }
+}
+
+function viewTranscript(call: CallLog) {
+  // TODO: Implement transcript modal
+  // For now, show transcript in the call detail panel
+  selectedCall.value = call;
+  showCallPanel.value = true;
+}
+
+// Debounced search to reduce API calls
+const handleSearch = createDebounced(() => {
+  fetchCalls();
+}, 300);
+
+function handleFilter() {
+  fetchCalls();
+}
+
+function goToPage(page: number) {
+  fetchCalls({ page });
+}
+
+function exportCalls() {
+  // TODO: Implement export functionality
+  // await callsApi.exportCalls(filters);
+}
+
+async function fetchCalls(filters?: any) {
+  try {
+    await Promise.all([
+      callsStore.fetchCalls({
+        search: searchQuery.value || undefined,
+        direction: filterDirection.value || undefined,
+        outcome: filterOutcome.value || undefined,
+        ...filters,
+      }),
+      callsStore.fetchStats({
+        direction: filterDirection.value && (filterDirection.value === 'inbound' || filterDirection.value === 'outbound') 
+          ? filterDirection.value as 'inbound' | 'outbound' 
+          : undefined,
+        outcome: filterOutcome.value || undefined,
+      }),
+    ]);
+  } catch (error) {
+    console.error('Failed to fetch calls:', error);
+  }
+}
+
+onMounted(async () => {
+  try {
+    if (!organizationsStore.currentOrganization) {
+      await organizationsStore.fetchOrganizations();
+      if (organizationsStore.organizations.length > 0) {
+        organizationsStore.setCurrentOrganization(organizationsStore.organizations[0]);
+      }
+    }
+    if (organizationsStore.currentOrganization?.id) {
+      await fetchCalls();
+    }
+  } catch (error) {
+    console.error('Failed to load calls:', error);
+  }
+});
+</script>
+

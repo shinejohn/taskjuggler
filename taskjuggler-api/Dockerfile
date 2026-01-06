@@ -39,6 +39,10 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction || echo "Co
 # Note: Skip if package.json doesn't exist or has no build script
 RUN if [ -f "package.json" ] && grep -q "\"build\"" package.json; then npm install && npm run build || echo "NPM build skipped"; else echo "Skipping npm build - no package.json or build script"; fi
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
@@ -88,5 +92,5 @@ autorestart=true \
 # Expose port
 EXPOSE 8080
 
-# Start supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Use entrypoint script
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
