@@ -1,16 +1,17 @@
 <template>
-  <div
+  <Card
     :class="[
-      'bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group',
+      'transition-all duration-200 overflow-hidden group',
       status === 'active' && !compact ? 'border-l-4 border-l-[#1B4F72]' : ''
     ]"
   >
-    <div class="p-5">
-      <div class="flex justify-between items-start mb-4">
-        <div
+    <CardHeader>
+      <div class="flex justify-between items-start">
+        <Badge
+          :variant="status === 'active' ? 'default' : 'secondary'"
           :class="[
-            'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium',
-            status === 'active' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
+            'inline-flex items-center gap-1.5',
+            status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'
           ]"
         >
           <span
@@ -20,26 +21,30 @@
             ]"
           />
           {{ status === 'active' ? 'Active' : 'Paused' }}
-        </div>
-        <button class="text-slate-400 hover:text-[#1B4F72]">
+        </Badge>
+        <Button variant="ghost" size="icon-sm" class="h-6 w-6">
           <MoreVertical :size="16" />
-        </button>
+        </Button>
       </div>
+    </CardHeader>
 
+    <CardContent>
       <div class="flex flex-col items-center text-center mb-4">
-        <div class="w-16 h-16 rounded-full bg-slate-100 border-2 border-white shadow-sm flex items-center justify-center text-xl font-bold text-[#1B4F72] mb-3 overflow-hidden">
-          <img v-if="avatar" :src="avatar" :alt="name" class="w-full h-full object-cover" />
-          <span v-else>{{ name.charAt(0) }}</span>
-        </div>
+        <Avatar size="base" shape="circle" class="mb-3">
+          <AvatarImage v-if="avatar" :src="avatar" :alt="name" />
+          <AvatarFallback class="text-xl font-bold text-[#1B4F72]">
+            {{ name.charAt(0) }}
+          </AvatarFallback>
+        </Avatar>
         <h3 class="text-lg font-bold text-slate-900">{{ name }}</h3>
         <div class="text-sm text-slate-500 flex items-center gap-1.5">
           {{ role }}
           <span v-if="price" class="text-slate-300">•</span>
           <span v-if="price">{{ price }}</span>
         </div>
-        <div v-if="phone" class="mt-2 text-xs font-mono text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100">
+        <Badge v-if="phone" variant="outline" class="mt-2 font-mono text-xs">
           {{ phone }}
-        </div>
+        </Badge>
       </div>
 
       <div v-if="!compact && stats" class="grid grid-cols-3 gap-2 border-t border-slate-100 pt-4 mt-2">
@@ -66,21 +71,21 @@
       </div>
 
       <div v-if="!compact" class="flex gap-3 mt-5">
-        <router-link
-          :to="`/coordinators/${id}`"
-          class="flex-1 py-2 px-3 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-[#1B4F72] transition-colors text-center"
-        >
-          View Details
-        </router-link>
-        <button class="flex-1 py-2 px-3 rounded-lg border border-transparent bg-blue-50 text-sm font-medium text-[#1B4F72] hover:bg-blue-100 transition-colors">
+        <Button variant="outline" class="flex-1" as-child>
+          <router-link :to="`/coordinators/${id}`">
+            View Details
+          </router-link>
+        </Button>
+        <Button variant="default" class="flex-1 bg-blue-50 text-[#1B4F72] hover:bg-blue-100">
           Test Call
-        </button>
+        </Button>
       </div>
-    </div>
-  </div>
+    </CardContent>
+  </Card>
 </template>
 
 <script setup lang="ts">
+import { Card, CardContent, CardHeader, Badge, Avatar, AvatarImage, AvatarFallback, Button } from '@taskjuggler/ui';
 import { MoreVertical } from 'lucide-vue-next';
 
 interface Props {

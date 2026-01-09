@@ -12,6 +12,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@taskjuggler/ui": "file:../shared-ui",
     "axios": "^1.13.2",
     "lucide-vue-next": "^0.562.0",
     "pinia": "^3.0.4",
