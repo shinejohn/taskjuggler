@@ -42,7 +42,12 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./shared-ui
-        run: npm ci || npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Type check
         working-directory: ./shared-ui
@@ -71,7 +76,12 @@ jobs:
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
-        run: npm ci || npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build shared-ui
         working-directory: ./shared-ui
@@ -117,7 +127,12 @@ jobs:
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
-        run: npm ci || npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build shared-ui
         working-directory: ./shared-ui
@@ -154,7 +169,12 @@ jobs:
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
-        run: npm ci || npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build shared-ui
         working-directory: ./shared-ui
@@ -191,7 +211,12 @@ jobs:
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
-        run: npm ci || npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build shared-ui
         working-directory: ./shared-ui
@@ -228,7 +253,12 @@ jobs:
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
-        run: npm ci || npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build shared-ui
         working-directory: ./shared-ui
@@ -265,7 +295,12 @@ jobs:
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
-        run: npm ci || npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build shared-ui
         working-directory: ./shared-ui
