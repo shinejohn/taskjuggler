@@ -11,13 +11,12 @@
             Welcome back! Here's what's happening with your Coordinators.
           </p>
         </div>
-        <router-link
-          to="/coordinators"
-          class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
-        >
-          Manage Coordinators
-          <ArrowRight :size="18" />
-        </router-link>
+        <Button variant="default" class="bg-[#F59E0B] hover:bg-[#D97706] text-white" as-child>
+          <router-link to="/coordinators" class="flex items-center gap-2">
+            Manage Coordinators
+            <ArrowRight :size="18" />
+          </router-link>
+        </Button>
       </div>
 
       <!-- Loading State -->
@@ -94,155 +93,151 @@
                 />
 
                 <!-- Add Coordinator Card -->
-                <router-link
-                  to="/coordinators"
-                  class="bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 hover:border-[#1B4F72] hover:bg-blue-50/50 transition-all duration-200 flex flex-col items-center justify-center p-6 group cursor-pointer h-full min-h-[200px]"
+                <Card
+                  class="border-2 border-dashed border-slate-300 hover:border-[#1B4F72] hover:bg-blue-50/50 transition-all duration-200 flex flex-col items-center justify-center p-6 group cursor-pointer h-full min-h-[200px] bg-slate-50"
+                  as-child
                 >
-                  <div class="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-[#1B4F72] group-hover:border-[#1B4F72] mb-3 transition-colors shadow-sm">
-                    <Plus :size="24" />
-                  </div>
-                  <span class="font-medium text-slate-600 group-hover:text-[#1B4F72]">
-                    Add Coordinator
-                  </span>
-                </router-link>
+                  <router-link to="/coordinators" class="flex flex-col items-center justify-center w-full h-full">
+                    <div class="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-[#1B4F72] group-hover:border-[#1B4F72] mb-3 transition-colors shadow-sm">
+                      <Plus :size="24" />
+                    </div>
+                    <span class="font-medium text-slate-600 group-hover:text-[#1B4F72]">
+                      Add Coordinator
+                    </span>
+                  </router-link>
+                </Card>
               </div>
             </section>
 
             <!-- Recent Calls Section -->
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-[#1B4F72]">Recent Calls</h2>
-                <router-link to="/calls" class="text-sm font-medium text-[#1B4F72] hover:underline">
-                  View All
-                </router-link>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                  <thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
-                    <tr>
-                      <th class="px-6 py-3">Time</th>
-                      <th class="px-6 py-3">Contact</th>
-                      <th class="px-6 py-3">Coordinator</th>
-                      <th class="px-6 py-3">Duration</th>
-                      <th class="px-6 py-3">Outcome</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-slate-100">
-                    <tr
-                      v-for="call in dashboardStore.recentCalls"
-                      :key="call.id"
-                      class="hover:bg-slate-50 transition-colors"
-                    >
-                      <td class="px-6 py-4 text-slate-500">{{ call.time }}</td>
-                      <td class="px-6 py-4 font-medium text-slate-900">
-                        {{ call.contact_name }}
-                      </td>
-                      <td class="px-6 py-4 text-slate-600">{{ call.coordinator_name }}</td>
-                      <td class="px-6 py-4 text-slate-500 font-mono text-xs">
-                        {{ call.duration }}
-                      </td>
-                      <td class="px-6 py-4">
-                        <span
-                          :class="[
-                            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                            call.status === 'success' ? 'bg-green-50 text-green-700' : call.status === 'error' ? 'bg-red-50 text-red-700' : 'bg-slate-100 text-slate-600'
-                          ]"
-                        >
-                          {{ call.outcome }}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr v-if="dashboardStore.recentCalls.length === 0">
-                      <td colspan="5" class="px-6 py-8 text-center text-slate-500">
-                        No recent calls
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </section>
+            <Card class="overflow-hidden">
+              <CardHeader class="flex flex-row items-center justify-between">
+                <CardTitle class="text-xl font-bold text-[#1B4F72]">Recent Calls</CardTitle>
+                <Button variant="ghost" size="sm" as-child>
+                  <router-link to="/calls">View All</router-link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div class="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Contact</TableHead>
+                        <TableHead>Coordinator</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>Outcome</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow
+                        v-for="call in dashboardStore.recentCalls"
+                        :key="call.id"
+                        class="hover:bg-slate-50 transition-colors cursor-pointer"
+                      >
+                        <TableCell class="text-slate-500">{{ call.time }}</TableCell>
+                        <TableCell class="font-medium text-slate-900">
+                          {{ call.contact_name }}
+                        </TableCell>
+                        <TableCell class="text-slate-600">{{ call.coordinator_name }}</TableCell>
+                        <TableCell class="text-slate-500 font-mono text-xs">
+                          {{ call.duration }}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            :variant="call.status === 'success' ? 'default' : call.status === 'error' ? 'destructive' : 'secondary'"
+                            :class="call.status === 'success' ? 'bg-green-50 text-green-700' : call.status === 'error' ? 'bg-red-50 text-red-700' : 'bg-slate-100 text-slate-600'"
+                          >
+                            {{ call.outcome }}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow v-if="dashboardStore.recentCalls.length === 0">
+                        <TableCell colspan="5" class="text-center text-slate-500 py-8">
+                          No recent calls
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <!-- Right Column (Appointments + Quick Actions) -->
           <div class="space-y-8">
             <!-- Today's Appointments -->
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-[#1B4F72]">
+            <Card>
+              <CardHeader class="flex flex-row items-center justify-between">
+                <CardTitle class="text-xl font-bold text-[#1B4F72]">
                   Today's Appointments
-                </h2>
-                <router-link to="/appointments" class="text-sm font-medium text-[#1B4F72] hover:underline">
-                  View Calendar
-                </router-link>
-              </div>
+                </CardTitle>
+                <Button variant="ghost" size="sm" as-child>
+                  <router-link to="/appointments">View Calendar</router-link>
+                </Button>
+              </CardHeader>
+              <CardContent>
 
-              <div v-if="dashboardStore.todayAppointments.length === 0" class="text-slate-500 text-center py-8">
-                No appointments today
-              </div>
-              <div v-else class="relative pl-4 border-l-2 border-slate-100 space-y-8">
-                <div
-                  v-for="appt in dashboardStore.todayAppointments"
-                  :key="appt.id"
-                  class="relative"
-                >
+                <div v-if="dashboardStore.todayAppointments.length === 0" class="text-slate-500 text-center py-8">
+                  No appointments today
+                </div>
+                <div v-else class="relative pl-4 border-l-2 border-slate-100 space-y-8">
                   <div
-                    :class="[
-                      'absolute -left-[21px] top-1 w-3 h-3 rounded-full border-2 border-white shadow-sm',
-                      appt.status === 'confirmed' ? 'bg-green-500' : appt.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'
-                    ]"
-                  />
-                  <div class="flex flex-col">
-                    <span class="text-xs font-bold text-slate-400 mb-1">
-                      {{ appt.time }}
-                    </span>
-                    <h4 class="font-semibold text-slate-900">
-                      {{ appt.contact_name }}
-                    </h4>
-                    <p class="text-sm text-slate-500">{{ appt.type }}</p>
-                    <div class="flex items-center gap-1 mt-1 text-xs text-slate-400">
-                      <span>via {{ appt.coordinator_name }}</span>
-                      <CheckCircle2 v-if="appt.status === 'confirmed'" :size="12" class="text-green-500 ml-1" />
-                      <XCircle v-if="appt.status === 'cancelled'" :size="12" class="text-red-500 ml-1" />
+                    v-for="appt in dashboardStore.todayAppointments"
+                    :key="appt.id"
+                    class="relative"
+                  >
+                    <div
+                      :class="[
+                        'absolute -left-[21px] top-1 w-3 h-3 rounded-full border-2 border-white shadow-sm',
+                        appt.status === 'confirmed' ? 'bg-green-500' : appt.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'
+                      ]"
+                    />
+                    <div class="flex flex-col">
+                      <span class="text-xs font-bold text-slate-400 mb-1">
+                        {{ appt.time }}
+                      </span>
+                      <h4 class="font-semibold text-slate-900">
+                        {{ appt.contact_name }}
+                      </h4>
+                      <p class="text-sm text-slate-500">{{ appt.type }}</p>
+                      <div class="flex items-center gap-1 mt-1 text-xs text-slate-400">
+                        <span>via {{ appt.coordinator_name }}</span>
+                        <CheckCircle2 v-if="appt.status === 'confirmed'" :size="12" class="text-green-500 ml-1" />
+                        <XCircle v-if="appt.status === 'cancelled'" :size="12" class="text-red-500 ml-1" />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </section>
+              </CardContent>
+            </Card>
 
             <!-- Quick Actions -->
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 class="text-xl font-bold text-[#1B4F72] mb-4">
-                Quick Actions
-              </h2>
-              <div class="space-y-3">
-                <button class="w-full flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-[#1B4F72] hover:bg-blue-50 transition-all text-left group">
-                  <div class="p-2 bg-slate-100 text-slate-600 rounded-lg group-hover:bg-white group-hover:text-[#1B4F72]">
-                    <Download :size="18" />
-                  </div>
-                  <span class="font-medium text-slate-700 group-hover:text-[#1B4F72]">
+            <Card>
+              <CardHeader>
+                <CardTitle class="text-xl font-bold text-[#1B4F72]">
+                  Quick Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div class="space-y-3">
+                  <Button variant="outline" class="w-full justify-start h-auto p-3">
+                    <Download :size="18" class="mr-3" />
                     Import Contacts
-                  </span>
-                </button>
+                  </Button>
 
-                <button class="w-full flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-[#1B4F72] hover:bg-blue-50 transition-all text-left group">
-                  <div class="p-2 bg-slate-100 text-slate-600 rounded-lg group-hover:bg-white group-hover:text-[#1B4F72]">
-                    <Megaphone :size="18" />
-                  </div>
-                  <span class="font-medium text-slate-700 group-hover:text-[#1B4F72]">
+                  <Button variant="outline" class="w-full justify-start h-auto p-3">
+                    <Megaphone :size="18" class="mr-3" />
                     Create Campaign
-                  </span>
-                </button>
+                  </Button>
 
-                <button class="w-full flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-[#1B4F72] hover:bg-blue-50 transition-all text-left group">
-                  <div class="p-2 bg-slate-100 text-slate-600 rounded-lg group-hover:bg-white group-hover:text-[#1B4F72]">
-                    <BarChart3 :size="18" />
-                  </div>
-                  <span class="font-medium text-slate-700 group-hover:text-[#1B4F72]">
+                  <Button variant="outline" class="w-full justify-start h-auto p-3">
+                    <BarChart3 :size="18" class="mr-3" />
                     View Analytics
-                  </span>
-                </button>
-              </div>
-            </section>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </template>
@@ -268,6 +263,7 @@ import {
 import DashboardLayout from '@/components/layout/DashboardLayout.vue';
 import MetricCard from '@/components/dashboard/MetricCard.vue';
 import CoordinatorCard from '@/components/dashboard/CoordinatorCard.vue';
+import { Card, CardHeader, CardTitle, CardContent, Button, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, Badge } from '@taskjuggler/ui';
 import { useDashboardStore } from '@/stores/dashboard';
 import { useCoordinatorsStore } from '@/stores/coordinators';
 import { useOrganizationsStore } from '@/stores/organizations';

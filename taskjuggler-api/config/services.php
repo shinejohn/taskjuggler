@@ -68,4 +68,17 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'vapi' => [
+        'api_key' => env('VAPI_API_KEY'),
+        'webhook_secret' => env('VAPI_WEBHOOK_SECRET'),
+        'base_url' => env('VAPI_BASE_URL', 'https://api.vapi.ai'),
+    ],
+
+    'elevenlabs' => [
+        'api_key' => env('ELEVENLABS_API_KEY'),
+        'base_url' => env('ELEVENLABS_BASE_URL', 'https://api.elevenlabs.io/v1'),
+        'default_voice_id' => env('ELEVENLABS_DEFAULT_VOICE_ID', '21m00Tcm4TlvDq8ikWAM'), // Rachel voice
+        'model_id' => env('ELEVENLABS_MODEL_ID', 'eleven_multilingual_v2'),
+    ],
+
 ];

@@ -51,11 +51,13 @@ class ScanController extends Controller
     {
         $this->authorize('view', $scan->site);
 
-        // Generate PDF report (placeholder - implement PDF generation)
+        // TODO: Implement PDF report generation
+        // Use a PDF library (e.g., dompdf, tcpdf) to generate the scan report
         $reportPath = "reports/scan-{$scan->id}.pdf";
         
         if (!Storage::exists($reportPath)) {
-            // Generate report
+            // Generate PDF report with scan details, findings, and recommendations
+            // $pdfContent = $this->generatePdfReport($scan);
             // Storage::put($reportPath, $pdfContent);
         }
 

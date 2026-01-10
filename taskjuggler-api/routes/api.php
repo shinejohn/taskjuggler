@@ -24,6 +24,7 @@ use App\Modules\SiteHealth\Http\Controllers\SiteController;
 use App\Modules\SiteHealth\Http\Controllers\ScanController;
 use App\Modules\SiteHealth\Http\Controllers\IssueController;
 use App\Modules\SiteHealth\Http\Controllers\DashboardController;
+use App\Http\Controllers\Api\McpController;
 
 // Note: Auth routes are now in app/Modules/Core/Routes/api.php
 // Note: Task routes are now in app/Modules/Tasks/Routes/api.php
@@ -33,6 +34,14 @@ require base_path('app/Modules/Core/Routes/api.php');
 
 // Load Tasks module routes
 require base_path('app/Modules/Tasks/Routes/api.php');
+
+// Load Coordinator routes
+require base_path('routes/coordinator.php');
+
+// Load URPA module routes
+Route::prefix('urpa')->group(function () {
+    require base_path('app/Modules/Urpa/Routes/api.php');
+});
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -212,6 +221,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/issues/{issue}', [IssueController::class, 'update']);
         Route::post('/issues/{issue}/fix', [IssueController::class, 'generateFix']);
         Route::post('/issues/bulk', [IssueController::class, 'bulkUpdate']);
+    });
+});
+
+// MCP (Model Context Protocol) routes
+Route::prefix('mcp')->group(function () {
+    // Public registration/login
+    Route::post('/register', [McpController::class, 'register']);
+    Route::post('/login', [McpController::class, 'login']);
+    
+    // API key validation (for MCP server)
+    Route::post('/validate-key', [McpController::class, 'validateKey']);
+    Route::post('/get-token', [McpController::class, 'getToken']);
+    
+    // Authenticated routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/api-key', [McpController::class, 'getApiKey']);
+        Route::post('/api-key/regenerate', [McpController::class, 'regenerateApiKey']);
     });
 });
 

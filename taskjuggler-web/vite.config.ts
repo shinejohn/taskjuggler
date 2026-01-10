@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@taskjuggler/ui': fileURLToPath(new URL('../shared-ui/src', import.meta.url))
     }
   },
   // VITE_API_URL will be available via import.meta.env.VITE_API_URL at runtime
