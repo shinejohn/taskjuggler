@@ -35,25 +35,25 @@
         <!-- Key Metrics Row -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
-            title="Calls Today"
+            label="Calls Today"
             :value="dashboardStore.metrics?.calls_today || 0"
             :icon="Phone"
             :trend="dashboardStore.metrics?.calls_today_trend"
           />
           <MetricCard
-            title="Appointments This Week"
+            label="Appointments This Week"
             :value="dashboardStore.metrics?.appointments_this_week || 0"
             :icon="Calendar"
             :trend="dashboardStore.metrics?.appointments_trend"
           />
           <MetricCard
-            title="Total Contacts"
+            label="Total Contacts"
             :value="formatNumber(dashboardStore.metrics?.total_contacts || 0)"
             :icon="Users"
             :sub-stat="`+${newContactsThisWeek} new this week`"
           />
           <MetricCard
-            title="No-Show Rate"
+            label="No-Show Rate"
             :value="`${dashboardStore.metrics?.no_show_rate || 0}%`"
             :icon="Target"
             :trend="dashboardStore.metrics?.no_show_trend"

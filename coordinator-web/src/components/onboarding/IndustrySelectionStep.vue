@@ -23,21 +23,18 @@
 
     <!-- Navigation Buttons -->
     <div class="flex justify-between mt-10">
-      <button
-        @click="$emit('back')"
-        class="px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2"
-      >
+      <Button variant="outline" @click="$emit('back')" class="flex items-center gap-2">
         <ArrowLeft :size="18" />
         Back
-      </button>
-      <button
+      </Button>
+      <Button
         @click="handleNext"
         :disabled="!selectedIndustry"
-        class="px-8 py-3 bg-[#1B4F72] hover:bg-[#153e5a] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        class="bg-[#1B4F72] hover:bg-[#153e5a] flex items-center gap-2"
       >
         Continue
         <ArrowRight :size="18" />
-      </button>
+      </Button>
     </div>
   </div>
 </template>
@@ -65,6 +62,7 @@ import {
   ArrowRight,
 } from 'lucide-vue-next';
 import IndustryCard from './IndustryCard.vue';
+import { Button } from '@taskjuggler/ui';
 
 const emit = defineEmits<{
   next: [data: { industry: string }];

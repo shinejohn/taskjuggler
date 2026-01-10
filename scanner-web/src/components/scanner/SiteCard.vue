@@ -1,6 +1,7 @@
 <template>
-  <Card :interactive="true" :padding="'md'" :className="className" @click="handleClick">
-    <div class="site-card">
+  <Card :class="className" @click="handleClick" class="cursor-pointer">
+    <CardContent class="p-6">
+      <div class="site-card">
       <div class="site-card-header">
         <div class="site-card-info">
           <h3 class="site-card-name">{{ site.name }}</h3>
@@ -22,7 +23,6 @@
 
       <div class="site-card-actions">
         <Button
-          variant="primary"
           size="sm"
           :disabled="scanning"
           @click.stop="handleScan"
@@ -37,14 +37,13 @@
         </Badge>
       </div>
     </div>
+    </CardContent>
   </Card>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import Card from '@/components/ui/Card.vue'
-import Button from '@/components/ui/Button.vue'
-import Badge from '@/components/ui/Badge.vue'
+import { Card, CardContent, Button, Badge } from '@taskjuggler/ui'
 import HealthScore from './HealthScore.vue'
 import type { Site } from '@/types'
 import { useScansStore } from '@/stores/scans'

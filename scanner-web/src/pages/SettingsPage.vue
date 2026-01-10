@@ -2,10 +2,12 @@
   <AppLayout>
     <div class="settings-page">
       <h1 class="settings-title">Settings</h1>
-      <Card :padding="'lg'">
-        <h2 class="section-title">Account Settings</h2>
-        <p class="settings-description">Manage your account preferences and API keys.</p>
-        <!-- Settings content here -->
+      <Card>
+        <CardContent class="p-6">
+          <h2 class="section-title">Account Settings</h2>
+          <p class="settings-description">Manage your account preferences and API keys.</p>
+          <!-- Settings content here -->
+        </CardContent>
       </Card>
     </div>
   </AppLayout>
@@ -13,7 +15,7 @@
 
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import Card from '@/components/ui/Card.vue'
+import { Card, CardContent } from '@taskjuggler/ui'
 </script>
 
 <style scoped>

@@ -13,12 +13,14 @@
         </p>
       </div>
       <Card class="auth-page__card">
-        <LoginForm
-          app-name="Task Juggler"
-          @success="handleSuccess"
-          @sign-up="handleSignUp"
-          @forgot-password="handleForgotPassword"
-        />
+        <CardContent class="p-8">
+          <LoginForm
+            app-name="Task Juggler"
+            @success="handleSuccess"
+            @sign-up="handleSignUp"
+            @forgot-password="handleForgotPassword"
+          />
+        </CardContent>
       </Card>
     </div>
   </div>
@@ -28,7 +30,7 @@
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import LoginForm from '@/components/auth/LoginForm.vue'
-import Card from '@/components/ui/Card.vue'
+import { Card, CardContent } from '@taskjuggler/ui'
 
 const router = useRouter()
 const authStore = useAuthStore()

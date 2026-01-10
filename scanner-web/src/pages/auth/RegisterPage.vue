@@ -1,52 +1,68 @@
 <template>
   <div class="auth-page">
-    <Card :padding="'lg'" className="auth-card">
-      <h1 class="auth-title">Create Account</h1>
-      <form @submit.prevent="handleSubmit" class="auth-form">
-        <Input
-          v-model="name"
-          label="Name"
-          placeholder="John Doe"
-          :required="true"
-          :error="errors.name"
-        />
-        <Input
-          v-model="email"
-          label="Email"
-          type="email"
-          placeholder="you@example.com"
-          :required="true"
-          :error="errors.email"
-        />
-        <Input
-          v-model="password"
-          label="Password"
-          type="password"
-          placeholder="••••••••"
-          :required="true"
-          :error="errors.password"
-        />
-        <Input
-          v-model="passwordConfirmation"
-          label="Confirm Password"
-          type="password"
-          placeholder="••••••••"
-          :required="true"
-          :error="errors.password_confirmation"
-        />
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          :disabled="authStore.loading"
-          className="auth-submit"
-        >
-          {{ authStore.loading ? 'Creating account...' : 'Sign Up' }}
-        </Button>
-        <p class="auth-footer">
-          Already have an account? <RouterLink to="/login" class="auth-link">Login</RouterLink>
-        </p>
-      </form>
+    <Card class="auth-card">
+      <CardContent class="p-8">
+        <h1 class="auth-title">Create Account</h1>
+        <form @submit.prevent="handleSubmit" class="auth-form">
+          <div>
+            <Label for="name">Name <span class="text-destructive ml-1">*</span></Label>
+            <Input
+              id="name"
+              v-model="name"
+              placeholder="John Doe"
+              :class="errors.name && 'border-destructive'"
+              required
+            />
+            <p v-if="errors.name" class="text-sm text-destructive mt-1">{{ errors.name }}</p>
+          </div>
+          <div>
+            <Label for="email">Email <span class="text-destructive ml-1">*</span></Label>
+            <Input
+              id="email"
+              v-model="email"
+              type="email"
+              placeholder="you@example.com"
+              :class="errors.email && 'border-destructive'"
+              required
+            />
+            <p v-if="errors.email" class="text-sm text-destructive mt-1">{{ errors.email }}</p>
+          </div>
+          <div>
+            <Label for="password">Password <span class="text-destructive ml-1">*</span></Label>
+            <Input
+              id="password"
+              v-model="password"
+              type="password"
+              placeholder="••••••••"
+              :class="errors.password && 'border-destructive'"
+              required
+            />
+            <p v-if="errors.password" class="text-sm text-destructive mt-1">{{ errors.password }}</p>
+          </div>
+          <div>
+            <Label for="passwordConfirmation">Confirm Password <span class="text-destructive ml-1">*</span></Label>
+            <Input
+              id="passwordConfirmation"
+              v-model="passwordConfirmation"
+              type="password"
+              placeholder="••••••••"
+              :class="errors.password_confirmation && 'border-destructive'"
+              required
+            />
+            <p v-if="errors.password_confirmation" class="text-sm text-destructive mt-1">{{ errors.password_confirmation }}</p>
+          </div>
+          <Button
+            type="submit"
+            :disabled="authStore.loading"
+            class="auth-submit w-full"
+          >
+            {{ authStore.loading ? 'Creating account...' : 'Sign Up' }}
+          </Button>
+          <p class="auth-footer">
+            Already have an account? <RouterLink to="/login" class="auth-link">Login</RouterLink>
+          </p>
+        </form>
+      </CardContent>
     </Card>
   </div>
 </template>
@@ -54,9 +70,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import Card from '@/components/ui/Card.vue'
-import Input from '@/components/ui/Input.vue'
-import Button from '@/components/ui/Button.vue'
+import { Card, CardContent, Input, Button, Label } from '@taskjuggler/ui'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()

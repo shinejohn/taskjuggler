@@ -1,5 +1,33 @@
-# Vue 3 + TypeScript + Vite
+# URPA Web App
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Vue 3 + TypeScript + Vite project for Task Juggler Platform
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Setup
+
+```bash
+npm install
+```
+
+## Development
+
+```bash
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## UI Components
+
+This project uses shared UI components from `@taskjuggler/ui`:
+
+```vue
+<script setup lang="ts">
+import { Button, Card, Input } from '@taskjuggler/ui';
+</script>
+```
+
+All base UI components are provided by the shared-ui package. Custom UI components (Button, Card, Input) have been removed in favor of the shared component library.

@@ -21,17 +21,18 @@
       </div>
 
       <!-- Card -->
-      <Card class="bg-slate-800/50 backdrop-blur-xl border-2 border-slate-700/50 shadow-2xl p-8">
-        <div class="mb-8">
-          <h1 class="text-2xl font-bold text-white mb-2">
-            Create your account
-          </h1>
-          <p class="text-slate-400 text-sm">
-            Get started with Urpa today
-          </p>
-        </div>
+      <Card class="bg-slate-800/50 backdrop-blur-xl border-2 border-slate-700/50 shadow-2xl">
+        <CardContent class="p-8">
+          <div class="mb-8">
+            <h1 class="text-2xl font-bold text-white mb-2">
+              Create your account
+            </h1>
+            <p class="text-slate-400 text-sm">
+              Get started with Urpa today
+            </p>
+          </div>
 
-        <form @submit.prevent="handleSubmit" class="space-y-5">
+          <form @submit.prevent="handleSubmit" class="space-y-5">
           <!-- Name -->
           <div>
             <label class="block text-sm font-semibold text-slate-300 mb-2">
@@ -168,15 +169,16 @@
               <ArrowRight class="h-5 w-5" />
             </template>
           </Button>
-        </form>
+          </form>
 
-        <!-- Sign In Link -->
-        <p class="mt-6 text-center text-sm text-slate-400">
-          Already have an account?{' '}
-          <router-link to="/login" class="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
-            Sign in
-          </router-link>
-        </p>
+          <!-- Sign In Link -->
+          <p class="mt-6 text-center text-sm text-slate-400">
+            Already have an account?{' '}
+            <router-link to="/login" class="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
+              Sign in
+            </router-link>
+          </p>
+        </CardContent>
       </Card>
     </div>
   </div>
@@ -186,9 +188,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Command, Mail, Lock, User, Eye, EyeOff, ArrowRight, Check } from 'lucide-vue-next';
-import Card from '@/components/ui/Card.vue';
-import Input from '@/components/ui/Input.vue';
-import Button from '@/components/ui/Button.vue';
+import { Card, CardContent, Input, Button } from '@taskjuggler/ui';
 import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();

@@ -30,156 +30,161 @@
 
       <div class="space-y-6 max-w-3xl mx-auto mb-10">
         <!-- Question 1: Services -->
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
-              1
-            </div>
-            <div class="flex-1">
-              <h3 class="text-lg font-semibold text-slate-800 mb-3">
-                What services do you offer?
-              </h3>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <button
-                  v-for="service in serviceOptions"
-                  :key="service"
-                  @click="toggleService(service)"
-                  :class="[
-                    'px-3 py-2 rounded-lg text-sm font-medium border text-left transition-all',
-                    answers.services.includes(service)
-                      ? 'bg-[#1B4F72] text-white border-[#1B4F72]'
-                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                  ]"
-                >
-                  {{ service }}
-                </button>
+        <Card class="hover:shadow-md transition-shadow">
+          <CardContent class="p-6">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
+                1
+              </div>
+              <div class="flex-1">
+                <CardTitle class="text-lg font-semibold text-slate-800 mb-3">
+                  What services do you offer?
+                </CardTitle>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Button
+                    v-for="service in serviceOptions"
+                    :key="service"
+                    @click="toggleService(service)"
+                    :variant="answers.services.includes(service) ? 'default' : 'outline'"
+                    :class="[
+                      'text-left justify-start',
+                      answers.services.includes(service)
+                        ? 'bg-[#1B4F72] text-white border-[#1B4F72] hover:bg-[#153e5a]'
+                        : ''
+                    ]"
+                  >
+                    {{ service }}
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         <!-- Question 2: Hours -->
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
-              2
-            </div>
-            <div class="flex-1">
-              <h3 class="text-lg font-semibold text-slate-800 mb-3">
-                What are your business hours?
-              </h3>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                  <span class="font-medium text-slate-700">Weekdays</span>
-                  <span class="text-sm text-slate-500">9:00 AM - 5:00 PM</span>
-                </div>
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                  <span class="font-medium text-slate-700">Weekends</span>
-                  <span class="text-sm text-slate-500">Closed</span>
-                </div>
+        <Card class="hover:shadow-md transition-shadow">
+          <CardContent class="p-6">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
+                2
               </div>
-              <button class="text-sm text-[#1B4F72] font-medium mt-3 hover:underline">
-                + Add custom hours
-              </button>
+              <div class="flex-1">
+                <CardTitle class="text-lg font-semibold text-slate-800 mb-3">
+                  What are your business hours?
+                </CardTitle>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Card class="bg-slate-50">
+                    <CardContent class="p-3">
+                      <div class="flex items-center justify-between">
+                        <span class="font-medium text-slate-700">Weekdays</span>
+                        <span class="text-sm text-slate-500">9:00 AM - 5:00 PM</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card class="bg-slate-50">
+                    <CardContent class="p-3">
+                      <div class="flex items-center justify-between">
+                        <span class="font-medium text-slate-700">Weekends</span>
+                        <span class="text-sm text-slate-500">Closed</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                <Button variant="ghost" class="text-sm text-[#1B4F72] font-medium mt-3 h-auto p-0">
+                  + Add custom hours
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         <!-- Question 3: Insurance -->
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
-              3
-            </div>
-            <div class="flex-1">
-              <h3 class="text-lg font-semibold text-slate-800 mb-3">
-                What insurance do you accept?
-              </h3>
-              <textarea
-                v-model="answers.insurance"
-                class="w-full p-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72] min-h-[80px]"
-                placeholder="e.g. Delta Dental, Cigna, Aetna, MetLife..."
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Question 4: Wait Time -->
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
-              4
-            </div>
-            <div class="flex-1">
-              <h3 class="text-lg font-semibold text-slate-800 mb-3">
-                Typical wait time for new patients?
-              </h3>
-              <select
-                v-model="answers.waitTime"
-                class="w-full p-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72] bg-white"
-              >
-                <option>Same day</option>
-                <option>1-3 days</option>
-                <option>1 week</option>
-                <option>2-3 weeks</option>
-                <option>1 month+</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Question 5: Emergency -->
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
-              5
-            </div>
-            <div class="flex-1">
-              <h3 class="text-lg font-semibold text-slate-800 mb-3">
-                Do you offer emergency services?
-              </h3>
-              <div class="flex gap-4">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input
-                    v-model="answers.emergency"
-                    type="radio"
-                    :value="true"
-                    class="text-[#1B4F72] focus:ring-[#1B4F72]"
-                  />
-                  <span>Yes</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input
-                    v-model="answers.emergency"
-                    type="radio"
-                    :value="false"
-                    class="text-[#1B4F72] focus:ring-[#1B4F72]"
-                  />
-                  <span>No</span>
-                </label>
+        <Card class="hover:shadow-md transition-shadow">
+          <CardContent class="p-6">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
+                3
+              </div>
+              <div class="flex-1">
+                <CardTitle class="text-lg font-semibold text-slate-800 mb-3">
+                  What insurance do you accept?
+                </CardTitle>
+                <Textarea
+                  v-model="answers.insurance"
+                  placeholder="e.g. Delta Dental, Cigna, Aetna, MetLife..."
+                  class="min-h-[80px]"
+                />
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        <!-- Question 4: Wait Time -->
+        <Card class="hover:shadow-md transition-shadow">
+          <CardContent class="p-6">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
+                4
+              </div>
+              <div class="flex-1">
+                <CardTitle class="text-lg font-semibold text-slate-800 mb-3">
+                  Typical wait time for new patients?
+                </CardTitle>
+                <Select v-model="answers.waitTime">
+                  <SelectTrigger>
+                    <SelectValue :placeholder="answers.waitTime || 'Select wait time'" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Same day">Same day</SelectItem>
+                    <SelectItem value="1-3 days">1-3 days</SelectItem>
+                    <SelectItem value="1 week">1 week</SelectItem>
+                    <SelectItem value="2-3 weeks">2-3 weeks</SelectItem>
+                    <SelectItem value="1 month+">1 month+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Question 5: Emergency -->
+        <Card class="hover:shadow-md transition-shadow">
+          <CardContent class="p-6">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold text-sm">
+                5
+              </div>
+              <div class="flex-1">
+                <CardTitle class="text-lg font-semibold text-slate-800 mb-3">
+                  Do you offer emergency services?
+                </CardTitle>
+                <RadioGroup v-model="answers.emergency" class="flex gap-4">
+                  <div class="flex items-center gap-2">
+                    <RadioGroupItem value="true" id="emergency-yes" />
+                    <Label for="emergency-yes" class="cursor-pointer">Yes</Label>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <RadioGroupItem value="false" id="emergency-no" />
+                    <Label for="emergency-no" class="cursor-pointer">No</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <!-- Navigation Buttons -->
-      <div class="flex justify-between mt-10">
-        <button
-          @click="$emit('back')"
-          class="px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2"
-        >
+      <CardFooter class="flex justify-between mt-10 px-0">
+        <Button variant="outline" @click="$emit('back')" class="flex items-center gap-2">
           <ArrowLeft :size="18" />
           Back
-        </button>
-        <button
-          @click="handleComplete"
-          class="px-8 py-3 bg-[#1B4F72] hover:bg-[#153e5a] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
-        >
+        </Button>
+        <Button @click="handleComplete" class="bg-[#1B4F72] hover:bg-[#153e5a] flex items-center gap-2">
           Complete Setup
           <ArrowRight :size="18" />
-        </button>
-      </div>
+        </Button>
+      </CardFooter>
     </template>
   </div>
 </template>
@@ -187,6 +192,22 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ArrowLeft, ArrowRight } from 'lucide-vue-next';
+import {
+  Card,
+  CardContent,
+  CardTitle,
+  CardFooter,
+  Button,
+  Textarea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  RadioGroup,
+  RadioGroupItem,
+  Label,
+} from '@taskjuggler/ui';
 
 const emit = defineEmits<{
   next: [data: { business: any; services: string[] }];
@@ -200,7 +221,7 @@ const answers = ref({
   hours: {} as Record<string, any>,
   insurance: '',
   waitTime: '1-3 days',
-  emergency: false,
+  emergency: 'false',
   parking: '',
   safety: '',
 });

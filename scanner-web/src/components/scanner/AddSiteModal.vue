@@ -6,21 +6,31 @@
     @close="handleClose"
   >
     <form @submit.prevent="handleSubmit" class="add-site-form">
-      <Input
-        v-model="form.name"
-        label="Site Name"
-        placeholder="My Website"
-        :required="true"
-        :error="errors.name"
-      />
-      <Input
-        v-model="form.url"
-        label="Site URL"
-        placeholder="https://example.com"
-        type="url"
-        :required="true"
-        :error="errors.url"
-      />
+      <div>
+        <Label for="site-name">Site Name</Label>
+        <Input
+          id="site-name"
+          v-model="form.name"
+          placeholder="My Website"
+          :class="errors.name && 'border-destructive'"
+        />
+        <p v-if="errors.name" class="text-sm text-destructive mt-1">
+          {{ errors.name }}
+        </p>
+      </div>
+      <div>
+        <Label for="site-url">Site URL</Label>
+        <Input
+          id="site-url"
+          v-model="form.url"
+          placeholder="https://example.com"
+          type="url"
+          :class="errors.url && 'border-destructive'"
+        />
+        <p v-if="errors.url" class="text-sm text-destructive mt-1">
+          {{ errors.url }}
+        </p>
+      </div>
       
       <div class="add-site-section">
         <h4 class="add-site-section-title">Authentication</h4>
@@ -32,55 +42,72 @@
         </select>
         
         <div v-if="form.auth_type === 'basic'" class="add-site-auth-config">
-          <Input
-            v-model="form.auth_config.username"
-            label="Username"
-            :required="true"
-          />
-          <Input
-            v-model="form.auth_config.password"
-            label="Password"
-            type="password"
-            :required="true"
-          />
+          <div>
+            <Label for="auth-username">Username</Label>
+            <Input
+              id="auth-username"
+              v-model="form.auth_config.username"
+            />
+          </div>
+          <div>
+            <Label for="auth-password">Password</Label>
+            <Input
+              id="auth-password"
+              v-model="form.auth_config.password"
+              type="password"
+            />
+          </div>
         </div>
         
         <div v-if="form.auth_type === 'cookie'" class="add-site-auth-config">
-          <Input
-            v-model="form.auth_config.cookie_name"
-            label="Cookie Name"
-            :required="true"
-          />
-          <Input
-            v-model="form.auth_config.cookie_value"
-            label="Cookie Value"
-            :required="true"
-          />
+          <div>
+            <Label for="cookie-name">Cookie Name</Label>
+            <Input
+              id="cookie-name"
+              v-model="form.auth_config.cookie_name"
+            />
+          </div>
+          <div>
+            <Label for="cookie-value">Cookie Value</Label>
+            <Input
+              id="cookie-value"
+              v-model="form.auth_config.cookie_value"
+            />
+          </div>
         </div>
         
         <div v-if="form.auth_type === 'header'" class="add-site-auth-config">
-          <Input
-            v-model="form.auth_config.header_name"
-            label="Header Name"
-            :required="true"
-          />
-          <Input
-            v-model="form.auth_config.header_value"
-            label="Header Value"
-            :required="true"
-          />
+          <div>
+            <Label for="header-name">Header Name</Label>
+            <Input
+              id="header-name"
+              v-model="form.auth_config.header_name"
+            />
+          </div>
+          <div>
+            <Label for="header-value">Header Value</Label>
+            <Input
+              id="header-value"
+              v-model="form.auth_config.header_value"
+            />
+          </div>
         </div>
       </div>
 
       <div class="add-site-section">
         <h4 class="add-site-section-title">Scan Settings</h4>
-        <Input
-          v-model.number="form.max_pages"
-          label="Max Pages to Scan"
-          type="number"
-          placeholder="50"
-          hint="Leave empty for unlimited"
-        />
+        <div>
+          <Label for="max-pages">Max Pages to Scan</Label>
+          <Input
+            id="max-pages"
+            v-model.number="form.max_pages"
+            type="number"
+            placeholder="50"
+          />
+          <p class="text-sm text-muted-foreground mt-1">
+            Leave empty for unlimited
+          </p>
+        </div>
       </div>
 
       <template #footer>
@@ -94,8 +121,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
-import Input from '@/components/ui/Input.vue'
-import Button from '@/components/ui/Button.vue'
+import { Input, Label, Button } from '@taskjuggler/ui'
 import type { CreateSiteRequest, AuthType } from '@/types'
 import { useSitesStore } from '@/stores/sites'
 

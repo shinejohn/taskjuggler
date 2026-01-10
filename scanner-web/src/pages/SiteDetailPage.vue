@@ -16,36 +16,39 @@
       </div>
 
       <div class="site-detail-content">
-        <Card :padding="'lg'">
-          <h2 class="section-title">Recent Scans</h2>
-          <div v-if="scans.length === 0" class="empty-state">
-            <p>No scans yet. Start your first scan to see results.</p>
-          </div>
-          <div v-else class="scans-list">
-            <div
-              v-for="scan in scans"
-              :key="scan.id"
-              class="scan-item"
-              @click="handleScanClick(scan)"
-            >
-              <div class="scan-item-info">
-                <div class="scan-item-date">{{ formatDate(scan.started_at) }}</div>
-                <div class="scan-item-status">
-                  <Badge :variant="getStatusVariant(scan.status)" size="sm">
-                    {{ scan.status }}
-                  </Badge>
+        <Card>
+          <CardContent class="p-6">
+            <h2 class="section-title">Recent Scans</h2>
+            <div v-if="scans.length === 0" class="empty-state">
+              <p>No scans yet. Start your first scan to see results.</p>
+            </div>
+            <div v-else class="scans-list">
+              <div
+                v-for="scan in scans"
+                :key="scan.id"
+                class="scan-item"
+                @click="handleScanClick(scan)"
+              >
+                <div class="scan-item-info">
+                  <div class="scan-item-date">{{ formatDate(scan.started_at) }}</div>
+                  <div class="scan-item-status">
+                    <Badge :variant="getStatusVariant(scan.status)" size="sm">
+                      {{ scan.status }}
+                    </Badge>
+                  </div>
+                </div>
+                <div class="scan-item-score">
+                  <HealthScore :score="scan.health_score" size="sm" />
                 </div>
               </div>
-              <div class="scan-item-score">
-                <HealthScore :score="scan.health_score" size="sm" />
-              </div>
             </div>
-          </div>
-          <Button variant="primary" @click="handleStartScan">Start New Scan</Button>
+            <Button @click="handleStartScan">Start New Scan</Button>
+          </CardContent>
         </Card>
 
-        <Card :padding="'lg'">
-          <h2 class="section-title">Open Issues</h2>
+        <Card>
+          <CardContent class="p-6">
+            <h2 class="section-title">Open Issues</h2>
           <div v-if="openIssues.length === 0" class="empty-state">
             <p>No open issues. Great job!</p>
           </div>
@@ -56,6 +59,7 @@
               :issue="issue"
             />
           </div>
+          </CardContent>
         </Card>
       </div>
     </div>
@@ -66,9 +70,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
-import Card from '@/components/ui/Card.vue'
-import Button from '@/components/ui/Button.vue'
-import Badge from '@/components/ui/Badge.vue'
+import { Card, CardContent, Button, Badge } from '@taskjuggler/ui'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import HealthScore from '@/components/scanner/HealthScore.vue'
 import IssueCard from '@/components/scanner/IssueCard.vue'

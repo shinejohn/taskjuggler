@@ -3,7 +3,7 @@
     <div class="sites-page">
       <div class="sites-header">
         <h1 class="sites-title">Sites</h1>
-        <Button variant="primary" @click="showAddSiteModal = true">Add Site</Button>
+        <Button @click="showAddSiteModal = true">Add Site</Button>
       </div>
 
       <div v-if="sitesStore.loading" class="sites-loading">
@@ -16,7 +16,7 @@
 
       <div v-else-if="sitesStore.sites.length === 0" class="sites-empty">
         <p>No sites yet. Add your first site to get started.</p>
-        <Button variant="primary" @click="showAddSiteModal = true">Add Site</Button>
+        <Button @click="showAddSiteModal = true">Add Site</Button>
       </div>
 
       <div v-else class="sites-grid">
@@ -42,8 +42,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
-import Card from '@/components/ui/Card.vue'
-import Button from '@/components/ui/Button.vue'
+import { Button } from '@taskjuggler/ui'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import SiteCard from '@/components/scanner/SiteCard.vue'
 import AddSiteModal from '@/components/scanner/AddSiteModal.vue'

@@ -3,7 +3,7 @@
     <div class="dashboard-page">
       <div class="dashboard-header">
         <h1 class="dashboard-title">Dashboard</h1>
-        <Button variant="primary" @click="showAddSiteModal = true">Add Site</Button>
+        <Button @click="showAddSiteModal = true">Add Site</Button>
       </div>
 
       <div v-if="dashboardStore.loading" class="dashboard-loading">
@@ -16,35 +16,44 @@
 
       <div v-else-if="dashboardStore.stats" class="dashboard-content">
         <div class="dashboard-stats-grid">
-          <Card :padding="'md'">
-            <div class="stat-card">
-              <div class="stat-card-label">Total Sites</div>
-              <div class="stat-card-value">{{ dashboardStore.stats.total_sites }}</div>
-            </div>
+          <Card>
+            <CardContent class="p-6">
+              <div class="stat-card">
+                <div class="stat-card-label">Total Sites</div>
+                <div class="stat-card-value">{{ dashboardStore.stats.total_sites }}</div>
+              </div>
+            </CardContent>
           </Card>
-          <Card :padding="'md'">
-            <div class="stat-card">
-              <div class="stat-card-label">Total Scans</div>
-              <div class="stat-card-value">{{ dashboardStore.stats.total_scans }}</div>
-            </div>
+          <Card>
+            <CardContent class="p-6">
+              <div class="stat-card">
+                <div class="stat-card-label">Total Scans</div>
+                <div class="stat-card-value">{{ dashboardStore.stats.total_scans }}</div>
+              </div>
+            </CardContent>
           </Card>
-          <Card :padding="'md'">
-            <div class="stat-card">
-              <div class="stat-card-label">Total Issues</div>
-              <div class="stat-card-value">{{ dashboardStore.stats.total_issues }}</div>
-            </div>
+          <Card>
+            <CardContent class="p-6">
+              <div class="stat-card">
+                <div class="stat-card-label">Total Issues</div>
+                <div class="stat-card-value">{{ dashboardStore.stats.total_issues }}</div>
+              </div>
+            </CardContent>
           </Card>
-          <Card :padding="'md'">
-            <div class="stat-card">
-              <div class="stat-card-label">Average Health Score</div>
-              <div class="stat-card-value">{{ Math.round(dashboardStore.stats.average_health_score) }}</div>
-            </div>
+          <Card>
+            <CardContent class="p-6">
+              <div class="stat-card">
+                <div class="stat-card-label">Average Health Score</div>
+                <div class="stat-card-value">{{ Math.round(dashboardStore.stats.average_health_score) }}</div>
+              </div>
+            </CardContent>
           </Card>
         </div>
 
         <div class="dashboard-sections">
-          <Card :padding="'lg'">
-            <h2 class="dashboard-section-title">Sites</h2>
+          <Card>
+            <CardContent class="p-6">
+              <h2 class="dashboard-section-title">Sites</h2>
             <div v-if="dashboardStore.stats.sites.length === 0" class="dashboard-empty">
               <p>No sites yet. Add your first site to get started.</p>
             </div>
@@ -57,13 +66,16 @@
                 @scan="handleSiteScan"
               />
             </div>
+            </CardContent>
           </Card>
 
-          <Card v-if="dashboardStore.stats.sites_needing_attention > 0" :padding="'lg'">
-            <h2 class="dashboard-section-title">Sites Needing Attention</h2>
-            <p class="dashboard-section-subtitle">
-              {{ dashboardStore.stats.sites_needing_attention }} sites have health scores below 70
-            </p>
+          <Card v-if="dashboardStore.stats.sites_needing_attention > 0">
+            <CardContent class="p-6">
+              <h2 class="dashboard-section-title">Sites Needing Attention</h2>
+              <p class="dashboard-section-subtitle">
+                {{ dashboardStore.stats.sites_needing_attention }} sites have health scores below 70
+              </p>
+            </CardContent>
           </Card>
         </div>
       </div>
@@ -81,8 +93,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
-import Card from '@/components/ui/Card.vue'
-import Button from '@/components/ui/Button.vue'
+import { Card, CardContent, Button } from '@taskjuggler/ui'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import SiteCard from '@/components/scanner/SiteCard.vue'
 import AddSiteModal from '@/components/scanner/AddSiteModal.vue'
