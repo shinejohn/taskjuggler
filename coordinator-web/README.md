@@ -41,3 +41,6 @@ This app integrates with the TaskJuggler Platform:
 - Follows Fibonacco Design System
 - Shares base UI components pattern
 
+
+
+

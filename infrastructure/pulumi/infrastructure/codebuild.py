@@ -36,6 +36,32 @@ def create_codebuild(project_name: str, environment: str, ecr_repo: aws.ecr.Repo
         policy_arn="arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
     )
     
+    # S3 permissions for source code
+    codebuild_s3_policy = aws.iam.RolePolicy(
+        f"{project_name}-{environment}-codebuild-s3-policy",
+        role=codebuild_role.id,
+        policy=json.dumps({
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:GetObject",
+                        "s3:GetObjectVersion"
+                    ],
+                    "Resource": f"arn:aws:s3:::taskjuggler-build-source/*"
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:ListBucket"
+                    ],
+                    "Resource": "arn:aws:s3:::taskjuggler-build-source"
+                }
+            ]
+        }),
+    )
+    
     # ECR permissions
     codebuild_ecr_policy = aws.iam.RolePolicy(
         f"{project_name}-{environment}-codebuild-ecr-policy",
@@ -114,8 +140,25 @@ def create_codebuild(project_name: str, environment: str, ecr_repo: aws.ecr.Repo
                 ),
             ],
         ),
-        source=aws.codebuild.ProjectSourceArgs(
-            type="NO_SOURCE",
+        # GitHub source configuration (preferred)
+        # Can be overridden via config or use S3 fallback
+        github_config = config.get_object("github", {})
+        
+        if github_config.get("enabled", False):
+            # Use GitHub source
+            source=aws.codebuild.ProjectSourceArgs(
+                type="GITHUB",
+                location=f"https://github.com/{github_config.get('owner', 'shinejohn')}/{github_config.get('repo', 'taskjuggler')}.git",
+                buildspec=github_config.get("buildspec", "taskjuggler-api/buildspec.yml"),
+            ),
+            source_version=github_config.get("branch", "main"),
+        else:
+            # Fallback to S3 source (for manual uploads)
+            source=aws.codebuild.ProjectSourceArgs(
+                type="S3",
+                location=pulumi.Output.all(
+                    bucket_name=f"{project_name}-build-source",
+                ).apply(lambda args: f"{args['bucket_name']}/source.tar.gz"),
             buildspec="""
 version: 0.2
 phases:
@@ -124,6 +167,20 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - echo Downloading source from S3...
+      - aws s3 cp s3://taskjuggler-build-source/source.tar.gz /tmp/source.tar.gz
+      - cd /tmp && tar -xzf source.tar.gz
+      - |
+        if [ -d "taskjuggler-api" ]; then
+          cd taskjuggler-api
+        else
+          DOCKERFILE_DIR=$(find . -name "Dockerfile" -type f | head -1 | xargs dirname)
+          if [ -n "$DOCKERFILE_DIR" ]; then
+            cd "$DOCKERFILE_DIR"
+          fi
+        fi
+      - pwd
+      - ls -la
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:

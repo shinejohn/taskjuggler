@@ -40,3 +40,6 @@ export const organizationsApi = {
     api.delete(`/coordinator/organizations/${id}`),
 };
 
+
+
+

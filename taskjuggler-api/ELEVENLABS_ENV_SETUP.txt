@@ -1,0 +1,18 @@
+# ElevenLabs API Key Configuration
+# Shared for both URPA.ai and 4calls.ai (Coordinator)
+
+Add the following to your .env file:
+
+ELEVENLABS_API_KEY=63b120775d461f5b7b1c36cd7b46834aaf59cf860520d742c0d18508b6019616
+ELEVENLABS_DEFAULT_VOICE_ID=21m00Tcm4TlvDq8ikWAM
+ELEVENLABS_MODEL_ID=eleven_multilingual_v2
+
+# Optional: Customize base URL if needed
+# ELEVENLABS_BASE_URL=https://api.elevenlabs.io/v1
+
+IMPORTANT: 
+- Never commit .env file to git
+- Keep this API key secure
+- Rotate the key if it's ever exposed
+- This key is used by both URPA.ai and 4calls.ai modules
+
