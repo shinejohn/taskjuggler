@@ -59,11 +59,14 @@ jobs:
           else
             touch .env
           fi
-          php artisan key:generate --force
 
       - name: Install Composer dependencies
         working-directory: ./taskjuggler-api
         run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
+      
+      - name: Generate application key
+        working-directory: ./taskjuggler-api
+        run: php artisan key:generate --force
       
       - name: Run Composer scripts
         working-directory: ./taskjuggler-api
