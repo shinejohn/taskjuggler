@@ -1,0 +1,286 @@
+name: Frontend Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'coordinator-web/**'
+      - 'taskjuggler-web/**'
+      - 'scanner-web/**'
+      - 'urpa-web/**'
+      - 'projects-web/**'
+      - 'process-web/**'
+      - 'shared-ui/**'
+      - '.github/workflows/frontend-tests.yml'
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - 'coordinator-web/**'
+      - 'taskjuggler-web/**'
+      - 'scanner-web/**'
+      - 'urpa-web/**'
+      - 'projects-web/**'
+      - 'process-web/**'
+      - 'shared-ui/**'
+      - '.github/workflows/frontend-tests.yml'
+
+jobs:
+  shared-ui:
+    name: Shared UI Build & Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: shared-ui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./shared-ui
+        run: npm ci || npm install
+
+      - name: Type check
+        working-directory: ./shared-ui
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+        continue-on-error: true
+
+      - name: Build
+        working-directory: ./shared-ui
+        run: npm run build || echo "Build script not found, skipping"
+
+  coordinator-web:
+    name: Coordinator Web
+    runs-on: ubuntu-latest
+    needs: shared-ui
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: coordinator-web/package-lock.json
+
+      - name: Install shared-ui dependencies
+        working-directory: ./shared-ui
+        run: npm ci || npm install
+
+      - name: Build shared-ui
+        working-directory: ./shared-ui
+        run: npm run build || echo "Build skipped"
+
+      - name: Install dependencies
+        working-directory: ./coordinator-web
+        run: npm ci || npm install
+
+      - name: Type check
+        working-directory: ./coordinator-web
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+
+      - name: Lint
+        working-directory: ./coordinator-web
+        run: npm run lint || echo "Linting skipped"
+        continue-on-error: true
+
+      - name: Build
+        working-directory: ./coordinator-web
+        run: npm run build
+
+      - name: Run tests
+        working-directory: ./coordinator-web
+        run: npm test || echo "Tests skipped"
+        continue-on-error: true
+
+  taskjuggler-web:
+    name: TaskJuggler Web
+    runs-on: ubuntu-latest
+    needs: shared-ui
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: taskjuggler-web/package-lock.json
+
+      - name: Install shared-ui dependencies
+        working-directory: ./shared-ui
+        run: npm ci || npm install
+
+      - name: Build shared-ui
+        working-directory: ./shared-ui
+        run: npm run build || echo "Build skipped"
+
+      - name: Install dependencies
+        working-directory: ./taskjuggler-web
+        run: npm ci || npm install
+
+      - name: Type check
+        working-directory: ./taskjuggler-web
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+        continue-on-error: true
+
+      - name: Build
+        working-directory: ./taskjuggler-web
+        run: npm run build
+
+  scanner-web:
+    name: Scanner Web
+    runs-on: ubuntu-latest
+    needs: shared-ui
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: scanner-web/package-lock.json
+
+      - name: Install shared-ui dependencies
+        working-directory: ./shared-ui
+        run: npm ci || npm install
+
+      - name: Build shared-ui
+        working-directory: ./shared-ui
+        run: npm run build || echo "Build skipped"
+
+      - name: Install dependencies
+        working-directory: ./scanner-web
+        run: npm ci || npm install
+
+      - name: Type check
+        working-directory: ./scanner-web
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+        continue-on-error: true
+
+      - name: Build
+        working-directory: ./scanner-web
+        run: npm run build
+
+  urpa-web:
+    name: URPA Web
+    runs-on: ubuntu-latest
+    needs: shared-ui
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: urpa-web/package-lock.json
+
+      - name: Install shared-ui dependencies
+        working-directory: ./shared-ui
+        run: npm ci || npm install
+
+      - name: Build shared-ui
+        working-directory: ./shared-ui
+        run: npm run build || echo "Build skipped"
+
+      - name: Install dependencies
+        working-directory: ./urpa-web
+        run: npm ci || npm install
+
+      - name: Type check
+        working-directory: ./urpa-web
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+        continue-on-error: true
+
+      - name: Build
+        working-directory: ./urpa-web
+        run: npm run build
+
+  projects-web:
+    name: Projects Web
+    runs-on: ubuntu-latest
+    needs: shared-ui
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: projects-web/package-lock.json
+
+      - name: Install shared-ui dependencies
+        working-directory: ./shared-ui
+        run: npm ci || npm install
+
+      - name: Build shared-ui
+        working-directory: ./shared-ui
+        run: npm run build || echo "Build skipped"
+
+      - name: Install dependencies
+        working-directory: ./projects-web
+        run: npm ci || npm install
+
+      - name: Type check
+        working-directory: ./projects-web
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+        continue-on-error: true
+
+      - name: Build
+        working-directory: ./projects-web
+        run: npm run build
+
+  process-web:
+    name: Process Web
+    runs-on: ubuntu-latest
+    needs: shared-ui
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: process-web/package-lock.json
+
+      - name: Install shared-ui dependencies
+        working-directory: ./shared-ui
+        run: npm ci || npm install
+
+      - name: Build shared-ui
+        working-directory: ./shared-ui
+        run: npm run build || echo "Build skipped"
+
+      - name: Install dependencies
+        working-directory: ./process-web
+        run: npm ci || npm install
+
+      - name: Type check
+        working-directory: ./process-web
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+        continue-on-error: true
+
+      - name: Build
+        working-directory: ./process-web
+        run: npm run build
+

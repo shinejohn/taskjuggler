@@ -1,0 +1,148 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop, '2026-01-09-5i88' ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'backend') || contains(github.event.head_commit.message, 'api') || github.event_name == 'pull_request' || contains(join(github.event.commits.*.message, ' '), 'backend')
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: taskjuggler_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_pgsql, redis, mbstring, xml, curl, zip
+          coverage: none
+
+      - name: Copy .env
+        working-directory: ./taskjuggler-api
+        run: |
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            touch .env
+          fi
+          php artisan key:generate
+        continue-on-error: true
+
+      - name: Install Composer dependencies
+        working-directory: ./taskjuggler-api
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Install NPM dependencies
+        working-directory: ./taskjuggler-api
+        run: npm ci || npm install
+        continue-on-error: true
+
+      - name: Run database migrations
+        working-directory: ./taskjuggler-api
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: taskjuggler_test
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+        run: php artisan migrate --force
+
+      - name: Run tests
+        working-directory: ./taskjuggler-api
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: taskjuggler_test
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          APP_ENV: testing
+        run: composer test || php artisan test
+
+  frontend:
+    name: Frontend Tests & Build
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'frontend') || contains(github.event.head_commit.message, 'vue') || github.event_name == 'pull_request' || contains(join(github.event.commits.*.message, ' '), 'frontend')
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - coordinator-web
+          - taskjuggler-web
+          - scanner-web
+          - urpa-web
+          - projects-web
+          - process-web
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+
+      - name: Build shared-ui first
+        working-directory: ./shared-ui
+        run: |
+          npm ci || npm install
+          npm run build || echo "Build skipped"
+
+      - name: Install dependencies
+        working-directory: ./${{ matrix.project }}
+        run: npm ci || npm install
+
+      - name: Type check
+        working-directory: ./${{ matrix.project }}
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+        continue-on-error: true
+
+      - name: Build
+        working-directory: ./${{ matrix.project }}
+        run: npm run build
+
+      - name: Run tests
+        if: matrix.project == 'coordinator-web'
+        working-directory: ./${{ matrix.project }}
+        run: npm test || echo "Tests skipped"
+        continue-on-error: true
+

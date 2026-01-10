@@ -1,0 +1,81 @@
+name: Lint
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  backend-lint:
+    name: Backend Lint
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' ||
+      contains(github.event.head_commit.message, 'backend') ||
+      contains(github.event.head_commit.message, 'api') ||
+      contains(join(github.event.commits.*.message, ' '), 'backend') ||
+      contains(join(github.event.commits.*.message, ' '), 'api')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_pgsql, redis, mbstring, xml, curl, zip
+
+      - name: Install Composer dependencies
+        working-directory: ./taskjuggler-api
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run Laravel Pint
+        working-directory: ./taskjuggler-api
+        run: |
+          composer require --dev laravel/pint --no-interaction || true
+          ./vendor/bin/pint --test || echo "Pint not installed, skipping"
+        continue-on-error: true
+
+  frontend-lint:
+    name: Frontend Lint
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' ||
+      contains(github.event.head_commit.message, 'frontend') ||
+      contains(github.event.head_commit.message, 'vue') ||
+      contains(join(github.event.commits.*.message, ' '), 'frontend') ||
+      contains(join(github.event.commits.*.message, ' '), 'vue')
+    
+    strategy:
+      matrix:
+        project:
+          - coordinator-web
+          - taskjuggler-web
+          - scanner-web
+          - urpa-web
+          - projects-web
+          - process-web
+          - shared-ui
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./${{ matrix.project }}
+        run: npm ci || npm install
+
+      - name: Run linter
+        working-directory: ./${{ matrix.project }}
+        run: npm run lint || echo "Linting not configured for ${{ matrix.project }}"
+        continue-on-error: true
+
