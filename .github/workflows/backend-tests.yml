@@ -61,13 +61,14 @@ jobs:
             touch .env
           fi
 
-      - name: Validate composer.json
-        working-directory: ./taskjuggler-api
-        run: composer validate --no-check-publish || true
+      - name: Clear Composer cache
+        run: composer clear-cache || true
       
       - name: Install Composer dependencies
         working-directory: ./taskjuggler-api
-        run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
+        run: |
+          composer install --prefer-dist --no-interaction --no-progress --no-scripts --no-plugins || \
+          composer install --prefer-dist --no-interaction --no-progress --no-scripts
       
       - name: Generate application key
         working-directory: ./taskjuggler-api
