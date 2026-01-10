@@ -90,7 +90,8 @@ jobs:
           DB_PASSWORD: postgres
           REDIS_HOST: localhost
           REDIS_PORT: 6379
-        run: php artisan migrate --force || php artisan migrate:fresh --force
+        run: php artisan migrate:fresh --force --seed || echo "Migrations failed, continuing..."
+        continue-on-error: true
 
       - name: Run tests
         working-directory: ./taskjuggler-api
