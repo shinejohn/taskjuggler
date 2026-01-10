@@ -2,9 +2,9 @@ name: Lint
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, tasks-done-1e99a ]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, tasks-done-1e99a ]
 
 jobs:
   backend-lint:

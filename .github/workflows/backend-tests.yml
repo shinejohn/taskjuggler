@@ -2,12 +2,12 @@ name: Backend Tests
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, tasks-done-1e99a ]
     paths:
       - 'taskjuggler-api/**'
       - '.github/workflows/backend-tests.yml'
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, tasks-done-1e99a ]
     paths:
       - 'taskjuggler-api/**'
       - '.github/workflows/backend-tests.yml'
