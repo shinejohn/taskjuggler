@@ -2,7 +2,7 @@
 
 namespace App\Services\IoT;
 
-use PhpMqtt\Client\Facades\MQTT;
+// use PhpMqtt\Client\Facades\MQTT; // Package not available
 use Illuminate\Support\Facades\Log;
 use App\Models\Actor;
 use App\Models\Message;
@@ -32,10 +32,13 @@ class MqttBrokerService
     /**
      * Connect to MQTT broker
      */
-    public function connect(string $connectionName = 'default'): \PhpMqtt\Client\Contracts\MqttClient
+    public function connect(string $connectionName = 'default')
     {
+        if (!class_exists('PhpMqtt\Client\Facades\MQTT')) {
+            throw new \RuntimeException('MQTT package not installed. Please install php-mqtt/laravel-client');
+        }
         try {
-            $mqtt = MQTT::connection($connectionName);
+            $mqtt = \PhpMqtt\Client\Facades\MQTT::connection($connectionName);
             return $mqtt;
         } catch (\Exception $e) {
             Log::error('MQTT connection failed', [
