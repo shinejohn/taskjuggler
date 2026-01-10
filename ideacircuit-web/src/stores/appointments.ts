@@ -1,4 +1,5 @@
-import { create } from 'zustand';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 import api from '../services/api';
 
 export interface AppointmentType {
@@ -28,78 +29,80 @@ export interface Appointment {
   task_id?: string;
 }
 
-interface AppointmentsState {
-  appointments: Appointment[];
-  appointmentTypes: AppointmentType[];
-  loading: boolean;
-  fetchAppointments: (params?: Record<string, any>) => Promise<void>;
-  fetchAppointmentTypes: () => Promise<void>;
-  createAppointment: (data: Partial<Appointment>) => Promise<Appointment>;
-  createAppointmentForMeeting: (meetingId: string, data: Partial<Appointment>) => Promise<Appointment>;
-  getMeetingAppointments: (meetingId: string) => Promise<Appointment[]>;
-  getAvailableSlots: (slug: string, startDate: string, endDate: string, timezone?: string) => Promise<any[]>;
-  cancelAppointment: (id: string) => Promise<void>;
-}
+export const useAppointmentsStore = defineStore('appointments', () => {
+  const appointments = ref<Appointment[]>([]);
+  const appointmentTypes = ref<AppointmentType[]>([]);
+  const loading = ref(false);
 
-export const useAppointmentsStore = create<AppointmentsState>((set) => ({
-  appointments: [],
-  appointmentTypes: [],
-  loading: false,
-
-  fetchAppointments: async (params = {}) => {
-    set({ loading: true });
+  async function fetchAppointments(params: Record<string, any> = {}) {
+    loading.value = true;
     try {
       const response = await api.get('/appointments', { params });
-      const appointments = response.data.data || response.data;
-      set({ appointments: Array.isArray(appointments) ? appointments : [], loading: false });
+      const fetchedAppointments = response.data.data || response.data;
+      appointments.value = Array.isArray(fetchedAppointments) ? fetchedAppointments : [];
     } catch (error) {
-      set({ loading: false });
       throw error;
+    } finally {
+      loading.value = false;
     }
-  },
+  }
 
-  fetchAppointmentTypes: async () => {
-    set({ loading: true });
+  async function fetchAppointmentTypes() {
+    loading.value = true;
     try {
       const response = await api.get('/appointment-types');
       const types = response.data.data || response.data;
-      set({ appointmentTypes: Array.isArray(types) ? types : [], loading: false });
+      appointmentTypes.value = Array.isArray(types) ? types : [];
     } catch (error) {
-      set({ loading: false });
       throw error;
+    } finally {
+      loading.value = false;
     }
-  },
+  }
 
-  createAppointment: async (data) => {
+  async function createAppointment(data: Partial<Appointment>) {
     const response = await api.post('/appointments', data);
     const appointment = response.data.data || response.data;
-    set((state) => ({ appointments: [appointment, ...state.appointments] }));
+    appointments.value = [appointment, ...appointments.value];
     return appointment;
-  },
+  }
 
-  createAppointmentForMeeting: async (meetingId: string, data: Partial<Appointment>) => {
+  async function createAppointmentForMeeting(meetingId: string, data: Partial<Appointment>) {
     const response = await api.post(`/ideacircuit/meetings/${meetingId}/appointments`, data);
     const appointment = response.data.data || response.data;
-    set((state) => ({ appointments: [appointment, ...state.appointments] }));
+    appointments.value = [appointment, ...appointments.value];
     return appointment;
-  },
+  }
 
-  getMeetingAppointments: async (meetingId: string) => {
+  async function getMeetingAppointments(meetingId: string) {
     const response = await api.get(`/ideacircuit/meetings/${meetingId}/appointments`);
-    const appointments = response.data.data || response.data;
-    return Array.isArray(appointments) ? appointments : [];
-  },
+    const fetchedAppointments = response.data.data || response.data;
+    return Array.isArray(fetchedAppointments) ? fetchedAppointments : [];
+  }
 
-  getAvailableSlots: async (slug: string, startDate: string, endDate: string, timezone = 'UTC') => {
+  async function getAvailableSlots(slug: string, startDate: string, endDate: string, timezone = 'UTC') {
     const response = await api.get(`/public/booking/${slug}/slots`, {
       params: { start_date: startDate, end_date: endDate, timezone },
     });
     return response.data.slots || [];
-  },
+  }
 
-  cancelAppointment: async (id: string) => {
+  async function cancelAppointment(id: string) {
     await api.delete(`/appointments/${id}`);
-    set((state) => ({ appointments: state.appointments.filter((a) => a.id !== id) }));
-  },
-}));
+    appointments.value = appointments.value.filter((a) => a.id !== id);
+  }
+
+  return {
+    appointments,
+    appointmentTypes,
+    loading,
+    fetchAppointments,
+    fetchAppointmentTypes,
+    createAppointment,
+    createAppointmentForMeeting,
+    getMeetingAppointments,
+    getAvailableSlots,
+    cancelAppointment,
+  };
+});
 

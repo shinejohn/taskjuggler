@@ -1,4 +1,5 @@
-import { create } from 'zustand';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 import api from '../services/api';
 
 export interface Task {
@@ -13,112 +14,106 @@ export interface Task {
   updated_at: string;
 }
 
-interface TasksState {
-  tasks: Task[];
-  currentTask: Task | null;
-  loading: boolean;
-  pagination: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-  };
-  fetchTasks: (params?: Record<string, any>) => Promise<void>;
-  fetchTask: (id: string) => Promise<Task>;
-  createTask: (data: Partial<Task>) => Promise<Task>;
-  updateTask: (id: string, data: Partial<Task>) => Promise<Task>;
-  completeTask: (id: string) => Promise<Task>;
-  deleteTask: (id: string) => Promise<void>;
-  createTaskFromMeeting: (meetingId: string, data: Partial<Task>) => Promise<Task>;
-  getMeetingTasks: (meetingId: string) => Promise<Task[]>;
-}
-
-export const useTasksStore = create<TasksState>((set, get) => ({
-  tasks: [],
-  currentTask: null,
-  loading: false,
-  pagination: {
+export const useTasksStore = defineStore('tasks', () => {
+  const tasks = ref<Task[]>([]);
+  const currentTask = ref<Task | null>(null);
+  const loading = ref(false);
+  const pagination = ref({
     current_page: 1,
     last_page: 1,
     per_page: 20,
     total: 0,
-  },
+  });
 
-  fetchTasks: async (params = {}) => {
-    set({ loading: true });
+  async function fetchTasks(params: Record<string, any> = {}) {
+    loading.value = true;
     try {
       const response = await api.get('/tasks', { params });
-      const tasks = response.data.data || response.data;
-      set({
-        tasks: Array.isArray(tasks) ? tasks : [],
-        pagination: response.data.pagination || get().pagination,
-        loading: false,
-      });
+      const fetchedTasks = response.data.data || response.data;
+      tasks.value = Array.isArray(fetchedTasks) ? fetchedTasks : [];
+      pagination.value = response.data.pagination || pagination.value;
     } catch (error) {
-      set({ loading: false });
       throw error;
+    } finally {
+      loading.value = false;
     }
-  },
+  }
 
-  fetchTask: async (id: string) => {
-    set({ loading: true });
+  async function fetchTask(id: string) {
+    loading.value = true;
     try {
       const response = await api.get(`/tasks/${id}`);
       const task = response.data.data || response.data;
-      set({ currentTask: task, loading: false });
+      currentTask.value = task;
       return task;
     } catch (error) {
-      set({ loading: false });
       throw error;
+    } finally {
+      loading.value = false;
     }
-  },
+  }
 
-  createTask: async (data) => {
+  async function createTask(data: Partial<Task>) {
     const response = await api.post('/tasks', data);
     const task = response.data.data || response.data;
-    set((state) => ({ tasks: [task, ...state.tasks] }));
+    tasks.value = [task, ...tasks.value];
     return task;
-  },
+  }
 
-  updateTask: async (id: string, data: Partial<Task>) => {
+  async function updateTask(id: string, data: Partial<Task>) {
     const response = await api.put(`/tasks/${id}`, data);
     const updatedTask = response.data.data || response.data;
-    set((state) => ({
-      tasks: state.tasks.map((t) => (t.id === id ? updatedTask : t)),
-      currentTask: state.currentTask?.id === id ? updatedTask : state.currentTask,
-    }));
+    tasks.value = tasks.value.map((t) => (t.id === id ? updatedTask : t));
+    if (currentTask.value?.id === id) {
+      currentTask.value = updatedTask;
+    }
     return updatedTask;
-  },
+  }
 
-  completeTask: async (id: string) => {
+  async function completeTask(id: string) {
     const response = await api.post(`/tasks/${id}/complete`);
     const completedTask = response.data.data || response.data;
-    set((state) => ({
-      tasks: state.tasks.map((t) => (t.id === id ? completedTask : t)),
-      currentTask: state.currentTask?.id === id ? completedTask : state.currentTask,
-    }));
+    tasks.value = tasks.value.map((t) => (t.id === id ? completedTask : t));
+    if (currentTask.value?.id === id) {
+      currentTask.value = completedTask;
+    }
     return completedTask;
-  },
+  }
 
-  deleteTask: async (id: string) => {
+  async function deleteTask(id: string) {
     await api.delete(`/tasks/${id}`);
-    set((state) => ({
-      tasks: state.tasks.filter((t) => t.id !== id),
-      currentTask: state.currentTask?.id === id ? null : state.currentTask,
-    }));
-  },
+    tasks.value = tasks.value.filter((t) => t.id !== id);
+    if (currentTask.value?.id === id) {
+      currentTask.value = null;
+    }
+  }
 
-  createTaskFromMeeting: async (meetingId: string, data: Partial<Task>) => {
+  async function createTaskFromMeeting(meetingId: string, data: Partial<Task>) {
     const response = await api.post(`/ideacircuit/meetings/${meetingId}/tasks`, data);
     const task = response.data.data || response.data;
-    set((state) => ({ tasks: [task, ...state.tasks] }));
+    tasks.value = [task, ...tasks.value];
     return task;
-  },
+  }
 
-  getMeetingTasks: async (meetingId: string) => {
+  async function getMeetingTasks(meetingId: string) {
     const response = await api.get(`/ideacircuit/meetings/${meetingId}/tasks`);
-    const tasks = response.data.data || response.data;
-    return Array.isArray(tasks) ? tasks : [];
-  },
-}));
+    const fetchedTasks = response.data.data || response.data;
+    return Array.isArray(fetchedTasks) ? fetchedTasks : [];
+  }
+
+  return {
+    tasks,
+    currentTask,
+    loading,
+    pagination,
+    fetchTasks,
+    fetchTask,
+    createTask,
+    updateTask,
+    completeTask,
+    deleteTask,
+    createTaskFromMeeting,
+    getMeetingTasks,
+  };
+});
 

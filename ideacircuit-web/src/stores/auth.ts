@@ -1,4 +1,5 @@
-import { create } from 'zustand';
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 import api from '../services/api';
 
 export interface User {
@@ -10,79 +11,84 @@ export interface User {
   updated_at: string;
 }
 
-interface AuthState {
-  user: User | null;
-  token: string | null;
-  loading: boolean;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: { name: string; email: string; password: string; password_confirmation: string }) => Promise<void>;
-  logout: () => void;
-  fetchUser: () => Promise<void>;
-}
+export const useAuthStore = defineStore('auth', () => {
+  const user = ref<User | null>(null);
+  const token = ref<string | null>(localStorage.getItem('token'));
+  const loading = ref(false);
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  user: null,
-  token: localStorage.getItem('token'),
-  loading: false,
-  isAuthenticated: !!localStorage.getItem('token'),
+  const isAuthenticated = computed(() => !!token.value);
 
-  login: async (email: string, password: string) => {
-    set({ loading: true });
+  async function login(email: string, password: string) {
+    loading.value = true;
     try {
       const response = await api.post('/auth/login', { email, password });
       const responseData = response.data.data || response.data;
-      const token = responseData.token;
-      const user = responseData.user;
+      const newToken = responseData.token;
+      const newUser = responseData.user;
 
-      if (!token) {
+      if (!newToken) {
         throw new Error('No token received from server');
       }
 
-      localStorage.setItem('token', token);
-      set({ user, token, isAuthenticated: true, loading: false });
+      localStorage.setItem('token', newToken);
+      token.value = newToken;
+      user.value = newUser;
     } catch (error: any) {
-      set({ loading: false });
       throw error;
+    } finally {
+      loading.value = false;
     }
-  },
+  }
 
-  register: async (data) => {
-    set({ loading: true });
+  async function register(data: { name: string; email: string; password: string; password_confirmation: string }) {
+    loading.value = true;
     try {
       const response = await api.post('/auth/register', data);
       const responseData = response.data.data || response.data;
-      const token = responseData.token;
-      const user = responseData.user;
+      const newToken = responseData.token;
+      const newUser = responseData.user;
 
-      if (!token) {
+      if (!newToken) {
         throw new Error('No token received from server');
       }
 
-      localStorage.setItem('token', token);
-      set({ user, token, isAuthenticated: true, loading: false });
+      localStorage.setItem('token', newToken);
+      token.value = newToken;
+      user.value = newUser;
     } catch (error: any) {
-      set({ loading: false });
       throw error;
+    } finally {
+      loading.value = false;
     }
-  },
+  }
 
-  logout: () => {
+  function logout() {
     localStorage.removeItem('token');
-    set({ user: null, token: null, isAuthenticated: false });
-  },
+    token.value = null;
+    user.value = null;
+  }
 
-  fetchUser: async () => {
-    const { token } = get();
-    if (!token) return;
+  async function fetchUser() {
+    if (!token.value) return;
 
     try {
       const response = await api.get('/auth/user');
-      const user = response.data.data || response.data;
-      set({ user });
+      const responseUser = response.data.data || response.data;
+      user.value = responseUser;
     } catch (error) {
-      get().logout();
+      logout();
     }
-  },
-}));
+  }
+
+  return {
+    user,
+    token,
+    loading,
+    isAuthenticated,
+    login,
+    register,
+    logout,
+    fetchUser,
+  };
+});
 

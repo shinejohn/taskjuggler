@@ -82,7 +82,7 @@ class ApiService {
     return this.client.get(`/ideacircuit/meetings/${meetingId}/notes`);
   }
 
-  async addNote(meetingId: string, note: { category: string; text: string }) {
+  async addNote(meetingId: string, note: { category: string; content: string }) {
     return this.client.post(`/ideacircuit/meetings/${meetingId}/notes`, note);
   }
 

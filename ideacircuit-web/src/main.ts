@@ -1,14 +1,16 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import App from './App.vue'
-import router from './router'
-import './assets/css/design-system.css'
-import './index.css'
-import '@taskjuggler/ui/styles'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import router from './router';
+import '@taskjuggler/ui/styles';
+import './assets/css/design-system.css';
+import './index.css';
+import App from './App.vue';
 
-const app = createApp(App)
+const app = createApp(App);
+const pinia = createPinia();
 
-app.use(createPinia())
-app.use(router)
+app.use(pinia);
+app.use(router);
 
-app.mount('#app')
+app.mount('#root');
+

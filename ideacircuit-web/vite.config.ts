@@ -1,14 +1,16 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { fileURLToPath, URL } from 'node:url'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@taskjuggler/ui': fileURLToPath(new URL('../shared-ui/src', import.meta.url))
-    }
-  }
+      '@': path.resolve(__dirname, './src'),
+      '@taskjuggler/ui': fileURLToPath(new URL('../../taskjuggler/Code/shared-ui/src', import.meta.url)),
+    },
+    conditions: ['import', 'module', 'browser', 'default'],
+  },
 })
