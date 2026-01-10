@@ -12,10 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'pull_request' ||
-      contains(github.event.head_commit.message, 'backend') ||
-      contains(github.event.head_commit.message, 'api') ||
       contains(join(github.event.commits.*.message, ' '), 'backend') ||
-      contains(join(github.event.commits.*.message, ' '), 'api')
+      contains(join(github.event.commits.*.message, ' '), 'api') ||
+      (github.event.head_commit && (contains(github.event.head_commit.message, 'backend') || contains(github.event.head_commit.message, 'api')))
     
     steps:
       - name: Checkout code
@@ -43,10 +42,9 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'pull_request' ||
-      contains(github.event.head_commit.message, 'frontend') ||
-      contains(github.event.head_commit.message, 'vue') ||
       contains(join(github.event.commits.*.message, ' '), 'frontend') ||
-      contains(join(github.event.commits.*.message, ' '), 'vue')
+      contains(join(github.event.commits.*.message, ' '), 'vue') ||
+      (github.event.head_commit && (contains(github.event.head_commit.message, 'frontend') || contains(github.event.head_commit.message, 'vue')))
     
     strategy:
       matrix:

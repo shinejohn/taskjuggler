@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, master, develop, '2026-01-09-5i88' ]
+    branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
 
@@ -10,7 +10,11 @@ jobs:
   backend:
     name: Backend Tests
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.message, 'backend') || contains(github.event.head_commit.message, 'api') || github.event_name == 'pull_request' || contains(join(github.event.commits.*.message, ' '), 'backend')
+    if: |
+      github.event_name == 'pull_request' ||
+      contains(join(github.event.commits.*.message, ' '), 'backend') ||
+      contains(join(github.event.commits.*.message, ' '), 'api') ||
+      (github.event.head_commit && (contains(github.event.head_commit.message, 'backend') || contains(github.event.head_commit.message, 'api')))
     
     services:
       postgres:
@@ -97,7 +101,11 @@ jobs:
   frontend:
     name: Frontend Tests & Build
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.message, 'frontend') || contains(github.event.head_commit.message, 'vue') || github.event_name == 'pull_request' || contains(join(github.event.commits.*.message, ' '), 'frontend')
+    if: |
+      github.event_name == 'pull_request' ||
+      contains(join(github.event.commits.*.message, ' '), 'frontend') ||
+      contains(join(github.event.commits.*.message, ' '), 'vue') ||
+      (github.event.head_commit && (contains(github.event.head_commit.message, 'frontend') || contains(github.event.head_commit.message, 'vue')))
     
     strategy:
       fail-fast: false
