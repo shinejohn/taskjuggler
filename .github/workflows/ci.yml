@@ -62,7 +62,7 @@ jobs:
 
       - name: Install Composer dependencies
         working-directory: ./taskjuggler-api
-        run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
+        run: composer install --prefer-dist --no-interaction --no-progress --no-scripts --ignore-platform-reqs || composer install --prefer-dist --no-interaction --no-progress --no-scripts
       
       - name: Generate application key
         working-directory: ./taskjuggler-api

@@ -63,7 +63,11 @@ jobs:
 
       - name: Install Composer dependencies
         working-directory: ./taskjuggler-api
-        run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
+        run: |
+          composer install --prefer-dist --no-interaction --no-progress --no-scripts 2>&1 || {
+            echo "Composer install failed, trying with verbose output..."
+            composer install --prefer-dist --no-interaction --no-progress --no-scripts -vvv || exit 1
+          }
       
       - name: Generate application key
         working-directory: ./taskjuggler-api
