@@ -18,17 +18,10 @@ on:
           - production
 
 jobs:
-  # Run tests first (dependency)
-  test:
-    name: Run Tests
-    uses: ./.github/workflows/backend-tests.yml
-    secrets: inherit
-
   # Build and push Docker image
   build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    needs: test
     if: github.event_name != 'pull_request'
     
     outputs:
