@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
     postgresql-client \
+    libpq-dev \
     && docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd \
     && docker-php-ext-enable pdo_mysql pdo_pgsql
 
