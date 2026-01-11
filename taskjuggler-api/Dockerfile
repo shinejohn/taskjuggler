@@ -50,12 +50,17 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
 # Configure PHP-FPM
-RUN if [ -f "/etc/php/8.3/fpm/pool.d/www.conf" ]; then \
-        sed -i 's/listen = \/run\/php\/php8.3-fpm.sock/listen = 127.0.0.1:9000/' /etc/php/8.3/fpm/pool.d/www.conf; \
-    elif [ -f "/usr/local/etc/php-fpm.d/www.conf" ]; then \
-        sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf || true; \
+# For php:8.3-fpm image, config is at /usr/local/etc/php-fpm.d/www.conf
+# Ensure it listens on TCP port 9000 instead of socket
+RUN if [ -f "/usr/local/etc/php-fpm.d/www.conf" ]; then \
+        sed -i 's/listen = .*/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf; \
+    elif [ -f "/usr/local/etc/php-fpm.conf" ]; then \
+        sed -i 's/listen = .*/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.conf; \
     else \
-        echo "PHP-FPM config not found, skipping configuration"; \
+        echo "PHP-FPM config not found, creating default config"; \
+        mkdir -p /usr/local/etc/php-fpm.d && \
+        echo '[www]' > /usr/local/etc/php-fpm.d/www.conf && \
+        echo 'listen = 127.0.0.1:9000' >> /usr/local/etc/php-fpm.d/www.conf; \
     fi
 
 # Configure Nginx
