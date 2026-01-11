@@ -1,0 +1,32 @@
+name: Trigger CodeBuild
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'taskjuggler-api/**'
+      - '.github/workflows/trigger-codebuild.yml'
+
+jobs:
+  trigger-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Trigger CodeBuild
+        run: |
+          BUILD_ID=$(aws codebuild start-build \
+            --project-name taskjuggler-production-build \
+            --region us-east-1 \
+            --query 'build.id' \
+            --output text)
+          
+          echo "CodeBuild triggered: $BUILD_ID"
+          echo "View build: https://console.aws.amazon.com/codesuite/codebuild/projects/taskjuggler-production-build/build/$BUILD_ID/?region=us-east-1"
+
