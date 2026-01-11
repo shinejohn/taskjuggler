@@ -1,11 +1,11 @@
 name: Deploy
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Backend Tests"]
+    types:
+      - completed
     branches: [ main, master, develop, tasks-done-1e99a ]
-    paths:
-      - 'taskjuggler-api/**'
-      - '.github/workflows/deploy.yml'
   workflow_dispatch:
     inputs:
       environment:
@@ -16,13 +16,22 @@ on:
         options:
           - staging
           - production
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'taskjuggler-api/**'
+      - '.github/workflows/deploy.yml'
 
 jobs:
   # Build and push Docker image
   build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
+    # Only deploy if tests passed (for workflow_run trigger) or on manual dispatch/main branch push
+    if: |
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
     
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
