@@ -50,7 +50,13 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
 # Configure PHP-FPM
-RUN sed -i 's/listen = \/run\/php\/php8.3-fpm.sock/listen = 127.0.0.1:9000/' /etc/php/8.3/fpm/pool.d/www.conf
+RUN if [ -f "/etc/php/8.3/fpm/pool.d/www.conf" ]; then \
+        sed -i 's/listen = \/run\/php\/php8.3-fpm.sock/listen = 127.0.0.1:9000/' /etc/php/8.3/fpm/pool.d/www.conf; \
+    elif [ -f "/usr/local/etc/php-fpm.d/www.conf" ]; then \
+        sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf || true; \
+    else \
+        echo "PHP-FPM config not found, skipping configuration"; \
+    fi
 
 # Configure Nginx
 RUN echo 'server { \
