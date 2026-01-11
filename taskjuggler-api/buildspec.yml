@@ -24,4 +24,4 @@ phases:
       - echo Pushing the Docker images...
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
-      - echo Image URI: $REPOSITORY_URI:latest
+      - "echo Image URI: $REPOSITORY_URI:latest"
