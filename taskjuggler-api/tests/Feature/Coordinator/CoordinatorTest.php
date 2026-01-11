@@ -27,7 +27,8 @@ class CoordinatorTest extends TestCase
             'email' => $this->user->email,
             'password' => 'password',
         ]);
-        $this->token = $response->json('token');
+        $response->assertStatus(200);
+        $this->token = $response->json('data.token') ?? '';
     }
 
     public function test_can_list_coordinators(): void
@@ -47,9 +48,53 @@ class CoordinatorTest extends TestCase
 
     public function test_can_create_coordinator(): void
     {
+        // Get or create role and persona templates
+        $roleTemplate = \DB::table('coord_role_templates')->first();
+        $personaTemplate = \DB::table('coord_persona_templates')->first();
+        
+        if (!$roleTemplate) {
+            $roleId = \Illuminate\Support\Str::uuid();
+            \DB::table('coord_role_templates')->insert([
+                'id' => $roleId,
+                'name' => 'test_role_' . \Illuminate\Support\Str::random(8),
+                'display_name' => 'Test Role',
+                'description' => 'Test role template',
+                'direction' => 'both',
+                'base_price' => 49.99,
+                'primary_goal' => 'Test goal',
+                'capabilities' => json_encode(['test']),
+                'channels' => json_encode(['voice']),
+                'default_prompts' => json_encode(['test']),
+                'default_scripts' => json_encode(['test']),
+                'is_active' => true,
+                'sort_order' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $roleTemplate = (object)['id' => $roleId];
+        }
+        
+        if (!$personaTemplate) {
+            $personaId = \Illuminate\Support\Str::uuid();
+            \DB::table('coord_persona_templates')->insert([
+                'id' => $personaId,
+                'name' => 'test_persona_' . \Illuminate\Support\Str::random(8),
+                'display_name' => 'Test Persona',
+                'description' => 'Test persona template',
+                'personality_traits' => json_encode(['friendly']),
+                'communication_style' => 'Professional',
+                'personality_prompts' => json_encode(['test']),
+                'is_active' => true,
+                'sort_order' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $personaTemplate = (object)['id' => $personaId];
+        }
+
         $data = [
-            'role_template_id' => 'test-role-id',
-            'persona_template_id' => 'test-persona-id',
+            'role_template_id' => $roleTemplate->id,
+            'persona_template_id' => $personaTemplate->id,
             'display_name' => 'Sally',
         ];
 

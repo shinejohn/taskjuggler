@@ -31,5 +31,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Register Task Observer for trust score updates
         \App\Models\Task::observe(\App\Observers\TaskObserver::class);
+
+        // Load migrations from coordinator subdirectory
+        $this->loadMigrationsFrom(database_path('migrations/coordinator'));
     }
 }

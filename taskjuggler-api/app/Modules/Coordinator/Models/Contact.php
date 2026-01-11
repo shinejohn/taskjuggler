@@ -2,6 +2,7 @@
 
 namespace App\Modules\Coordinator\Models;
 
+use Database\Factories\Coordinator\ContactFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -84,6 +85,14 @@ class Contact extends Model
     public function scopeByPhone($query, string $phone)
     {
         return $query->where('phone', $phone)->orWhere('phone_secondary', $phone);
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return ContactFactory::new();
     }
 }
 

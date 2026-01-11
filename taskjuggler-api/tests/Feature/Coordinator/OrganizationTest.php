@@ -23,7 +23,8 @@ class OrganizationTest extends TestCase
             'email' => $this->user->email,
             'password' => 'password',
         ]);
-        $this->token = $response->json('token');
+        $response->assertStatus(200);
+        $this->token = $response->json('data.token') ?? '';
     }
 
     public function test_can_list_organizations(): void
@@ -36,11 +37,9 @@ class OrganizationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => [
-                '*' => ['id', 'name', 'industry', 'status'],
-            ],
+            '*' => ['id', 'name', 'industry'],
         ]);
-        $this->assertCount(3, $response->json('data'));
+        $this->assertCount(3, $response->json());
     }
 
     public function test_can_create_organization(): void

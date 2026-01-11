@@ -3,6 +3,7 @@
 namespace App\Modules\Coordinator\Models;
 
 use App\Models\User;
+use Database\Factories\Coordinator\OrganizationFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -96,6 +97,14 @@ class Organization extends Model
     public function scopeActive($query)
     {
         return $query->whereNull('deleted_at');
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return OrganizationFactory::new();
     }
 }
 

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Coordinator\Models;
 
+use Database\Factories\Coordinator\CoordinatorFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -82,6 +83,14 @@ class Coordinator extends Model
     public function scopeByPersona($query, string $personaTemplateId)
     {
         return $query->where('persona_template_id', $personaTemplateId);
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return CoordinatorFactory::new();
     }
 }
 

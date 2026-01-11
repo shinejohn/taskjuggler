@@ -156,7 +156,7 @@ class DashboardController extends Controller
 
         $appointments = Appointment::where('organization_id', $organization->id)
             ->whereBetween('starts_at', [$today, $tomorrow])
-            ->with(['contact', 'coordinator', 'appointmentType'])
+            ->with(['contact', 'bookedByCoordinator', 'appointmentType'])
             ->orderBy('starts_at', 'asc')
             ->get()
             ->map(function ($appt) {
@@ -165,7 +165,7 @@ class DashboardController extends Controller
                     'time' => Carbon::parse($appt->starts_at)->format('g:i A'),
                     'contact_name' => $appt->contact ? $appt->contact->full_name : 'Unknown',
                     'type' => $appt->appointmentType ? $appt->appointmentType->name : 'Appointment',
-                    'coordinator_name' => $appt->coordinator ? ($appt->coordinator->display_name ?? 'Coordinator') : 'N/A',
+                    'coordinator_name' => $appt->bookedByCoordinator ? ($appt->bookedByCoordinator->display_name ?? 'Coordinator') : 'N/A',
                     'status' => $appt->status,
                 ];
             });

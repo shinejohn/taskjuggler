@@ -3,6 +3,7 @@
 namespace App\Modules\Coordinator\Models;
 
 use App\Models\User;
+use Database\Factories\Coordinator\AppointmentFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -96,6 +97,14 @@ class Appointment extends Model
     public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return AppointmentFactory::new();
     }
 }
 

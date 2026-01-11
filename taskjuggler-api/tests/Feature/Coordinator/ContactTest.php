@@ -27,7 +27,8 @@ class ContactTest extends TestCase
             'email' => $this->user->email,
             'password' => 'password',
         ]);
-        $this->token = $response->json('token');
+        $response->assertStatus(200);
+        $this->token = $response->json('data.token') ?? '';
     }
 
     public function test_can_list_contacts(): void

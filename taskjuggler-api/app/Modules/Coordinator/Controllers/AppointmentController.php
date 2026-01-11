@@ -22,7 +22,7 @@ class AppointmentController extends Controller
             ->firstOrFail();
 
         $query = Appointment::where('organization_id', $organization->id)
-            ->with(['contact', 'coordinator', 'appointmentType']);
+            ->with(['contact', 'bookedByCoordinator', 'appointmentType']);
 
         // Date filters
         if ($request->has('date_from')) {
@@ -68,7 +68,7 @@ class AppointmentController extends Controller
 
         $appointments = Appointment::where('organization_id', $organization->id)
             ->whereBetween('starts_at', [$today, $tomorrow])
-            ->with(['contact', 'coordinator', 'appointmentType'])
+            ->with(['contact', 'bookedByCoordinator', 'appointmentType'])
             ->orderBy('starts_at', 'asc')
             ->get();
 
@@ -88,7 +88,7 @@ class AppointmentController extends Controller
 
             $appointment = Appointment::where('id', $id)
                 ->where('organization_id', $organization->id)
-                ->with(['contact', 'coordinator', 'appointmentType'])
+                ->with(['contact', 'bookedByCoordinator', 'appointmentType'])
                 ->firstOrFail();
 
             return response()->json($appointment);
@@ -119,22 +119,35 @@ class AppointmentController extends Controller
                 'description' => 'nullable|string',
                 'starts_at' => 'required|date',
                 'ends_at' => 'required|date|after:starts_at',
-                'status' => 'nullable|string|default:scheduled',
+                'status' => 'nullable|string',
                 'location' => 'nullable|string',
-                'location_type' => 'nullable|string|default:onsite',
+                'location_type' => 'nullable|string',
                 'notes' => 'nullable|string',
             ]);
 
             $validated['organization_id'] = $organization->id;
+            $validated['status'] = $validated['status'] ?? 'scheduled';
+            $validated['location_type'] = $validated['location_type'] ?? 'onsite';
             $appointment = Appointment::create($validated);
 
-            return response()->json($appointment->load(['contact', 'coordinator', 'appointmentType']), 201);
+            // Load relationships that exist
+            $appointment->load(['contact', 'bookedByCoordinator']);
+            
+            return response()->json($appointment, 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => 'Organization not found'], 404);
         } catch (\Exception $e) {
             \Log::error('Failed to create appointment: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            if (app()->environment(['testing', 'local'])) {
+                return response()->json([
+                    'message' => 'Failed to create appointment',
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ], 500);
+            }
             return response()->json(['message' => 'Failed to create appointment'], 500);
         }
     }
@@ -169,7 +182,7 @@ class AppointmentController extends Controller
 
         $appointment->update($validated);
 
-        return response()->json($appointment->load(['contact', 'coordinator', 'appointmentType']));
+        return response()->json($appointment->load(['contact', 'bookedByCoordinator', 'appointmentType']));
     }
 
     /**
@@ -192,7 +205,7 @@ class AppointmentController extends Controller
 
         $appointment->cancel($validated['reason'] ?? null);
 
-        return response()->json($appointment->load(['contact', 'coordinator', 'appointmentType']));
+        return response()->json($appointment->load(['contact', 'bookedByCoordinator', 'appointmentType']));
     }
 
     /**

@@ -30,7 +30,8 @@ class AppointmentTest extends TestCase
             'email' => $this->user->email,
             'password' => 'password',
         ]);
-        $this->token = $response->json('token');
+        $response->assertStatus(200);
+        $this->token = $response->json('data.token') ?? '';
     }
 
     public function test_can_list_appointments(): void
@@ -57,8 +58,8 @@ class AppointmentTest extends TestCase
         $data = [
             'contact_id' => $this->contact->id,
             'title' => 'Test Appointment',
-            'starts_at' => now()->addDay()->toIso8601String(),
-            'ends_at' => now()->addDay()->addHour()->toIso8601String(),
+            'starts_at' => now()->addDay()->toDateTimeString(),
+            'ends_at' => now()->addDay()->addHour()->toDateTimeString(),
             'status' => 'scheduled',
         ];
 
@@ -147,7 +148,7 @@ class AppointmentTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        $this->assertDatabaseMissing('coord_appointments', [
+        $this->assertSoftDeleted('coord_appointments', [
             'id' => $appointment->id,
         ]);
     }

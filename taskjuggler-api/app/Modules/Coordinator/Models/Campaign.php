@@ -2,6 +2,7 @@
 
 namespace App\Modules\Coordinator\Models;
 
+use Database\Factories\Coordinator\CampaignFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -112,6 +113,14 @@ class Campaign extends Model
     public function scopeActive($query)
     {
         return $query->whereIn('status', ['running', 'scheduled']);
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return CampaignFactory::new();
     }
 }
 

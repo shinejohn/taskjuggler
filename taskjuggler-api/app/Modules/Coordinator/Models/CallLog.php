@@ -2,6 +2,7 @@
 
 namespace App\Modules\Coordinator\Models;
 
+use Database\Factories\Coordinator\CallLogFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -57,6 +58,14 @@ class CallLog extends Model
     public function contact(): BelongsTo
     {
         return $this->belongsTo(Contact::class);
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return CallLogFactory::new();
     }
 }
 
