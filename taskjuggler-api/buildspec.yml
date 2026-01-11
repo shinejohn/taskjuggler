@@ -5,20 +5,10 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
-      - echo Downloading source from S3...
-      - aws s3 cp s3://taskjuggler-build-source/source.tar.gz /tmp/source.tar.gz
-      - cd /tmp && tar -xzf source.tar.gz
-      - pwd
-      - ls -la
-      - |
-        if [ -d "taskjuggler-api" ]; then
-          cd taskjuggler-api
-        else
-          DOCKERFILE_DIR=$(find . -name "Dockerfile" -type f | head -1 | xargs dirname)
-          if [ -n "$DOCKERFILE_DIR" ]; then
-            cd "$DOCKERFILE_DIR"
-          fi
-        fi
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-latest}
+      - echo "Building from commit: $COMMIT_HASH"
+      - cd taskjuggler-api
       - pwd
       - ls -la
   build:
