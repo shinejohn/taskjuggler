@@ -21,9 +21,13 @@ jobs:
 
       - name: Trigger CodeBuild
         run: |
+          # Start build with explicit source override to use GitHub source
           BUILD_ID=$(aws codebuild start-build \
             --project-name taskjuggler-production-build \
             --region us-east-1 \
+            --source-type-override GITHUB \
+            --source-location-override https://github.com/shinejohn/taskjuggler.git \
+            --source-version-override ${{ github.sha }} \
             --query 'build.id' \
             --output text)
           
