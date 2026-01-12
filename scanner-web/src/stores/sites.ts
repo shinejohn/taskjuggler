@@ -10,7 +10,7 @@ export const useSitesStore = defineStore('sites', () => {
   const error = ref<string | null>(null);
 
   const sitesNeedingAttention = computed(() => 
-    sites.value.filter(site => (site.health_score || 0) < 70)
+    sites.value.filter((site: Site) => (site.health_score || 0) < 70)
   );
 
   async function fetchSites() {
@@ -33,7 +33,7 @@ export const useSitesStore = defineStore('sites', () => {
     try {
       const response = await sitesApi.getById(id);
       currentSite.value = response.data.data;
-      const index = sites.value.findIndex(s => s.id === id);
+      const index = sites.value.findIndex((s: Site) => s.id === id);
       if (index !== -1) {
         sites.value[index] = response.data.data;
       }
@@ -66,7 +66,7 @@ export const useSitesStore = defineStore('sites', () => {
     error.value = null;
     try {
       const response = await sitesApi.update(id, data);
-      const index = sites.value.findIndex(s => s.id === id);
+      const index = sites.value.findIndex((s: Site) => s.id === id);
       if (index !== -1) {
         sites.value[index] = response.data.data;
       }

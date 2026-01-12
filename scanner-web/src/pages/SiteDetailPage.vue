@@ -111,12 +111,12 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString()
 }
 
-const getStatusVariant = (status: string) => {
+const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (status) {
-    case 'completed': return 'success'
-    case 'running': return 'in-progress'
-    case 'failed': return 'error'
-    default: return 'pending'
+    case 'completed': return 'default'
+    case 'running': return 'secondary'
+    case 'failed': return 'destructive'
+    default: return 'outline'
   }
 }
 

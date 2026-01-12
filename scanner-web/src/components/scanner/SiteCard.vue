@@ -79,12 +79,12 @@ const lastScanText = computed(() => {
   return date.toLocaleDateString()
 })
 
-const statusVariant = computed(() => {
+const statusVariant = computed((): 'default' | 'secondary' | 'destructive' | 'outline' => {
   const score = props.site.health_score || 0
-  if (score >= 90) return 'success'
-  if (score >= 70) return 'accepted'
-  if (score >= 50) return 'warning'
-  return 'error'
+  if (score >= 90) return 'default'
+  if (score >= 70) return 'secondary'
+  if (score >= 50) return 'outline'
+  return 'destructive'
 })
 
 const statusText = computed(() => {

@@ -17,11 +17,11 @@ export const useIssuesStore = defineStore('issues', () => {
   }>({});
 
   const criticalIssues = computed(() => 
-    issues.value.filter(i => i.severity === 'critical')
+    issues.value.filter((i: Issue) => i.severity === 'critical')
   );
 
   const openIssues = computed(() => 
-    issues.value.filter(i => i.status === 'open')
+    issues.value.filter((i: Issue) => i.status === 'open')
   );
 
   async function fetchIssues(params?: typeof filters.value) {
@@ -58,7 +58,7 @@ export const useIssuesStore = defineStore('issues', () => {
     error.value = null;
     try {
       const response = await issuesApi.update(id, data);
-      const index = issues.value.findIndex(i => i.id === id);
+      const index = issues.value.findIndex((i: Issue) => i.id === id);
       if (index !== -1) {
         issues.value[index] = response.data.data;
       }
@@ -79,8 +79,8 @@ export const useIssuesStore = defineStore('issues', () => {
     error.value = null;
     try {
       const response = await issuesApi.bulkUpdate(data);
-      data.issue_ids.forEach(id => {
-        const index = issues.value.findIndex(i => i.id === id);
+      data.issue_ids.forEach((id: number) => {
+        const index = issues.value.findIndex((i: Issue) => i.id === id);
         if (index !== -1) {
           const updated = response.data.data.find((i: Issue) => i.id === id);
           if (updated) {
@@ -102,7 +102,7 @@ export const useIssuesStore = defineStore('issues', () => {
     error.value = null;
     try {
       const response = await issuesApi.generateFix(id);
-      const index = issues.value.findIndex(i => i.id === id);
+      const index = issues.value.findIndex((i: Issue) => i.id === id);
       if (index !== -1) {
         issues.value[index].fix_code = response.data.data.fix_code;
         issues.value[index].fix_explanation = response.data.data.explanation;

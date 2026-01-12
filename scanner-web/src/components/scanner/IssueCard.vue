@@ -9,7 +9,7 @@
         </div>
         <div class="issue-card-badges">
           <Badge :variant="severityVariant" size="sm">{{ issue.severity }}</Badge>
-          <Badge variant="pending" size="sm">{{ issue.category }}</Badge>
+          <Badge variant="secondary" size="sm">{{ issue.category }}</Badge>
         </div>
       </div>
 
@@ -106,12 +106,12 @@ const issuesStore = useIssuesStore()
 const expanded = ref(false)
 const generatingFix = ref(false)
 
-const severityVariant = computed(() => {
+const severityVariant = computed((): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (props.issue.severity) {
-    case 'critical': return 'error'
-    case 'serious': return 'warning'
-    case 'moderate': return 'accepted'
-    default: return 'pending'
+    case 'critical': return 'destructive'
+    case 'serious': return 'outline'
+    case 'moderate': return 'secondary'
+    default: return 'secondary'
   }
 })
 
