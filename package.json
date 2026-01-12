@@ -1,0 +1,21 @@
+{
+  "name": "taskjuggler-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shared-ui",
+    "urpa-web",
+    "taskjuggler-web",
+    "coordinator-web",
+    "scanner-web",
+    "projects-web",
+    "process-web",
+    "ideacircuit-web"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "dev:shared": "cd shared-ui && npm run dev",
+    "build:shared": "cd shared-ui && npm run build"
+  }
+}
+

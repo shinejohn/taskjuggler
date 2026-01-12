@@ -64,3 +64,7 @@ pulumi.export("cloudfront_url", compute_stack["cloudfront_url"])
 pulumi.export("scanner_queue_url", scanner_stack["scan_queue_url"])
 pulumi.export("scanner_bucket_name", scanner_stack["scanner_bucket_name"])
 pulumi.export("scanner_repo_url", scanner_stack["scanner_repo_url"])
+# MCP Server outputs
+pulumi.export("mcp_server_url", compute_stack["load_balancer_dns"].apply(lambda dns: f"http://{dns}/mcp"))
+pulumi.export("mcp_repo_url", scanner_stack["mcp_repo_url"])
+pulumi.export("mcp_health_url", compute_stack["load_balancer_dns"].apply(lambda dns: f"http://{dns}/mcp/health"))

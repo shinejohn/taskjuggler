@@ -13,137 +13,147 @@
       <!-- Left Side: Form -->
       <div class="flex-1 space-y-8">
         <!-- Section 1: Identity -->
-        <section class="space-y-4">
-          <h3 class="text-lg font-semibold text-[#1B4F72] flex items-center gap-2">
-            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-[#1B4F72] text-xs">
-              1
-            </span>
-            Assistant Identity
-          </h3>
+        <Card class="space-y-4">
+          <CardHeader>
+            <CardTitle class="text-lg font-semibold text-[#1B4F72] flex items-center gap-2">
+              <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-[#1B4F72] text-xs">
+                1
+              </span>
+              Assistant Identity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <Label class="text-sm font-medium text-slate-700">Name</Label>
+                <Input
+                  v-model="formData.name"
+                  type="text"
+                  placeholder="e.g., Sally, Ed, Marcus"
+                />
+              </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-1.5">
-              <label class="text-sm font-medium text-slate-700">Name</label>
-              <input
-                v-model="formData.name"
-                type="text"
-                placeholder="e.g., Sally, Ed, Marcus"
-                class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72] transition-all"
-              />
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="text-sm font-medium text-slate-700">Gender</label>
-              <div class="flex gap-2">
-                <select
-                  v-model="formData.gender"
-                  class="flex-1 px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72] bg-white"
-                >
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
-                  <option value="neutral">Neutral</option>
-                </select>
-                <button
-                  type="button"
-                  class="p-2 rounded-lg border border-slate-200 text-[#1B4F72] hover:bg-blue-50 transition-colors"
-                  title="Preview Voice"
-                >
-                  <Play :size="20" fill="currentColor" />
-                </button>
+              <div class="space-y-1.5">
+                <Label class="text-sm font-medium text-slate-700">Gender</Label>
+                <div class="flex gap-2">
+                  <Select v-model="formData.gender" class="flex-1">
+                    <SelectTrigger>
+                      <SelectValue :placeholder="formData.gender || 'Select gender'" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="neutral">Neutral</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    class="text-[#1B4F72] hover:bg-blue-50"
+                    title="Preview Voice"
+                  >
+                    <Play :size="20" fill="currentColor" />
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </CardContent>
+        </Card>
 
         <!-- Section 2: Personality -->
-        <section class="space-y-4">
-          <h3 class="text-lg font-semibold text-[#1B4F72] flex items-center gap-2">
-            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-[#1B4F72] text-xs">
-              2
-            </span>
-            Personality & Tone
-          </h3>
-
-          <div class="space-y-3">
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="option in personalityOptions"
-                :key="option.value"
-                @click="formData.personality = option.value"
-                :class="[
-                  'px-4 py-2 rounded-full text-sm font-medium border transition-all',
-                  formData.personality === option.value
-                    ? 'bg-[#1B4F72] text-white border-[#1B4F72]'
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-[#1B4F72]/50'
-                ]"
-              >
-                {{ option.label }}
-              </button>
-            </div>
-
-            <div class="space-y-2 pt-2">
-              <div class="flex justify-between text-xs font-medium text-slate-500 uppercase tracking-wide">
-                <span>Relaxed</span>
-                <span>Moderate</span>
-                <span>Energetic</span>
+        <Card class="space-y-4">
+          <CardHeader>
+            <CardTitle class="text-lg font-semibold text-[#1B4F72] flex items-center gap-2">
+              <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-[#1B4F72] text-xs">
+                2
+              </span>
+              Personality & Tone
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-3">
+              <div class="flex flex-wrap gap-2">
+                <Button
+                  v-for="option in personalityOptions"
+                  :key="option.value"
+                  @click="formData.personality = option.value"
+                  :variant="formData.personality === option.value ? 'default' : 'outline'"
+                  :class="[
+                    'rounded-full',
+                    formData.personality === option.value
+                      ? 'bg-[#1B4F72] text-white border-[#1B4F72] hover:bg-[#153e5a]'
+                      : ''
+                  ]"
+                >
+                  {{ option.label }}
+                </Button>
               </div>
-              <input
-                v-model.number="paceValue"
-                type="range"
-                min="1"
-                max="3"
-                step="1"
-                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#1B4F72]"
-              />
+
+              <div class="space-y-2 pt-2">
+                <div class="flex justify-between text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  <span>Relaxed</span>
+                  <span>Moderate</span>
+                  <span>Energetic</span>
+                </div>
+                <input
+                  v-model.number="paceValue"
+                  type="range"
+                  min="1"
+                  max="3"
+                  step="1"
+                  class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#1B4F72]"
+                />
+              </div>
             </div>
-          </div>
-        </section>
+          </CardContent>
+        </Card>
 
         <!-- Section 3: Business -->
-        <section class="space-y-4">
-          <h3 class="text-lg font-semibold text-[#1B4F72] flex items-center gap-2">
-            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-[#1B4F72] text-xs">
-              3
-            </span>
-            Your Business
-          </h3>
-
-          <div class="space-y-3">
-            <div class="relative">
-              <Building2 class="absolute left-3 top-2.5 text-slate-400" :size="18" />
-              <input
-                v-model="formData.businessName"
-                type="text"
-                placeholder="Business Name (Required)"
-                :class="[
-                  'w-full pl-10 pr-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 transition-all',
-                  !formData.businessName ? 'border-slate-200 focus:border-[#1B4F72]' : 'border-slate-200'
-                ]"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Card class="space-y-4">
+          <CardHeader>
+            <CardTitle class="text-lg font-semibold text-[#1B4F72] flex items-center gap-2">
+              <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-[#1B4F72] text-xs">
+                3
+              </span>
+              Your Business
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-3">
               <div class="relative">
-                <Phone class="absolute left-3 top-2.5 text-slate-400" :size="18" />
-                <input
-                  v-model="formData.phone"
-                  type="tel"
-                  placeholder="(555) 555-5555"
-                  class="w-full pl-10 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72] transition-all"
+                <Building2 class="absolute left-3 top-2.5 text-slate-400 z-10" :size="18" />
+                <Input
+                  v-model="formData.businessName"
+                  type="text"
+                  placeholder="Business Name (Required)"
+                  class="pl-10"
                 />
               </div>
-              <div class="relative">
-                <Mail class="absolute left-3 top-2.5 text-slate-400" :size="18" />
-                <input
-                  v-model="formData.email"
-                  type="email"
-                  placeholder="email@business.com"
-                  class="w-full pl-10 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72] transition-all"
-                />
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="relative">
+                  <Phone class="absolute left-3 top-2.5 text-slate-400 z-10" :size="18" />
+                  <Input
+                    v-model="formData.phone"
+                    type="tel"
+                    placeholder="(555) 555-5555"
+                    class="pl-10"
+                  />
+                </div>
+                <div class="relative">
+                  <Mail class="absolute left-3 top-2.5 text-slate-400 z-10" :size="18" />
+                  <Input
+                    v-model="formData.email"
+                    type="email"
+                    placeholder="email@business.com"
+                    class="pl-10"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </CardContent>
+        </Card>
       </div>
 
       <!-- Right Side: Preview -->
@@ -181,23 +191,20 @@
     </div>
 
     <!-- Navigation Buttons -->
-    <div class="flex justify-between mt-10">
-      <button
-        @click="$emit('back')"
-        class="px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2"
-      >
+    <CardFooter class="flex justify-between mt-10 px-0">
+      <Button variant="outline" @click="$emit('back')" class="flex items-center gap-2">
         <ArrowLeft :size="18" />
         Back
-      </button>
-      <button
+      </Button>
+      <Button
         @click="handleNext"
         :disabled="!formData.businessName.trim() || !selectedPersona"
-        class="px-8 py-3 bg-[#1B4F72] hover:bg-[#153e5a] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        class="bg-[#1B4F72] hover:bg-[#153e5a] flex items-center gap-2"
       >
         Continue
         <ArrowRight :size="18" />
-      </button>
-    </div>
+      </Button>
+    </CardFooter>
   </div>
 </template>
 
@@ -213,6 +220,21 @@ import {
   ArrowRight,
 } from 'lucide-vue-next';
 import { onboardingApi, type PersonaTemplate } from '@/api/onboarding';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@taskjuggler/ui';
 
 const emit = defineEmits<{
   next: [data: { persona_template_id: string; coordinator: any }];

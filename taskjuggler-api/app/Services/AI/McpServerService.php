@@ -7,7 +7,7 @@ use App\Models\Task;
 use App\Services\TEF\TEFMessageFactory;
 use App\Services\TEF\TEFValidator;
 use Illuminate\Support\Facades\Log;
-use PhpMcp\Laravel\Facades\Mcp;
+// use PhpMcp\Laravel\Facades\Mcp; // Package not available
 
 /**
  * MCP Server Service for AI Agent Integration
@@ -32,8 +32,12 @@ class McpServerService
      */
     public function registerMcpTools(): void
     {
+        if (!class_exists('PhpMcp\Laravel\Facades\Mcp')) {
+            Log::warning('MCP package not installed. Skipping MCP tool registration.');
+            return;
+        }
         // Tool: Create Task
-        Mcp::tool('create_task', 'Create a new task in TaskJuggler')
+        \PhpMcp\Laravel\Facades\Mcp::tool('create_task', 'Create a new task in TaskJuggler')
             ->description('Creates a new task with title, description, priority, and optional due date')
             ->inputSchema([
                 'type' => 'object',
@@ -51,7 +55,7 @@ class McpServerService
             });
 
         // Tool: Get Task
-        Mcp::tool('get_task', 'Get task details by ID')
+        \PhpMcp\Laravel\Facades\Mcp::tool('get_task', 'Get task details by ID')
             ->description('Retrieves detailed information about a specific task')
             ->inputSchema([
                 'type' => 'object',
@@ -65,7 +69,7 @@ class McpServerService
             });
 
         // Tool: List Tasks
-        Mcp::tool('list_tasks', 'List tasks with optional filters')
+        \PhpMcp\Laravel\Facades\Mcp::tool('list_tasks', 'List tasks with optional filters')
             ->description('Retrieves a list of tasks, optionally filtered by status, priority, or owner')
             ->inputSchema([
                 'type' => 'object',
@@ -81,7 +85,7 @@ class McpServerService
             });
 
         // Tool: Update Task Status
-        Mcp::tool('update_task_status', 'Update task status')
+        \PhpMcp\Laravel\Facades\Mcp::tool('update_task_status', 'Update task status')
             ->description('Updates the status of a task (accept, complete, cancel, etc.)')
             ->inputSchema([
                 'type' => 'object',
@@ -96,7 +100,7 @@ class McpServerService
             });
 
         // Tool: Accept Task
-        Mcp::tool('accept_task', 'Accept a task assignment')
+        \PhpMcp\Laravel\Facades\Mcp::tool('accept_task', 'Accept a task assignment')
             ->description('Accepts a task that has been assigned to the AI agent')
             ->inputSchema([
                 'type' => 'object',
@@ -110,7 +114,7 @@ class McpServerService
             });
 
         // Tool: Complete Task
-        Mcp::tool('complete_task', 'Mark a task as completed')
+        \PhpMcp\Laravel\Facades\Mcp::tool('complete_task', 'Mark a task as completed')
             ->description('Marks a task as completed, optionally with completion notes')
             ->inputSchema([
                 'type' => 'object',

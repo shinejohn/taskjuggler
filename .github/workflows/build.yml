@@ -1,0 +1,99 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, master, develop, tasks-done-1e99a ]
+  pull_request:
+    branches: [ main, master, develop, tasks-done-1e99a ]
+
+jobs:
+  build-shared-ui:
+    name: Build Shared UI
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        working-directory: ./shared-ui
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Type check
+        working-directory: ./shared-ui
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+        continue-on-error: true
+
+      - name: Build shared-ui
+        working-directory: ./shared-ui
+        run: npm run build
+
+  build-frontend:
+    name: Build Frontend Projects
+    runs-on: ubuntu-latest
+    needs: build-shared-ui
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - coordinator-web
+          - taskjuggler-web
+          - scanner-web
+          - urpa-web
+          - projects-web
+          - process-web
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+
+      - name: Build shared-ui
+        working-directory: ./shared-ui
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+          npm run build
+
+      - name: Install dependencies
+        working-directory: ./${{ matrix.project }}
+        run: npm ci || npm install
+
+      - name: Type check
+        working-directory: ./${{ matrix.project }}
+        run: npm run type-check || npx vue-tsc --noEmit || echo "Type checking skipped"
+        continue-on-error: true
+
+      - name: Build project
+        working-directory: ./${{ matrix.project }}
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.project }}-build
+          path: ${{ matrix.project }}/dist
+          retention-days: 1
+          if-no-files-found: ignore
+

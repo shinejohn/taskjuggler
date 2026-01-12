@@ -68,3 +68,6 @@ export const contactsApi = {
     api.post(`/coordinator/organizations/${orgId}/contacts/bulk-tag`, { ids, tags }),
 };
 
+
+
+

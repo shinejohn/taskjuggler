@@ -13,11 +13,11 @@
       <!-- Inbound Column -->
       <div class="space-y-4">
         <div class="flex items-center gap-3 mb-4 px-1">
-          <div class="h-px flex-1 bg-slate-200"></div>
+          <Separator class="flex-1" />
           <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">
             Inbound Roles
           </h2>
-          <div class="h-px flex-1 bg-slate-200"></div>
+          <Separator class="flex-1" />
         </div>
         <div class="grid grid-cols-1 gap-3">
           <RoleCard
@@ -37,11 +37,11 @@
       <!-- Outbound Column -->
       <div class="space-y-4">
         <div class="flex items-center gap-3 mb-4 px-1">
-          <div class="h-px flex-1 bg-slate-200"></div>
+          <Separator class="flex-1" />
           <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">
             Outbound Roles
           </h2>
-          <div class="h-px flex-1 bg-slate-200"></div>
+          <Separator class="flex-1" />
         </div>
         <div class="grid grid-cols-1 gap-3">
           <RoleCard
@@ -61,14 +61,14 @@
 
     <!-- Continue Button -->
     <div class="mt-10 flex justify-end">
-      <button
+      <Button
         @click="handleNext"
         :disabled="!selectedRole"
-        class="px-8 py-3 bg-[#1B4F72] hover:bg-[#153e5a] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        class="bg-[#1B4F72] hover:bg-[#153e5a] flex items-center gap-2"
       >
         Continue
         <ArrowRight :size="18" />
-      </button>
+      </Button>
     </div>
   </div>
 </template>
@@ -91,6 +91,7 @@ import {
 } from 'lucide-vue-next';
 import RoleCard from './RoleCard.vue';
 import { onboardingApi, type RoleTemplate } from '@/api/onboarding';
+import { Button, Separator } from '@taskjuggler/ui';
 
 const emit = defineEmits<{
   next: [data: { role_template_id: string }];

@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { RouterLink, useRouter } from 'vue-router'
-import Button from '@/components/ui/Button.vue'
+import { Button } from '@taskjuggler/ui'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()

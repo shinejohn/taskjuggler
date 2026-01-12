@@ -1,6 +1,7 @@
 <template>
-  <Card :padding="'md'" :className="className">
-    <div class="issue-card">
+  <Card :class="className">
+    <CardContent class="p-6">
+      <div class="issue-card">
       <div class="issue-card-header">
         <div class="issue-card-title-section">
           <h4 class="issue-card-title">{{ issue.title }}</h4>
@@ -42,7 +43,7 @@
       <div class="issue-card-actions">
         <Button
           v-if="!issue.fix_code"
-          variant="secondary"
+          variant="outline"
           size="sm"
           :disabled="generatingFix"
           @click="handleGenerateFix"
@@ -51,7 +52,7 @@
         </Button>
         <Button
           v-if="issue.fix_code"
-          variant="secondary"
+          variant="outline"
           size="sm"
           @click="handleCopyFix"
         >
@@ -80,14 +81,13 @@
         </Button>
       </div>
     </div>
+    </CardContent>
   </Card>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import Card from '@/components/ui/Card.vue'
-import Button from '@/components/ui/Button.vue'
-import Badge from '@/components/ui/Badge.vue'
+import { Card, CardContent, Button, Badge } from '@taskjuggler/ui'
 import type { Issue } from '@/types'
 import { useIssuesStore } from '@/stores/issues'
 

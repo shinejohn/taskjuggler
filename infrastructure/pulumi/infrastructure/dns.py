@@ -42,25 +42,37 @@ def create_dns(project_name: str, environment: str, compute: dict) -> dict:
     )
     
     # Certificate validation records
+    # Note: domain_validation_options is a Pulumi Output, so we need to handle it differently
+    # For now, we'll create validation records manually for the main domain and wildcard
     certificate_validation_records = []
-    # Create validation records for each domain
-    for i, validation_option in enumerate(certificate.domain_validation_options):
-        if validation_option.resource_record_name and validation_option.resource_record_value:
-            validation_record = aws.route53.Record(
-                f"{project_name}-{environment}-cert-validation-{i}",
-                zone_id=zone_id,
-                name=validation_option.resource_record_name,
-                type=validation_option.resource_record_type,
-                records=[validation_option.resource_record_value],
-                ttl=300,
-            )
-            certificate_validation_records.append(validation_record)
+    
+    # Create validation record for main domain
+    main_validation_record = aws.route53.Record(
+        f"{project_name}-{environment}-cert-validation-main",
+        zone_id=zone_id,
+        name=certificate.domain_validation_options.apply(lambda opts: opts[0].resource_record_name if opts and len(opts) > 0 else ""),
+        type=certificate.domain_validation_options.apply(lambda opts: opts[0].resource_record_type if opts and len(opts) > 0 else "CNAME"),
+        records=certificate.domain_validation_options.apply(lambda opts: [opts[0].resource_record_value] if opts and len(opts) > 0 else []),
+        ttl=300,
+    )
+    certificate_validation_records.append(main_validation_record)
+    
+    # Create validation record for wildcard domain (if exists)
+    wildcard_validation_record = aws.route53.Record(
+        f"{project_name}-{environment}-cert-validation-wildcard",
+        zone_id=zone_id,
+        name=certificate.domain_validation_options.apply(lambda opts: opts[1].resource_record_name if opts and len(opts) > 1 else ""),
+        type=certificate.domain_validation_options.apply(lambda opts: opts[1].resource_record_type if opts and len(opts) > 1 else "CNAME"),
+        records=certificate.domain_validation_options.apply(lambda opts: [opts[1].resource_record_value] if opts and len(opts) > 1 else []),
+        ttl=300,
+    )
+    certificate_validation_records.append(wildcard_validation_record)
     
     # Certificate validation
     certificate_validation = aws.acm.CertificateValidation(
         f"{project_name}-{environment}-cert-validation",
         certificate_arn=certificate.arn,
-        validation_record_fqdns=[record.fqdn for record in certificate_validation_records],
+        validation_record_fqdns=pulumi.Output.all(*[record.fqdn for record in certificate_validation_records]),
     )
     
     # A record for API (pointing to ALB)

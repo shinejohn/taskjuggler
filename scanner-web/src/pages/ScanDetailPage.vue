@@ -19,27 +19,30 @@
         </div>
         <div class="scan-detail-actions">
           <HealthScore :score="scan.health_score" size="lg" />
-          <Button variant="secondary" @click="handleDownloadReport">Download Report</Button>
+          <Button variant="outline" @click="handleDownloadReport">Download Report</Button>
         </div>
       </div>
 
       <div class="scan-detail-content">
-        <Card :padding="'lg'">
-          <h2 class="section-title">Category Scores</h2>
-          <div class="category-scores">
-            <div
-              v-for="(score, category) in scan.category_scores"
-              :key="category"
-              class="category-score-item"
-            >
-              <div class="category-score-label">{{ category }}</div>
-              <div class="category-score-value">{{ score }}</div>
+        <Card>
+          <CardContent class="p-6">
+            <h2 class="section-title">Category Scores</h2>
+            <div class="category-scores">
+              <div
+                v-for="(score, category) in scan.category_scores"
+                :key="category"
+                class="category-score-item"
+              >
+                <div class="category-score-label">{{ category }}</div>
+                <div class="category-score-value">{{ score }}</div>
+              </div>
             </div>
-          </div>
+          </CardContent>
         </Card>
 
-        <Card :padding="'lg'">
-          <h2 class="section-title">Issues ({{ scan.issue_count }})</h2>
+        <Card>
+          <CardContent class="p-6">
+            <h2 class="section-title">Issues ({{ scan.issue_count }})</h2>
           <div v-if="issues.length === 0" class="empty-state">
             <p>No issues found. Excellent!</p>
           </div>
@@ -50,6 +53,7 @@
               :issue="issue"
             />
           </div>
+          </CardContent>
         </Card>
       </div>
     </div>
@@ -60,8 +64,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
-import Card from '@/components/ui/Card.vue'
-import Button from '@/components/ui/Button.vue'
+import { Card, CardContent, Button } from '@taskjuggler/ui'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import HealthScore from '@/components/scanner/HealthScore.vue'
 import IssueCard from '@/components/scanner/IssueCard.vue'

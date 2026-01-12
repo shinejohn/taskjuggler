@@ -6,33 +6,42 @@
       <!-- Key Metrics -->
       <div class="dashboard__metrics">
         <Card class="dashboard__metric-card">
-          <h3 class="dashboard__metric-label">Pending Tasks</h3>
-          <p class="dashboard__metric-value">{{ pendingCount }}</p>
+          <CardContent class="p-6">
+            <h3 class="dashboard__metric-label">Pending Tasks</h3>
+            <p class="dashboard__metric-value">{{ pendingCount }}</p>
+          </CardContent>
         </Card>
         <Card class="dashboard__metric-card">
-          <h3 class="dashboard__metric-label">Active Tasks</h3>
-          <p class="dashboard__metric-value dashboard__metric-value--active">{{ activeCount }}</p>
+          <CardContent class="p-6">
+            <h3 class="dashboard__metric-label">Active Tasks</h3>
+            <p class="dashboard__metric-value dashboard__metric-value--active">{{ activeCount }}</p>
+          </CardContent>
         </Card>
         <Card class="dashboard__metric-card">
-          <h3 class="dashboard__metric-label">Completed Tasks</h3>
-          <p class="dashboard__metric-value dashboard__metric-value--completed">{{ completedCount }}</p>
+          <CardContent class="p-6">
+            <h3 class="dashboard__metric-label">Completed Tasks</h3>
+            <p class="dashboard__metric-value dashboard__metric-value--completed">{{ completedCount }}</p>
+          </CardContent>
         </Card>
         <Card class="dashboard__metric-card">
-          <h3 class="dashboard__metric-label">Inbox Items</h3>
-          <p class="dashboard__metric-value dashboard__metric-value--info">{{ inboxCount }}</p>
+          <CardContent class="p-6">
+            <h3 class="dashboard__metric-label">Inbox Items</h3>
+            <p class="dashboard__metric-value dashboard__metric-value--info">{{ inboxCount }}</p>
+          </CardContent>
         </Card>
       </div>
 
       <!-- Recent Tasks -->
       <Card class="dashboard__section">
-        <h2 class="dashboard__section-title">Recent Tasks</h2>
+        <CardContent class="p-6">
+          <h2 class="dashboard__section-title">Recent Tasks</h2>
         <div v-if="loading" class="dashboard__loading">
           <LoadingSpinner />
           <span>Loading tasks...</span>
         </div>
         <div v-else-if="tasks.length === 0" class="dashboard__empty">
           <p class="dashboard__empty-text">No tasks yet</p>
-          <Button variant="primary" @click="$router.push('/tasks/new')">
+          <Button @click="$router.push('/tasks/new')">
             Create Your First Task
           </Button>
         </div>
@@ -49,6 +58,7 @@
             </Badge>
           </router-link>
         </div>
+        </CardContent>
       </Card>
     </div>
   </AppLayout>
@@ -61,9 +71,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useInboxStore } from '@/stores/inbox'
 import { getEcho } from '@/utils/echo'
 import AppLayout from '@/components/layout/AppLayout.vue'
-import Card from '@/components/ui/Card.vue'
-import Button from '@/components/ui/Button.vue'
-import Badge from '@/components/ui/Badge.vue'
+import { Card, CardContent, Button, Badge } from '@taskjuggler/ui'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const tasksStore = useTasksStore()

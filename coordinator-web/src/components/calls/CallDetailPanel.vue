@@ -1,161 +1,157 @@
 <template>
-  <!-- Backdrop -->
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 bg-black/20 z-40 transition-opacity"
-    @click="$emit('close')"
-  />
-
-  <!-- Panel -->
-  <div
-    :class="[
-      'fixed top-0 right-0 h-full w-full sm:w-[500px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto flex flex-col',
-      isOpen ? 'translate-x-0' : 'translate-x-full'
-    ]"
-  >
-    <!-- Header -->
-    <div class="sticky top-0 bg-white border-b border-slate-100 p-6 flex justify-between items-start z-10">
-      <div>
-        <h2 class="text-xl font-bold text-slate-900">Call Details</h2>
-        <div class="flex items-center gap-2 text-sm text-slate-500 mt-1">
-          <Calendar :size="14" />
-          <span>{{ formatDate(call?.started_at) }} at {{ formatTime(call?.started_at) }}</span>
-          <span>•</span>
-          <Clock :size="14" />
-          <span>{{ formatDuration(call?.duration_seconds || 0) }}</span>
-        </div>
-      </div>
-      <div class="flex gap-2">
-        <button
-          v-if="call?.recording_url"
-          @click="downloadRecording"
-          class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-        >
-          <Download :size="20" />
-        </button>
-        <button
-          @click="$emit('close')"
-          class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-        >
-          <X :size="20" />
-        </button>
-      </div>
-    </div>
-
-    <div v-if="call" class="flex-1 p-6 space-y-8 overflow-y-auto">
-      <!-- Participants -->
-      <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
-            <User :size="20" />
-          </div>
+  <Sheet :open="isOpen" @update:open="handleOpenChange">
+    <SheetContent side="right" class="w-full sm:w-[500px] overflow-y-auto">
+      <!-- Header -->
+      <SheetHeader class="sticky top-0 bg-white border-b border-slate-100 p-6 -mx-6 -mt-6 mb-6 z-10">
+        <div class="flex justify-between items-start">
           <div>
-            <div class="font-bold text-slate-900">{{ getContactName(call) }}</div>
-            <div class="text-xs text-slate-500">{{ call.from_number }}</div>
-          </div>
-        </div>
-        <div class="h-8 w-px bg-slate-200"></div>
-        <div class="flex items-center gap-3 text-right">
-          <div>
-            <div class="font-bold text-slate-900">{{ getCoordinatorName(call) }}</div>
-            <div class="text-xs text-slate-500">Coordinator</div>
-          </div>
-          <div class="w-10 h-10 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold">
-            {{ getCoordinatorInitial(call) }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Outcome Badge -->
-      <div class="flex justify-center">
-        <span
-          :class="[
-            'px-4 py-1.5 rounded-full text-sm font-medium border',
-            getOutcomeClass(call.outcome)
-          ]"
-        >
-          {{ call.outcome || 'Completed' }}
-        </span>
-      </div>
-
-      <!-- Audio Player -->
-      <div v-if="call.recording_url" class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-bold text-slate-900">Recording</h3>
-          <div class="flex gap-2 text-xs font-medium text-slate-500">
-            <button class="hover:text-[#1B4F72]">1x</button>
-            <button class="hover:text-[#1B4F72]">1.5x</button>
-            <button class="hover:text-[#1B4F72]">2x</button>
-          </div>
-        </div>
-
-        <!-- Waveform Visualization -->
-        <div class="h-12 flex items-center gap-0.5 mb-4 px-2">
-          <div
-            v-for="i in 40"
-            :key="i"
-            :class="[
-              'w-1.5 rounded-full transition-all',
-              i < 15 ? 'bg-[#1B4F72]' : 'bg-slate-200'
-            ]"
-            :style="{ height: `${Math.max(20, Math.random() * 100)}%` }"
-          />
-        </div>
-
-        <div class="flex items-center gap-4">
-          <button
-            @click="togglePlayback"
-            class="w-10 h-10 rounded-full bg-[#1B4F72] text-white flex items-center justify-center hover:bg-[#153e5a] transition-colors shadow-sm"
-          >
-            <Play v-if="!isPlaying" :size="18" fill="currentColor" class="ml-0.5" />
-            <Pause v-else :size="18" />
-          </button>
-          <div class="flex-1">
-            <div class="h-1 bg-slate-200 rounded-full overflow-hidden">
-              <div class="h-full bg-[#1B4F72] rounded-full" style="width: 35%"></div>
-            </div>
-            <div class="flex justify-between text-xs text-slate-500 mt-1">
-              <span>0:45</span>
-              <span>{{ formatDuration(call.duration_seconds) }}</span>
+            <SheetTitle class="text-xl font-bold text-slate-900">Call Details</SheetTitle>
+            <div class="flex items-center gap-2 text-sm text-slate-500 mt-1">
+              <Calendar :size="14" />
+              <span>{{ formatDate(call?.started_at) }} at {{ formatTime(call?.started_at) }}</span>
+              <span>•</span>
+              <Clock :size="14" />
+              <span>{{ formatDuration(call?.duration_seconds || 0) }}</span>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Transcript -->
-      <div v-if="call.transcript" class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <h3 class="text-sm font-bold text-slate-900 mb-3">Transcript</h3>
-        <div class="space-y-3 text-sm text-slate-700">
-          <div
-            v-for="(segment, i) in transcriptSegments"
-            :key="i"
-            class="p-3 rounded-lg"
-            :class="segment.speaker === 'coordinator' ? 'bg-blue-50' : 'bg-slate-50'"
-          >
-            <div class="font-semibold text-xs text-slate-500 mb-1">
-              {{ segment.speaker === 'coordinator' ? getCoordinatorName(call) : getContactName(call) }}
-            </div>
-            <div>{{ segment.text }}</div>
+          <div class="flex gap-2">
+            <Button
+              v-if="call?.recording_url"
+              variant="ghost"
+              size="icon"
+              @click="downloadRecording"
+              class="text-slate-400 hover:text-slate-600"
+            >
+              <Download :size="20" />
+            </Button>
           </div>
         </div>
-      </div>
+      </SheetHeader>
 
-      <!-- AI Summary -->
-      <div v-if="call.ai_summary" class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-          <Lightbulb :size="16" class="text-amber-500" />
-          AI Summary
-        </h3>
-        <p class="text-sm text-slate-700">{{ call.ai_summary }}</p>
+      <div v-if="call" class="space-y-8">
+        <!-- Participants -->
+        <Card class="bg-slate-50">
+          <CardContent class="p-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
+                <User :size="20" />
+              </div>
+              <div>
+                <div class="font-bold text-slate-900">{{ getContactName(call) }}</div>
+                <div class="text-xs text-slate-500">{{ call.from_number }}</div>
+              </div>
+            </div>
+            <Separator orientation="vertical" class="h-8" />
+            <div class="flex items-center gap-3 text-right">
+              <div>
+                <div class="font-bold text-slate-900">{{ getCoordinatorName(call) }}</div>
+                <div class="text-xs text-slate-500">Coordinator</div>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold">
+                {{ getCoordinatorInitial(call) }}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Outcome Badge -->
+        <div class="flex justify-center">
+          <Badge :class="getOutcomeClass(call.outcome)">
+            {{ call.outcome || 'Completed' }}
+          </Badge>
+        </div>
+
+        <!-- Audio Player -->
+        <Card v-if="call.recording_url">
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <CardTitle class="text-sm font-bold text-slate-900">Recording</CardTitle>
+              <div class="flex gap-2 text-xs font-medium text-slate-500">
+                <Button variant="ghost" size="sm" class="h-auto p-0 text-xs hover:text-[#1B4F72]">1x</Button>
+                <Button variant="ghost" size="sm" class="h-auto p-0 text-xs hover:text-[#1B4F72]">1.5x</Button>
+                <Button variant="ghost" size="sm" class="h-auto p-0 text-xs hover:text-[#1B4F72]">2x</Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <!-- Waveform Visualization -->
+            <div class="h-12 flex items-center gap-0.5 mb-4 px-2">
+              <div
+                v-for="i in 40"
+                :key="i"
+                :class="[
+                  'w-1.5 rounded-full transition-all',
+                  i < 15 ? 'bg-[#1B4F72]' : 'bg-slate-200'
+                ]"
+                :style="{ height: `${Math.max(20, Math.random() * 100)}%` }"
+              />
+            </div>
+
+            <div class="flex items-center gap-4">
+              <Button
+                @click="togglePlayback"
+                size="icon"
+                class="w-10 h-10 rounded-full bg-[#1B4F72] hover:bg-[#153e5a]"
+              >
+                <Play v-if="!isPlaying" :size="18" fill="currentColor" class="ml-0.5" />
+                <Pause v-else :size="18" />
+              </Button>
+              <div class="flex-1">
+                <div class="h-1 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-[#1B4F72] rounded-full" style="width: 35%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500 mt-1">
+                  <span>0:45</span>
+                  <span>{{ formatDuration(call.duration_seconds) }}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Transcript -->
+        <Card v-if="call.transcript">
+          <CardHeader>
+            <CardTitle class="text-sm font-bold text-slate-900">Transcript</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-3 text-sm text-slate-700">
+              <Card
+                v-for="(segment, i) in transcriptSegments"
+                :key="i"
+                :class="segment.speaker === 'coordinator' ? 'bg-blue-50' : 'bg-slate-50'"
+              >
+                <CardContent class="p-3">
+                  <div class="font-semibold text-xs text-slate-500 mb-1">
+                    {{ segment.speaker === 'coordinator' ? getCoordinatorName(call) : getContactName(call) }}
+                  </div>
+                  <div>{{ segment.text }}</div>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- AI Summary -->
+        <Card v-if="call.ai_summary">
+          <CardHeader>
+            <CardTitle class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <Lightbulb :size="16" class="text-amber-500" />
+              AI Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p class="text-sm text-slate-700">{{ call.ai_summary }}</p>
+          </CardContent>
+        </Card>
       </div>
-    </div>
-  </div>
+    </SheetContent>
+  </Sheet>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import {
-  X,
   Play,
   Pause,
   Calendar,
@@ -165,6 +161,19 @@ import {
   Lightbulb,
 } from 'lucide-vue-next';
 import type { CallLog } from '@/api/calls';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Separator,
+} from '@taskjuggler/ui';
 
 interface Props {
   call: CallLog | null;
@@ -172,11 +181,17 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-defineEmits<{
+const emit = defineEmits<{
   close: [];
 }>();
 
 const isPlaying = ref(false);
+
+function handleOpenChange(open: boolean) {
+  if (!open) {
+    emit('close');
+  }
+}
 
 const transcriptSegments = computed(() => {
   if (!props.call?.transcript) return [];
