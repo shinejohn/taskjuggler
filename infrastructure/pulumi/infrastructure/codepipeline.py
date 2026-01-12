@@ -185,9 +185,8 @@ def create_codepipeline(
             source_provider = "GitHub"
             source_owner = "ThirdParty"
         else:
-            raise pulumi.ResourceError(
-                "Either github_connection_arn or github_token config must be provided",
-                None
+            raise Exception(
+                "Either github_connection_arn or github_token config must be provided"
             )
     
     # CodePipeline stages
@@ -245,10 +244,10 @@ def create_codepipeline(
         f"{project_name}-{environment}-pipeline",
         name=f"{project_name}-{environment}-pipeline",
         role_arn=pipeline_role.arn,
-        artifact_store=aws.codepipeline.PipelineArtifactStoreArgs(
+        artifact_stores=[aws.codepipeline.PipelineArtifactStoreArgs(
             location=artifact_bucket.bucket,
             type="S3",
-        ),
+        )],
         stages=stages,
         tags={
             "Project": project_name,
