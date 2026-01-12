@@ -69,8 +69,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: coordinator-web/package-lock.json
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
@@ -120,8 +118,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: taskjuggler-web/package-lock.json
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
@@ -162,8 +158,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: scanner-web/package-lock.json
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
@@ -204,8 +198,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: urpa-web/package-lock.json
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
@@ -246,8 +238,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: projects-web/package-lock.json
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
@@ -288,8 +278,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: process-web/package-lock.json
 
       - name: Install shared-ui dependencies
         working-directory: ./shared-ui
