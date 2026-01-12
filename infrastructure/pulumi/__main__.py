@@ -15,7 +15,9 @@ from infrastructure import (
     security,
     scanner,
     codebuild,
-    codepipeline
+    codepipeline,
+    frontend_deployment,
+    frontend_build,
 )
 
 # Get configuration
@@ -54,7 +56,32 @@ scanner_stack = scanner.create_scanner_infrastructure(
     database_stack
 )
 
-# CodeBuild for CI/CD
+# Frontend projects to deploy
+frontend_projects = [
+    "coordinator-web",
+    "taskjuggler-web",
+    "scanner-web",
+    "urpa-web",
+    "projects-web",
+    "process-web",
+]
+
+# Frontend deployment infrastructure (S3 + CloudFront)
+frontend_deployment_stack = frontend_deployment.create_frontend_deployment(
+    project_name,
+    environment,
+    frontend_projects,
+)
+
+# Frontend build projects (CodeBuild)
+frontend_build_stack = frontend_build.create_frontend_build_projects(
+    project_name,
+    environment,
+    frontend_projects,
+    frontend_deployment_stack,
+)
+
+# CodeBuild for CI/CD (API)
 codebuild_stack = codebuild.create_codebuild(
     project_name,
     environment,
@@ -72,6 +99,8 @@ codepipeline_stack = codepipeline.create_codepipeline(
     codebuild_stack["build_project"],
     compute_stack["cluster"],
     compute_stack["api_service"],
+    frontend_build_projects=frontend_build_stack,
+    frontend_deployments=frontend_deployment_stack,
     github_connection_arn=github_connection_arn,
     github_owner="shinejohn",
     github_repo="taskjuggler",
@@ -98,3 +127,9 @@ pulumi.export("mcp_health_url", compute_stack["load_balancer_dns"].apply(lambda 
 pulumi.export("codebuild_project_name", codebuild_stack["build_project_name"])
 pulumi.export("pipeline_name", codepipeline_stack["pipeline_name"])
 pulumi.export("pipeline_url", codepipeline_stack["pipeline_url"])
+
+# Frontend deployment outputs
+for frontend_name in frontend_projects:
+    if frontend_name in frontend_deployment_stack:
+        pulumi.export(f"{frontend_name}_url", frontend_deployment_stack[frontend_name]["url"])
+        pulumi.export(f"{frontend_name}_bucket", frontend_deployment_stack[frontend_name]["bucket_name"])
