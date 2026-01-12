@@ -208,27 +208,27 @@ jobs:
             --project-name $CODEBUILD_PROJECT_NAME \
             --region ${{ secrets.AWS_REGION || 'us-east-1' }}
 
-  # Deploy to Railway (if configured)
-  deploy-railway:
-    name: Deploy to Railway
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.event_name != 'pull_request'
-    continue-on-error: true
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Railway CLI
-        uses: bervProject/railway-cli-action@v1
-        with:
-          railway-token: ${{ secrets.RAILWAY_TOKEN }}
-
-      - name: Deploy to Railway
-        run: |
-          cd taskjuggler-api
-          railway up --service ${{ secrets.RAILWAY_SERVICE_ID || 'api' }}
+  # Deploy to Railway (DISABLED)
+  # deploy-railway:
+  #   name: Deploy to Railway
+  #   runs-on: ubuntu-latest
+  #   needs: build-and-push
+  #   if: github.event_name != 'pull_request'
+  #   continue-on-error: true
+  #   
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Setup Railway CLI
+  #       uses: bervProject/railway-cli-action@v1
+  #       with:
+  #         railway-token: ${{ secrets.RAILWAY_TOKEN }}
+  #
+  #     - name: Deploy to Railway
+  #       run: |
+  #         cd taskjuggler-api
+  #         railway up --service ${{ secrets.RAILWAY_SERVICE_ID || 'api' }}
 
   # Deployment summary
   deployment-summary:
