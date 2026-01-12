@@ -36,7 +36,9 @@ require base_path('app/Modules/Core/Routes/api.php');
 require base_path('app/Modules/Tasks/Routes/api.php');
 
 // Load Coordinator routes
-require base_path('routes/coordinator.php');
+if (file_exists(base_path('routes/coordinator.php'))) {
+    require base_path('routes/coordinator.php');
+}
 
 // Load URPA module routes
 Route::prefix('urpa')->group(function () {

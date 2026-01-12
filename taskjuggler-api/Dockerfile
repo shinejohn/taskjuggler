@@ -36,7 +36,8 @@ COPY . .
 
 # Install PHP dependencies
 # Update lock file if needed, then install
-RUN composer update --no-dev --no-interaction --prefer-stable || composer install --no-dev --optimize-autoloader --no-interaction
+# Skip post-autoload-dump scripts to avoid route loading errors during build
+RUN composer update --no-dev --no-interaction --prefer-stable --no-scripts || composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # Install Node dependencies and build (if needed)
 # Note: Skip if package.json doesn't exist or has no build script
