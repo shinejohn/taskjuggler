@@ -63,7 +63,6 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-          cache-dependency-path: ${{ matrix.project }}/package-lock.json
 
       - name: Build shared-ui
         working-directory: ./shared-ui
@@ -77,7 +76,12 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./${{ matrix.project }}
-        run: npm ci || npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Type check
         working-directory: ./${{ matrix.project }}
