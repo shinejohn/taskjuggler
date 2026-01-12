@@ -5,4 +5,4 @@ config:
   TaskJuggler:redis_auth_token:
     secure: AAABALtLGLxHp7K3vPC5lACLiDZgv4CKGJuZGldqOrqTfHgm1DbbKF8y0/u07ZCy69PGuCXZ/f3VfVbjkSM9kQ==
   TaskJuggler:github_token:
-    secure: AAABAF0z4MeWdJV829ep33ZY21cvyHCzGPFaJLULB5BRxw2UP/Ktq6/uvq9hroHE0+G3lxWjGFUkD0LYb1s8Opu4RMpWBvFz
+    secure: AAABAPWB40nQxPN1RxTTr99UvpVtd79akU+CGfad7l/risOVcbITwnstWJlMpPZL3Eo2iiqEQaqKih0wzS7Wo914y2s2USkk
