@@ -35,7 +35,8 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Update lock file if needed, then install
+RUN composer update --no-dev --no-interaction --prefer-stable || composer install --no-dev --optimize-autoloader --no-interaction
 
 # Install Node dependencies and build (if needed)
 # Note: Skip if package.json doesn't exist or has no build script
