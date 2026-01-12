@@ -34,7 +34,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction || echo "Composer install completed with warnings"
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Install Node dependencies and build (if needed)
 # Note: Skip if package.json doesn't exist or has no build script
