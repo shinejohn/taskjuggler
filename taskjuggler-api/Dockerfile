@@ -1,5 +1,6 @@
 # Dockerfile for Task Juggler API
-FROM php:8.3-fpm
+# Use ECR Public Gallery to avoid Docker Hub rate limits
+FROM public.ecr.aws/docker/library/php:8.3-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
