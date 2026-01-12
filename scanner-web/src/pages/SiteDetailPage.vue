@@ -91,7 +91,7 @@ const error = ref<string | null>(null)
 const siteId = computed(() => parseInt(route.params.id as string))
 const site = computed(() => sitesStore.currentSite)
 const scans = computed(() => scansStore.scans)
-const openIssues = computed(() => issuesStore.issues.filter(i => i.status === 'open'))
+const openIssues = computed(() => issuesStore.issues.filter((i: Issue) => i.status === 'open'))
 
 onMounted(async () => {
   try {
