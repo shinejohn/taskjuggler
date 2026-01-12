@@ -83,24 +83,24 @@ const loading = computed(() => tasksStore.loading)
 const pendingCount = computed(() => tasksStore.pendingTasks.length)
 const activeCount = computed(() => tasksStore.activeTasks.length)
 const completedCount = computed(() => tasksStore.completedTasks.length)
-const inboxCount = computed(() => inboxStore.items.length)
+const inboxCount = computed(() => inboxStore.inboxItems.length)
 
-const getStatusVariant = (status: string) => {
-  const statusMap: Record<string, 'pending' | 'accepted' | 'in-progress' | 'completed' | 'cancelled'> = {
-    pending: 'pending',
-    accepted: 'accepted',
-    in_progress: 'in-progress',
-    completed: 'completed',
-    cancelled: 'cancelled',
+const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+  const statusMap: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+    pending: 'secondary',
+    accepted: 'default',
+    in_progress: 'default',
+    completed: 'default',
+    cancelled: 'destructive',
   }
-  return statusMap[status] || 'pending'
+  return statusMap[status] || 'secondary'
 }
 
 let echoChannel: any = null
 
 onMounted(() => {
   tasksStore.fetchTasks()
-  inboxStore.fetchInbox()
+  inboxStore.fetchInboxItems()
   
   // Listen for real-time updates
   if (authStore.user) {

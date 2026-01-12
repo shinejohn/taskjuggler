@@ -45,11 +45,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const initials = computed(() => {
   if (!props.name) return '?'
-  const parts = props.name.trim().split(' ')
+  const parts = props.name.trim().split(' ').filter(p => p.length > 0)
+  if (parts.length === 0) return '?'
   if (parts.length === 1) {
-    return parts[0].charAt(0).toUpperCase()
+    return parts[0]?.charAt(0).toUpperCase() || '?'
   }
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+  const first = parts[0]?.charAt(0) || ''
+  const last = parts[parts.length - 1]?.charAt(0) || ''
+  return (first + last).toUpperCase()
 })
 
 // Generate a color based on the name hash for consistent avatar colors

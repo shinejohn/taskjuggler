@@ -37,7 +37,7 @@
         <!-- User Menu -->
         <div class="top-nav__user-menu" ref="userMenuRef">
           <button class="top-nav__user-button" @click="toggleUserMenu">
-            <Avatar :src="user?.avatar" :name="user?.name || 'User'" size="sm" />
+            <Avatar :name="user?.name || 'User'" size="sm" />
             <span class="top-nav__user-name">{{ user?.name || 'User' }}</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -72,7 +72,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Avatar from '@/components/ui/Avatar.vue'
 
-const route = useRoute()
+const _route = useRoute() // Keep for potential future use
 const router = useRouter()
 const authStore = useAuthStore()
 

@@ -97,7 +97,7 @@ import { useRouter } from 'vue-router'
 import { EnvelopeIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline'
 import api from '@/utils/api'
 
-const router = useRouter()
+const _router = useRouter() // Keep for potential future use
 const email = ref('')
 const loading = ref(false)
 const error = ref('')
