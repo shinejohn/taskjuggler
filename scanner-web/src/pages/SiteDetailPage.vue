@@ -77,7 +77,7 @@ import IssueCard from '@/components/scanner/IssueCard.vue'
 import { useSitesStore } from '@/stores/sites'
 import { useScansStore } from '@/stores/scans'
 import { useIssuesStore } from '@/stores/issues'
-import type { Scan } from '@/types'
+import type { Scan, Issue } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
