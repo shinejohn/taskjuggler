@@ -67,7 +67,18 @@ defineEmits<{
   secondaryAction: [];
 }>();
 
-const emptyStateConfig = {
+interface EmptyStateConfig {
+  icon: any;
+  title: string;
+  subtitle: string;
+  primaryCTA?: string;
+  secondaryCTA?: string;
+  tip?: string;
+  iconColor: string;
+  bgColor: string;
+}
+
+const emptyStateConfig: Record<Props['variant'], EmptyStateConfig> = {
   coordinators: {
     icon: Users,
     title: 'Hire your first Coordinator',

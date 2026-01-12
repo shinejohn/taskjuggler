@@ -134,7 +134,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { MoreVertical, Play, Eye, Edit, Pause, Trash2, Phone, Calendar, TrendingUp } from 'lucide-vue-next';
-import { cn } from '@/utils/cn';
 
 interface Props {
   name: string;
