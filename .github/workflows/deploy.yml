@@ -171,33 +171,49 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
 
       - name: Update ECS services
-        if: ${{ secrets.ECS_CLUSTER && secrets.ECS_SERVICE }}
+        continue-on-error: true
+        env:
+          ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+          ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
         run: |
+          if [ -z "$ECS_CLUSTER" ] || [ -z "$ECS_SERVICE" ]; then
+            echo "ECS_CLUSTER or ECS_SERVICE not configured, skipping ECS deployment"
+            exit 0
+          fi
+          
           aws ecs update-service \
-            --cluster ${{ secrets.ECS_CLUSTER }} \
-            --service ${{ secrets.ECS_SERVICE }} \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
             --force-new-deployment \
             --region ${{ secrets.AWS_REGION || 'us-east-1' }}
           
           echo "Waiting for service to stabilize..."
           aws ecs wait services-stable \
-            --cluster ${{ secrets.ECS_CLUSTER }} \
-            --services ${{ secrets.ECS_SERVICE }} \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
             --region ${{ secrets.AWS_REGION || 'us-east-1' }}
 
       - name: Trigger CodeBuild (fallback)
-        if: ${{ !secrets.ECS_CLUSTER && secrets.CODEBUILD_PROJECT_NAME }}
-        uses: aws-actions/aws-codebuild-run-build@v1
-        with:
-          project-name: ${{ secrets.CODEBUILD_PROJECT_NAME }}
-          region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+        continue-on-error: true
+        env:
+          ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+          CODEBUILD_PROJECT_NAME: ${{ secrets.CODEBUILD_PROJECT_NAME }}
+        run: |
+          if [ -n "$ECS_CLUSTER" ] || [ -z "$CODEBUILD_PROJECT_NAME" ]; then
+            echo "ECS_CLUSTER is set or CODEBUILD_PROJECT_NAME not configured, skipping CodeBuild"
+            exit 0
+          fi
+          
+          aws codebuild start-build \
+            --project-name $CODEBUILD_PROJECT_NAME \
+            --region ${{ secrets.AWS_REGION || 'us-east-1' }}
 
   # Deploy to Railway (if configured)
   deploy-railway:
     name: Deploy to Railway
     runs-on: ubuntu-latest
     needs: build-and-push
-    if: github.event_name != 'pull_request' && secrets.RAILWAY_TOKEN
+    if: github.event_name != 'pull_request'
     continue-on-error: true
     
     steps:
