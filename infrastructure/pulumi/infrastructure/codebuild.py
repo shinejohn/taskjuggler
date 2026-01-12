@@ -107,58 +107,33 @@ def create_codebuild(project_name: str, environment: str, ecr_repo: aws.ecr.Repo
         }
     )
     
-    # CodeBuild Project
-    build_project = aws.codebuild.Project(
-        f"{project_name}-{environment}-build",
-        name=f"{project_name}-{environment}-build",
-        description=f"Build Docker image for {project_name} {environment}",
-        service_role=codebuild_role.arn,
-        artifacts=aws.codebuild.ProjectArtifactsArgs(
-            type="NO_ARTIFACTS",
-        ),
-        environment=aws.codebuild.ProjectEnvironmentArgs(
-            type="LINUX_CONTAINER",
-            image="aws/codebuild/standard:7.0",
-            compute_type="BUILD_GENERAL1_SMALL",
-            privileged_mode=True,
-            environment_variables=[
-                aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
-                    name="AWS_DEFAULT_REGION",
-                    value="us-east-1",
-                ),
-                aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
-                    name="AWS_ACCOUNT_ID",
-                    value="195430954683",
-                ),
-                aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
-                    name="IMAGE_REPO_NAME",
-                    value=ecr_repo.name,
-                ),
-                aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
-                    name="IMAGE_TAG",
-                    value="latest",
-                ),
-            ],
-        ),
-        # GitHub source configuration (preferred)
-        # Can be overridden via config or use S3 fallback
-        github_config = config.get_object("github", {})
-        
-        if github_config.get("enabled", False):
-            # Use GitHub source
-            source=aws.codebuild.ProjectSourceArgs(
-                type="GITHUB",
-                location=f"https://github.com/{github_config.get('owner', 'shinejohn')}/{github_config.get('repo', 'taskjuggler')}.git",
-                buildspec=github_config.get("buildspec", "taskjuggler-api/buildspec.yml"),
-            ),
-            source_version=github_config.get("branch", "main"),
-        else:
-            # Fallback to S3 source (for manual uploads)
-            source=aws.codebuild.ProjectSourceArgs(
-                type="S3",
-                location=pulumi.Output.all(
-                    bucket_name=f"{project_name}-build-source",
-                ).apply(lambda args: f"{args['bucket_name']}/source.tar.gz"),
+    # CodePipeline source (when used in pipeline)
+    # For standalone builds, use GitHub source
+    github_config = config.get_object("github", {})
+    use_codepipeline = config.get_bool("use_codepipeline", True)
+    
+    if use_codepipeline:
+        # Use CODEPIPELINE source type for CodePipeline integration
+        source = aws.codebuild.ProjectSourceArgs(
+            type="CODEPIPELINE",
+            buildspec="taskjuggler-api/buildspec.yml",
+        )
+        source_version = None
+    elif github_config.get("enabled", False):
+        # Use GitHub source for standalone builds
+        source = aws.codebuild.ProjectSourceArgs(
+            type="GITHUB",
+            location=f"https://github.com/{github_config.get('owner', 'shinejohn')}/{github_config.get('repo', 'taskjuggler')}.git",
+            buildspec=github_config.get("buildspec", "taskjuggler-api/buildspec.yml"),
+        )
+        source_version = github_config.get("branch", "main")
+    else:
+        # Fallback to S3 source (for manual uploads)
+        source = aws.codebuild.ProjectSourceArgs(
+            type="S3",
+            location=pulumi.Output.all(
+                bucket_name=f"{project_name}-build-source",
+            ).apply(lambda args: f"{args['bucket_name']}/source.tar.gz"),
             buildspec="""
 version: 0.2
 phases:
@@ -202,6 +177,43 @@ artifacts:
   files:
     - imageDetail.json
 """,
+        )
+        source_version = None
+    
+    # CodeBuild Project
+    build_project = aws.codebuild.Project(
+        f"{project_name}-{environment}-build",
+        name=f"{project_name}-{environment}-build",
+        description=f"Build Docker image for {project_name} {environment}",
+        service_role=codebuild_role.arn,
+        source=source,
+        source_version=source_version,
+        artifacts=aws.codebuild.ProjectArtifactsArgs(
+            type="CODEPIPELINE" if use_codepipeline else "NO_ARTIFACTS",
+        ),
+        environment=aws.codebuild.ProjectEnvironmentArgs(
+            type="LINUX_CONTAINER",
+            image="aws/codebuild/standard:7.0",
+            compute_type="BUILD_GENERAL1_SMALL",
+            privileged_mode=True,
+            environment_variables=[
+                aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
+                    name="AWS_DEFAULT_REGION",
+                    value="us-east-1",
+                ),
+                aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
+                    name="AWS_ACCOUNT_ID",
+                    value="195430954683",
+                ),
+                aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
+                    name="IMAGE_REPO_NAME",
+                    value=ecr_repo.name,
+                ),
+                aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
+                    name="IMAGE_TAG",
+                    value="latest",
+                ),
+            ],
         ),
         logs_config=aws.codebuild.ProjectLogsConfigArgs(
             cloudwatch_logs=aws.codebuild.ProjectLogsConfigCloudwatchLogsArgs(

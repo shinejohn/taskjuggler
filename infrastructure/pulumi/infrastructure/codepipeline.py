@@ -1,6 +1,6 @@
 """
 CodePipeline Infrastructure
-GitHub-based CI/CD pipeline for automated deployments
+AWS-native CI/CD pipeline with GitHub source, CodeBuild, and ECS deployment
 """
 import pulumi
 import pulumi_aws as aws
@@ -11,29 +11,37 @@ def create_codepipeline(
     project_name: str,
     environment: str,
     codebuild_project: aws.codebuild.Project,
-    github_owner: str,
-    github_repo: str,
+    ecs_cluster: aws.ecs.Cluster,
+    ecs_service: aws.ecs.Service,
+    github_connection_arn: str = None,
+    github_owner: str = "shinejohn",
+    github_repo: str = "taskjuggler",
     github_branch: str = "main",
-    github_token_secret_name: str = None,
 ) -> dict:
-    """Create CodePipeline with GitHub source"""
+    """Create CodePipeline with GitHub source, CodeBuild, and ECS deployment"""
     
     config = pulumi.Config()
-    
-    # GitHub connection (for GitHub App or OAuth)
-    # Note: This requires setting up GitHub connection in AWS Console first
-    # Or use GitHub token stored in Secrets Manager
     
     # S3 bucket for pipeline artifacts
     artifact_bucket = aws.s3.Bucket(
         f"{project_name}-{environment}-pipeline-artifacts",
-        bucket=f"{project_name}-{environment}-pipeline-artifacts",
+        bucket=f"{project_name}-{environment}-pipeline-artifacts-{pulumi.get_stack()}",
         force_destroy=True,
         tags={
             "Name": f"{project_name}-{environment}-pipeline-artifacts",
             "Project": project_name,
             "Environment": environment,
         }
+    )
+    
+    # Block public access
+    aws.s3.BucketPublicAccessBlock(
+        f"{project_name}-{environment}-pipeline-artifacts-pab",
+        bucket=artifact_bucket.id,
+        block_public_acls=True,
+        block_public_policy=True,
+        ignore_public_acls=True,
+        restrict_public_buckets=True,
     )
     
     # Enable versioning for artifacts
@@ -62,13 +70,15 @@ def create_codepipeline(
         }
     )
     
-    # Pipeline policy
+    # Pipeline policy with ECS deployment permissions
     pipeline_policy = aws.iam.RolePolicy(
         f"{project_name}-{environment}-pipeline-policy",
         role=pipeline_role.id,
         policy=pulumi.Output.all(
             codebuild_arn=codebuild_project.arn,
             artifact_bucket_arn=artifact_bucket.arn,
+            ecs_cluster_arn=ecs_cluster.arn,
+            ecs_service_arn=ecs_service.id,
         ).apply(lambda args: json.dumps({
             "Version": "2012-10-17",
             "Statement": [
@@ -97,47 +107,138 @@ def create_codepipeline(
                 {
                     "Effect": "Allow",
                     "Action": [
-                        "sts:AssumeRole"
+                        "ecs:DescribeServices",
+                        "ecs:DescribeTaskDefinition",
+                        "ecs:DescribeTasks",
+                        "ecs:ListTasks",
+                        "ecs:RegisterTaskDefinition",
+                        "ecs:UpdateService"
                     ],
                     "Resource": "*"
                 },
                 {
                     "Effect": "Allow",
                     "Action": [
-                        "secretsmanager:GetSecretValue"
+                        "iam:PassRole"
                     ],
-                    "Resource": "*"
-                }
+                    "Resource": "*",
+                    "Condition": {
+                        "StringEqualsIfExists": {
+                            "iam:PassedToService": [
+                                "ecs-tasks.amazonaws.com"
+                            ]
+                        }
+                    }
+                },
             ]
         })),
     )
     
-    # Get GitHub token from Secrets Manager if provided
-    github_source_config = {}
+    # Add CodeStar Connections permission if connection ARN provided
+    if github_connection_arn:
+        codestar_policy = aws.iam.RolePolicy(
+            f"{project_name}-{environment}-pipeline-codestar-policy",
+            role=pipeline_role.id,
+            policy=json.dumps({
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": [
+                            "codestar-connections:UseConnection"
+                        ],
+                        "Resource": github_connection_arn
+                    }
+                ]
+            }),
+        )
     
-    if github_token_secret_name:
-        # Use GitHub token from Secrets Manager
-        github_source_config = {
-            "type": "GITHUB",
-            "owner": github_owner,
-            "repo": github_repo,
-            "branch": github_branch,
-            "oauth_token": pulumi.Output.secret(
-                aws.secretsmanager.get_secret(
-                    name=github_token_secret_name
-                ).secret_string
-            ),
+    # Get GitHub token from config if no connection ARN
+    github_token = None
+    if not github_connection_arn:
+        github_token = config.get_secret("github_token")
+    
+    # Source configuration - use CodeStar Connection if provided, otherwise GitHub OAuth
+    source_action_config = {}
+    
+    if github_connection_arn:
+        # Use CodeStar Connection (preferred)
+        source_action_config = {
+            "ConnectionArn": github_connection_arn,
+            "FullRepositoryId": f"{github_owner}/{github_repo}",
+            "BranchName": github_branch,
+            "OutputArtifactFormat": "CODE_ZIP",
         }
+        source_provider = "CodeStarSourceConnection"
+        source_owner = "AWS"
     else:
-        # Use GitHub connection (requires manual setup in AWS Console)
-        # This is the preferred method for GitHub Apps
-        github_source_config = {
-            "type": "GITHUB",
-            "owner": github_owner,
-            "repo": github_repo,
-            "branch": github_branch,
-            # Connection ARN would be set via config or manual setup
-        }
+        # Fallback to GitHub OAuth (requires token in config)
+        github_token = config.get_secret("github_token")
+        if github_token:
+            source_action_config = {
+                "Owner": github_owner,
+                "Repo": github_repo,
+                "Branch": github_branch,
+                "OAuthToken": github_token,
+                "PollForSourceChanges": "false",
+            }
+            source_provider = "GitHub"
+            source_owner = "ThirdParty"
+        else:
+            raise pulumi.ResourceError(
+                "Either github_connection_arn or github_token config must be provided",
+                None
+            )
+    
+    # CodePipeline stages
+    stages = [
+        # Source stage - GitHub
+        aws.codepipeline.PipelineStageArgs(
+            name="Source",
+            actions=[aws.codepipeline.PipelineStageActionArgs(
+                name="Source",
+                category="Source",
+                owner=source_owner,
+                provider=source_provider,
+                version="1",
+                output_artifacts=["source_output"],
+                configuration=source_action_config,
+            )],
+        ),
+        # Build stage - CodeBuild
+        aws.codepipeline.PipelineStageArgs(
+            name="Build",
+            actions=[aws.codepipeline.PipelineStageActionArgs(
+                name="Build",
+                category="Build",
+                owner="AWS",
+                provider="CodeBuild",
+                version="1",
+                input_artifacts=["source_output"],
+                output_artifacts=["build_output"],
+                configuration={
+                    "ProjectName": codebuild_project.name,
+                },
+            )],
+        ),
+        # Deploy stage - ECS
+        aws.codepipeline.PipelineStageArgs(
+            name="Deploy",
+            actions=[aws.codepipeline.PipelineStageActionArgs(
+                name="Deploy",
+                category="Deploy",
+                owner="AWS",
+                provider="ECS",
+                version="1",
+                input_artifacts=["build_output"],
+                configuration={
+                    "ClusterName": ecs_cluster.name,
+                    "ServiceName": ecs_service.name,
+                    "FileName": "imagedefinitions.json",
+                },
+            )],
+        ),
+    ]
     
     # CodePipeline
     pipeline = aws.codepipeline.Pipeline(
@@ -148,43 +249,7 @@ def create_codepipeline(
             location=artifact_bucket.bucket,
             type="S3",
         ),
-        stages=[
-            # Source stage - GitHub
-            aws.codepipeline.PipelineStageArgs(
-                name="Source",
-                actions=[aws.codepipeline.PipelineStageActionArgs(
-                    name="Source",
-                    category="Source",
-                    owner="ThirdParty",
-                    provider="GitHub",
-                    version="1",
-                    output_artifacts=["source_output"],
-                    configuration={
-                        "Owner": github_owner,
-                        "Repo": github_repo,
-                        "Branch": github_branch,
-                        "OAuthToken": github_source_config.get("oauth_token", ""),
-                        "PollForSourceChanges": "false",  # Use webhooks instead
-                    },
-                )],
-            ),
-            # Build stage - CodeBuild
-            aws.codepipeline.PipelineStageArgs(
-                name="Build",
-                actions=[aws.codepipeline.PipelineStageActionArgs(
-                    name="Build",
-                    category="Build",
-                    owner="AWS",
-                    provider="CodeBuild",
-                    version="1",
-                    input_artifacts=["source_output"],
-                    output_artifacts=["build_output"],
-                    configuration={
-                        "ProjectName": codebuild_project.name,
-                    },
-                )],
-            ),
-        ],
+        stages=stages,
         tags={
             "Project": project_name,
             "Environment": environment,
@@ -194,6 +259,7 @@ def create_codepipeline(
     return {
         "pipeline": pipeline,
         "pipeline_name": pipeline.name,
+        "pipeline_url": pipeline.arn.apply(lambda arn: f"https://console.aws.amazon.com/codesuite/codepipeline/pipelines/{pipeline.name}/view"),
         "artifact_bucket": artifact_bucket,
         "pipeline_role": pipeline_role,
     }

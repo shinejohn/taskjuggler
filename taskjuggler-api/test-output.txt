@@ -1,0 +1,673 @@
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\IdeaCircuit\MeetingControllerTest::it_can_list_user_meetings(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\IdeaCircuit\MeetingControllerTest::it_can_create_a_meeting(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\IdeaCircuit\MeetingControllerTest::it_can_show_a_meeting(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\IdeaCircuit\MeetingControllerTest::it_can_update_a_meeting(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\IdeaCircuit\MeetingControllerTest::it_can_delete_a_meeting(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\IdeaCircuit\MeetingControllerTest::it_prevents_unauthorized_access(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true                                                    0.01s  
+
+   PASS  Tests\Unit\Services\TrustScoringServiceTest
+  ✓ calculates default score for empty history                           0.28s  
+  ✓ calculates higher score for successful outcomes                      0.02s  
+  ✓ calculates lower score for failed outcomes                           0.01s  
+  ✓ updates trust score                                                  0.04s  
+  ✓ provides recommendations                                             0.04s  
+
+   PASS  Tests\Feature\Api\AiAgentApiTest
+  ✓ user can register ai agent                                           0.08s  
+  ✓ user can list agents                                                 0.01s  
+  ✓ user can delegate task to agent                                      0.04s  
+  ✓ user can generate claim code                                         0.02s  
+
+   PASS  Tests\Feature\Api\AuthApiTest
+  ✓ user can register                                                    0.02s  
+  ✓ user can login                                                       0.01s  
+  ✓ user can logout                                                      0.01s  
+  ✓ user can get current user                                            0.01s  
+  ✓ registration requires valid email                                    0.02s  
+  ✓ login fails with invalid credentials                                 0.01s  
+
+   PASS  Tests\Feature\Api\IoTDeviceApiTest
+  ✓ user can register iot device                                         0.01s  
+  ✓ user can list devices                                                0.01s  
+  ✓ user can view device                                                 0.01s  
+  ✓ user can generate claim code                                         0.01s  
+  ✓ user can update device capabilities                                  0.01s  
+
+   PASS  Tests\Feature\Api\TasksApiTest
+  ✓ user can list tasks                                                  0.02s  
+  ✓ user can create task                                                 0.02s  
+  ✓ user can view task                                                   0.01s  
+  ✓ user can update task                                                 0.01s  
+  ✓ user can delete task                                                 0.01s  
+  ✓ user can complete task                                               0.02s  
+  ✓ user can assign task                                                 0.01s  
+  ✓ user can export task as tef                                          0.01s  
+  ✓ user cannot access other users tasks                                 0.01s  
+
+   PASS  Tests\Feature\Api\TefApiTest
+  ✓ user can register actor                                              0.02s  
+  ✓ user can view actor                                                  0.01s  
+  ✓ user can create relationship                                         0.01s  
+  ✓ user can get trust score                                             0.01s  
+  ✓ user can recalculate trust score                                     0.01s  
+
+   FAIL  Tests\Feature\Coordinator\AppointmentTest
+  ⨯ can list appointments
+  ⨯ can create appointment
+  ⨯ can get appointment
+  ⨯ can update appointment
+  ⨯ can cancel appointment
+  ⨯ can delete appointment
+  ⨯ can get today appointments
+
+   FAIL  Tests\Feature\Coordinator\CampaignTest
+  ⨯ can list campaigns
+  ⨯ can create campaign
+  ⨯ can start campaign
+  ⨯ can pause campaign
+  ⨯ can get campaign stats
+
+   FAIL  Tests\Feature\Coordinator\ContactTest
+  ⨯ can list contacts
+  ⨯ can search contacts
+  ⨯ can create contact
+  ⨯ can get contact
+  ⨯ can update contact
+
+   FAIL  Tests\Feature\Coordinator\CoordinatorTest
+  ⨯ can list coordinators
+  ⨯ can create coordinator
+  ⨯ can get coordinator
+  ⨯ can update coordinator
+  ⨯ can delete coordinator
+
+   FAIL  Tests\Feature\Coordinator\DashboardTest
+  ⨯ can get dashboard metrics
+  ⨯ can get recent calls
+  ⨯ can get today appointments
+
+   FAIL  Tests\Feature\Coordinator\OrganizationTest
+  ⨯ can list organizations
+  ⨯ can create organization
+  ⨯ can get organization
+  ⨯ can update organization
+  ⨯ cannot access other user organization
+
+   PASS  Tests\Feature\DirectMessagesApiTest
+  ✓ can send direct message                                              0.01s  
+  ✓ can get conversations                                                0.01s  
+  ✓ can get unread count                                                 0.01s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response                        0.02s  
+
+   PASS  Tests\Feature\IdeaCircuit\MeetingControllerTest
+  ✓ it can list user meetings                                            0.01s  
+  ✓ it can create a meeting                                              0.01s  
+  ✓ it can show a meeting                                                0.01s  
+  ✓ it can update a meeting                                              0.01s  
+  ✓ it can delete a meeting                                              0.01s  
+  ✓ it prevents unauthorized access                                      0.01s  
+
+   PASS  Tests\Feature\TaskMessagesApiTest
+  ✓ can send task message                                                0.02s  
+  ✓ can get task messages                                                0.03s  
+  ✓ can get unread count                                                 0.01s  
+
+   PASS  Tests\Feature\TeamsApiTest
+  ✓ can create team                                                      0.01s  
+  ✓ can list teams                                                       0.01s  
+  ✓ can invite member                                                    0.01s  
+
+   PASS  Tests\Feature\TestResultsApiTest
+  ✓ user can get latest test results                                     0.01s  
+  ✓ user can list all test results                                       0.01s  
+  ✓ user can analyze test results                                        0.01s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\AppointmentTest > can list appoi…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/AppointmentTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\AppointmentTest > can create app…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/AppointmentTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\AppointmentTest > can get appoin…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/AppointmentTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\AppointmentTest > can update app…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/AppointmentTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\AppointmentTest > can cancel app…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/AppointmentTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\AppointmentTest > can delete app…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/AppointmentTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\AppointmentTest > can get today…   Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/AppointmentTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CampaignTest > can list campaign…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CampaignTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CampaignTest > can create campai…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CampaignTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CampaignTest > can start campaig…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CampaignTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CampaignTest > can pause campaig…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CampaignTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CampaignTest > can get campaign…   Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CampaignTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\ContactTest > can list contacts    Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/ContactTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\ContactTest > can search contact…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/ContactTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\ContactTest > can create contact   Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/ContactTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\ContactTest > can get contact      Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/ContactTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\ContactTest > can update contact   Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/ContactTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CoordinatorTest > can list coord…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CoordinatorTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CoordinatorTest > can create coo…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CoordinatorTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CoordinatorTest > can get coordi…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CoordinatorTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CoordinatorTest > can update coo…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CoordinatorTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\CoordinatorTest > can delete coo…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/CoordinatorTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\DashboardTest > can get dashboar…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/DashboardTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\DashboardTest > can get recent c…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/DashboardTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\DashboardTest > can get today ap…  Error   
+  Class "Database\Factories\Modules\Coordinator\Models\OrganizationFactory" not found
+
+  at vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:950
+    946▕     public static function factoryForModel(string $modelName)
+    947▕     {
+    948▕         $factory = static::resolveFactoryName($modelName);
+    949▕ 
+  ➜ 950▕         return $factory::new();
+    951▕     }
+    952▕ 
+    953▕     /**
+    954▕      * Specify the callback that should be invoked to guess factory names based on dynamic relationship names.
+
+      [2m+2 vendor frames [22m
+  3   tests/Feature/Coordinator/DashboardTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\OrganizationTest > can list…   TypeError   
+  Cannot assign null to property Tests\Feature\Coordinator\OrganizationTest::$token of type string
+
+  at tests/Feature/Coordinator/OrganizationTest.php:26
+     22▕         $response = $this->postJson('/api/auth/login', [
+     23▕             'email' => $this->user->email,
+     24▕             'password' => 'password',
+     25▕         ]);
+  ➜  26▕         $this->token = $response->json('token');
+     27▕     }
+     28▕ 
+     29▕     public function test_can_list_organizations(): void
+     30▕     {
+
+  1   tests/Feature/Coordinator/OrganizationTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\OrganizationTest > can creat…  TypeError   
+  Cannot assign null to property Tests\Feature\Coordinator\OrganizationTest::$token of type string
+
+  at tests/Feature/Coordinator/OrganizationTest.php:26
+     22▕         $response = $this->postJson('/api/auth/login', [
+     23▕             'email' => $this->user->email,
+     24▕             'password' => 'password',
+     25▕         ]);
+  ➜  26▕         $this->token = $response->json('token');
+     27▕     }
+     28▕ 
+     29▕     public function test_can_list_organizations(): void
+     30▕     {
+
+  1   tests/Feature/Coordinator/OrganizationTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\OrganizationTest > can get o…  TypeError   
+  Cannot assign null to property Tests\Feature\Coordinator\OrganizationTest::$token of type string
+
+  at tests/Feature/Coordinator/OrganizationTest.php:26
+     22▕         $response = $this->postJson('/api/auth/login', [
+     23▕             'email' => $this->user->email,
+     24▕             'password' => 'password',
+     25▕         ]);
+  ➜  26▕         $this->token = $response->json('token');
+     27▕     }
+     28▕ 
+     29▕     public function test_can_list_organizations(): void
+     30▕     {
+
+  1   tests/Feature/Coordinator/OrganizationTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\OrganizationTest > can updat…  TypeError   
+  Cannot assign null to property Tests\Feature\Coordinator\OrganizationTest::$token of type string
+
+  at tests/Feature/Coordinator/OrganizationTest.php:26
+     22▕         $response = $this->postJson('/api/auth/login', [
+     23▕             'email' => $this->user->email,
+     24▕             'password' => 'password',
+     25▕         ]);
+  ➜  26▕         $this->token = $response->json('token');
+     27▕     }
+     28▕ 
+     29▕     public function test_can_list_organizations(): void
+     30▕     {
+
+  1   tests/Feature/Coordinator/OrganizationTest.php:26
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Coordinator\OrganizationTest > cannot ac…  TypeError   
+  Cannot assign null to property Tests\Feature\Coordinator\OrganizationTest::$token of type string
+
+  at tests/Feature/Coordinator/OrganizationTest.php:26
+     22▕         $response = $this->postJson('/api/auth/login', [
+     23▕             'email' => $this->user->email,
+     24▕             'password' => 'password',
+     25▕         ]);
+  ➜  26▕         $this->token = $response->json('token');
+     27▕     }
+     28▕ 
+     29▕     public function test_can_list_organizations(): void
+     30▕     {
+
+  1   tests/Feature/Coordinator/OrganizationTest.php:26
+
+
+  Tests:    30 failed, 54 passed (152 assertions)
+  Duration: 1.48s
+

@@ -13,7 +13,9 @@ from infrastructure import (
     messaging,
     dns,
     security,
-    scanner
+    scanner,
+    codebuild,
+    codepipeline
 )
 
 # Get configuration
@@ -52,6 +54,30 @@ scanner_stack = scanner.create_scanner_infrastructure(
     database_stack
 )
 
+# CodeBuild for CI/CD
+codebuild_stack = codebuild.create_codebuild(
+    project_name,
+    environment,
+    compute_stack["ecr_repo"]
+)
+
+# CodePipeline for automated deployments
+# Get GitHub connection ARN from config (set up manually in AWS Console)
+config = pulumi.Config()
+github_connection_arn = config.get("github_connection_arn")  # e.g., "arn:aws:codestar-connections:us-east-1:ACCOUNT:connection/CONNECTION_ID"
+
+codepipeline_stack = codepipeline.create_codepipeline(
+    project_name,
+    environment,
+    codebuild_stack["build_project"],
+    compute_stack["cluster"],
+    compute_stack["api_service"],
+    github_connection_arn=github_connection_arn,
+    github_owner="shinejohn",
+    github_repo="taskjuggler",
+    github_branch="main",
+)
+
 # Update compute stack with DNS info for HTTPS listener
 # Note: This requires a second pass or manual HTTPS listener creation after cert validation
 
@@ -68,3 +94,7 @@ pulumi.export("scanner_repo_url", scanner_stack["scanner_repo_url"])
 pulumi.export("mcp_server_url", compute_stack["load_balancer_dns"].apply(lambda dns: f"http://{dns}/mcp"))
 pulumi.export("mcp_repo_url", scanner_stack["mcp_repo_url"])
 pulumi.export("mcp_health_url", compute_stack["load_balancer_dns"].apply(lambda dns: f"http://{dns}/mcp/health"))
+# CI/CD outputs
+pulumi.export("codebuild_project_name", codebuild_stack["build_project_name"])
+pulumi.export("pipeline_name", codepipeline_stack["pipeline_name"])
+pulumi.export("pipeline_url", codepipeline_stack["pipeline_url"])
