@@ -45,34 +45,6 @@ def create_frontend_deployment(
             signing_protocol="sigv4",
         )
         
-        # S3 bucket policy for CloudFront OAC access (not public)
-        bucket_policy = aws.s3.BucketPolicy(
-            f"{project_name}-{environment}-{frontend_name}-policy",
-            bucket=bucket.id,
-            policy=pulumi.Output.all(
-                bucket_arn=bucket.arn,
-                oac_arn=oac.arn
-            ).apply(lambda args: json.dumps({
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Sid": "AllowCloudFrontServicePrincipal",
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": "cloudfront.amazonaws.com"
-                        },
-                        "Action": "s3:GetObject",
-                        "Resource": f"{args['bucket_arn']}/*",
-                        "Condition": {
-                            "StringEquals": {
-                                "AWS:SourceArn": args["oac_arn"]
-                            }
-                        }
-                    }
-                ]
-            })),
-        )
-        
         # CloudFront distribution with OAC
         distribution = aws.cloudfront.Distribution(
             f"{project_name}-{environment}-{frontend_name}-cdn",
@@ -127,6 +99,35 @@ def create_frontend_deployment(
                 "Environment": environment,
                 "Frontend": frontend_name,
             }
+        )
+        
+        # S3 bucket policy for CloudFront OAC access (set after distribution for ARN)
+        bucket_policy = aws.s3.BucketPolicy(
+            f"{project_name}-{environment}-{frontend_name}-policy",
+            bucket=bucket.id,
+            policy=pulumi.Output.all(
+                bucket_arn=bucket.arn,
+                distribution_arn=distribution.arn
+            ).apply(lambda args: json.dumps({
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "AllowCloudFrontServicePrincipal",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "cloudfront.amazonaws.com"
+                        },
+                        "Action": "s3:GetObject",
+                        "Resource": f"{args['bucket_arn']}/*",
+                        "Condition": {
+                            "StringEquals": {
+                                "AWS:SourceArn": args["distribution_arn"]
+                            }
+                        }
+                    }
+                ]
+            })),
+            opts=pulumi.ResourceOptions(depends_on=[distribution, oac]),
         )
         
         frontends[frontend_name] = {
