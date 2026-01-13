@@ -64,6 +64,7 @@ frontend_projects = [
     "urpa-web",
     "projects-web",
     "process-web",
+    "ideacircuit-web",
 ]
 
 # Frontend deployment infrastructure (S3 + CloudFront)
