@@ -172,18 +172,12 @@ def create_codepipeline(
             }),
         )
     
-    # Get GitHub token from config if no connection ARN
-    github_token = None
-    if not github_connection_arn:
-        github_token = config.get_secret("github_token")
-    
     # Source configuration - use CodeStar Connection if provided, otherwise GitHub OAuth
-    source_action_config = {}
-    
+    # Ensure all config values are strings, not Outputs, to avoid serialization issues
     if github_connection_arn:
         # Use CodeStar Connection (preferred)
         source_action_config = {
-            "ConnectionArn": github_connection_arn,
+            "ConnectionArn": str(github_connection_arn),  # Ensure it's a string
             "FullRepositoryId": f"{github_owner}/{github_repo}",
             "BranchName": github_branch,
             "OutputArtifactFormat": "CODE_ZIP",
@@ -194,13 +188,17 @@ def create_codepipeline(
         # Fallback to GitHub OAuth (requires token in config)
         github_token = config.get_secret("github_token")
         if github_token:
-            source_action_config = {
+            # If github_token is an Output, we need to handle it differently
+            # For now, assume it's provided as a string in config
+            source_action_config = pulumi.Output.all(
+                token=github_token
+            ).apply(lambda args: {
                 "Owner": github_owner,
                 "Repo": github_repo,
                 "Branch": github_branch,
-                "OAuthToken": github_token,
+                "OAuthToken": args["token"],
                 "PollForSourceChanges": "false",
-            }
+            })
             source_provider = "GitHub"
             source_owner = "ThirdParty"
         else:
@@ -284,47 +282,87 @@ def create_codepipeline(
             )
     
     # CodePipeline stages
-    stages = [
-        # Source stage - GitHub
-        aws.codepipeline.PipelineStageArgs(
-            name="Source",
-            actions=[aws.codepipeline.PipelineStageActionArgs(
+    # Handle case where source_action_config might be an Output (when using GitHub OAuth)
+    if isinstance(source_action_config, dict):
+        # Plain dict - use directly
+        source_action_config_final = source_action_config
+        stages = [
+            # Source stage - GitHub
+            aws.codepipeline.PipelineStageArgs(
                 name="Source",
-                category="Source",
-                owner=source_owner,
-                provider=source_provider,
-                version="1",
-                output_artifacts=["source_output"],
-                configuration=source_action_config,
+                actions=[aws.codepipeline.PipelineStageActionArgs(
+                    name="Source",
+                    category="Source",
+                    owner=source_owner,
+                    provider=source_provider,
+                    version="1",
+                    output_artifacts=["source_output"],
+                    configuration=source_action_config_final,
+                )],
+            ),
+            # Build stage - API + Frontends in parallel
+            aws.codepipeline.PipelineStageArgs(
+                name="Build",
+                actions=build_actions,
+            ),
+            # Deploy stage - ECS + CloudFront invalidations
+            aws.codepipeline.PipelineStageArgs(
+                name="Deploy",
+                actions=deploy_actions,
+            ),
+        ]
+        # CodePipeline
+        pipeline = aws.codepipeline.Pipeline(
+            f"{project_name}-{environment}-pipeline",
+            name=f"{project_name}-{environment}-pipeline",
+            role_arn=pipeline_role.arn,
+            artifact_stores=[aws.codepipeline.PipelineArtifactStoreArgs(
+                location=artifact_bucket.bucket,
+                type="S3",
             )],
-        ),
-        # Build stage - API + Frontends in parallel
-        aws.codepipeline.PipelineStageArgs(
-            name="Build",
-            actions=build_actions,
-        ),
-        # Deploy stage - ECS + CloudFront invalidations
-        aws.codepipeline.PipelineStageArgs(
-            name="Deploy",
-            actions=deploy_actions,
-        ),
-    ]
-    
-    # CodePipeline
-    pipeline = aws.codepipeline.Pipeline(
-        f"{project_name}-{environment}-pipeline",
-        name=f"{project_name}-{environment}-pipeline",
-        role_arn=pipeline_role.arn,
-        artifact_stores=[aws.codepipeline.PipelineArtifactStoreArgs(
-            location=artifact_bucket.bucket,
-            type="S3",
-        )],
-        stages=stages,
-        tags={
-            "Project": project_name,
-            "Environment": environment,
-        }
-    )
+            stages=stages,
+            tags={
+                "Project": project_name,
+                "Environment": environment,
+            }
+        )
+    else:
+        # Output - need to create pipeline inside apply
+        pipeline = source_action_config.apply(lambda config: aws.codepipeline.Pipeline(
+            f"{project_name}-{environment}-pipeline",
+            name=f"{project_name}-{environment}-pipeline",
+            role_arn=pipeline_role.arn,
+            artifact_stores=[aws.codepipeline.PipelineArtifactStoreArgs(
+                location=artifact_bucket.bucket,
+                type="S3",
+            )],
+            stages=[
+                aws.codepipeline.PipelineStageArgs(
+                    name="Source",
+                    actions=[aws.codepipeline.PipelineStageActionArgs(
+                        name="Source",
+                        category="Source",
+                        owner=source_owner,
+                        provider=source_provider,
+                        version="1",
+                        output_artifacts=["source_output"],
+                        configuration=config,
+                    )],
+                ),
+                aws.codepipeline.PipelineStageArgs(
+                    name="Build",
+                    actions=build_actions,
+                ),
+                aws.codepipeline.PipelineStageArgs(
+                    name="Deploy",
+                    actions=deploy_actions,
+                ),
+            ],
+            tags={
+                "Project": project_name,
+                "Environment": environment,
+            }
+        ))
     
     return {
         "pipeline": pipeline,

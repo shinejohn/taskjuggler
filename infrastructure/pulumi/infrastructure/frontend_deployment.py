@@ -4,6 +4,7 @@ S3 buckets and CloudFront distributions for frontend projects
 """
 import pulumi
 import pulumi_aws as aws
+import json
 
 
 def create_frontend_deployment(
@@ -34,33 +35,51 @@ def create_frontend_deployment(
             }
         )
         
-        # Public read access for website hosting
+        # CloudFront Origin Access Control (OAC) - preferred over OAI
+        oac = aws.cloudfront.OriginAccessControl(
+            f"{project_name}-{environment}-{frontend_name}-oac",
+            name=f"{project_name}-{environment}-{frontend_name}-oac",
+            description=f"OAC for {frontend_name}",
+            origin_access_control_origin_type="s3",
+            signing_behavior="always",
+            signing_protocol="sigv4",
+        )
+        
+        # S3 bucket policy for CloudFront OAC access (not public)
         bucket_policy = aws.s3.BucketPolicy(
             f"{project_name}-{environment}-{frontend_name}-policy",
             bucket=bucket.id,
-            policy=bucket.id.apply(lambda bucket_id: f'''{{
+            policy=pulumi.Output.all(
+                bucket_arn=bucket.arn,
+                oac_arn=oac.arn
+            ).apply(lambda args: json.dumps({
                 "Version": "2012-10-17",
                 "Statement": [
-                    {{
-                        "Sid": "PublicReadGetObject",
+                    {
+                        "Sid": "AllowCloudFrontServicePrincipal",
                         "Effect": "Allow",
-                        "Principal": "*",
+                        "Principal": {
+                            "Service": "cloudfront.amazonaws.com"
+                        },
                         "Action": "s3:GetObject",
-                        "Resource": "arn:aws:s3:::{bucket_id}/*"
-                    }}
+                        "Resource": f"{args['bucket_arn']}/*",
+                        "Condition": {
+                            "StringEquals": {
+                                "AWS:SourceArn": args["oac_arn"]
+                            }
+                        }
+                    }
                 ]
-            }}'''),
+            })),
         )
         
-        # CloudFront distribution
+        # CloudFront distribution with OAC
         distribution = aws.cloudfront.Distribution(
             f"{project_name}-{environment}-{frontend_name}-cdn",
             origins=[aws.cloudfront.DistributionOriginArgs(
                 domain_name=bucket.bucket_regional_domain_name,
                 origin_id=f"{frontend_name}-origin",
-                s3_origin_config=aws.cloudfront.DistributionOriginS3OriginConfigArgs(
-                    origin_access_identity="",  # Using bucket policy instead
-                ),
+                origin_access_control_id=oac.id,
             )],
             enabled=True,
             default_root_object="index.html",
