@@ -209,6 +209,7 @@ def create_codepipeline(
             )
     
     # Build actions - API + all frontends in parallel
+    # Note: CodeBuild project names are strings, not Outputs, so they're safe to use directly
     build_actions = [
         # API build
         aws.codepipeline.PipelineStageActionArgs(
@@ -244,6 +245,7 @@ def create_codepipeline(
             )
     
     # Deploy actions - ECS for API, CloudFront invalidation for frontends
+    # ECS cluster and service names are strings, not Outputs, so safe to use directly
     deploy_actions = [
         # API deployment to ECS
         aws.codepipeline.PipelineStageActionArgs(
@@ -272,10 +274,12 @@ def create_codepipeline(
                     provider="CloudFront",
                     version="1",
                     input_artifacts=[f"{frontend_name}_build_output"],
-                    configuration={
-                        "DistributionId": frontend_deploy["distribution"].id,
+                    configuration=pulumi.Output.all(
+                        distribution_id=frontend_deploy["distribution"].id
+                    ).apply(lambda args: {
+                        "DistributionId": args["distribution_id"],
                         "ObjectPaths": ["/*"],
-                    },
+                    }),
                 )
             )
     
