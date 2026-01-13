@@ -7,6 +7,77 @@ import pulumi_aws as aws
 import json
 
 
+def _create_pipeline_with_resolved_ids(
+    project_name: str,
+    environment: str,
+    pipeline_role: aws.iam.Role,
+    artifact_bucket: aws.s3.Bucket,
+    source_owner: str,
+    source_provider: str,
+    source_action_config: dict,
+    build_actions: list,
+    deploy_actions_base: list,
+    frontend_deployments: dict,
+    distribution_ids: dict,
+):
+    """Helper function to create pipeline with resolved distribution IDs"""
+    # Rebuild deploy actions with resolved distribution IDs (now plain strings)
+    deploy_actions = list(deploy_actions_base)  # Copy base actions
+    for frontend_name, dist_id in distribution_ids.items():
+        deploy_actions.append(
+            aws.codepipeline.PipelineStageActionArgs(
+                name=f"Invalidate-{frontend_name.replace('-', '_').title()}",
+                category="Deploy",
+                owner="AWS",
+                provider="CloudFront",
+                version="1",
+                input_artifacts=[f"{frontend_name}_build_output"],
+                configuration={
+                    "DistributionId": dist_id,  # Now a resolved string, not Output
+                    "ObjectPaths": ["/*"],
+                },
+            )
+        )
+    
+    stages = [
+        aws.codepipeline.PipelineStageArgs(
+            name="Source",
+            actions=[aws.codepipeline.PipelineStageActionArgs(
+                name="Source",
+                category="Source",
+                owner=source_owner,
+                provider=source_provider,
+                version="1",
+                output_artifacts=["source_output"],
+                configuration=source_action_config,
+            )],
+        ),
+        aws.codepipeline.PipelineStageArgs(
+            name="Build",
+            actions=build_actions,
+        ),
+        aws.codepipeline.PipelineStageArgs(
+            name="Deploy",
+            actions=deploy_actions,
+        ),
+    ]
+    
+    return aws.codepipeline.Pipeline(
+        f"{project_name}-{environment}-pipeline",
+        name=f"{project_name}-{environment}-pipeline",
+        role_arn=pipeline_role.arn,
+        artifact_stores=[aws.codepipeline.PipelineArtifactStoreArgs(
+            location=artifact_bucket.bucket,
+            type="S3",
+        )],
+        stages=stages,
+        tags={
+            "Project": project_name,
+            "Environment": environment,
+        }
+    )
+
+
 def create_codepipeline(
     project_name: str,
     environment: str,
@@ -173,11 +244,15 @@ def create_codepipeline(
         )
     
     # Source configuration - use CodeStar Connection if provided, otherwise GitHub OAuth
-    # Ensure all config values are strings, not Outputs, to avoid serialization issues
+    # For now, we'll require github_connection_arn to avoid Output serialization issues
+    if not github_connection_arn:
+        # Try to get from config
+        github_connection_arn = config.get("github_connection_arn")
+    
     if github_connection_arn:
-        # Use CodeStar Connection (preferred)
+        # Use CodeStar Connection (preferred) - all values are plain strings
         source_action_config = {
-            "ConnectionArn": str(github_connection_arn),  # Ensure it's a string
+            "ConnectionArn": str(github_connection_arn),
             "FullRepositoryId": f"{github_owner}/{github_repo}",
             "BranchName": github_branch,
             "OutputArtifactFormat": "CODE_ZIP",
@@ -185,26 +260,11 @@ def create_codepipeline(
         source_provider = "CodeStarSourceConnection"
         source_owner = "AWS"
     else:
-        # Fallback to GitHub OAuth (requires token in config)
-        github_token = config.get_secret("github_token")
-        if github_token:
-            # If github_token is an Output, we need to handle it differently
-            # For now, assume it's provided as a string in config
-            source_action_config = pulumi.Output.all(
-                token=github_token
-            ).apply(lambda args: {
-                "Owner": github_owner,
-                "Repo": github_repo,
-                "Branch": github_branch,
-                "OAuthToken": args["token"],
-                "PollForSourceChanges": "false",
-            })
-            source_provider = "GitHub"
-            source_owner = "ThirdParty"
-        else:
-            raise Exception(
-                "Either github_connection_arn or github_token config must be provided"
-            )
+        # Fallback to GitHub OAuth - but this creates Output issues
+        # Better to set up CodeStar Connection
+        raise Exception(
+            "github_connection_arn must be provided. Set it with: pulumi config set github_connection_arn <arn>"
+        )
     
     # Build actions - API + all frontends in parallel
     # Note: CodeBuild project names are strings, not Outputs, so they're safe to use directly
@@ -261,33 +321,35 @@ def create_codepipeline(
         ),
     ]
     
-    # Add CloudFront invalidations for frontends
+    # Collect all distribution IDs as Outputs for CloudFront invalidations
+    # We need to resolve all Outputs before creating the pipeline stages
     if frontend_deployments:
-        for frontend_name, frontend_deploy in frontend_deployments.items():
-            deploy_actions.append(
-                aws.codepipeline.PipelineStageActionArgs(
-                    name=f"Invalidate-{frontend_name.replace('-', '_').title()}",
-                    category="Deploy",
-                    owner="AWS",
-                    provider="CloudFront",
-                    version="1",
-                    input_artifacts=[f"{frontend_name}_build_output"],
-                    configuration=pulumi.Output.all(
-                        distribution_id=frontend_deploy["distribution"].id
-                    ).apply(lambda args: {
-                        "DistributionId": args["distribution_id"],
-                        "ObjectPaths": ["/*"],
-                    }),
-                )
-            )
-    
-    # CodePipeline stages
-    # Handle case where source_action_config might be an Output (when using GitHub OAuth)
-    if isinstance(source_action_config, dict):
-        # Plain dict - use directly
-        source_action_config_final = source_action_config
+        # Collect all distribution ID Outputs
+        dist_id_outputs = {
+            frontend_name: frontend_deploy["distribution"].id
+            for frontend_name, frontend_deploy in frontend_deployments.items()
+        }
+        
+        # Resolve all distribution IDs, then create pipeline with resolved values
+        all_dist_ids = pulumi.Output.all(**dist_id_outputs)
+        
+        # Create pipeline inside apply with resolved distribution IDs
+        pipeline = all_dist_ids.apply(lambda dist_ids: _create_pipeline_with_resolved_ids(
+            project_name=project_name,
+            environment=environment,
+            pipeline_role=pipeline_role,
+            artifact_bucket=artifact_bucket,
+            source_owner=source_owner,
+            source_provider=source_provider,
+            source_action_config=source_action_config,
+            build_actions=build_actions,
+            deploy_actions_base=deploy_actions,
+            frontend_deployments=frontend_deployments,
+            distribution_ids=dist_ids,
+        ))
+    else:
+        # No frontend deployments - create pipeline directly
         stages = [
-            # Source stage - GitHub
             aws.codepipeline.PipelineStageArgs(
                 name="Source",
                 actions=[aws.codepipeline.PipelineStageActionArgs(
@@ -297,21 +359,18 @@ def create_codepipeline(
                     provider=source_provider,
                     version="1",
                     output_artifacts=["source_output"],
-                    configuration=source_action_config_final,
+                    configuration=source_action_config,
                 )],
             ),
-            # Build stage - API + Frontends in parallel
             aws.codepipeline.PipelineStageArgs(
                 name="Build",
                 actions=build_actions,
             ),
-            # Deploy stage - ECS + CloudFront invalidations
             aws.codepipeline.PipelineStageArgs(
                 name="Deploy",
                 actions=deploy_actions,
             ),
         ]
-        # CodePipeline
         pipeline = aws.codepipeline.Pipeline(
             f"{project_name}-{environment}-pipeline",
             name=f"{project_name}-{environment}-pipeline",
@@ -326,43 +385,6 @@ def create_codepipeline(
                 "Environment": environment,
             }
         )
-    else:
-        # Output - need to create pipeline inside apply
-        pipeline = source_action_config.apply(lambda config: aws.codepipeline.Pipeline(
-            f"{project_name}-{environment}-pipeline",
-            name=f"{project_name}-{environment}-pipeline",
-            role_arn=pipeline_role.arn,
-            artifact_stores=[aws.codepipeline.PipelineArtifactStoreArgs(
-                location=artifact_bucket.bucket,
-                type="S3",
-            )],
-            stages=[
-                aws.codepipeline.PipelineStageArgs(
-                    name="Source",
-                    actions=[aws.codepipeline.PipelineStageActionArgs(
-                        name="Source",
-                        category="Source",
-                        owner=source_owner,
-                        provider=source_provider,
-                        version="1",
-                        output_artifacts=["source_output"],
-                        configuration=config,
-                    )],
-                ),
-                aws.codepipeline.PipelineStageArgs(
-                    name="Build",
-                    actions=build_actions,
-                ),
-                aws.codepipeline.PipelineStageArgs(
-                    name="Deploy",
-                    actions=deploy_actions,
-                ),
-            ],
-            tags={
-                "Project": project_name,
-                "Environment": environment,
-            }
-        ))
     
     return {
         "pipeline": pipeline,
