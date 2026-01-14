@@ -45,7 +45,7 @@
           v-if="!issue.fix_code"
           variant="outline"
           size="sm"
-          :disabled="generatingFix"
+          :disabled="generatingFix || !subscriptionStore.canUseFeature('aiFixGeneration')"
           @click="handleGenerateFix"
         >
           {{ generatingFix ? 'Generating...' : 'Generate Fix' }}
@@ -58,6 +58,24 @@
         >
           Copy Fix
         </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          @click="showCreateTaskModal = true"
+          class="create-task-button"
+        >
+          <ClipboardListIcon class="icon" />
+          Create Task
+        </Button>
+        <a
+          v-if="issue.task_id"
+          :href="`/tasks/${issue.task_id}`"
+          class="task-link"
+          target="_blank"
+        >
+          <ExternalLinkIcon class="icon" />
+          View Task
+        </a>
         <Button
           variant="ghost"
           size="sm"
@@ -83,6 +101,25 @@
     </div>
     </CardContent>
   </Card>
+  
+  <!-- Task Creation Modal -->
+  <CreateTaskModal
+    :is-open="showCreateTaskModal"
+    :issue="issue"
+    @close="showCreateTaskModal = false"
+    @created="handleTaskCreated"
+  />
+  
+  <!-- Upgrade prompt if needed -->
+  <div v-if="showUpgradePrompt" class="upgrade-prompt-wrapper">
+    <UpgradePrompt
+      :message="subscriptionStore.getUpgradeMessage('aiFixGeneration')"
+      feature="aiFixGeneration"
+    />
+    <Button variant="ghost" size="sm" @click="showUpgradePrompt = false" class="upgrade-prompt-close">
+      Close
+    </Button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -90,6 +127,11 @@ import { ref, computed } from 'vue'
 import { Card, CardContent, Button, Badge } from '@taskjuggler/ui'
 import type { Issue } from '@/types'
 import { useIssuesStore } from '@/stores/issues'
+import { useTasksStore } from '@/stores/tasks'
+import { useSubscriptionStore } from '@/stores/subscription'
+import CreateTaskModal from './CreateTaskModal.vue'
+import UpgradePrompt from '@/components/common/UpgradePrompt.vue'
+import { ClipboardListIcon, ExternalLinkIcon } from 'lucide-vue-next'
 
 interface Props {
   issue: Issue
@@ -103,8 +145,12 @@ const emit = defineEmits<{
 }>()
 
 const issuesStore = useIssuesStore()
+const tasksStore = useTasksStore()
+const subscriptionStore = useSubscriptionStore()
 const expanded = ref(false)
 const generatingFix = ref(false)
+const showCreateTaskModal = ref(false)
+const showUpgradePrompt = ref(false)
 
 const severityVariant = computed((): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (props.issue.severity) {
@@ -116,6 +162,10 @@ const severityVariant = computed((): 'default' | 'secondary' | 'destructive' | '
 })
 
 const handleGenerateFix = async () => {
+  if (!subscriptionStore.canUseFeature('aiFixGeneration')) {
+    showUpgradePrompt.value = true
+    return
+  }
   generatingFix.value = true
   try {
     await issuesStore.generateFix(props.issue.id)
@@ -125,6 +175,19 @@ const handleGenerateFix = async () => {
   } finally {
     generatingFix.value = false
   }
+}
+
+async function handleTaskCreated(task: any) {
+  showCreateTaskModal.value = false
+  // Update the issue with the task_id
+  // Note: The backend should link the task to the issue, but we update locally for immediate UI feedback
+  const updatedIssue = { ...props.issue, task_id: task.id }
+  // Update in store
+  const index = issuesStore.issues.findIndex(i => i.id === props.issue.id)
+  if (index !== -1) {
+    issuesStore.issues[index] = updatedIssue
+  }
+  emit('update', updatedIssue)
 }
 
 const handleCopyFix = () => {
@@ -270,5 +333,52 @@ const handleMarkFixed = async () => {
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.task-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: var(--font-body-small);
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s;
+}
+
+.task-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.task-link:hover {
+  background-color: var(--color-bg-secondary);
+  text-decoration: none;
+}
+
+.create-task-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.upgrade-prompt-wrapper {
+  position: relative;
+  margin-top: var(--space-4);
+}
+
+.upgrade-prompt-close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
 }
 </style>

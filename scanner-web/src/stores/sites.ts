@@ -2,8 +2,13 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { sitesApi } from '@/api/sites';
 import type { Site, CreateSiteRequest, UpdateSiteRequest } from '@/types';
+import { useAuthStore } from '@/stores/auth';
+import { useSubscriptionStore } from '@/stores/subscription';
 
 export const useSitesStore = defineStore('sites', () => {
+  const authStore = useAuthStore();
+  const subscriptionStore = useSubscriptionStore();
+  
   const sites = ref<Site[]>([]);
   const currentSite = ref<Site | null>(null);
   const loading = ref(false);
@@ -12,6 +17,16 @@ export const useSitesStore = defineStore('sites', () => {
   const sitesNeedingAttention = computed(() => 
     sites.value.filter((site: Site) => (site.health_score || 0) < 70)
   );
+
+  const sitesRemaining = computed(() => {
+    const limit = subscriptionStore.limits.sites;
+    return Math.max(0, limit - sites.value.length);
+  });
+
+  const canAddSite = computed(() => {
+    const limit = subscriptionStore.limits.sites;
+    return sites.value.length < limit;
+  });
 
   async function fetchSites() {
     loading.value = true;
@@ -47,10 +62,24 @@ export const useSitesStore = defineStore('sites', () => {
   }
 
   async function createSite(data: CreateSiteRequest) {
+    if (!canAddSite.value) {
+      const limit = subscriptionStore.limits.sites;
+      throw new Error(`Site limit reached (${limit} sites). Upgrade to add more sites.`);
+    }
+    
     loading.value = true;
     error.value = null;
     try {
-      const response = await sitesApi.create(data);
+      // Include team_id if currentTeam exists (API will also use X-Team-ID header)
+      const requestData: CreateSiteRequest & { team_id?: number } = {
+        ...data,
+      };
+      
+      if (authStore.currentTeam?.id) {
+        requestData.team_id = authStore.currentTeam.id;
+      }
+      
+      const response = await sitesApi.create(requestData);
       sites.value.push(response.data.data);
       return response.data.data;
     } catch (err: any) {
@@ -105,6 +134,8 @@ export const useSitesStore = defineStore('sites', () => {
     loading,
     error,
     sitesNeedingAttention,
+    sitesRemaining,
+    canAddSite,
     fetchSites,
     fetchSite,
     createSite,

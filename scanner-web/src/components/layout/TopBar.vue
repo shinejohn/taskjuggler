@@ -5,7 +5,7 @@
         <h1 class="top-bar-title">{{ pageTitle }}</h1>
       </div>
       <div class="top-bar-right">
-        <Avatar
+        <AvatarWrapper
           v-if="authStore.user"
           :name="authStore.user.name"
           size="md"
@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import Avatar from '@/components/ui/Avatar.vue'
+import AvatarWrapper from '@/components/ui/AvatarWrapper.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()

@@ -2,7 +2,8 @@ import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
 const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://api.taskjuggler.com',
+  withCredentials: true, // CRITICAL for Laravel Sanctum
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -11,9 +12,16 @@ const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore();
+  
   if (authStore.token) {
     config.headers.Authorization = `Bearer ${authStore.token}`;
   }
+  
+  // CRITICAL: Add team context
+  if (authStore.currentTeam) {
+    config.headers['X-Team-ID'] = authStore.currentTeam.id.toString();
+  }
+  
   return config;
 });
 
@@ -36,6 +44,8 @@ api.interceptors.response.use(
       const authStore = useAuthStore();
       authStore.logout();
       window.location.href = '/login';
+    } else if (error.response?.status === 403) {
+      window.location.href = '/upgrade';
     } else {
       const message = (error.response?.data as any)?.message || 
                      (error.response?.data as any)?.error || 

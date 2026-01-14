@@ -5,7 +5,15 @@
     size="lg"
     @close="handleClose"
   >
-    <form @submit.prevent="handleSubmit" class="add-site-form">
+    <!-- Upgrade prompt if at limit -->
+    <UpgradePrompt
+      v-if="!sitesStore.canAddSite"
+      :message="`You've reached your site limit of ${subscriptionStore.limits.sites} sites. Upgrade to add more.`"
+      feature="sites"
+      class="mb-4"
+    />
+    
+    <form @submit.prevent="handleSubmit" :disabled="!sitesStore.canAddSite" class="add-site-form">
       <div>
         <Label for="site-name">Site Name</Label>
         <Input
@@ -46,15 +54,15 @@
             <Label for="auth-username">Username</Label>
             <Input
               id="auth-username"
-              v-model="form.auth_config.username"
+              v-model="basicAuth.username"
             />
           </div>
           <div>
             <Label for="auth-password">Password</Label>
             <Input
               id="auth-password"
-              v-model="form.auth_config.password"
               type="password"
+              v-model="basicAuth.password"
             />
           </div>
         </div>
@@ -64,14 +72,14 @@
             <Label for="cookie-name">Cookie Name</Label>
             <Input
               id="cookie-name"
-              v-model="form.auth_config.cookie_name"
+              v-model="cookieAuth.cookie_name"
             />
           </div>
           <div>
             <Label for="cookie-value">Cookie Value</Label>
             <Input
               id="cookie-value"
-              v-model="form.auth_config.cookie_value"
+              v-model="cookieAuth.cookie_value"
             />
           </div>
         </div>
@@ -81,14 +89,14 @@
             <Label for="header-name">Header Name</Label>
             <Input
               id="header-name"
-              v-model="form.auth_config.header_name"
+              v-model="headerAuth.header_name"
             />
           </div>
           <div>
             <Label for="header-value">Header Value</Label>
             <Input
               id="header-value"
-              v-model="form.auth_config.header_value"
+              v-model="headerAuth.header_value"
             />
           </div>
         </div>
@@ -109,12 +117,17 @@
           </p>
         </div>
       </div>
-
-      <template #footer>
-        <Button variant="ghost" @click="handleClose">Cancel</Button>
-        <Button type="submit" :disabled="loading">Add Site</Button>
-      </template>
     </form>
+    <template #footer>
+      <Button variant="ghost" @click="handleClose">Cancel</Button>
+      <Button 
+        @click="handleSubmit" 
+        :disabled="loading || !sitesStore.canAddSite"
+        :loading="loading"
+      >
+        Add Site
+      </Button>
+    </template>
   </Modal>
 </template>
 
@@ -124,6 +137,8 @@ import Modal from '@/components/ui/Modal.vue'
 import { Input, Label, Button } from '@taskjuggler/ui'
 import type { CreateSiteRequest, AuthType } from '@/types'
 import { useSitesStore } from '@/stores/sites'
+import { useSubscriptionStore } from '@/stores/subscription'
+import UpgradePrompt from '@/components/common/UpgradePrompt.vue'
 
 interface Props {
   isOpen: boolean
@@ -137,16 +152,45 @@ const emit = defineEmits<{
 }>()
 
 const sitesStore = useSitesStore()
+const subscriptionStore = useSubscriptionStore()
 const loading = ref(false)
 const errors = reactive<Record<string, string>>({})
 
-const form = reactive<CreateSiteRequest & { auth_config: any }>({
+// Separate reactive refs for each auth type to avoid Vue compiler issues
+const basicAuth = reactive({ username: '', password: '' })
+const cookieAuth = reactive({ cookie_name: '', cookie_value: '' })
+const headerAuth = reactive({ header_name: '', header_value: '' })
+
+const form = reactive<Omit<CreateSiteRequest, 'auth_config'>>({
   name: '',
   url: '',
   auth_type: 'none',
-  auth_config: {},
   max_pages: undefined,
 })
+
+// Helper function to build auth_config - avoids Vue compiler issues with computed
+const buildAuthConfig = () => {
+  if (form.auth_type === 'basic') {
+    return {
+      type: 'basic' as const,
+      username: basicAuth.username,
+      password: basicAuth.password,
+    }
+  } else if (form.auth_type === 'cookie') {
+    return {
+      type: 'cookie' as const,
+      cookie_name: cookieAuth.cookie_name,
+      cookie_value: cookieAuth.cookie_value,
+    }
+  } else if (form.auth_type === 'header') {
+    return {
+      type: 'header' as const,
+      header_name: headerAuth.header_name,
+      header_value: headerAuth.header_value,
+    }
+  }
+  return undefined
+}
 
 const handleClose = () => {
   emit('close')
@@ -154,12 +198,21 @@ const handleClose = () => {
   form.name = ''
   form.url = ''
   form.auth_type = 'none'
-  form.auth_config = {}
   form.max_pages = undefined
+  basicAuth.username = ''
+  basicAuth.password = ''
+  cookieAuth.cookie_name = ''
+  cookieAuth.cookie_value = ''
+  headerAuth.header_name = ''
+  headerAuth.header_value = ''
   Object.keys(errors).forEach(key => delete errors[key])
 }
 
 const handleSubmit = async () => {
+  if (!sitesStore.canAddSite) {
+    return
+  }
+  
   Object.keys(errors).forEach(key => delete errors[key])
   
   if (!form.name.trim()) {
@@ -186,7 +239,7 @@ const handleSubmit = async () => {
       name: form.name,
       url: form.url,
       auth_type: form.auth_type as AuthType,
-      auth_config: form.auth_type !== 'none' ? form.auth_config : undefined,
+      auth_config: buildAuthConfig(),
       max_pages: form.max_pages,
     })
     emit('created', site)

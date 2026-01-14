@@ -14,6 +14,7 @@ export interface Site {
   auth_config?: AuthConfig
   max_pages?: number
   checks?: string[]
+  team_id?: number
   created_at: string
   updated_at: string
   last_scan_at?: string
@@ -34,6 +35,7 @@ export interface AuthConfig {
 export interface Scan {
   id: number
   site_id: number
+  team_id?: number
   status: ScanStatus
   started_at: string
   completed_at?: string
@@ -62,6 +64,8 @@ export interface Issue {
   id: number
   scan_id: number
   site_id: number
+  team_id?: number
+  task_id?: number
   category: IssueCategory
   severity: IssueSeverity
   status: IssueStatus
@@ -147,9 +151,29 @@ export interface GenerateFixResponse {
   confidence: number
 }
 
+export interface Team {
+  id: number
+  name: string
+  slug: string
+  pivot?: { role: 'owner' | 'admin' | 'member' | 'viewer' }
+}
+
+export interface Subscription {
+  plan: 'free' | 'pro' | 'business' | 'enterprise'
+  limits: {
+    sites: number
+    scans_per_month: number
+    pages_per_scan: number
+    team_members: number
+    ai_fixes: number
+  }
+}
+
 export interface User {
   id: number
   name: string
   email: string
-  plan?: string
+  teams?: Team[]
+  permissions?: string[]
+  subscription?: Subscription
 }

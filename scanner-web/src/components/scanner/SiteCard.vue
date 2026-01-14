@@ -6,6 +6,10 @@
         <div class="site-card-info">
           <h3 class="site-card-name">{{ site.name }}</h3>
           <p class="site-card-url">{{ site.url }}</p>
+          <!-- Team badge -->
+          <Badge v-if="team" variant="outline" size="sm" class="site-card-team-badge">
+            {{ team.name }}
+          </Badge>
         </div>
         <HealthScore :score="site.health_score || 0" size="sm" />
       </div>
@@ -21,6 +25,15 @@
         </div>
       </div>
 
+      <!-- Limit warning -->
+      <div v-if="showLimitWarning" class="limit-warning">
+        <AlertTriangleIcon class="limit-warning-icon" />
+        <span>Site limit reached</span>
+        <Button variant="ghost" size="sm" @click.stop="handleUpgrade">
+          Upgrade
+        </Button>
+      </div>
+      
       <div class="site-card-actions">
         <Button
           size="sm"
@@ -47,6 +60,9 @@ import { Card, CardContent, Button, Badge } from '@taskjuggler/ui'
 import HealthScore from './HealthScore.vue'
 import type { Site } from '@/types'
 import { useScansStore } from '@/stores/scans'
+import { useAuthStore } from '@/stores/auth'
+import { useSubscriptionStore } from '@/stores/subscription'
+import { AlertTriangleIcon } from 'lucide-vue-next'
 
 interface Props {
   site: Site
@@ -61,7 +77,18 @@ const emit = defineEmits<{
 }>()
 
 const scansStore = useScansStore()
+const authStore = useAuthStore()
+const subscriptionStore = useSubscriptionStore()
 const scanning = ref(false)
+
+const team = computed(() => 
+  authStore.user?.teams?.find(t => t.id === props.site.team_id)
+)
+
+const showLimitWarning = computed(() => {
+  // Show if at site limit - this would need sitesStore to check properly
+  return false // Implement based on your logic
+})
 
 const lastScanText = computed(() => {
   if (!props.site.last_scan_at) return 'Never'
@@ -110,6 +137,10 @@ const handleScan = async () => {
     scanning.value = false
   }
 }
+
+function handleUpgrade() {
+  window.location.href = '/settings/billing?upgrade_reason=sites'
+}
 </script>
 
 <style scoped>
@@ -129,6 +160,13 @@ const handleScan = async () => {
 .site-card-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.site-card-team-badge {
+  align-self: flex-start;
 }
 
 .site-card-name {
@@ -174,6 +212,24 @@ const handleScan = async () => {
   font-size: var(--font-title-small);
   font-weight: 600;
   color: var(--color-text-primary);
+}
+
+.limit-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-warning-light, #fef3c7);
+  border: 1px solid var(--color-warning, #f59e0b);
+  border-radius: var(--radius-md);
+  font-size: var(--font-body-small);
+  color: var(--color-warning-dark, #92400e);
+}
+
+.limit-warning-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .site-card-actions {

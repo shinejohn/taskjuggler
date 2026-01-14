@@ -2,9 +2,28 @@
   <AppLayout>
     <div class="sites-page">
       <div class="sites-header">
-        <h1 class="sites-title">Sites</h1>
-        <Button @click="showAddSiteModal = true">Add Site</Button>
+        <div>
+          <h1 class="sites-title">Sites</h1>
+          <p>Manage your accessibility scanning sites</p>
+        </div>
+        <Button 
+          @click="showAddSiteModal = true"
+          :disabled="!sitesStore.canAddSite"
+        >
+          Add Site
+          <span v-if="sitesStore.sitesRemaining > 0" class="remaining">
+            ({{ sitesStore.sitesRemaining }} remaining)
+          </span>
+        </Button>
       </div>
+      
+      <!-- Limit warning -->
+      <UpgradePrompt
+        v-if="!sitesStore.canAddSite"
+        :message="`You've reached your site limit. Upgrade to add more sites.`"
+        feature="sites"
+        class="mb-4"
+      />
 
       <div v-if="sitesStore.loading" class="sites-loading">
         <LoadingSpinner size="lg" />
@@ -46,6 +65,7 @@ import { Button } from '@taskjuggler/ui'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import SiteCard from '@/components/scanner/SiteCard.vue'
 import AddSiteModal from '@/components/scanner/AddSiteModal.vue'
+import UpgradePrompt from '@/components/common/UpgradePrompt.vue'
 import { useSitesStore } from '@/stores/sites'
 import type { Site } from '@/types'
 
@@ -82,13 +102,30 @@ const handleSiteCreated = () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--space-8);
+  gap: var(--space-4);
+}
+
+.sites-header > div {
+  flex: 1;
 }
 
 .sites-title {
   font-size: var(--font-display-medium);
   font-weight: 700;
   color: var(--color-text-primary);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.sites-header p {
   margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-medium);
+}
+
+.remaining {
+  font-size: var(--font-body-small);
+  opacity: 0.8;
+  margin-left: var(--space-1);
 }
 
 .sites-loading,
