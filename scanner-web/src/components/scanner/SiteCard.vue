@@ -61,7 +61,6 @@ import HealthScore from './HealthScore.vue'
 import type { Site } from '@/types'
 import { useScansStore } from '@/stores/scans'
 import { useAuthStore } from '@/stores/auth'
-import { useSubscriptionStore } from '@/stores/subscription'
 import { AlertTriangleIcon } from 'lucide-vue-next'
 
 interface Props {
@@ -78,7 +77,6 @@ const emit = defineEmits<{
 
 const scansStore = useScansStore()
 const authStore = useAuthStore()
-const subscriptionStore = useSubscriptionStore()
 const scanning = ref(false)
 
 const team = computed(() => 

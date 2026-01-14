@@ -4,7 +4,6 @@
       <Button variant="ghost" class="user-trigger">
         <Avatar 
           :name="user?.name || 'User'" 
-          :src="user?.avatar_url"
           size="sm"
         />
         <ChevronDownIcon class="chevron" />
@@ -15,8 +14,7 @@
       <div class="user-info">
         <Avatar 
           :name="user?.name || 'User'" 
-          :src="user?.avatar_url"
-          size="md"
+          size="base"
         />
         <div>
           <div class="user-name">{{ user?.name }}</div>

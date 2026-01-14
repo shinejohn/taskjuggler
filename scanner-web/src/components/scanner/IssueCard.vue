@@ -127,7 +127,6 @@ import { ref, computed } from 'vue'
 import { Card, CardContent, Button, Badge } from '@taskjuggler/ui'
 import type { Issue } from '@/types'
 import { useIssuesStore } from '@/stores/issues'
-import { useTasksStore } from '@/stores/tasks'
 import { useSubscriptionStore } from '@/stores/subscription'
 import CreateTaskModal from './CreateTaskModal.vue'
 import UpgradePrompt from '@/components/common/UpgradePrompt.vue'
@@ -145,7 +144,6 @@ const emit = defineEmits<{
 }>()
 
 const issuesStore = useIssuesStore()
-const tasksStore = useTasksStore()
 const subscriptionStore = useSubscriptionStore()
 const expanded = ref(false)
 const generatingFix = ref(false)
