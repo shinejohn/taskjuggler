@@ -24,6 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'sendgrid.signature' => \App\Http\Middleware\ValidateSendGridSignature::class,
             'module' => \App\Http\Middleware\ModuleAccess::class,
             'profile.context' => \App\Http\Middleware\ProfileContext::class,
+            'team.context' => \App\Http\Middleware\TeamContext::class,
+            'scanner.limits' => \App\Http\Middleware\CheckScannerLimits::class,
+            'app.context' => \App\Http\Middleware\AppContext::class,
         ]);
         
         // Add profile context middleware to API routes

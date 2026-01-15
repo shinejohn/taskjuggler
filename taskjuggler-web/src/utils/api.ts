@@ -14,6 +14,10 @@ api.interceptors.request.use((config) => {
   if (authStore.token) {
     config.headers.Authorization = `Bearer ${authStore.token}`;
   }
+  
+  // Add app context header for all requests
+  config.headers['X-App-Context'] = 'taskjuggler';
+  
   return config;
 });
 

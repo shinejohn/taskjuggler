@@ -68,11 +68,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Avatar from '@/components/ui/Avatar.vue'
 
-const _route = useRoute() // Keep for potential future use
 const router = useRouter()
 const authStore = useAuthStore()
 

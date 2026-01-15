@@ -23,6 +23,30 @@ const router = createRouter({
       meta: { requiresAuth: false },
     },
     {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('@/pages/auth/ForgotPasswordPage.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('@/pages/auth/ResetPasswordPage.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/pages/ProfilePage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/subscribe',
+      name: 'subscribe',
+      component: () => import('@/pages/SubscribePage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/onboarding',
       name: 'onboarding',
       component: () => import('@/pages/onboarding/OnboardingPage.vue'),

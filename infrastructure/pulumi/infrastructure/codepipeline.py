@@ -321,70 +321,52 @@ def create_codepipeline(
         ),
     ]
     
-    # Collect all distribution IDs as Outputs for CloudFront invalidations
-    # We need to resolve all Outputs before creating the pipeline stages
-    if frontend_deployments:
-        # Collect all distribution ID Outputs
-        dist_id_outputs = {
-            frontend_name: frontend_deploy["distribution"].id
-            for frontend_name, frontend_deploy in frontend_deployments.items()
-        }
-        
-        # Resolve all distribution IDs, then create pipeline with resolved values
-        all_dist_ids = pulumi.Output.all(**dist_id_outputs)
-        
-        # Create pipeline inside apply with resolved distribution IDs
-        pipeline = all_dist_ids.apply(lambda dist_ids: _create_pipeline_with_resolved_ids(
-            project_name=project_name,
-            environment=environment,
-            pipeline_role=pipeline_role,
-            artifact_bucket=artifact_bucket,
-            source_owner=source_owner,
-            source_provider=source_provider,
-            source_action_config=source_action_config,
-            build_actions=build_actions,
-            deploy_actions_base=deploy_actions,
-            frontend_deployments=frontend_deployments,
-            distribution_ids=dist_ids,
-        ))
-    else:
-        # No frontend deployments - create pipeline directly
-        stages = [
-            aws.codepipeline.PipelineStageArgs(
+    # NOTE: CloudFront invalidations temporarily removed due to Pulumi serialization bug
+    # Frontends will deploy to S3, but CloudFront cache won't auto-invalidate
+    # TODO: Add CloudFront invalidations via Lambda function or separate resource after Pulumi fix
+    
+    # CodePipeline stages - create pipeline directly (no Output values in stages)
+    stages = [
+        # Source stage - GitHub via CodeStar Connection
+        aws.codepipeline.PipelineStageArgs(
+            name="Source",
+            actions=[aws.codepipeline.PipelineStageActionArgs(
                 name="Source",
-                actions=[aws.codepipeline.PipelineStageActionArgs(
-                    name="Source",
-                    category="Source",
-                    owner=source_owner,
-                    provider=source_provider,
-                    version="1",
-                    output_artifacts=["source_output"],
-                    configuration=source_action_config,
-                )],
-            ),
-            aws.codepipeline.PipelineStageArgs(
-                name="Build",
-                actions=build_actions,
-            ),
-            aws.codepipeline.PipelineStageArgs(
-                name="Deploy",
-                actions=deploy_actions,
-            ),
-        ]
-        pipeline = aws.codepipeline.Pipeline(
-            f"{project_name}-{environment}-pipeline",
-            name=f"{project_name}-{environment}-pipeline",
-            role_arn=pipeline_role.arn,
-            artifact_stores=[aws.codepipeline.PipelineArtifactStoreArgs(
-                location=artifact_bucket.bucket,
-                type="S3",
+                category="Source",
+                owner=source_owner,
+                provider=source_provider,
+                version="1",
+                output_artifacts=["source_output"],
+                configuration=source_action_config,
             )],
-            stages=stages,
-            tags={
-                "Project": project_name,
-                "Environment": environment,
-            }
-        )
+        ),
+        # Build stage - API + Frontends in parallel
+        aws.codepipeline.PipelineStageArgs(
+            name="Build",
+            actions=build_actions,
+        ),
+        # Deploy stage - ECS for API, S3 sync for frontends (CloudFront invalidation removed)
+        aws.codepipeline.PipelineStageArgs(
+            name="Deploy",
+            actions=deploy_actions,  # Only ECS deployment, no CloudFront invalidations
+        ),
+    ]
+    
+    # CodePipeline
+    pipeline = aws.codepipeline.Pipeline(
+        f"{project_name}-{environment}-pipeline",
+        name=f"{project_name}-{environment}-pipeline",
+        role_arn=pipeline_role.arn,
+        artifact_stores=[aws.codepipeline.PipelineArtifactStoreArgs(
+            location=artifact_bucket.bucket,
+            type="S3",
+        )],
+        stages=stages,
+        tags={
+            "Project": project_name,
+            "Environment": environment,
+        }
+    )
     
     return {
         "pipeline": pipeline,

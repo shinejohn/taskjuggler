@@ -69,6 +69,8 @@ def create_dns(project_name: str, environment: str, compute: dict) -> dict:
     certificate_validation_records.append(wildcard_validation_record)
     
     # Certificate validation
+    # Note: DNS records are already in place, validation should complete automatically
+    # Certificate validation will wait for DNS propagation (default timeout is sufficient)
     certificate_validation = aws.acm.CertificateValidation(
         f"{project_name}-{environment}-cert-validation",
         certificate_arn=certificate.arn,

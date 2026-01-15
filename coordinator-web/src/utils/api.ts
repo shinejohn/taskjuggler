@@ -18,6 +18,9 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (authStore.token) {
     config.headers.Authorization = `Bearer ${authStore.token}`;
   }
+  
+  // Add app context header for all requests
+  config.headers['X-App-Context'] = 'coordinator';
 
   // Track request start time for performance monitoring
   (config as any).__startTime = performance.now();

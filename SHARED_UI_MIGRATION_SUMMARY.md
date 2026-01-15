@@ -149,3 +149,5 @@ The shared-ui components follow shadcn-vue patterns and may have slightly differ
 - These can be migrated incrementally as needed
 - The shared-ui package is actively maintained and new components can be added using shadcn-vue CLI
 
+
+

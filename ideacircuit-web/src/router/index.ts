@@ -49,6 +49,20 @@ const router = createRouter({
       component: SignUpPage,
     },
     {
+      path: '/forgot-password',
+      component: () => import('@/pages/ForgotPasswordPage.vue'),
+    },
+    {
+      path: '/reset-password',
+      component: () => import('@/pages/ResetPasswordPage.vue'),
+    },
+    {
+      path: '/subscribe',
+      component: () => import('@/pages/SubscribePage.vue'),
+      meta: { requiresAuth: true },
+      beforeEnter: requireAuth,
+    },
+    {
       path: '/presentation',
       component: PresentationCall,
       meta: { requiresAuth: true },

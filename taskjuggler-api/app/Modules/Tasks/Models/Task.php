@@ -144,6 +144,17 @@ class Task extends Model
         return $this->hasMany(TaskInvitation::class);
     }
 
+    public function project()
+    {
+        return $this->belongsTo(\App\Modules\Projects\Models\Project::class);
+    }
+
+    public function process()
+    {
+        return $this->belongsTo(\App\Modules\Processes\Models\Process::class);
+    }
+    }
+
     /**
      * Team this task is assigned to
      */

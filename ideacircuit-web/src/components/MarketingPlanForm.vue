@@ -31,7 +31,7 @@
         <!-- Client Info -->
         <Card>
           <CardContent class="bg-gray-50 p-4">
-          <div class="flex justify-between items-start">
+            <div class="flex justify-between items-start">
             <div>
               <h2 class="text-lg font-medium text-gray-800">Acme Corporation</h2>
               <p class="text-sm text-gray-600">Industry: Software as a Service (SaaS)</p>
@@ -45,6 +45,7 @@
                 <li>• 14 market research reports</li>
               </ul>
             </div>
+          </div>
           </CardContent>
         </Card>
 

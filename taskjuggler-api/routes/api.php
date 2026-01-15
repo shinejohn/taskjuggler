@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\Api\InboxController;
 use App\Http\Controllers\Api\RoutingRuleController;
 use App\Http\Controllers\Api\TeamController;
@@ -25,6 +26,15 @@ use App\Modules\SiteHealth\Http\Controllers\ScanController;
 use App\Modules\SiteHealth\Http\Controllers\IssueController;
 use App\Modules\SiteHealth\Http\Controllers\DashboardController;
 use App\Http\Controllers\Api\McpController;
+use App\Http\Controllers\Scanner\ScannerDashboardController;
+use App\Http\Controllers\Scanner\ScannerSiteController;
+use App\Http\Controllers\Scanner\ScannerScanController;
+use App\Http\Controllers\Scanner\ScannerIssueController;
+use App\Http\Controllers\Scanner\ScannerUsageController;
+use App\Http\Controllers\Scanner\ScannerMcpController;
+use App\Http\Middleware\TeamContext;
+use App\Http\Middleware\CheckScannerLimits;
+use App\Modules\Core\Controllers\StripeWebhookController;
 
 // Note: Auth routes are now in app/Modules/Core/Routes/api.php
 // Note: Task routes are now in app/Modules/Tasks/Routes/api.php
@@ -32,8 +42,17 @@ use App\Http\Controllers\Api\McpController;
 // Load Core module routes (auth, profiles)
 require base_path('app/Modules/Core/Routes/api.php');
 
+// Stripe webhooks (no auth)
+Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
+
 // Load Tasks module routes
 require base_path('app/Modules/Tasks/Routes/api.php');
+
+// Load Processes module routes
+require base_path('app/Modules/Processes/Routes/api.php');
+
+// Load Projects module routes
+require base_path('app/Modules/Projects/Routes/api.php');
 
 // Load Coordinator routes
 if (file_exists(base_path('routes/coordinator.php'))) {
@@ -44,6 +63,9 @@ if (file_exists(base_path('routes/coordinator.php'))) {
 Route::prefix('urpa')->group(function () {
     require base_path('app/Modules/Urpa/Routes/api.php');
 });
+
+// Broadcasting authentication routes (must be before auth middleware)
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -203,7 +225,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/apply', [\App\Http\Controllers\TestFixController::class, 'applyFixes']);
     });
 
-    // SiteHealth Scanner endpoints
+    // SiteHealth Scanner endpoints (legacy - user-based)
     Route::prefix('scanner')->group(function () {
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -224,6 +246,48 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/issues/{issue}/fix', [IssueController::class, 'generateFix']);
         Route::post('/issues/bulk', [IssueController::class, 'bulkUpdate']);
     });
+
+    // Scanner Module Routes (team-based)
+    Route::prefix('scanner')
+        ->middleware([TeamContext::class])
+        ->group(function () {
+            // Dashboard
+            Route::get('dashboard', [ScannerDashboardController::class, 'index'])->name('scanner.dashboard');
+            Route::get('usage', [ScannerUsageController::class, 'index'])->name('scanner.usage');
+            
+            // Sites (with limit check)
+            Route::apiResource('sites', ScannerSiteController::class)
+                ->middleware(CheckScannerLimits::class)
+                ->names([
+                    'index' => 'scanner.sites.index',
+                    'store' => 'scanner.sites.store',
+                    'show' => 'scanner.sites.show',
+                    'update' => 'scanner.sites.update',
+                    'destroy' => 'scanner.sites.destroy',
+                ]);
+            
+            // Scans
+            Route::get('sites/{site}/scans', [ScannerScanController::class, 'index'])->name('scanner.sites.scans');
+            Route::post('sites/{site}/scan', [ScannerScanController::class, 'store'])
+                ->middleware(CheckScannerLimits::class)
+                ->name('scanner.sites.scan');
+            Route::get('scans/{scan}', [ScannerScanController::class, 'show'])->name('scanner.scans.show');
+            Route::get('scans/{scan}/report', [ScannerScanController::class, 'report'])->name('scanner.scans.report');
+            
+            // Issues
+            Route::get('issues', [ScannerIssueController::class, 'index'])->name('scanner.issues.index');
+            Route::get('issues/{issue}', [ScannerIssueController::class, 'show'])->name('scanner.issues.show');
+            Route::put('issues/{issue}', [ScannerIssueController::class, 'update'])->name('scanner.issues.update');
+            Route::post('issues/bulk', [ScannerIssueController::class, 'bulkUpdate'])->name('scanner.issues.bulk');
+            Route::post('issues/{issue}/fix', [ScannerIssueController::class, 'generateFix'])->name('scanner.issues.fix');
+            
+            // MCP API Key Management
+            Route::prefix('mcp')->group(function () {
+                Route::get('keys', [ScannerMcpController::class, 'listKeys'])->name('scanner.mcp.keys.index');
+                Route::post('keys', [ScannerMcpController::class, 'createKey'])->name('scanner.mcp.keys.store');
+                Route::delete('keys/{key}', [ScannerMcpController::class, 'revokeKey'])->name('scanner.mcp.keys.destroy');
+            });
+        });
 });
 
 // MCP (Model Context Protocol) routes

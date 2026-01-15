@@ -29,5 +29,6 @@
       "@taskjuggler/ui": ["../../taskjuggler/Code/shared-ui/src"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+  "include": ["src/**/*.ts", "src/**/*.vue"],
+  "exclude": ["src/**/*.tsx", "src/hooks"]
 }

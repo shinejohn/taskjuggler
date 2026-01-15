@@ -10,22 +10,49 @@ import pulumi_awsx as awsx
 def create_networking(project_name: str, environment: str) -> dict:
     """Create VPC and networking infrastructure"""
     
-    # Create VPC with public and private subnets
-    vpc = awsx.ec2.Vpc(
-        f"{project_name}-{environment}-vpc",
-        cidr_block="10.0.0.0/16",
-        enable_dns_hostnames=True,
-        enable_dns_support=True,
-        number_of_availability_zones=3,
-        nat_gateways=awsx.ec2.NatGatewayConfigurationArgs(
-            strategy=awsx.ec2.NatGatewayStrategy.SINGLE  # Use single NAT for cost savings
-        ),
-        tags={
-            "Name": f"{project_name}-{environment}-vpc",
-            "Project": project_name,
-            "Environment": environment,
-        }
-    )
+    config = pulumi.Config()
+    existing_vpc_id = config.get("existing_vpc_id")
+    
+    if existing_vpc_id:
+        # Import existing VPC - awsx.Vpc creates multiple resources, so we need to import the VPC itself
+        # Get VPC data to use for import
+        existing_vpc_data = aws.ec2.get_vpc(id=existing_vpc_id)
+        # Import the VPC using awsx.Vpc - this will import the VPC and its subnets
+        # Note: awsx.Vpc component resource needs special handling for imports
+        vpc = awsx.ec2.Vpc(
+            f"{project_name}-{environment}-vpc",
+            cidr_block=existing_vpc_data.cidr_block,
+            enable_dns_hostnames=existing_vpc_data.enable_dns_hostnames,
+            enable_dns_support=existing_vpc_data.enable_dns_support,
+            number_of_availability_zones=3,
+            nat_gateways=awsx.ec2.NatGatewayConfigurationArgs(
+                strategy=awsx.ec2.NatGatewayStrategy.SINGLE
+            ),
+            tags={
+                "Name": f"{project_name}-{environment}-vpc",
+                "Project": project_name,
+                "Environment": environment,
+            },
+            # Import existing VPC - awsx will handle subnets automatically
+            opts=pulumi.ResourceOptions(import_=existing_vpc_id)
+        )
+    else:
+        # Create VPC with public and private subnets
+        vpc = awsx.ec2.Vpc(
+            f"{project_name}-{environment}-vpc",
+            cidr_block="10.0.0.0/16",
+            enable_dns_hostnames=True,
+            enable_dns_support=True,
+            number_of_availability_zones=3,
+            nat_gateways=awsx.ec2.NatGatewayConfigurationArgs(
+                strategy=awsx.ec2.NatGatewayStrategy.SINGLE  # Use single NAT for cost savings
+            ),
+            tags={
+                "Name": f"{project_name}-{environment}-vpc",
+                "Project": project_name,
+                "Environment": environment,
+            }
+        )
     
     # Security Groups
     # ALB Security Group

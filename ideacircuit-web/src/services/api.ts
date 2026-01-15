@@ -19,6 +19,10 @@ class ApiService {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+        
+        // Add app context header for all requests
+        config.headers['X-App-Context'] = 'ideacircuit';
+        
         return config;
       },
       (error) => Promise.reject(error)

@@ -34,6 +34,18 @@ const router = createRouter({
       meta: { guest: true },
     },
     {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/pages/ProfilePage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/subscribe',
+      name: 'subscribe',
+      component: () => import('@/pages/SubscribePage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/pages/dashboard/DashboardPage.vue'),

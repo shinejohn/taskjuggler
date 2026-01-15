@@ -67,7 +67,11 @@ class AuthController extends \App\Http\Controllers\Controller
                 }
             }
 
-            $token = $user->createToken('auth-token')->plainTextToken;
+            // Get app context from request header
+            $appContext = $request->header('X-App-Context', 'taskjuggler'); // Default to taskjuggler for backward compatibility
+            
+            // Create token with app context in abilities
+            $token = $user->createToken('auth-token', ['app_context' => $appContext])->plainTextToken;
 
             // Load profiles with user if table exists
             try {
@@ -108,7 +112,11 @@ class AuthController extends \App\Http\Controllers\Controller
                 ]);
             }
 
-            $token = $user->createToken('auth-token')->plainTextToken;
+            // Get app context from request header
+            $appContext = $request->header('X-App-Context', 'taskjuggler'); // Default to taskjuggler for backward compatibility
+            
+            // Create token with app context in token name for reference
+            $token = $user->createToken("auth-token-{$appContext}")->plainTextToken;
             
             // Load profiles if table exists, otherwise skip
             try {
@@ -276,7 +284,10 @@ class AuthController extends \App\Http\Controllers\Controller
             }
         }
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        // Get app context from request header (default to taskjuggler)
+        $appContext = $request->header('X-App-Context', 'taskjuggler');
+        
+        $token = $user->createToken("auth-token-{$appContext}")->plainTextToken;
         $user->load('profiles');
 
         return $this->success([

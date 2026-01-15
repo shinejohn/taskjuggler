@@ -107,10 +107,15 @@ def create_codebuild(project_name: str, environment: str, ecr_repo: aws.ecr.Repo
         }
     )
     
-    # CodePipeline source (when used in pipeline)
-    # For standalone builds, use GitHub source
+    # Source configuration - use CODEPIPELINE when used in pipeline (default), GitHub for standalone builds
     github_config = config.get_object("github", {})
-    use_codepipeline = config.get_bool("use_codepipeline", True)
+    use_codepipeline = config.get_bool("use_codepipeline", True)  # Default to True since CodePipeline is used
+    github_token_secret_name = config.get("github_token_secret_name")  # Optional: for private repos
+    
+    # Extract GitHub config for potential webhook use
+    github_owner = github_config.get("owner", "shinejohn")
+    github_repo = github_config.get("repo", "taskjuggler")
+    github_branch = github_config.get("branch", "refs/heads/main")
     
     if use_codepipeline:
         # Use CODEPIPELINE source type for CodePipeline integration
@@ -119,68 +124,33 @@ def create_codebuild(project_name: str, environment: str, ecr_repo: aws.ecr.Repo
             buildspec="taskjuggler-api/buildspec.yml",
         )
         source_version = None
-    elif github_config.get("enabled", False):
-        # Use GitHub source for standalone builds
-        source = aws.codebuild.ProjectSourceArgs(
-            type="GITHUB",
-            location=f"https://github.com/{github_config.get('owner', 'shinejohn')}/{github_config.get('repo', 'taskjuggler')}.git",
-            buildspec=github_config.get("buildspec", "taskjuggler-api/buildspec.yml"),
-        )
-        source_version = github_config.get("branch", "main")
     else:
-        # Fallback to S3 source (for manual uploads)
-        source = aws.codebuild.ProjectSourceArgs(
-            type="S3",
-            location=pulumi.Output.all(
-                bucket_name=f"{project_name}-build-source",
-            ).apply(lambda args: f"{args['bucket_name']}/source.tar.gz"),
-            buildspec="""
-version: 0.2
-phases:
-  pre_build:
-    commands:
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
-      - echo Downloading source from S3...
-      - aws s3 cp s3://taskjuggler-build-source/source.tar.gz /tmp/source.tar.gz
-      - cd /tmp && tar -xzf source.tar.gz
-      - |
-        if [ -d "taskjuggler-api" ]; then
-          cd taskjuggler-api
-        else
-          DOCKERFILE_DIR=$(find . -name "Dockerfile" -type f | head -1 | xargs dirname)
-          if [ -n "$DOCKERFILE_DIR" ]; then
-            cd "$DOCKERFILE_DIR"
-          fi
-        fi
-      - pwd
-      - ls -la
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
-  build:
-    commands:
-      - echo Build started on `date`
-      - echo Building the Docker image...
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
-      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
-      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:latest
-  post_build:
-    commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker images...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - docker push $REPOSITORY_URI:latest
-      - echo Writing image definitions file...
-      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:latest > imageDetail.json
-artifacts:
-  files:
-    - imageDetail.json
-""",
-        )
-        source_version = None
+        # Use GitHub source for direct builds with webhook support
+        github_source_args = {
+            "type": "GITHUB",
+            "location": f"https://github.com/{github_owner}/{github_repo}.git",
+            "buildspec": github_config.get("buildspec", "taskjuggler-api/buildspec.yml"),
+        }
+        
+        # Add GitHub auth if token provided (for private repos)
+        if github_token_secret_name:
+            try:
+                github_secret = aws.secretsmanager.get_secret(name=github_token_secret_name)
+                github_source_args["auth"] = aws.codebuild.ProjectSourceAuthArgs(
+                    type="OAUTH",
+                    resource=github_secret.arn,
+                )
+            except Exception:
+                # If secret doesn't exist, continue without auth (public repo)
+                pass
+        
+        source = aws.codebuild.ProjectSourceArgs(**github_source_args)
+        source_version = github_branch
     
     # CodeBuild Project
+    # When using CodePipeline, artifacts must also be CODEPIPELINE type
+    artifacts_type = "CODEPIPELINE" if use_codepipeline else "NO_ARTIFACTS"
+    
     build_project = aws.codebuild.Project(
         f"{project_name}-{environment}-build",
         name=f"{project_name}-{environment}-build",
@@ -189,7 +159,7 @@ artifacts:
         source=source,
         source_version=source_version,
         artifacts=aws.codebuild.ProjectArtifactsArgs(
-            type="CODEPIPELINE" if use_codepipeline else "NO_ARTIFACTS",
+            type=artifacts_type,
         ),
         environment=aws.codebuild.ProjectEnvironmentArgs(
             type="LINUX_CONTAINER",
@@ -224,11 +194,35 @@ artifacts:
         tags={
             "Project": project_name,
             "Environment": environment,
-        }
+        },
     )
+    
+    # Webhook for automatic builds on GitHub push (only for GitHub source, not CodePipeline)
+    webhook = None
+    if not use_codepipeline:
+        # Extract branch name from refs/heads/main format if needed
+        branch_name = github_branch.replace("refs/heads/", "") if github_branch.startswith("refs/heads/") else github_branch
+        
+        webhook = aws.codebuild.Webhook(
+            f"{project_name}-{environment}-webhook",
+            project_name=build_project.name,
+            filter_groups=[aws.codebuild.WebhookFilterGroupArgs(
+                filters=[
+                    aws.codebuild.WebhookFilterGroupFilterArgs(
+                        type="EVENT",
+                        pattern="PUSH",
+                    ),
+                    aws.codebuild.WebhookFilterGroupFilterArgs(
+                        type="HEAD_REF",
+                        pattern=f"^refs/heads/{branch_name}$",
+                    ),
+                ],
+            )],
+        )
     
     return {
         "build_project": build_project,
         "build_project_name": build_project.name,
         "codebuild_role": codebuild_role,
+        "webhook": webhook,
     }

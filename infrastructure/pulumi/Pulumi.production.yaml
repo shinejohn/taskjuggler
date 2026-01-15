@@ -6,3 +6,6 @@ config:
     secure: AAABALtLGLxHp7K3vPC5lACLiDZgv4CKGJuZGldqOrqTfHgm1DbbKF8y0/u07ZCy69PGuCXZ/f3VfVbjkSM9kQ==
   TaskJuggler:github_token:
     secure: AAABAF0z4MeWdJV829ep33ZY21cvyHCzGPFaJLULB5BRxw2UP/Ktq6/uvq9hroHE0+G3lxWjGFUkD0LYb1s8Opu4RMpWBvFz
+  TaskJuggler:github_connection_arn: arn:aws:codestar-connections:us-east-1:195430954683:connection/5f1fff66-59d0-4991-b14d-957239c045b8
+  TaskJuggler:route53_zone_id: Z01670441OTZJQVDY4L6S
+  TaskJuggler:existing_vpc_id: vpc-0fa97df292fff1f60

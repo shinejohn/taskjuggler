@@ -180,7 +180,7 @@
                 <TableCell>
                   <Badge
                     :variant="getOutcomeVariant(call.outcome ?? null)"
-                    :class="getOutcomeClass(call.outcome ?? null)"
+                    :class="getOutcomeClass(call.outcome)"
                   >
                     {{ call.outcome || 'Completed' }}
                   </Badge>
