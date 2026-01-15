@@ -9,7 +9,7 @@ export const useAuthStore = defineStore('auth', () => {
   const currentTeam = ref<Team | null>(null);
   const loading = ref(false);
 
-  const isAuthenticated = computed(() => !!token.value);
+  const isAuthenticated = computed(() => !!token.value && !!user.value);
 
   // Initialize currentTeam from localStorage if available (will be set after fetchUser)
   const savedTeamId = localStorage.getItem('currentTeamId');

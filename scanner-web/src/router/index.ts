@@ -103,19 +103,19 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
   
-  // Allow landing page and other guest routes without authentication checks
+  // Allow landing page and other guest routes without ANY authentication checks
   if (to.meta.guest || !to.meta.requiresAuth) {
-    // If user is fully authenticated (has both token and user), redirect away from guest routes
-    if (authStore.token && authStore.user) {
-      if (to.name === 'landing' || to.name === 'login' || to.name === 'register') {
-        return next('/dashboard');
-      }
+    // Only redirect authenticated users away from guest routes (landing/login/register)
+    // Check both token AND user to ensure full authentication
+    if (authStore.token && authStore.user && (to.name === 'landing' || to.name === 'login' || to.name === 'register')) {
+      return next('/dashboard');
     }
-    // Otherwise, allow access to guest routes (including landing page for unauthenticated users)
+    // For all other cases (no token, or token but no user, or other guest routes), allow access
     return next();
   }
   
-  // For protected routes, fetch user if we have token but no user data
+  // For protected routes only, check authentication
+  // First, try to fetch user if we have a token but no user data
   if (authStore.token && !authStore.user) {
     try {
       await authStore.fetchUser();

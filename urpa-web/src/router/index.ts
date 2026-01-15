@@ -70,17 +70,18 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
   
-  // Allow landing page and other public routes without authentication checks
+  // Allow landing page and other public routes without ANY authentication checks
   if (!to.meta.requiresAuth) {
-    // If user is fully authenticated (has both token and user), redirect away from public routes
+    // Only redirect fully authenticated users (both token AND user) away from landing/login/signup
     if (authStore.isAuthenticated && (to.name === 'landing' || to.name === 'login' || to.name === 'signup')) {
       return next({ name: 'dashboard' });
     }
-    // Otherwise, allow access to public routes
+    // For all other cases (no token, or token but no user, or other public routes), allow access
     return next();
   }
   
-  // For protected routes, fetch user if we have token but no user data
+  // For protected routes only, check authentication
+  // First, try to fetch user if we have a token but no user data
   if (authStore.token && !authStore.user) {
     try {
       await authStore.fetchUser();
