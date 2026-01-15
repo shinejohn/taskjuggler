@@ -4,13 +4,13 @@ import Pusher from 'pusher-js';
 declare global {
   interface Window {
     Pusher: typeof Pusher;
-    Echo: Echo;
+    Echo: Echo<'pusher'>;
   }
 }
 
 window.Pusher = Pusher;
 
-let echoInstance: Echo | null = null;
+let echoInstance: Echo<'pusher'> | null = null;
 
 export function initializeEcho(token: string): void {
   // Disconnect existing instance if any
@@ -45,7 +45,7 @@ export function initializeEcho(token: string): void {
   }
 }
 
-export function getEcho(): Echo {
+export function getEcho(): Echo<'pusher'> {
   if (!echoInstance) {
     throw new Error('Echo not initialized. Call initializeEcho(token) first.');
   }
@@ -58,7 +58,7 @@ export function disconnectEcho(): void {
     echoInstance = null;
   }
   if (window.Echo) {
-    delete window.Echo;
+    (window as any).Echo = undefined;
   }
 }
 

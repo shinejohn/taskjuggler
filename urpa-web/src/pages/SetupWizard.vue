@@ -93,7 +93,7 @@
                   <Check class="h-5 w-5" />
                 </template>
                 <template v-else>
-                  {{ currentIntegration.requiresSubscription ? 'Activate' : 'Connect' }}
+                  {{ currentIntegration?.requiresSubscription ? 'Activate' : 'Connect' }}
                   <ArrowRight class="h-5 w-5" />
                 </template>
               </template>
@@ -136,7 +136,6 @@ import {
   Share2,
   Voicemail,
   CheckSquare,
-  Phone,
   Check,
   ArrowRight,
   ArrowLeft,
@@ -151,7 +150,6 @@ import {
   Upload,
 } from 'lucide-vue-next';
 import { useIntegrationsStore } from '@/stores/integrations';
-import api from '@/utils/api';
 
 interface IntegrationStep {
   id: string;
@@ -299,7 +297,7 @@ const phoneSetup = ref({
   enableVoicemail: true,
 });
 
-const currentIntegration = computed(() => integrations.value[currentStep.value]);
+const currentIntegration = computed(() => integrations.value[currentStep.value] ?? integrations.value[0]);
 const completedCount = computed(() => integrations.value.filter(i => i.completed).length);
 const progress = computed(() => (completedCount.value / integrations.value.length) * 100);
 
@@ -318,9 +316,12 @@ function getProviders(stepId: string): Provider[] {
 
 function handleProviderSelect(stepId: string, providerId: string) {
   const provider = getProviders(stepId).find(p => p.id === providerId);
-  const updatedCredentials = {
-    ...credentials.value[stepId],
+  const existingCreds = credentials.value[stepId] || { provider: '', email: '', password: '' };
+  const updatedCredentials: Credentials = {
+    ...existingCreds,
     provider: providerId,
+    email: existingCreds.email || '',
+    password: existingCreds.password || '',
   };
   if (provider?.defaultConfig) {
     Object.assign(updatedCredentials, provider.defaultConfig);
@@ -344,6 +345,8 @@ function handleFileUpload(event: Event) {
 }
 
 async function handleConnect() {
+  if (!currentIntegration.value) return;
+  
   if (currentIntegration.value.requiresSubscription) {
     router.push('/subscribe');
     return;
@@ -352,7 +355,7 @@ async function handleConnect() {
   isConnecting.value = true;
   try {
     const currentCreds = credentials.value[currentIntegration.value.id];
-    if (!currentCreds.provider) {
+    if (!currentCreds || !currentCreds.provider) {
       return;
     }
 
@@ -363,7 +366,10 @@ async function handleConnect() {
       config: currentCreds,
     });
 
-    integrations.value[currentStep.value].completed = true;
+    const integration = integrations.value[currentStep.value];
+    if (integration) {
+      integration.completed = true;
+    }
     
     if (currentStep.value < integrations.value.length - 1) {
       setTimeout(() => {
@@ -386,19 +392,24 @@ function handleSkip() {
 const currentStepComponent = computed(() => {
   return defineComponent({
     setup() {
-      const Icon = currentIntegration.value.icon;
-      const providers = getProviders(currentIntegration.value.id);
-      const currentCreds = credentials.value[currentIntegration.value.id];
+      const integration = currentIntegration.value;
+      if (!integration) {
+        return () => h('div', 'Loading...');
+      }
+      
+      const Icon = integration.icon;
+      const providers = getProviders(integration.id);
+      const currentCreds = credentials.value[integration.id];
 
       // Contact Database Setup
-      if (currentIntegration.value.id === 'contacts') {
+      if (integration.id === 'contacts') {
         return () => h('div', { class: 'space-y-6' }, [
           h('div', { class: 'text-center mb-8' }, [
-            h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${currentIntegration.value.gradient} mb-4` }, [
+            h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${integration.gradient} mb-4` }, [
               h(Icon, { class: 'h-12 w-12 text-white' }),
             ]),
-            h('h2', { class: 'text-2xl font-bold text-white mb-2' }, currentIntegration.value.title),
-            h('p', { class: 'text-slate-400' }, currentIntegration.value.description),
+            h('h2', { class: 'text-2xl font-bold text-white mb-2' }, integration.title),
+            h('p', { class: 'text-slate-400' }, integration.description),
           ]),
           h('div', { class: 'p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/50 mb-6' }, [
             h('div', { class: 'flex gap-3' }, [
@@ -444,19 +455,29 @@ const currentStepComponent = computed(() => {
                 h('label', { class: 'block text-sm font-semibold text-slate-300 mb-2' }, 'Email / Username'),
                 h('input', {
                   type: 'email',
-                  modelValue: currentCreds.email,
-                  'onUpdate:modelValue': (val: string) => credentials.value.contacts.email = val,
+                  modelValue: currentCreds?.email || '',
+                  'onUpdate:modelValue': (val: string) => {
+                    if (!credentials.value.contacts) {
+                      credentials.value.contacts = { provider: '', email: '', password: '' };
+                    }
+                    credentials.value.contacts.email = val;
+                  },
                   placeholder: 'you@example.com',
                   class: 'w-full px-4 py-3 bg-slate-900/50 border-2 border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors',
                 }),
               ]),
-              h('div', [
+                  h('div', [
                 h('label', { class: 'block text-sm font-semibold text-slate-300 mb-2' }, 'Password'),
                 h('div', { class: 'relative' }, [
                   h('input', {
                     type: showPassword.value['contacts'] ? 'text' : 'password',
-                    modelValue: currentCreds.password,
-                    'onUpdate:modelValue': (val: string) => credentials.value.contacts.password = val,
+                    modelValue: currentCreds?.password || '',
+                    'onUpdate:modelValue': (val: string) => {
+                      if (!credentials.value.contacts) {
+                        credentials.value.contacts = { provider: '', email: '', password: '' };
+                      }
+                      credentials.value.contacts.password = val;
+                    },
                     placeholder: '••••••••',
                     class: 'w-full pl-4 pr-12 py-3 bg-slate-900/50 border-2 border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors',
                   }),
@@ -510,14 +531,14 @@ const currentStepComponent = computed(() => {
       }
 
       // AI Text Assistant Setup
-      if (currentIntegration.value.id === 'texting') {
+      if (integration.id === 'texting') {
         return () => h('div', { class: 'space-y-6' }, [
           h('div', { class: 'text-center mb-8' }, [
-            h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${currentIntegration.value.gradient} mb-4` }, [
+            h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${integration.gradient} mb-4` }, [
               h(Icon, { class: 'h-12 w-12 text-white' }),
             ]),
-            h('h2', { class: 'text-2xl font-bold text-white mb-2' }, currentIntegration.value.title),
-            h('p', { class: 'text-slate-400' }, currentIntegration.value.description),
+            h('h2', { class: 'text-2xl font-bold text-white mb-2' }, integration.title),
+            h('p', { class: 'text-slate-400' }, integration.description),
           ]),
           h('div', { class: 'p-4 rounded-xl bg-indigo-500/10 border-2 border-indigo-500/50 mb-6' }, [
             h('div', { class: 'flex gap-3' }, [
@@ -595,14 +616,14 @@ const currentStepComponent = computed(() => {
       }
 
       // AI Phone Assistant Setup
-      if (currentIntegration.value.id === 'phone') {
+      if (integration.id === 'phone') {
         return () => h('div', { class: 'space-y-6' }, [
           h('div', { class: 'text-center mb-8' }, [
-            h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${currentIntegration.value.gradient} mb-4` }, [
+            h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${integration.gradient} mb-4` }, [
               h(Icon, { class: 'h-12 w-12 text-white' }),
             ]),
-            h('h2', { class: 'text-2xl font-bold text-white mb-2' }, currentIntegration.value.title),
-            h('p', { class: 'text-slate-400' }, currentIntegration.value.description),
+            h('h2', { class: 'text-2xl font-bold text-white mb-2' }, integration.title),
+            h('p', { class: 'text-slate-400' }, integration.description),
           ]),
           h('div', { class: 'p-4 rounded-xl bg-red-500/10 border-2 border-red-500/50 mb-6' }, [
             h('div', { class: 'flex gap-3' }, [
@@ -695,14 +716,14 @@ const currentStepComponent = computed(() => {
       }
 
       // Enhanced Messaging Platform Setup
-      if (currentIntegration.value.id === 'messaging') {
+      if (integration.id === 'messaging') {
         return () => h('div', { class: 'space-y-6' }, [
           h('div', { class: 'text-center mb-8' }, [
-            h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${currentIntegration.value.gradient} mb-4` }, [
+            h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${integration.gradient} mb-4` }, [
               h(Icon, { class: 'h-12 w-12 text-white' }),
             ]),
-            h('h2', { class: 'text-2xl font-bold text-white mb-2' }, currentIntegration.value.title),
-            h('p', { class: 'text-slate-400' }, currentIntegration.value.description),
+            h('h2', { class: 'text-2xl font-bold text-white mb-2' }, integration.title),
+            h('p', { class: 'text-slate-400' }, integration.description),
           ]),
           h('div', { class: 'space-y-4' }, [
             h('div', [
@@ -741,8 +762,13 @@ const currentStepComponent = computed(() => {
                 h('label', { class: 'block text-sm font-semibold text-slate-300 mb-2' }, 'Email / Username'),
                 h('input', {
                   type: 'email',
-                  modelValue: currentCreds.email,
-                  'onUpdate:modelValue': (val: string) => credentials.value.messaging.email = val,
+                  modelValue: currentCreds?.email || '',
+                  'onUpdate:modelValue': (val: string) => {
+                    if (!credentials.value.messaging) {
+                      credentials.value.messaging = { provider: '', email: '', password: '' };
+                    }
+                    credentials.value.messaging.email = val;
+                  },
                   placeholder: 'you@example.com',
                   class: 'w-full px-4 py-3 bg-slate-900/50 border-2 border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-colors',
                 }),
@@ -752,8 +778,13 @@ const currentStepComponent = computed(() => {
                 h('div', { class: 'relative' }, [
                   h('input', {
                     type: showPassword.value['messaging'] ? 'text' : 'password',
-                    modelValue: currentCreds.password,
-                    'onUpdate:modelValue': (val: string) => credentials.value.messaging.password = val,
+                    modelValue: currentCreds?.password || '',
+                    'onUpdate:modelValue': (val: string) => {
+                      if (!credentials.value.messaging) {
+                        credentials.value.messaging = { provider: '', email: '', password: '' };
+                      }
+                      credentials.value.messaging.password = val;
+                    },
                     placeholder: '••••••••',
                     class: 'w-full pl-4 pr-12 py-3 bg-slate-900/50 border-2 border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-colors',
                   }),
@@ -783,11 +814,11 @@ const currentStepComponent = computed(() => {
       // Regular integration setup
       return () => h('div', { class: 'space-y-6' }, [
         h('div', { class: 'text-center mb-8' }, [
-          h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${currentIntegration.value.gradient} mb-4` }, [
+          h('div', { class: `inline-flex p-4 rounded-2xl bg-gradient-to-r ${integration.gradient} mb-4` }, [
             h(Icon, { class: 'h-12 w-12 text-white' }),
           ]),
-          h('h2', { class: 'text-2xl font-bold text-white mb-2' }, currentIntegration.value.title),
-          h('p', { class: 'text-slate-400' }, currentIntegration.value.description),
+          h('h2', { class: 'text-2xl font-bold text-white mb-2' }, integration.title),
+          h('p', { class: 'text-slate-400' }, integration.description),
         ]),
         h('div', { class: 'space-y-4' }, [
           h('div', [
@@ -795,7 +826,7 @@ const currentStepComponent = computed(() => {
             h('div', { class: 'grid grid-cols-2 gap-3' }, providers.map(provider =>
               h('button', {
                 key: provider.id,
-                onClick: () => handleProviderSelect(currentIntegration.value.id, provider.id),
+                onClick: () => handleProviderSelect(integration.id, provider.id),
                 class: `p-4 rounded-xl border-2 transition-all text-left ${currentCreds?.provider === provider.id ? 'border-teal-500 bg-teal-500/10' : 'border-slate-700 bg-slate-900/50 hover:border-slate-600'}`,
               }, [
                 h('p', { class: 'text-sm font-bold text-white' }, provider.name),
@@ -808,9 +839,9 @@ const currentStepComponent = computed(() => {
               h('label', { class: 'block text-sm font-semibold text-slate-300 mb-2' }, 'Email / Username'),
               h('input', {
                 type: 'email',
-                modelValue: currentCreds.email,
+                modelValue: currentCreds?.email || '',
                 'onUpdate:modelValue': (val: string) => {
-                  credentials.value[currentIntegration.value.id] = { ...currentCreds, email: val };
+                  credentials.value[integration.id] = { ...(currentCreds || { provider: '', email: '', password: '' }), email: val };
                 },
                 placeholder: 'you@example.com',
                 class: 'w-full px-4 py-3 bg-slate-900/50 border-2 border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition-colors',
@@ -820,24 +851,24 @@ const currentStepComponent = computed(() => {
               h('label', { class: 'block text-sm font-semibold text-slate-300 mb-2' }, 'Password'),
               h('div', { class: 'relative' }, [
                 h('input', {
-                  type: showPassword.value[currentIntegration.value.id] ? 'text' : 'password',
-                  modelValue: currentCreds.password,
+                  type: showPassword.value[integration.id] ? 'text' : 'password',
+                  modelValue: currentCreds?.password || '',
                   'onUpdate:modelValue': (val: string) => {
-                    credentials.value[currentIntegration.value.id] = { ...currentCreds, password: val };
+                    credentials.value[integration.id] = { ...(currentCreds || { provider: '', email: '', password: '' }), password: val };
                   },
                   placeholder: '••••••••',
                   class: 'w-full pl-4 pr-12 py-3 bg-slate-900/50 border-2 border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition-colors',
                 }),
                 h('button', {
                   type: 'button',
-                  onClick: () => showPassword.value[currentIntegration.value.id] = !showPassword.value[currentIntegration.value.id],
+                  onClick: () => showPassword.value[integration.id] = !showPassword.value[integration.id],
                   class: 'absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors',
                 }, [
-                  showPassword.value[currentIntegration.value.id] ? h(EyeOff, { class: 'h-5 w-5' }) : h(Eye, { class: 'h-5 w-5' }),
+                  showPassword.value[integration.id] ? h(EyeOff, { class: 'h-5 w-5' }) : h(Eye, { class: 'h-5 w-5' }),
                 ]),
               ]),
             ]),
-            currentIntegration.value.id === 'email' && h('div', { class: 'space-y-4 pt-4 border-t-2 border-slate-700' }, [
+            integration.id === 'email' && h('div', { class: 'space-y-4 pt-4 border-t-2 border-slate-700' }, [
               h('p', { class: 'text-sm font-semibold text-slate-300' }, 'Email Server Configuration'),
               h('div', { class: 'grid grid-cols-2 gap-4' }, [
                 h('div', [

@@ -53,11 +53,6 @@ const descColor = computed(() => theme.value === 'dark' ? 'text-slate-400' : 'te
 const timeColor = computed(() => theme.value === 'dark' ? 'text-slate-500' : 'text-gray-700');
 
 function getIcon() {
-  const iconClass = theme.value === 'dark' ? 'h-4 w-4' : 'h-5 w-5';
-  const colorClass = theme.value === 'dark' 
-    ? { email: 'text-blue-400', text: 'text-green-400', task: 'text-amber-400', calendar: 'text-purple-400', social: 'text-pink-400' }
-    : { email: 'text-blue-700', text: 'text-green-700', task: 'text-amber-700', calendar: 'text-purple-700', social: 'text-pink-700' };
-  
   switch (props.activity.type) {
     case 'email':
       return Mail;

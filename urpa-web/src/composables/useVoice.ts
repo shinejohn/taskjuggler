@@ -1,10 +1,8 @@
 import { ref } from 'vue';
 import { vapiService } from '@/services/vapi';
-import { useVoiceStore } from '@/stores/voice';
 import api from '@/utils/api';
 
 export function useVoice() {
-  const voiceStore = useVoiceStore();
   const isCallActive = ref(false);
   const currentCallId = ref<string | null>(null);
 

@@ -129,7 +129,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { X, CheckSquare } from 'lucide-vue-next';
 import { useTheme } from '@/composables/useTheme';
 

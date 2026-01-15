@@ -153,18 +153,30 @@ const FONT_SIZES = [
   { name: 'X-Large', class: 'text-xl' },
 ];
 
-const currentBgColor = computed(() => theme.value === 'dark' ? BG_COLORS[bgColorIndex.value].dark : BG_COLORS[bgColorIndex.value].light);
-const currentTextColor = computed(() => theme.value === 'dark' ? TEXT_COLORS[textColorIndex.value].dark : TEXT_COLORS[textColorIndex.value].light);
-const currentFontSize = computed(() => FONT_SIZES[fontSizeIndex.value].class);
+const currentBgColor = computed(() => {
+  const color = BG_COLORS[bgColorIndex.value];
+  if (!color) return theme.value === 'dark' ? 'bg-slate-800/30' : 'bg-gray-100/95';
+  return theme.value === 'dark' ? color.dark : color.light;
+});
+const currentTextColor = computed(() => {
+  const color = TEXT_COLORS[textColorIndex.value];
+  if (!color) return theme.value === 'dark' ? 'text-slate-200' : 'text-gray-900';
+  return theme.value === 'dark' ? color.dark : color.light;
+});
+const currentFontSize = computed(() => FONT_SIZES[fontSizeIndex.value]?.class || 'text-base');
 const cardBorder = computed(() => theme.value === 'dark' ? 'border-slate-700/50' : 'border-purple-400');
 const handleBg = computed(() => theme.value === 'dark' ? 'bg-slate-700/50 hover:bg-slate-700' : 'bg-gray-200 hover:bg-gray-300');
 const textSecondary = computed(() => theme.value === 'dark' ? 'text-slate-400' : 'text-gray-800');
 
 function cycleSize() {
   const sizes: (1 | 2 | 3)[] = [1, 2, 3];
-  const currentIndex = sizes.indexOf(props.gridSpan || 1);
+  const currentSpan = props.gridSpan || 1;
+  const currentIndex = sizes.indexOf(currentSpan);
   const nextIndex = (currentIndex + 1) % sizes.length;
-  emit('resize', props.id, sizes[nextIndex]);
+  const nextSize = sizes[nextIndex];
+  if (nextSize) {
+    emit('resize', props.id, nextSize);
+  }
 }
 </script>
 

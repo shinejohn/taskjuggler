@@ -25,7 +25,7 @@
       <div v-if="isExpanded" class="overflow-hidden">
         <div class="p-4 space-y-2.5 max-h-[300px] overflow-y-auto custom-scrollbar">
           <div
-            v-for="(task, index) in tasks"
+            v-for="task in tasks"
             :key="task.id"
             :class="['flex items-start gap-3 p-3 rounded-lg border-2 border-l-4 transition-colors cursor-pointer', itemBorder, getStatusColor(task.status), itemBg]"
           >
@@ -51,11 +51,9 @@
 import { ref, computed, onMounted } from 'vue';
 import { Bot, CheckCircle2, Clock, AlertCircle, ChevronDown, ChevronUp } from 'lucide-vue-next';
 import { useTheme } from '@/composables/useTheme';
-import { useAiStore } from '@/stores/ai';
 import type { AITask } from '@/types/ai';
 
 const { theme } = useTheme();
-const aiStore = useAiStore();
 
 const isExpanded = ref(false);
 const tasks = ref<AITask[]>([]);

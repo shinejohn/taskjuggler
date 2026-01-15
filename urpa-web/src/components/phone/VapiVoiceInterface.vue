@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import { Phone, PhoneOff, Mic, MicOff } from 'lucide-vue-next';
 import StatusIndicator, { type AIStatus } from '@/components/ui/StatusIndicator.vue';
 import { useTheme } from '@/composables/useTheme';
@@ -64,14 +64,6 @@ const callDuration = ref(0);
 const callStatus = ref<AIStatus>('idle');
 
 let callInterval: ReturnType<typeof setInterval> | null = null;
-
-const callStatusMap: Record<string, AIStatus> = {
-  'call-started': 'listening',
-  'user-speaking': 'listening',
-  'assistant-speaking': 'speaking',
-  'function-calling': 'thinking',
-  'call-ended': 'idle',
-};
 
 const assistantId = ref<string>('');
 const customerNumber = ref<string>('');

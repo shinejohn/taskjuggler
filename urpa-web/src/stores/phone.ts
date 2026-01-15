@@ -98,9 +98,10 @@ export const usePhoneStore = defineStore('phone', () => {
           currentCall.value = e.phoneCall;
         }
       });
-    } catch (error) {
+    } catch (err: unknown) {
       // Silently fail - real-time is optional
-      error.value = 'Failed to setup real-time listeners';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to setup real-time listeners';
+      error.value = errorMessage;
     }
   }
 

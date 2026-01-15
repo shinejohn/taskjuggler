@@ -84,8 +84,10 @@ const team = computed(() =>
 )
 
 const showLimitWarning = computed(() => {
-  // Show if at site limit - this would need sitesStore to check properly
-  return false // Implement based on your logic
+  // Show if at site limit
+  // Note: This would need sitesStore, but it's not imported to avoid circular dependency
+  // Consider passing as prop or using a different approach
+  return false // TODO: Implement limit warning logic
 })
 
 const lastScanText = computed(() => {

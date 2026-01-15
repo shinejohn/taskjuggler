@@ -47,7 +47,7 @@
                   <!-- Category Filter -->
                   <div class="flex gap-2">
                     <button
-                      v-for="cat in ['all', 'widget', 'api', 'report']"
+                      v-for="cat in (['all', 'widget', 'api', 'report'] as const)"
                       :key="cat"
                       @click="selectedCategory = cat"
                       :class="['px-3 py-1.5 rounded-lg text-xs font-semibold transition-all', selectedCategory === cat ? theme === 'dark' ? 'bg-teal-600 text-white' : 'bg-purple-600 text-white' : theme === 'dark' ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']"

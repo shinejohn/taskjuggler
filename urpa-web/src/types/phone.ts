@@ -10,6 +10,7 @@ export interface PhoneCall {
   started_at?: string;
   ended_at?: string;
   transcript?: string;
+  ai_summary?: string;
   recording_url?: string;
   actions_taken?: string[];
   vapi_call_id?: string;

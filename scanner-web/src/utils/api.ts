@@ -2,7 +2,7 @@ import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
 const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://api.taskjuggler.com',
+  baseURL: import.meta.env.VITE_API_URL || 'https://api.taskjuggler.com/api',
   withCredentials: true, // CRITICAL for Laravel Sanctum
   headers: {
     'Content-Type': 'application/json',
@@ -21,6 +21,9 @@ api.interceptors.request.use((config) => {
   if (authStore.currentTeam) {
     config.headers['X-Team-ID'] = authStore.currentTeam.id.toString();
   }
+  
+  // Add app context header for all requests
+  config.headers['X-App-Context'] = 'scanner';
   
   return config;
 });

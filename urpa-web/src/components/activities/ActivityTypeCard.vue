@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Mail, MessageSquare, CheckSquare, Calendar, Share2 } from 'lucide-vue-next';
+import { Mail, MessageSquare, CheckSquare, Calendar, Share2, Voicemail } from 'lucide-vue-next';
 import { useTheme } from '@/composables/useTheme';
 import ActivityCard from './ActivityCard.vue';
 import type { ActivityItem, ActivityType } from '@/types/activity';
@@ -96,7 +96,22 @@ const ACTIVITY_TYPES = {
     bgColorDark: 'bg-pink-500/10',
     bgColorLight: 'bg-pink-200',
   },
-};
+  voicemail: {
+    label: 'Voicemail',
+    icon: Voicemail,
+    colorDark: 'text-indigo-400',
+    colorLight: 'text-indigo-800',
+    bgColorDark: 'bg-indigo-500/10',
+    bgColorLight: 'bg-indigo-200',
+  },
+} as const satisfies Record<ActivityType, {
+  label: string;
+  icon: any;
+  colorDark: string;
+  colorLight: string;
+  bgColorDark: string;
+  bgColorLight: string;
+}>;
 
 const typeConfig = computed(() => ACTIVITY_TYPES[props.type]);
 const iconComponent = computed(() => typeConfig.value.icon);

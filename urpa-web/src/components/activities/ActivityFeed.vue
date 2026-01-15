@@ -45,10 +45,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { Search, Mail, MessageSquare, CheckSquare, Calendar, Share2, Voicemail } from 'lucide-vue-next';
+import { Search } from 'lucide-vue-next';
 import { useTheme } from '@/composables/useTheme';
 import { useActivitiesStore } from '@/stores/activities';
-import ActivityCard from './ActivityCard.vue';
 import ActionCard from './ActionCard.vue';
 import DraggableCard from './DraggableCard.vue';
 import type { ActivityItem, ActivityType } from '@/types/activity';
@@ -73,7 +72,6 @@ const cardOrder = ref<CardConfig[]>([
   { id: 'voicemail', type: 'voicemail', gridSpan: 1 },
 ]);
 
-const MAX_VISIBLE_ITEMS = 5;
 
 const cardBg = computed(() => theme.value === 'dark' ? 'bg-slate-800/30' : 'bg-gray-100/95');
 const cardBorder = computed(() => theme.value === 'dark' ? 'border-slate-700/50' : 'border-purple-400');

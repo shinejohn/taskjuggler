@@ -106,7 +106,7 @@
           <!-- Stats -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div
-              v-for="(stat, idx) in stats"
+              v-for="stat in stats"
               :key="stat.label"
               class="p-4 rounded-xl bg-slate-900/50 border-2 border-slate-700"
             >
@@ -609,7 +609,6 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import {
   Command,
   User,
@@ -653,7 +652,6 @@ interface TeamMember {
   isHumanAssistant?: boolean;
 }
 
-const router = useRouter();
 const authStore = useAuthStore();
 
 const isEditing = ref(false);
@@ -680,7 +678,7 @@ const profileData = reactive({
     instagram: '',
     facebook: '',
     website: '',
-  },
+  } as Record<string, string>,
   business: {
     name: '',
     logo: '',

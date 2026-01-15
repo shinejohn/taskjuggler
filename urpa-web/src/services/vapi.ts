@@ -18,12 +18,8 @@ export interface VapiCallResponse {
 }
 
 class VapiService {
-  private apiKey: string;
-  private apiUrl: string;
-
   constructor() {
-    this.apiKey = import.meta.env.VITE_VAPI_API_KEY || '';
-    this.apiUrl = import.meta.env.VITE_VAPI_API_URL || 'https://api.vapi.ai';
+    // API key and URL are accessed via import.meta.env when needed
   }
 
   /**

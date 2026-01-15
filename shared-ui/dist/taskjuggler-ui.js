@@ -16143,7 +16143,7 @@ const hy = /* @__PURE__ */ h({
   },
   setup(e) {
     const o = e, { error: t, formItemId: n } = Do();
-    return (a, s) => (m(), _(r(Sv), {
+    return (a, s) => (m(), _(Sv, {
       class: U(r(N)(
         r(t) && "text-destructive",
         o.class

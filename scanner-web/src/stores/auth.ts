@@ -17,7 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(email: string, password: string) {
     loading.value = true;
     try {
-      const response = await api.post('/api/auth/login', { email, password });
+      const response = await api.post('/auth/login', { email, password });
       const responseData = response.data.data || response.data;
       token.value = responseData.token;
       user.value = responseData.user;
@@ -43,7 +43,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function register(data: { name: string; email: string; password: string; password_confirmation: string }) {
     loading.value = true;
     try {
-      const response = await api.post('/api/auth/register', data);
+      const response = await api.post('/auth/register', data);
       const responseData = response.data.data || response.data;
       token.value = responseData.token;
       user.value = responseData.user;
@@ -69,7 +69,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchUser() {
     if (!token.value) return;
     try {
-      const response = await api.get('/api/user');
+      const response = await api.get('/auth/user');
       user.value = response.data.data || response.data;
       // Set current team from saved preference or default to first team
       if (user.value?.teams && user.value.teams.length > 0) {
@@ -109,7 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     try {
-      await api.post('/api/auth/logout');
+      await api.post('/auth/logout');
     } catch {
       // Continue with logout even if API call fails
     } finally {

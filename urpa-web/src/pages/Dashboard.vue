@@ -86,6 +86,7 @@
       :is-open="isSettingsOpen"
       @close="isSettingsOpen = false"
       :widget-visibility="widgetVisibility"
+      :has-phone-service="true"
       @toggle-widget="handleToggleWidget"
     />
   </div>
@@ -114,6 +115,7 @@ const widgetVisibility = ref({
   travel: true,
   goals: true,
   aiTasks: true,
+  files: true,
   phone: true,
 });
 

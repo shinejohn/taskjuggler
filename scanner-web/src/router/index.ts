@@ -32,6 +32,36 @@ const router = createRouter({
       meta: { guest: true },
     },
     {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('@/pages/auth/ForgotPasswordPage.vue'),
+      meta: { guest: true },
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('@/pages/auth/ResetPasswordPage.vue'),
+      meta: { guest: true },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/pages/ProfilePage.vue'),
+      meta: { 
+        requiresAuth: true,
+        permission: 'scanner:view'
+      },
+    },
+    {
+      path: '/subscribe',
+      name: 'subscribe',
+      component: () => import('@/pages/SubscribePage.vue'),
+      meta: { 
+        requiresAuth: true,
+        permission: 'scanner:view'
+      },
+    },
+    {
       path: '/sites',
       name: 'sites',
       component: () => import('@/pages/SitesPage.vue'),
@@ -73,12 +103,31 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
   
-  // Fetch user if we have token but no user data
-  if (authStore.token && !authStore.user) {
-    await authStore.fetchUser();
+  // Allow landing page and other guest routes without authentication checks
+  if (to.meta.guest || !to.meta.requiresAuth) {
+    // If user is fully authenticated (has both token and user), redirect away from guest routes
+    if (authStore.token && authStore.user) {
+      if (to.name === 'landing' || to.name === 'login' || to.name === 'register') {
+        return next('/dashboard');
+      }
+    }
+    // Otherwise, allow access to guest routes (including landing page for unauthenticated users)
+    return next();
   }
   
-  // Check authentication
+  // For protected routes, fetch user if we have token but no user data
+  if (authStore.token && !authStore.user) {
+    try {
+      await authStore.fetchUser();
+    } catch {
+      // If fetch fails, clear token and redirect to login
+      authStore.logout();
+      const redirectPath = encodeURIComponent(to.fullPath);
+      return next(`/login?redirect=${redirectPath}`);
+    }
+  }
+  
+  // Check authentication for protected routes
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     // Redirect to platform login with redirect parameter
     const redirectPath = encodeURIComponent(to.fullPath);
@@ -105,11 +154,6 @@ router.beforeEach(async (to, _from, next) => {
       // User has no teams, redirect to upgrade or team creation
       return next('/upgrade');
     }
-  }
-  
-  // Guest routes - redirect authenticated users away
-  if (to.meta.guest && authStore.isAuthenticated) {
-    return next('/dashboard');
   }
   
   next();

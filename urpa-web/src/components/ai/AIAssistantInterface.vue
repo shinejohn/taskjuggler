@@ -153,7 +153,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Mic, MicOff, Video, VideoOff, MoreVertical, PhoneOff, Maximize2, MessageSquare, Briefcase, Lightbulb, BarChart3, Smile } from 'lucide-vue-next';
 import StatusIndicator, { type AIStatus } from '@/components/ui/StatusIndicator.vue';
-import { useAiStore } from '@/stores/ai';
 
 type PersonaMode = 'professional' | 'creative' | 'analytical' | 'casual';
 
@@ -196,8 +195,6 @@ const PERSONAS: Persona[] = [
   },
 ];
 
-const aiStore = useAiStore();
-
 const status = ref<AIStatus>('idle');
 const isMuted = ref(false);
 const isVideoOn = ref(true);
@@ -221,14 +218,17 @@ onMounted(() => {
   // Simulate AI behavior
   statusInterval = setInterval(() => {
     const states: AIStatus[] = ['idle', 'listening', 'thinking', 'speaking'];
-    const randomState = states[Math.floor(Math.random() * states.length)];
-    status.value = randomState;
-    if (randomState === 'speaking') {
-      transcript.value = "I've updated your calendar for the Tokyo trip and sent the confirmation emails.";
-    } else if (randomState === 'listening') {
-      transcript.value = 'Listening...';
-    } else {
-      transcript.value = '';
+    const randomIndex = Math.floor(Math.random() * states.length);
+    const randomState = states[randomIndex];
+    if (randomState) {
+      status.value = randomState;
+      if (randomState === 'speaking') {
+        transcript.value = "I've updated your calendar for the Tokyo trip and sent the confirmation emails.";
+      } else if (randomState === 'listening') {
+        transcript.value = 'Listening...';
+      } else {
+        transcript.value = '';
+      }
     }
   }, 5000);
 

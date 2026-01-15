@@ -28,7 +28,7 @@ export const useTasksStore = defineStore('tasks', () => {
     };
 
     try {
-      const response = await api.post('/api/tasks', taskData);
+      const response = await api.post('/tasks', taskData);
       return response.data.data;
     } catch (error: any) {
       // Handle 404 gracefully if task API doesn't exist yet
@@ -61,7 +61,7 @@ export const useTasksStore = defineStore('tasks', () => {
     }));
 
     try {
-      const response = await api.post('/api/tasks/bulk', { tasks });
+      const response = await api.post('/tasks/bulk', { tasks });
       return response.data.data;
     } catch (error: any) {
       // Handle 404 gracefully if task API doesn't exist yet

@@ -51,7 +51,7 @@
               >
                 <div class="flex items-start gap-3">
                   <div :class="['p-2 rounded-lg', theme === 'dark' ? 'bg-slate-600/50' : 'bg-gray-300', getLanguageColor(artifact.language)]">
-                    <component :is="getArtifactIcon(artifact.type)" class="h-5 w-5" />
+                    <component :is="getArtifactIcon(artifact.artifact_type)" class="h-5 w-5" />
                   </div>
                   <div class="flex-1 min-w-0">
                     <h4 :class="['text-sm font-bold truncate', textPrimary]">
@@ -80,7 +80,7 @@
               <div class="flex items-center gap-3">
                 <template v-if="selectedArtifact">
                   <div :class="['p-2 rounded-lg', theme === 'dark' ? 'bg-slate-700' : 'bg-gray-200', getLanguageColor(selectedArtifact.language)]">
-                    <component :is="getArtifactIcon(selectedArtifact.type)" class="h-5 w-5" />
+                    <component :is="getArtifactIcon(selectedArtifact.artifact_type)" class="h-5 w-5" />
                   </div>
                   <div>
                     <h2 :class="['text-xl font-bold', textPrimary]">
@@ -194,7 +194,6 @@
 import { ref, computed } from 'vue';
 import { X, Download, Copy, Check, Code, FileText, Image as ImageIcon, File, Cloud, Save, Folder } from 'lucide-vue-next';
 import { useTheme } from '@/composables/useTheme';
-import { useAiStore } from '@/stores/ai';
 import type { UrpaArtifact } from '@/types/ai';
 import api from '@/utils/api';
 
@@ -209,7 +208,6 @@ const emit = defineEmits<{
 }>();
 
 const { theme } = useTheme();
-const aiStore = useAiStore();
 
 const selectedArtifact = ref<UrpaArtifact | null>(props.artifacts[0] || null);
 const copiedId = ref<string | null>(null);

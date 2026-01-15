@@ -51,7 +51,7 @@
       <!-- Plans Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div
-          v-for="(plan, idx) in plans"
+          v-for="plan in plans"
           :key="plan.id"
           class="relative"
         >
@@ -110,7 +110,7 @@
         </p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <button
-            v-for="(addon, idx) in addons"
+            v-for="addon in addons"
             :key="addon.id"
             @click="toggleAddon(addon.id)"
             :class="['p-6 rounded-xl border-2 transition-all text-left', selectedAddons.includes(addon.id) ? 'border-teal-500 bg-slate-800/80 shadow-lg shadow-teal-500/20' : 'border-slate-700 bg-slate-900/50 hover:border-slate-600']"
@@ -217,9 +217,7 @@ import {
   Zap,
   Crown,
   Sparkles,
-  Phone,
   Users,
-  BarChart3,
   Shield,
   ArrowRight,
   MessageCircle,
@@ -319,15 +317,6 @@ const addons = ref<Addon[]>([
     description: 'Additional team member (per seat)',
     features: ['Full platform access', 'Shared workspace', 'Team collaboration'],
   },
-  {
-    id: 'analytics',
-    name: 'Advanced Analytics',
-    price: 49,
-    icon: BarChart3,
-    gradient: 'from-blue-600 to-cyan-600',
-    description: 'Deep insights and custom reports',
-    features: ['Custom dashboards', 'Export reports', 'API access'],
-  },
 ]);
 
 function toggleAddon(addonId: string) {
@@ -350,15 +339,16 @@ async function handleCheckout() {
   isProcessing.value = true;
   try {
     // Create subscription via API
-    const response = await api.post('/urpa/subscriptions/create', {
+    const response = await api.post('/subscriptions/checkout', {
       plan_id: selectedPlan.value,
       billing_period: billingPeriod.value,
       addons: selectedAddons.value,
     });
 
     // Redirect to Stripe checkout
-    if (response.data.checkout_url) {
-      window.location.href = response.data.checkout_url;
+    const checkoutUrl = response.data.data?.checkout_url || response.data.checkout_url;
+    if (checkoutUrl) {
+      window.location.href = checkoutUrl;
     } else {
       // If no checkout URL, redirect to dashboard
       router.push('/');

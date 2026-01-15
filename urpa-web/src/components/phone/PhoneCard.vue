@@ -156,7 +156,7 @@
             </div>
             <div class="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
               <button
-                v-for="(call, index) in filteredCalls"
+                v-for="call in filteredCalls"
                 :key="call.id"
                 @click="selectedCall = call"
                 :class="['w-full text-left p-3 rounded-lg border-2 transition-all group', cardBorder, itemBg]"

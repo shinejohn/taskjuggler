@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-vue-next';
 import { useTheme } from '@/composables/useTheme';
