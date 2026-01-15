@@ -1,154 +1,123 @@
 <template>
-  <nav class="glass-subtle py-4 px-6 lg:px-12 sticky top-0 z-50 border-b border-border transition-all duration-normal">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center">
-          <router-link to="/" class="text-display-small font-bold text-primary hover:text-primary-hover transition-colors duration-fast">
+  <nav
+    :class="[
+      'sticky top-0 z-50 transition-all duration-200',
+      isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-sm' : 'bg-transparent'
+    ]"
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <router-link to="/" class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/20">
+            IC
+          </div>
+          <span class="text-xl font-bold text-slate-900">
             IdeaCircuit
+          </span>
+        </router-link>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#features" class="text-slate-600 hover:text-emerald-600 font-medium transition-colors">
+            Features
+          </a>
+          <a href="#pricing" class="text-slate-600 hover:text-emerald-600 font-medium transition-colors">
+            Pricing
+          </a>
+          <a href="#testimonials" class="text-slate-600 hover:text-emerald-600 font-medium transition-colors">
+            Reviews
+          </a>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="hidden md:flex items-center gap-4">
+          <router-link 
+            v-if="!isAuthenticated"
+            to="/login" 
+            class="text-slate-600 hover:text-emerald-600 font-medium transition-colors"
+          >
+            Login
+          </router-link>
+          <router-link
+            v-if="!isAuthenticated"
+            to="/signup"
+            class="px-5 py-2 border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white font-semibold rounded-lg transition-all duration-200"
+          >
+            Sign Up
+          </router-link>
+          <router-link
+            v-if="!isAuthenticated"
+            to="/subscribe"
+            class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-lg shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 transition-all duration-200"
+          >
+            Subscribe
+          </router-link>
+          <router-link
+            v-if="isAuthenticated"
+            to="/profile"
+            class="flex items-center gap-2 text-slate-600 hover:text-emerald-600 font-medium transition-colors"
+          >
+            <UserIcon :size="18" />
+            <span>Profile</span>
           </router-link>
         </div>
-        <div class="hidden md:flex items-center space-x-8">
-          <a href="#features" class="text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast">
-            Features
-          </a>
-          <a href="#pricing" class="text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast">
-            Pricing
-          </a>
-          <a href="#testimonials" class="text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast">
-            Reviews
-          </a>
-          <!-- Application Pages -->
-          <div class="flex items-center space-x-4 border-l border-border pl-4">
-            <router-link 
-              to="/presentation" 
-              class="flex items-center space-x-1 text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast"
-            >
-              <PresentationIcon :size="16" />
-              <span>Presentation</span>
-            </router-link>
-            <router-link 
-              to="/report" 
-              class="flex items-center space-x-1 text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast"
-            >
-              <BarChart2Icon :size="16" />
-              <span>Reports</span>
-            </router-link>
-            <router-link 
-              v-if="isAuthenticated"
-              to="/profile" 
-              class="flex items-center space-x-1 text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast"
-            >
-              <UserIcon :size="16" />
-              <span>Profile</span>
-            </router-link>
-            <router-link 
-              v-else
-              to="/login" 
-              class="flex items-center space-x-1 text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast"
-            >
-              <UserIcon :size="16" />
-              <span>Login</span>
-            </router-link>
-          </div>
-          <Button
-            v-if="!isAuthenticated"
-            as-child
-            variant="default"
-            class="min-h-[44px]"
-          >
-            <router-link to="/signup">
-              Get Started
-            </router-link>
-          </Button>
-        </div>
-        <div class="md:hidden">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            class="min-h-[44px] min-w-[44px]"
-            @click="isMenuOpen = !isMenuOpen"
-            aria-label="Toggle menu"
-          >
-            <XIcon v-if="isMenuOpen" :size="24" />
-            <MenuIcon v-else :size="24" />
-          </Button>
-        </div>
+
+        <!-- Mobile Menu Button -->
+        <button
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          class="md:hidden p-2 text-slate-600"
+        >
+          <MenuIcon v-if="!mobileMenuOpen" :size="24" />
+          <XIcon v-else :size="24" />
+        </button>
       </div>
-      
-      <!-- Mobile menu -->
-      <div v-if="isMenuOpen" class="md:hidden mt-4 glass-subtle border-t border-border pt-4">
-        <div class="flex flex-col space-y-4 pb-4">
-          <a 
-            href="#features" 
-            class="text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast" 
-            @click="isMenuOpen = false"
-          >
+
+      <!-- Mobile Menu -->
+      <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t border-slate-200">
+        <div class="flex flex-col space-y-4">
+          <a href="#features" class="text-slate-600 hover:text-emerald-600 font-medium" @click="mobileMenuOpen = false">
             Features
           </a>
-          <a 
-            href="#pricing" 
-            class="text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast" 
-            @click="isMenuOpen = false"
-          >
+          <a href="#pricing" class="text-slate-600 hover:text-emerald-600 font-medium" @click="mobileMenuOpen = false">
             Pricing
           </a>
-          <a 
-            href="#testimonials" 
-            class="text-text-secondary hover:text-primary font-medium text-body-medium transition-colors duration-fast" 
-            @click="isMenuOpen = false"
-          >
+          <a href="#testimonials" class="text-slate-600 hover:text-emerald-600 font-medium" @click="mobileMenuOpen = false">
             Reviews
           </a>
-          <!-- Application Pages -->
-          <div class="border-t border-border pt-4">
-            <div class="text-caption font-semibold text-text-tertiary mb-2">Application</div>
-            <router-link 
-              to="/presentation" 
-              class="flex items-center space-x-2 text-text-secondary hover:text-primary font-medium text-body-medium py-2 transition-colors duration-fast" 
-              @click="isMenuOpen = false"
-            >
-              <PresentationIcon :size="16" />
-              <span>Presentation</span>
-            </router-link>
-            <router-link 
-              to="/report" 
-              class="flex items-center space-x-2 text-text-secondary hover:text-primary font-medium text-body-medium py-2 transition-colors duration-fast" 
-              @click="isMenuOpen = false"
-            >
-              <BarChart2Icon :size="16" />
-              <span>Reports</span>
-            </router-link>
-            <router-link 
-              v-if="isAuthenticated"
-              to="/profile" 
-              class="flex items-center space-x-2 text-text-secondary hover:text-primary font-medium text-body-medium py-2 transition-colors duration-fast" 
-              @click="isMenuOpen = false"
-            >
-              <UserIcon :size="16" />
-              <span>Profile</span>
-            </router-link>
-            <router-link 
-              v-else
-              to="/login" 
-              class="flex items-center space-x-2 text-text-secondary hover:text-primary font-medium text-body-medium py-2 transition-colors duration-fast" 
-              @click="isMenuOpen = false"
-            >
-              <UserIcon :size="16" />
-              <span>Login</span>
-            </router-link>
-          </div>
-          <Button
+          <router-link 
             v-if="!isAuthenticated"
-            as-child
-            variant="default"
-            class="min-h-[44px]"
-            @click="isMenuOpen = false"
+            to="/login" 
+            class="text-slate-600 hover:text-emerald-600 font-medium" 
+            @click="mobileMenuOpen = false"
           >
-            <router-link to="/signup">
-              Get Started
-            </router-link>
-          </Button>
+            Login
+          </router-link>
+          <router-link
+            v-if="!isAuthenticated"
+            to="/signup"
+            class="px-5 py-2 border-2 border-emerald-600 text-emerald-600 font-semibold rounded-lg text-center"
+            @click="mobileMenuOpen = false"
+          >
+            Sign Up
+          </router-link>
+          <router-link
+            v-if="!isAuthenticated"
+            to="/subscribe"
+            class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-lg text-center shadow-lg shadow-emerald-500/30"
+            @click="mobileMenuOpen = false"
+          >
+            Subscribe
+          </router-link>
+          <router-link
+            v-if="isAuthenticated"
+            to="/profile"
+            class="flex items-center gap-2 text-slate-600 hover:text-emerald-600 font-medium py-2"
+            @click="mobileMenuOpen = false"
+          >
+            <UserIcon :size="18" />
+            <span>Profile</span>
+          </router-link>
         </div>
       </div>
     </div>
@@ -156,12 +125,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { MenuIcon, XIcon, PresentationIcon, BarChart2Icon, UserIcon } from 'lucide-vue-next';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { MenuIcon, XIcon, UserIcon } from 'lucide-vue-next';
 import { useAuth } from '@/composables/useAuth';
-import { Button } from '@/components/ui';
 
 const { isAuthenticated } = useAuth();
-const isMenuOpen = ref(false);
+const isScrolled = ref(false);
+const mobileMenuOpen = ref(false);
+
+function handleScroll() {
+  isScrolled.value = window.scrollY > 10;
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
