@@ -3,6 +3,7 @@
 namespace App\Modules\Coordinator\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Coordinator\Services\CoordinatorCommunicationService;
 use App\Modules\Coordinator\Models\Organization;
 use App\Modules\Coordinator\Models\CallLog;
 use Illuminate\Http\Request;

@@ -81,4 +81,45 @@ return [
         'model_id' => env('ELEVENLABS_MODEL_ID', 'eleven_multilingual_v2'),
     ],
 
+    'aws' => [
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
+
+    'aws_connect' => [
+        'instance_id' => env('AWS_CONNECT_INSTANCE_ID'),
+        'contact_flow_id' => env('AWS_CONNECT_CONTACT_FLOW_ID'),
+        'queue_id' => env('AWS_CONNECT_QUEUE_ID'),
+        'webhook_url' => env('AWS_CONNECT_WEBHOOK_URL'),
+    ],
+
+    'aws_sns' => [
+        'topic_arn' => env('AWS_SNS_TOPIC_ARN'),
+        'sms_type' => env('AWS_SNS_SMS_TYPE', 'Transactional'),
+        'sender_id' => env('AWS_SNS_SENDER_ID'),
+    ],
+
+    'aws_pinpoint' => [
+        'application_id' => env('AWS_PINPOINT_APPLICATION_ID'),
+        'sender_id' => env('AWS_PINPOINT_SENDER_ID'),
+    ],
+
+    'aws_s3' => [
+        'bucket' => env('AWS_S3_BUCKET'),
+        'region' => env('AWS_S3_REGION', env('AWS_DEFAULT_REGION', 'us-east-1')),
+        'recordings_path' => env('AWS_S3_RECORDINGS_PATH', 'recordings'),
+        'audio_path' => env('AWS_S3_AUDIO_PATH', 'audio'),
+    ],
+
+    'aws_transcribe' => [
+        'language_code' => env('AWS_TRANSCRIBE_LANGUAGE_CODE', 'en-US'),
+        'output_bucket' => env('AWS_TRANSCRIBE_OUTPUT_BUCKET', env('AWS_S3_BUCKET')),
+        'output_key_prefix' => env('AWS_TRANSCRIBE_OUTPUT_KEY_PREFIX', 'transcriptions'),
+    ],
+
+    'phone_number' => [
+        'provider' => env('PHONE_NUMBER_PROVIDER', 'twilio'), // 'twilio' or 'aws'
+    ],
+
 ];

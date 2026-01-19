@@ -119,3 +119,5 @@ class ScannerIssueController extends Controller
     }
 }
 
+
+

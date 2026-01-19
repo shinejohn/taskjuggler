@@ -37,3 +37,5 @@ export const activityLogger = {
     activityLogger.log('issue.status_changed', { issue_id: issueId, old_status: oldStatus, new_status: newStatus }),
 }
 
+
+

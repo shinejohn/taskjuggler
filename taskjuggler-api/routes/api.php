@@ -54,6 +54,9 @@ require base_path('app/Modules/Processes/Routes/api.php');
 // Load Projects module routes
 require base_path('app/Modules/Projects/Routes/api.php');
 
+// Load Communications module routes
+require base_path('app/Modules/Communications/Routes/api.php');
+
 // Load Coordinator routes
 if (file_exists(base_path('routes/coordinator.php'))) {
     require base_path('routes/coordinator.php');

@@ -57,3 +57,5 @@ class NoteCreated implements ShouldBroadcast
 
 
 
+
+

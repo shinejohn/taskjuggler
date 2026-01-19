@@ -5,11 +5,15 @@ namespace App\Modules\Urpa\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Urpa\Events\PhoneCallStatusChanged;
 use App\Modules\Urpa\Models\UrpaPhoneCall;
+use App\Modules\Urpa\Services\UrpaCommunicationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class PhoneController extends Controller
 {
+    public function __construct(
+        private UrpaCommunicationService $communicationService
+    ) {}
     /**
      * Get phone calls for user
      * GET /api/urpa/phone/calls

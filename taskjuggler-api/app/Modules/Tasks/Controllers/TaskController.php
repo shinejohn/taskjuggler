@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\TaskAction;
 use App\Events\TaskCreated;
+use App\Events\TaskUpdated;
 use App\Events\TaskAssigned;
 use App\Events\TaskCompleted;
 use App\Services\Calendar\CalendarService;
@@ -123,6 +124,8 @@ class TaskController extends Controller
         if (!empty($validated)) {
             $task->update($validated);
         }
+
+        event(new TaskUpdated($task));
 
         return response()->json($task->fresh());
     }

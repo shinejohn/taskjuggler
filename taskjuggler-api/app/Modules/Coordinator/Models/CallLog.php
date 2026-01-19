@@ -14,6 +14,7 @@ class CallLog extends Model
 
     protected $fillable = [
         'organization_id',
+        'communication_call_id',
         'coordinator_id',
         'contact_id',
         'phone_number_id',
@@ -58,6 +59,11 @@ class CallLog extends Model
     public function contact(): BelongsTo
     {
         return $this->belongsTo(Contact::class);
+    }
+
+    public function communicationCall(): BelongsTo
+    {
+        return $this->belongsTo(\App\Modules\Communications\Models\CommunicationCall::class, 'communication_call_id');
     }
 
     /**

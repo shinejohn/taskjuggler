@@ -9,7 +9,14 @@ Route::middleware(['auth:sanctum', TeamContext::class])->group(function () {
     Route::apiResource('projects', ProjectController::class);
     Route::get('/projects/{project}/stats', [ProjectController::class, 'stats']);
 
-    // Project Members (using TeamController pattern)
-    // Note: Project member management can be added here or in a separate controller
+    // Project Members
+    Route::prefix('projects/{project}')->group(function () {
+        Route::get('/members', [\App\Modules\Projects\Controllers\ProjectMemberController::class, 'index']);
+        Route::post('/members', [\App\Modules\Projects\Controllers\ProjectMemberController::class, 'store']);
+        Route::put('/members/{member}', [\App\Modules\Projects\Controllers\ProjectMemberController::class, 'update']);
+        Route::delete('/members/{member}', [\App\Modules\Projects\Controllers\ProjectMemberController::class, 'destroy']);
+    });
 });
+
+
 

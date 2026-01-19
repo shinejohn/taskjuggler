@@ -144,15 +144,20 @@ class Task extends Model
         return $this->hasMany(TaskInvitation::class);
     }
 
-    public function project()
+    /**
+     * Project this task belongs to
+     */
+    public function project(): BelongsTo
     {
         return $this->belongsTo(\App\Modules\Projects\Models\Project::class);
     }
 
-    public function process()
+    /**
+     * Process this task is associated with
+     */
+    public function process(): BelongsTo
     {
         return $this->belongsTo(\App\Modules\Processes\Models\Process::class);
-    }
     }
 
     /**

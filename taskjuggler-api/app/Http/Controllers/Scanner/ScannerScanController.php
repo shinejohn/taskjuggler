@@ -100,3 +100,5 @@ class ScannerScanController extends Controller
     }
 }
 
+
+
