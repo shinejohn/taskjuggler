@@ -109,7 +109,7 @@ class AwsS3Service
     /**
      * Upload generic audio file
      */
-    public function uploadAudioFile($file, string $path, string $filename = null): array
+    public function uploadAudioFile($file, string $path, ?string $filename = null): array
     {
         try {
             $filename = $filename ?? basename($file);

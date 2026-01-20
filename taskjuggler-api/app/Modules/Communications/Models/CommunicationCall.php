@@ -97,7 +97,7 @@ class CommunicationCall extends Model
         ]);
     }
 
-    public function markAsFailed(string $reason = null): void
+    public function markAsFailed(?string $reason = null): void
     {
         $this->update([
             'status' => 'failed',

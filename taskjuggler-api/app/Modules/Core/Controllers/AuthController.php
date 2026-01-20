@@ -30,6 +30,7 @@ class AuthController extends \App\Http\Controllers\Controller
             ]);
         } catch (ValidationException $e) {
             // Re-throw validation exceptions so Laravel handles them properly
+            \Log::error('Validation failed: ' . json_encode($e->errors()));
             throw $e;
         } catch (\Exception $e) {
             \Log::error('Registration error: ' . $e->getMessage(), [
