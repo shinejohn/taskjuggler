@@ -193,7 +193,7 @@ function getContactEmail(appointment: Appointment): string {
 
 function getCoordinatorName(appointment: Appointment): string {
   if ((appointment as any).coordinator) {
-    return (appointment as any).coordinator.display_name || 'Coordinator';
+    return (appointment as any).coordinator.display_name || '4 Call';
   }
   return 'N/A';
 }
@@ -222,13 +222,13 @@ function getStatusClass(status: string): string {
 
 function handleCancel() {
   if (props.appointment) {
-    // emit('cancel', props.appointment);
+    emit('cancel', props.appointment);
   }
 }
 
 function handleEdit() {
   if (props.appointment) {
-    // emit('edit', props.appointment);
+    emit('edit', props.appointment);
   }
 }
 </script>

@@ -13,7 +13,7 @@
       <h1 class="text-4xl md:text-5xl font-heading font-bold text-[#1B4F72] mb-3">
         You're All Set!
       </h1>
-      <p class="text-xl text-slate-600">Meet your new Coordinator</p>
+      <p class="text-xl text-slate-600">Meet your new 4 Call</p>
     </div>
 
     <!-- Center Section - Persona Card -->

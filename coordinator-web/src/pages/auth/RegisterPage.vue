@@ -1,7 +1,7 @@
 <template>
   <SignUpPageTemplate
-    app-name="Coordinator"
-    app-tagline="Client Coordination Platform"
+    app-name="4Calls.ai"
+    app-tagline="AI Assistant Platform"
     :logo-icon="Users"
     logo-gradient="bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/20"
     tagline-color="text-emerald-400"

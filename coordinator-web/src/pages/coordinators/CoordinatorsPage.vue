@@ -5,7 +5,7 @@
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 class="text-3xl font-heading font-bold text-[#1B4F72]">
-            Your Coordinators
+            Your 4 Calls
           </h1>
           <p class="text-slate-500 mt-1">Manage your AI assistant team</p>
         </div>
@@ -14,14 +14,14 @@
           class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
         >
           <Plus :size="18" />
-          Hire New Coordinator
+          Hire New 4 Call
         </button>
       </div>
 
       <!-- Loading State -->
       <div v-if="coordinatorsStore.loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B4F72]"></div>
-        <p class="mt-4 text-slate-500">Loading coordinators...</p>
+        <p class="mt-4 text-slate-500">Loading 4 Calls...</p>
       </div>
 
       <!-- Error State -->
@@ -38,7 +38,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search coordinators..."
+              placeholder="Search 4 Calls..."
               class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72]"
             />
           </div>
@@ -76,7 +76,7 @@
             v-for="coord in filteredCoordinators"
             :key="coord.id"
             :id="coord.id"
-            :name="coord.display_name || coord.role_template?.name || 'Coordinator'"
+            :name="coord.display_name || coord.role_template?.name || '4 Call'"
             :role="coord.role_template?.name || 'Unknown Role'"
             :status="coord.status === 'active' ? 'active' : 'paused'"
             :price="`$${coord.monthly_price}/mo`"
@@ -85,12 +85,12 @@
 
         <!-- Empty State -->
         <div v-if="filteredCoordinators.length === 0" class="text-center py-12 bg-white rounded-xl border border-slate-200">
-          <p class="text-slate-500 mb-4">No coordinators found</p>
+          <p class="text-slate-500 mb-4">No 4 Calls found</p>
           <button
             @click="showCreateModal = true"
             class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold rounded-lg"
           >
-            Hire Your First Coordinator
+            Hire Your First 4 Call
           </button>
         </div>
       </template>
@@ -106,8 +106,8 @@
         class="bg-white rounded-xl p-8 max-w-md w-full mx-4"
         @click.stop
       >
-        <h3 class="text-2xl font-bold text-[#1B4F72] mb-6">Hire New Coordinator</h3>
-        <p class="text-slate-600 mb-6">Select a role template to create a new coordinator</p>
+        <h3 class="text-2xl font-bold text-[#1B4F72] mb-6">Hire New 4 Call</h3>
+        <p class="text-slate-600 mb-6">Select a role template to create a new 4 Call</p>
         <!-- Role selection would go here - simplified for now -->
         <div class="flex gap-3 justify-end">
           <button

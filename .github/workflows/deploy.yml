@@ -1,0 +1,60 @@
+name: Deploy to AWS
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [
+          coordinator-web,
+          taskjuggler-web,
+          taskjuggler-api,
+          scanner-mcp,
+          scanner-worker
+        ]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and Push
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      working-directory: ${{ matrix.service }}
+      run: |
+        docker build -t $ECR_REGISTRY/${{ matrix.service }}:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/${{ matrix.service }}:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/${{ matrix.service }}:$IMAGE_TAG $ECR_REGISTRY/${{ matrix.service }}:latest
+        docker push $ECR_REGISTRY/${{ matrix.service }}:latest
+
+    - name: Deploy to ECS
+      run: |
+        echo "Updating service ${{ matrix.service }}..."
+        # api-call to update service task definition would go here

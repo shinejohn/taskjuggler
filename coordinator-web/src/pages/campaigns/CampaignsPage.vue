@@ -8,7 +8,7 @@
             Campaigns
           </h1>
           <p class="text-slate-500 mt-1">
-            Automated outreach powered by your Coordinators
+            Automated outreach powered by your 4 Calls
           </p>
         </div>
         <button

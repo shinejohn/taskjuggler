@@ -2,7 +2,7 @@
   <div class="w-full">
     <div class="text-center mb-8">
       <h1 class="text-3xl md:text-4xl font-heading font-bold text-[#1B4F72] mb-2">
-        Choose Your Coordinator
+        Choose Your 4 Call
       </h1>
       <p class="text-lg text-slate-600">
         What role do you need help with?

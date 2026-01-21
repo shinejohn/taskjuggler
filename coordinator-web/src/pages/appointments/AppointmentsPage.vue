@@ -80,7 +80,7 @@
                 <th class="px-6 py-3">Date/Time</th>
                 <th class="px-6 py-3">Contact</th>
                 <th class="px-6 py-3">Type</th>
-                <th class="px-6 py-3">Coordinator</th>
+                <th class="px-6 py-3">4 Call</th>
                 <th class="px-6 py-3">Status</th>
                 <th class="px-6 py-3 text-right">Actions</th>
               </tr>

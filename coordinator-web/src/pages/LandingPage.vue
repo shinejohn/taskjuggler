@@ -92,7 +92,7 @@
             Built for Your Industry
           </h2>
           <p class="text-xl text-slate-600">
-            Coordinators trained for specific business types
+            4 Calls trained for specific business types
           </p>
         </div>
 
@@ -156,7 +156,7 @@
     <section class="py-24 bg-gradient-to-br from-[#1B4F72] to-[#2563EB] text-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-4xl md:text-5xl font-heading font-bold mb-4">
-          Ready to Hire Your First Coordinator?
+          Ready to Hire Your First 4 Call?
         </h2>
         <p class="text-xl text-blue-100 mb-8">
           Join 500+ businesses already saving time and never missing calls.
@@ -197,7 +197,7 @@ const howItWorksSteps = [
   {
     step: '1',
     icon: Users,
-    title: 'Choose Your Coordinator',
+    title: 'Choose Your 4 Call',
     description: 'Pick the role you need — Receptionist, Scheduler, Collector, or more. Each is trained for specific tasks.',
   },
   {
@@ -210,7 +210,7 @@ const howItWorksSteps = [
     step: '3',
     icon: Rocket,
     title: 'Go Live',
-    description: 'Forward your phone and start receiving calls. Your Coordinator is ready to work.',
+    description: 'Forward your phone and start receiving calls. Your 4 Call is ready to work.',
   },
 ];
 
@@ -233,7 +233,7 @@ const features = [
   {
     icon: Lightbulb,
     title: 'Industry Intelligence',
-    desc: "Each Coordinator knows your industry's terminology and workflows.",
+    desc: "Each 4 Call knows your industry's terminology and workflows.",
   },
   {
     icon: Clock,

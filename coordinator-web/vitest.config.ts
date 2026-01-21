@@ -1,18 +1,12 @@
-import { defineConfig } from 'vitest/config';
-import vue from '@vitejs/plugin-vue';
-import path from 'path';
+import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
+import viteConfig from './vite.config'
 
-export default defineConfig({
-  plugins: [vue()],
+export default mergeConfig(viteConfig, defineConfig({
   test: {
-    globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-});
-
+    exclude: [...configDefaults.exclude, 'e2e/*'],
+    root: '.',
+    reporter: ['default', 'junit'],
+    outputFile: 'junit.xml' // for CI
+  }
+}))

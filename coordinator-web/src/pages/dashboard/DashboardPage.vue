@@ -8,12 +8,12 @@
             Dashboard
           </h1>
           <p class="text-slate-500 mt-1">
-            Welcome back! Here's what's happening with your Coordinators.
+            Welcome back! Here's what's happening with your 4 Calls.
           </p>
         </div>
         <Button variant="default" class="bg-[#F59E0B] hover:bg-[#D97706] text-white" as-child>
           <router-link to="/coordinators" class="flex items-center gap-2">
-            Manage Coordinators
+            Manage 4 Calls
             <ArrowRight :size="18" />
           </router-link>
         </Button>
@@ -68,24 +68,24 @@
             <section>
               <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-[#1B4F72]">
-                  Active Coordinators
+                  Active 4 Calls
                 </h2>
                 <router-link to="/coordinators" class="text-sm font-medium text-[#1B4F72] hover:underline">
                   View All
                 </router-link>
               </div>
               <div v-if="coordinatorsStore.loading" class="text-slate-500 text-center py-8">
-                Loading coordinators...
+                Loading 4 Calls...
               </div>
               <div v-else-if="activeCoordinators.length === 0" class="text-slate-500 text-center py-8">
-                No active coordinators. <router-link to="/coordinators" class="text-[#1B4F72] hover:underline">Add one</router-link> to get started.
+                No active 4 Calls. <router-link to="/coordinators" class="text-[#1B4F72] hover:underline">Add one</router-link> to get started.
               </div>
               <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <CoordinatorCard
                   v-for="coord in activeCoordinators.slice(0, 3)"
                   :key="coord.id"
                   :id="coord.id"
-                  :name="coord.display_name || coord.role_template?.name || 'Coordinator'"
+                  :name="coord.display_name || coord.role_template?.name || '4 Call'"
                   :role="coord.role_template?.name || 'Unknown Role'"
                   :status="coord.status === 'active' ? 'active' : 'paused'"
                   :compact="true"
@@ -102,7 +102,7 @@
                       <Plus :size="24" />
                     </div>
                     <span class="font-medium text-slate-600 group-hover:text-[#1B4F72]">
-                      Add Coordinator
+                      Add 4 Call
                     </span>
                   </router-link>
                 </Card>
@@ -124,7 +124,7 @@
                       <TableRow>
                         <TableHead>Time</TableHead>
                         <TableHead>Contact</TableHead>
-                        <TableHead>Coordinator</TableHead>
+                        <TableHead>4 Call</TableHead>
                         <TableHead>Duration</TableHead>
                         <TableHead>Outcome</TableHead>
                       </TableRow>

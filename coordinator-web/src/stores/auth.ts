@@ -19,8 +19,9 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true;
     try {
       const response = await api.post('/auth/login', { email, password });
-      token.value = response.data.token;
-      user.value = response.data.user;
+      const responseData = response.data.data || response.data;
+      token.value = responseData.token;
+      user.value = responseData.user;
       if (token.value) {
         localStorage.setItem('coordinator_token', token.value as string);
       }
@@ -34,8 +35,9 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true;
     try {
       const response = await api.post('/auth/register', data);
-      token.value = response.data.token;
-      user.value = response.data.user;
+      const responseData = response.data.data || response.data;
+      token.value = responseData.token;
+      user.value = responseData.user;
       if (token.value) {
         localStorage.setItem('coordinator_token', token.value as string);
       }

@@ -43,7 +43,7 @@ export function getCoordinatorName(item: {
   coordinator?: {
     display_name?: string;
   } | null;
-}, defaultName = 'Coordinator'): string {
+}, defaultName = '4 Call'): string {
   if (!item.coordinator) return defaultName;
   return item.coordinator.display_name || defaultName;
 }

@@ -17,10 +17,12 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
     try {
       const response = await api.post<LoginResponse>('/auth/login', { email, password });
-      token.value = response.data.token;
-      user.value = response.data.user;
-      localStorage.setItem('urpa_token', token.value);
-      return response.data;
+      const responseData: any = response.data;
+      const data = responseData.data || responseData;
+      token.value = data.token;
+      user.value = data.user;
+      localStorage.setItem('urpa_token', token.value as string);
+      return data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Login failed';
       throw err;
@@ -34,10 +36,12 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
     try {
       const response = await api.post<LoginResponse>('/auth/register', data);
-      token.value = response.data.token;
-      user.value = response.data.user;
-      localStorage.setItem('urpa_token', token.value);
-      return response.data;
+      const responseData: any = response.data;
+      const data = responseData.data || responseData;
+      token.value = data.token;
+      user.value = data.user;
+      localStorage.setItem('urpa_token', token.value as string);
+      return data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Registration failed';
       throw err;

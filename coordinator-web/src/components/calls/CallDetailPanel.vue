@@ -45,7 +45,7 @@
             <div class="flex items-center gap-3 text-right">
               <div>
                 <div class="font-bold text-slate-900">{{ getCoordinatorName(call) }}</div>
-                <div class="text-xs text-slate-500">Coordinator</div>
+                <div class="text-xs text-slate-500">4 Call</div>
               </div>
               <div class="w-10 h-10 rounded-full bg-blue-100 text-[#1B4F72] flex items-center justify-center font-bold">
                 {{ getCoordinatorInitial(call) }}
@@ -228,7 +228,7 @@ function getContactName(call: CallLog): string {
 
 function getCoordinatorName(call: CallLog): string {
   if ((call as any).coordinator) {
-    return (call as any).coordinator.display_name || 'Coordinator';
+    return (call as any).coordinator.display_name || '4 Call';
   }
   return 'Unknown';
 }

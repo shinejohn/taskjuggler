@@ -105,7 +105,7 @@
         <div class="space-y-4">
           <div>
             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-              By Coordinator
+              By 4 Call
             </h4>
             <div class="space-y-2">
               <label
@@ -355,6 +355,8 @@
       :appointment="selectedAppointment"
       :is-open="showAppointmentModal"
       @close="showAppointmentModal = false"
+      @cancel="handleCancelAppointment"
+      @edit="handleEditAppointment"
     />
   </div>
 </template>
@@ -573,7 +575,7 @@ function getContactName(appt: Appointment): string {
 
 function getCoordinatorName(appt: Appointment): string {
   if ((appt as any).booked_by_coordinator) {
-    return (appt as any).booked_by_coordinator.display_name || 'Coordinator';
+    return (appt as any).booked_by_coordinator.display_name || '4 Call';
   }
   return 'N/A';
 }
@@ -613,6 +615,24 @@ function getAppointmentStyle(appt: Appointment) {
 function viewAppointment(appt: Appointment) {
   selectedAppointment.value = appt;
   showAppointmentModal.value = true;
+}
+
+async function handleCancelAppointment(appt: Appointment) {
+  if (!confirm('Are you sure you want to cancel this appointment?')) return;
+  
+  try {
+    await appointmentsStore.cancelAppointment(appt.id);
+    showAppointmentModal.value = false;
+  } catch (error) {
+    console.error('Failed to cancel appointment:', error);
+  }
+}
+
+function handleEditAppointment(appt: Appointment) {
+  // Logic to open edit modal or navigate to edit page
+  showAppointmentModal.value = false;
+  // TODO: Implement edit flow
+  console.log('Edit appointment:', appt);
 }
 
 function getAppointmentsForDate(date: string): Appointment[] {

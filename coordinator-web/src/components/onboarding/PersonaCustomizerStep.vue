@@ -5,7 +5,7 @@
         Customize Your Assistant
       </h1>
       <p class="text-lg text-slate-600">
-        Give your coordinator a personality and identity
+        Give your 4 Call a personality and identity
       </p>
     </div>
 
@@ -173,7 +173,7 @@
               </div>
               <div>
                 <h3 class="text-xl font-bold mb-1">
-                  {{ formData.name || 'Your Coordinator' }}
+                  {{ formData.name || 'Your 4 Call' }}
                 </h3>
                 <p class="text-blue-200 text-sm">
                   {{ formData.businessName || 'Your Business' }}
@@ -291,7 +291,7 @@ const personalityOptions = [
 ];
 
 const previewGreeting = computed(() => {
-  const name = formData.value.name || 'Your Coordinator';
+  const name = formData.value.name || 'Your 4 Call';
   const business = formData.value.businessName || 'Your Business';
   return `Hi, I'm ${name}! Thanks for calling ${business}. How can I help you today?`;
 });
