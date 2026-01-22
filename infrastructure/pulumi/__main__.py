@@ -46,7 +46,8 @@ compute_stack = compute.create_compute(
     security_stack
 )
 monitoring_stack = monitoring.create_monitoring(project_name, environment, compute_stack)
-dns_stack = dns.create_dns(project_name, environment, compute_stack)
+# Create DNS stack - pass domain_aliases to extract external domains for CloudFront cert
+dns_stack = dns.create_dns(project_name, environment, compute_stack, domain_aliases=domain_aliases)
 scanner_stack = scanner.create_scanner_infrastructure(
     project_name,
     environment,
@@ -69,7 +70,7 @@ frontend_projects = [
 
 # Domain Aliases for Frontends
 domain_aliases = {
-    "coordinator-web": ["app.4calls.ai"],
+    "coordinator-web": ["4calls.ai"],
     "taskjuggler-web": ["app.taskjuggler.com"],
     "scanner-web": ["scanner.taskjuggler.com"],
     "projects-web": ["projects.taskjuggler.com"],
@@ -79,12 +80,13 @@ domain_aliases = {
 }
 
 # Frontend deployment infrastructure (S3 + CloudFront)
+# Use CloudFront certificate for frontends (must be in us-east-1)
 frontend_deployment_stack = frontend_deployment.create_frontend_deployment(
     project_name,
     environment,
     frontend_projects,
     aliases=domain_aliases,
-    acm_certificate_arn=dns_stack["certificate_arn"],
+    acm_certificate_arn=dns_stack.get("cloudfront_certificate_arn") or dns_stack["certificate_arn"],
 )
 
 # Create DNS records for frontend subdomains

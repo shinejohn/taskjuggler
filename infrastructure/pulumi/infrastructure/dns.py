@@ -52,7 +52,7 @@ def create_frontend_dns_records(
     return frontend_records
 
 
-def create_dns(project_name: str, environment: str, compute: dict) -> dict:
+def create_dns(project_name: str, environment: str, compute: dict, domain_aliases: dict = None) -> dict:
     """Create DNS infrastructure"""
     
     config = pulumi.Config()
@@ -74,11 +74,11 @@ def create_dns(project_name: str, environment: str, compute: dict) -> dict:
     else:
         hosted_zone = None
     
-    # ACM Certificate for HTTPS
+    # ACM Certificate for HTTPS (ALB/API) - can be in any region
     certificate = aws.acm.Certificate(
         f"{project_name}-{environment}-cert",
         domain_name=domain_name,
-        subject_alternative_names=[f"*.{domain_name}", f"api.{domain_name}", "app.4calls.ai", "urpa.ai"],
+        subject_alternative_names=[f"*.{domain_name}", f"api.{domain_name}"],
         validation_method="DNS",
         tags={
             "Name": f"{project_name}-{environment}-cert",
@@ -86,6 +86,48 @@ def create_dns(project_name: str, environment: str, compute: dict) -> dict:
             "Environment": environment,
         }
     )
+    
+    # ACM Certificate for CloudFront - MUST be in us-east-1
+    # CloudFront requires certificates in us-east-1 regardless of where other resources are
+    cloudfront_provider = aws.Provider(
+        "cloudfront-cert-provider",
+        region="us-east-1",
+    )
+    
+    # Collect all external domains that need CloudFront certificates
+    external_domains = []
+    for frontend_name, aliases in domain_aliases.items():
+        for alias in aliases:
+            if not alias.endswith(".taskjuggler.com") and alias not in external_domains:
+                external_domains.append(alias)
+    
+    cloudfront_certificate = None
+    cloudfront_certificate_arn = None
+    
+    if external_domains:
+        # Create certificate with first domain as primary, rest as SANs
+        primary_domain = external_domains[0]
+        san_domains = external_domains[1:] if len(external_domains) > 1 else []
+        
+        cloudfront_certificate = aws.acm.Certificate(
+            f"{project_name}-{environment}-cloudfront-cert",
+            domain_name=primary_domain,
+            subject_alternative_names=san_domains,
+            validation_method="DNS",
+            opts=pulumi.ResourceOptions(provider=cloudfront_provider),
+            tags={
+                "Name": f"{project_name}-{environment}-cloudfront-cert",
+                "Project": project_name,
+                "Environment": environment,
+                "Purpose": "CloudFront",
+            }
+        )
+        cloudfront_certificate_arn = cloudfront_certificate.arn
+        
+        # Export certificate validation information for external domains
+        # These DNS records need to be added manually in GoDaddy
+        pulumi.export("cloudfront_certificate_validation", cloudfront_certificate.domain_validation_options)
+        pulumi.export("cloudfront_certificate_domains", external_domains)
     
     # Certificate validation records
     # Note: domain_validation_options is a Pulumi Output, so we need to handle it differently
@@ -149,7 +191,7 @@ def create_dns(project_name: str, environment: str, compute: dict) -> dict:
         )],
     )
     
-    return {
+    result = {
         "hosted_zone": hosted_zone,
         "zone_id": zone_id,
         "certificate": certificate,
@@ -157,3 +199,10 @@ def create_dns(project_name: str, environment: str, compute: dict) -> dict:
         "api_record": api_record,
         "cdn_record": cdn_record,
     }
+    
+    # Add CloudFront certificate if created
+    if cloudfront_certificate:
+        result["cloudfront_certificate"] = cloudfront_certificate
+        result["cloudfront_certificate_arn"] = cloudfront_certificate_arn
+    
+    return result
