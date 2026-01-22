@@ -67,19 +67,45 @@ frontend_projects = [
     "ideacircuit-web",
 ]
 
+# Domain Aliases for Frontends
+domain_aliases = {
+    "coordinator-web": ["app.4calls.ai"],
+    "taskjuggler-web": ["app.taskjuggler.com"],
+    "scanner-web": ["scanner.taskjuggler.com"],
+    "projects-web": ["projects.taskjuggler.com"],
+    "process-web": ["process.taskjuggler.com"],
+    "urpa-web": ["urpa.taskjuggler.com", "urpa.ai"],
+    "ideacircuit-web": ["ideas.taskjuggler.com"],
+}
+
 # Frontend deployment infrastructure (S3 + CloudFront)
 frontend_deployment_stack = frontend_deployment.create_frontend_deployment(
     project_name,
     environment,
     frontend_projects,
+    aliases=domain_aliases,
+    acm_certificate_arn=dns_stack["certificate_arn"],
+)
+
+# Create DNS records for frontend subdomains
+frontend_dns_records = dns.create_frontend_dns_records(
+    project_name,
+    environment,
+    dns_stack["zone_id"],
+    frontend_deployment_stack,
+    domain_aliases,
 )
 
 # Frontend build projects (CodeBuild)
+# Use the API domain if available, otherwise ALB DNS
+api_url = dns_stack["api_record"].fqdn.apply(lambda fqdn: f"{fqdn}/api")
+
 frontend_build_stack = frontend_build.create_frontend_build_projects(
     project_name,
     environment,
     frontend_projects,
     frontend_deployment_stack,
+    api_url=api_url,
 )
 
 # CodeBuild for CI/CD (API)

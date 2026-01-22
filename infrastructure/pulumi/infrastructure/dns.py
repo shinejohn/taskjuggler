@@ -3,7 +3,53 @@ DNS Infrastructure
 Route53 hosted zones and records
 """
 import pulumi
+from typing import Union
 import pulumi_aws as aws
+
+
+def create_frontend_dns_records(
+    project_name: str,
+    environment: str,
+    zone_id: Union[str, pulumi.Output[str]],
+    frontend_deployments: dict,
+    domain_aliases: dict,
+) -> dict:
+    """Create DNS records for frontend subdomains pointing to CloudFront distributions"""
+    
+    frontend_records = {}
+    
+    for frontend_name, aliases in domain_aliases.items():
+        if frontend_name not in frontend_deployments:
+            continue
+            
+        distribution = frontend_deployments[frontend_name]["distribution"]
+        
+        for alias in aliases:
+            # Extract subdomain from alias (e.g., "urpa.taskjuggler.com" -> "urpa")
+            # For external domains like "app.4calls.ai", use the full domain
+            if alias.endswith(".taskjuggler.com"):
+                subdomain = alias.replace(".taskjuggler.com", "")
+                record_name = alias
+            else:
+                # External domain - need to check if zone_id matches
+                # For now, skip external domains or handle separately
+                continue
+            
+            # Create A record with alias pointing to CloudFront
+            record = aws.route53.Record(
+                f"{project_name}-{environment}-{frontend_name}-{subdomain}-record",
+                zone_id=zone_id,
+                name=record_name,
+                type="A",
+                aliases=[aws.route53.RecordAliasArgs(
+                    name=distribution.domain_name,
+                    zone_id=distribution.hosted_zone_id,
+                    evaluate_target_health=False,
+                )],
+            )
+            frontend_records[f"{frontend_name}-{subdomain}"] = record
+    
+    return frontend_records
 
 
 def create_dns(project_name: str, environment: str, compute: dict) -> dict:
@@ -32,7 +78,7 @@ def create_dns(project_name: str, environment: str, compute: dict) -> dict:
     certificate = aws.acm.Certificate(
         f"{project_name}-{environment}-cert",
         domain_name=domain_name,
-        subject_alternative_names=[f"*.{domain_name}", f"api.{domain_name}"],
+        subject_alternative_names=[f"*.{domain_name}", f"api.{domain_name}", "app.4calls.ai", "urpa.ai"],
         validation_method="DNS",
         tags={
             "Name": f"{project_name}-{environment}-cert",

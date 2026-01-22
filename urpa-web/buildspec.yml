@@ -12,7 +12,9 @@ phases:
   post_build:
     commands:
       - echo Deploying to S3...
-      - aws s3 sync dist/ s3://$S3_BUCKET --delete --cache-control "public, max-age=31536000, immutable"
+      - aws s3 sync dist/ s3://$S3_BUCKET --delete --cache-control "public, max-age=31536000, immutable" --exclude "*.html"
+      - aws s3 sync dist/ s3://$S3_BUCKET --delete --cache-control "public, max-age=0, must-revalidate" --exclude "*" --include "*.html"
+      - aws s3 cp dist/index.html s3://$S3_BUCKET/index.html --content-type "text/html" --cache-control "public, max-age=0, must-revalidate"
       - echo Frontend deployed successfully
 artifacts:
   files:
