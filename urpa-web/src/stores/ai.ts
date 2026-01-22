@@ -37,7 +37,7 @@ export const useAiStore = defineStore('ai', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/ai/sessions');
-      sessions.value = response.data.data || [];
+      sessions.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load sessions';
@@ -55,9 +55,10 @@ export const useAiStore = defineStore('ai', () => {
         session_type: type,
         persona_used: persona,
       });
-      currentSession.value = response.data;
-      sessions.value.unshift(response.data);
-      return response.data;
+      const result = response.data.data || response.data;
+      currentSession.value = result;
+      sessions.value.unshift(result);
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create session';
       throw err;
@@ -71,7 +72,7 @@ export const useAiStore = defineStore('ai', () => {
     error.value = null;
     try {
       const response = await api.get(`/urpa/ai/sessions/${sessionId}/messages`);
-      messages.value = response.data.data || [];
+      messages.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load messages';
@@ -88,13 +89,14 @@ export const useAiStore = defineStore('ai', () => {
       const response = await api.post(`/urpa/ai/sessions/${sessionId}/messages`, {
         content,
       });
-      if (response.data.user_message) {
-        messages.value.push(response.data.user_message);
+      const result = response.data.data || response.data;
+      if (result.user_message) {
+        messages.value.push(result.user_message);
       }
-      if (response.data.ai_message) {
-        messages.value.push(response.data.ai_message);
+      if (result.ai_message) {
+        messages.value.push(result.ai_message);
       }
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to send message';
       throw err;
@@ -108,7 +110,7 @@ export const useAiStore = defineStore('ai', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/ai/artifacts');
-      artifacts.value = response.data.data || [];
+      artifacts.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load artifacts';
@@ -127,8 +129,9 @@ export const useAiStore = defineStore('ai', () => {
         prompt,
         language,
       });
-      artifacts.value.unshift(response.data);
-      return response.data;
+      const result = response.data.data || response.data;
+      artifacts.value.unshift(result);
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to generate artifact';
       throw err;
@@ -142,7 +145,7 @@ export const useAiStore = defineStore('ai', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/ai/tasks');
-      tasks.value = response.data.data || [];
+      tasks.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load tasks';

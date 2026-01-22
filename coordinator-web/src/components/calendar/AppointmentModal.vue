@@ -147,7 +147,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-defineEmits<{
+const emit = defineEmits<{
   close: [];
   cancel: [appointment: Appointment];
   edit: [appointment: Appointment];

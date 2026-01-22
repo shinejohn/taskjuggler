@@ -15,9 +15,9 @@ export const useTaskJugglerStore = defineStore('taskjuggler', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/integrations/taskjuggler/status');
-      linked.value = response.data.linked || false;
-      link.value = response.data.link || null;
-      return response.data;
+      linked.value = (response.data.data && response.data.data.linked) || response.data.linked || false;
+      link.value = (response.data.data && response.data.data.link) || response.data.link || null;
+      return response.data.data || response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to check status';
       linked.value = false;
@@ -37,9 +37,10 @@ export const useTaskJugglerStore = defineStore('taskjuggler', () => {
     error.value = null;
     try {
       const response = await api.post('/urpa/integrations/taskjuggler/link', data);
+      const result = response.data.data || response.data;
       linked.value = true;
-      link.value = response.data;
-      return response.data;
+      link.value = result;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to link account';
       throw err;
@@ -67,7 +68,7 @@ export const useTaskJugglerStore = defineStore('taskjuggler', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/integrations/taskjuggler/tasks');
-      tasks.value = response.data.data || [];
+      tasks.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load tasks';
@@ -87,8 +88,9 @@ export const useTaskJugglerStore = defineStore('taskjuggler', () => {
     error.value = null;
     try {
       const response = await api.post('/urpa/integrations/taskjuggler/tasks', data);
-      tasks.value.unshift(response.data);
-      return response.data;
+      const result = response.data.data || response.data;
+      tasks.value.unshift(result);
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create task';
       throw err;

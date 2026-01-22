@@ -1,1 +1,0 @@
-import{a,m as o,p as t,f as s}from"./vue-vendor-BFreJ1An.js";const r={class:"min-h-screen bg-gray-50"},m=a({__name:"CoordinatorDetailPage",setup(n){return(l,e)=>(s(),o("div",r,[...e[0]||(e[0]=[t("div",{class:"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8"},[t("h1",{class:"text-3xl font-bold text-gray-900"},"Coordinator Details")],-1)])]))}});export{m as default};

@@ -1,0 +1,1 @@
+import{a as t,m as s,p as a,f as o}from"./vue-vendor-lZgBCM-Y.js";const l={class:"min-h-screen bg-gray-50"},p=t({__name:"CoordinatorDetailPage",setup(n){return(r,e)=>(o(),s("div",l,[...e[0]||(e[0]=[a("div",{class:"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8"},[a("h1",{class:"text-3xl font-bold text-gray-900"},"4 Call Details")],-1)])]))}});export{p as default};

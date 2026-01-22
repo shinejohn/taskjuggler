@@ -24,7 +24,7 @@ export const usePhoneStore = defineStore('phone', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/phone/calls', { params: filters });
-      calls.value = response.data.data || [];
+      calls.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load calls';
@@ -39,7 +39,7 @@ export const usePhoneStore = defineStore('phone', () => {
     error.value = null;
     try {
       const response = await api.post('/urpa/phone/calls', data);
-      const newCall = response.data;
+      const newCall = response.data.data || response.data;
       calls.value.unshift(newCall);
       currentCall.value = newCall;
       return newCall;
@@ -80,7 +80,7 @@ export const usePhoneStore = defineStore('phone', () => {
     try {
       const echo = getEcho();
       const channelName = `urpa.user.${authStore.user.id}`;
-      
+
       // Clean up existing listener if any
       if (echoChannel) {
         echo.leave(channelName);

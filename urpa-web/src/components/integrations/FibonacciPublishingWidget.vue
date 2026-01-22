@@ -52,7 +52,7 @@
   </div>
 
   <!-- Create Content Request Modal -->
-  <Modal :show="showCreateModal" @close="showCreateModal = false">
+  <Modal :model-value="showCreateModal" @update:model-value="showCreateModal = $event" @close="showCreateModal = false">
     <div class="p-6">
       <h3 :class="['text-xl font-bold mb-4', textPrimary]">Create Content Request</h3>
       <div class="space-y-4">

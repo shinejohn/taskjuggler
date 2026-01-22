@@ -18,10 +18,11 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/integrations/fibonacci/status');
-      crmLinked.value = response.data.crm_linked || false;
-      publishingLinked.value = response.data.publishing_linked || false;
-      link.value = response.data.link || null;
-      return response.data;
+      const data = response.data.data || response.data;
+      crmLinked.value = data.crm_linked || false;
+      publishingLinked.value = data.publishing_linked || false;
+      link.value = data.link || null;
+      return data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to check status';
       throw err;
@@ -37,9 +38,10 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
       const response = await api.post('/urpa/integrations/fibonacci/crm/link', {
         business_id: businessId,
       });
+      const result = response.data.data || response.data;
       crmLinked.value = true;
-      link.value = response.data;
-      return response.data;
+      link.value = result;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to link CRM';
       throw err;
@@ -55,9 +57,10 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
       const response = await api.post('/urpa/integrations/fibonacci/publishing/link', {
         team_id: teamId,
       });
+      const result = response.data.data || response.data;
       publishingLinked.value = true;
-      link.value = response.data;
-      return response.data;
+      link.value = result;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to link Publishing';
       throw err;
@@ -71,7 +74,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     error.value = null;
     try {
       const response = await api.get(`/urpa/integrations/fibonacci/crm/business/${businessId}/faqs`);
-      faqs.value = response.data.data || [];
+      faqs.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load FAQs';
@@ -100,7 +103,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     error.value = null;
     try {
       const response = await api.get(`/urpa/integrations/fibonacci/publishing/teams/${teamId}/projects`);
-      projects.value = response.data.data || [];
+      projects.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load projects';
@@ -118,8 +121,9 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     error.value = null;
     try {
       const response = await api.post(`/urpa/integrations/fibonacci/publishing/teams/${teamId}/projects`, data);
-      projects.value.unshift(response.data);
-      return response.data;
+      const result = response.data.data || response.data;
+      projects.value.unshift(result);
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create content request';
       throw err;
@@ -133,8 +137,9 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     error.value = null;
     try {
       const response = await api.get(`/urpa/integrations/fibonacci/crm/business/${businessId}`);
-      businessInfo.value = response.data;
-      return response.data;
+      const data = response.data.data || response.data;
+      businessInfo.value = data;
+      return data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load business info';
       throw err;

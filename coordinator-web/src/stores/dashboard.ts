@@ -25,9 +25,9 @@ export const useDashboardStore = defineStore('dashboard', () => {
         dashboardApi.getTodayAppointments(orgStore.currentOrganization.id),
       ]);
 
-      metrics.value = metricsRes.data;
-      recentCalls.value = callsRes.data.data;
-      todayAppointments.value = appointmentsRes.data.data;
+      metrics.value = (metricsRes.data as any).data || metricsRes.data;
+      recentCalls.value = (callsRes.data as any).data || callsRes.data.data;
+      todayAppointments.value = (appointmentsRes.data as any).data || appointmentsRes.data.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load dashboard data';
       throw err;
@@ -42,7 +42,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
     try {
       const response = await dashboardApi.getMetrics(orgStore.currentOrganization.id);
-      metrics.value = response.data;
+      metrics.value = (response.data as any).data || response.data;
     } catch (err: any) {
       console.error('Failed to refresh metrics:', err);
     }

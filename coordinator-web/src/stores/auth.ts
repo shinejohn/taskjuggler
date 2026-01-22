@@ -6,6 +6,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  created_at?: string;
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -57,7 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return;
     try {
       const response = await api.get('/auth/user');
-      user.value = response.data;
+      user.value = response.data.data || response.data;
     } catch (error) {
       await logout();
     }

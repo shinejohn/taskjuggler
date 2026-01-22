@@ -165,6 +165,16 @@ class TaskJugglerController extends Controller
             'synced_to_taskjuggler' => $taskjugglerTaskId !== null,
         ]);
 
+        // Dispatch webhook
+        app(WebhookService::class)->dispatch('ai_task.created', [
+            'id' => $aiTask->id,
+            'title' => $aiTask->title,
+            'description' => $aiTask->description,
+            'status' => $aiTask->status,
+            'source_type' => $aiTask->source_type,
+            'taskjuggler_task_id' => $aiTask->taskjuggler_task_id,
+        ], $user->id);
+
         return response()->json($aiTask, 201);
     }
 }

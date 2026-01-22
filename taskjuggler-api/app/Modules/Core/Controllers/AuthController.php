@@ -70,7 +70,7 @@ class AuthController extends \App\Http\Controllers\Controller
 
             // Get app context from request header
             $appContext = $request->header('X-App-Context', 'taskjuggler'); // Default to taskjuggler for backward compatibility
-            
+
             // Create token with app context in abilities
             $token = $user->createToken('auth-token', ['app_context' => $appContext])->plainTextToken;
 
@@ -115,10 +115,10 @@ class AuthController extends \App\Http\Controllers\Controller
 
             // Get app context from request header
             $appContext = $request->header('X-App-Context', 'taskjuggler'); // Default to taskjuggler for backward compatibility
-            
-            // Create token with app context in token name for reference
-            $token = $user->createToken("auth-token-{$appContext}")->plainTextToken;
-            
+
+            // Create token with app context in token name for reference and as ability
+            $token = $user->createToken("auth-token-{$appContext}", ['app_context' => $appContext])->plainTextToken;
+
             // Load profiles if table exists, otherwise skip
             try {
                 if (Schema::hasTable('profiles')) {
@@ -182,17 +182,17 @@ class AuthController extends \App\Http\Controllers\Controller
     public function googleOAuthUrl(Request $request)
     {
         $clientId = config('services.google.client_id');
-        
+
         if (!$clientId) {
             return $this->error('Google OAuth is not configured', 503);
         }
 
         $redirectUri = config('services.google.redirect') ?? $request->get('redirect_uri', url('/api/auth/google/callback'));
         $state = bin2hex(random_bytes(16));
-        
+
         // Store state in session for CSRF protection
         $request->session()->put('oauth_state', $state);
-        
+
         $params = http_build_query([
             'client_id' => $clientId,
             'redirect_uri' => $redirectUri,
@@ -287,7 +287,7 @@ class AuthController extends \App\Http\Controllers\Controller
 
         // Get app context from request header (default to taskjuggler)
         $appContext = $request->header('X-App-Context', 'taskjuggler');
-        
+
         $token = $user->createToken("auth-token-{$appContext}")->plainTextToken;
         $user->load('profiles');
 

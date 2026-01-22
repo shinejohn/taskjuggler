@@ -64,6 +64,12 @@ const router = createRouter({
       component: () => import('@/pages/CallDetail.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/webhooks',
+      name: 'webhooks',
+      component: () => import('@/pages/Webhooks.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 });
 

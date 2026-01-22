@@ -3,6 +3,7 @@ export default {
   content: [
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',
+    '../shared-ui/src/**/*.{vue,js,ts,jsx,tsx}',
   ],
   darkMode: 'class',
   theme: {
@@ -20,6 +21,7 @@ export default {
       },
       fontFamily: {
         heading: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
     },
   },

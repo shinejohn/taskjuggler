@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Coordinator\Models\Campaign;
 use App\Modules\Coordinator\Models\Organization;
 use App\Modules\Coordinator\Services\CampaignService;
+use App\Modules\Coordinator\Services\WebhookService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -177,6 +178,15 @@ class CampaignController extends Controller
             }
 
             $campaign->start();
+            $campaign->refresh();
+            
+            // Dispatch webhook
+            app(WebhookService::class)->dispatch('campaign.started', [
+                'id' => $campaign->id,
+                'name' => $campaign->name,
+                'status' => $campaign->status,
+                'type' => $campaign->type,
+            ], $organization->id);
             
             // Dispatch job to execute campaign (would be async in production)
             // dispatch(new ExecuteCampaignJob($campaign));

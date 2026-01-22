@@ -30,10 +30,11 @@ export const useCampaignsStore = defineStore('campaigns', () => {
         page: filters?.page || page.value,
         per_page: filters?.per_page || perPage.value,
       });
-      campaigns.value = response.data.data;
-      total.value = response.data.total || response.data.data.length;
-      page.value = response.data.page || page.value;
-      perPage.value = response.data.per_page || perPage.value;
+      const data = (response.data as any).data || response.data;
+      campaigns.value = Array.isArray(data) ? data : data.data;
+      total.value = (response.data as any).total || (data.meta ? data.meta.total : data.length);
+      page.value = (response.data as any).page || (data.meta ? data.meta.current_page : page.value);
+      perPage.value = (response.data as any).per_page || (data.meta ? data.meta.per_page : perPage.value);
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load campaigns';
       // Error logging removed - handled by error interceptor
@@ -57,8 +58,9 @@ export const useCampaignsStore = defineStore('campaigns', () => {
 
     try {
       const response = await campaignsApi.getById(orgId, id);
-      currentCampaign.value = response.data;
-      return response.data;
+      const data = (response.data as any).data || response.data;
+      currentCampaign.value = data;
+      return data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load campaign';
       // Error handled by error interceptor
@@ -82,8 +84,9 @@ export const useCampaignsStore = defineStore('campaigns', () => {
 
     try {
       const response = await campaignsApi.create(orgId, data);
-      campaigns.value.push(response.data);
-      return response.data;
+      const result = (response.data as any).data || response.data;
+      campaigns.value.push(result);
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create campaign';
       console.error('Campaign creation error:', err);
@@ -107,14 +110,15 @@ export const useCampaignsStore = defineStore('campaigns', () => {
 
     try {
       const response = await campaignsApi.update(orgId, id, data);
+      const result = (response.data as any).data || response.data;
       const index = campaigns.value.findIndex(c => c.id === id);
       if (index !== -1) {
-        campaigns.value[index] = response.data;
+        campaigns.value[index] = result;
       }
       if (currentCampaign.value?.id === id) {
-        currentCampaign.value = response.data;
+        currentCampaign.value = result;
       }
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to update campaign';
       console.error('Campaign update error:', err);
@@ -165,11 +169,12 @@ export const useCampaignsStore = defineStore('campaigns', () => {
 
     try {
       const response = await campaignsApi.start(orgId, id);
+      const result = (response.data as any).data || response.data;
       const index = campaigns.value.findIndex(c => c.id === id);
       if (index !== -1) {
-        campaigns.value[index] = response.data;
+        campaigns.value[index] = result;
       }
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to start campaign';
       console.error('Campaign start error:', err);
@@ -193,11 +198,12 @@ export const useCampaignsStore = defineStore('campaigns', () => {
 
     try {
       const response = await campaignsApi.pause(orgId, id);
+      const result = (response.data as any).data || response.data;
       const index = campaigns.value.findIndex(c => c.id === id);
       if (index !== -1) {
-        campaigns.value[index] = response.data;
+        campaigns.value[index] = result;
       }
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to pause campaign';
       console.error('Campaign pause error:', err);

@@ -4,6 +4,7 @@ namespace App\Modules\Urpa\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Urpa\Models\UrpaContact;
+use App\Modules\Urpa\Services\WebhookService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -93,6 +94,16 @@ class ContactController extends Controller
             ...$validated,
         ]);
 
+        // Dispatch webhook
+        app(WebhookService::class)->dispatch('contact.created', [
+            'id' => $contact->id,
+            'name' => trim(($contact->first_name ?? '') . ' ' . ($contact->last_name ?? '')),
+            'email' => $contact->email,
+            'phone' => $contact->phone,
+            'company' => $contact->company,
+            'source' => $contact->source,
+        ], $request->user()->id);
+
         return response()->json($contact, 201);
     }
 
@@ -119,6 +130,16 @@ class ContactController extends Controller
         ]);
 
         $contact->update($validated);
+        $contact->refresh();
+
+        // Dispatch webhook
+        app(WebhookService::class)->dispatch('contact.updated', [
+            'id' => $contact->id,
+            'name' => trim(($contact->first_name ?? '') . ' ' . ($contact->last_name ?? '')),
+            'email' => $contact->email,
+            'phone' => $contact->phone,
+            'company' => $contact->company,
+        ], $request->user()->id);
 
         return response()->json($contact);
     }

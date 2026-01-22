@@ -21,7 +21,7 @@ export const useOrganizationsStore = defineStore('organizations', () => {
     error.value = null;
     try {
       const response = await organizationsApi.getAll();
-      organizations.value = response.data;
+      organizations.value = (response.data as any).data || response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load organizations';
       throw err;
@@ -35,8 +35,9 @@ export const useOrganizationsStore = defineStore('organizations', () => {
     error.value = null;
     try {
       const response = await organizationsApi.create(data);
-      organizations.value.push(response.data);
-      return response.data;
+      const result = (response.data as any).data || response.data;
+      organizations.value.push(result);
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create organization';
       throw err;
@@ -50,16 +51,17 @@ export const useOrganizationsStore = defineStore('organizations', () => {
     error.value = null;
     try {
       const response = await organizationsApi.update(id, data);
+      const result = (response.data as any).data || response.data;
       const index = organizations.value.findIndex(org => org.id === id);
       if (index !== -1) {
-        organizations.value[index] = response.data;
+        organizations.value[index] = result;
       }
       if (currentOrganization.value?.id === id) {
-        currentOrganization.value = response.data;
+        currentOrganization.value = result;
       }
       // Invalidate cache for organizations
       apiCache.invalidate('/coordinator/organizations');
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to update organization';
       throw err;

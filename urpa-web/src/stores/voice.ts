@@ -24,7 +24,7 @@ export const useVoiceStore = defineStore('voice', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/voice/prerecorded');
-      prerecordedResponses.value = response.data.data || [];
+      prerecordedResponses.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load responses';
@@ -42,7 +42,7 @@ export const useVoiceStore = defineStore('voice', () => {
         user_input: userInput,
         ...context,
       });
-      return response.data;
+      return response.data.data || response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to find response';
       throw err;

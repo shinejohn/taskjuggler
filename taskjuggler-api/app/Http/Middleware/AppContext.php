@@ -54,12 +54,12 @@ class AppContext
         // For authenticated endpoints, validate token's app context matches header
         if ($request->user() && $appContext) {
             $token = $request->user()->currentAccessToken();
-            
+
             if ($token) {
                 // Extract app context from token name (format: "auth-token-{app_context}")
                 $tokenName = $token->name ?? '';
                 $tokenAppContext = null;
-                
+
                 if (preg_match('/^auth-token-(.+)$/', $tokenName, $matches)) {
                     $tokenAppContext = $matches[1];
                 } else {
@@ -67,14 +67,11 @@ class AppContext
                     // For backward compatibility, allow if no app context in token name
                     return $next($request);
                 }
-                
+
                 if ($tokenAppContext && $tokenAppContext !== $appContext) {
-                    return response()->json([
-                        'error' => 'App context mismatch',
-                        'message' => 'This token is for a different application. Please log in again.',
-                        'token_app' => $tokenAppContext,
-                        'request_app' => $appContext,
-                    ], 403);
+                    // Log mismatch but allow request for unified platform experience
+                    \Illuminate\Support\Facades\Log::warning("App context mismatch: Token={$tokenAppContext}, Request={$appContext}");
+                    // Continue instead of 403
                 }
             }
         }

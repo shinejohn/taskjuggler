@@ -5,6 +5,7 @@ namespace App\Modules\Coordinator\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Coordinator\Models\Organization;
 use App\Modules\Coordinator\Models\Appointment;
+use App\Modules\Coordinator\Services\WebhookService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
@@ -133,6 +134,15 @@ class AppointmentController extends Controller
             // Load relationships that exist
             $appointment->load(['contact', 'bookedByCoordinator']);
             
+            // Dispatch webhook
+            app(WebhookService::class)->dispatch('appointment.created', [
+                'id' => $appointment->id,
+                'title' => $appointment->title,
+                'starts_at' => $appointment->starts_at,
+                'status' => $appointment->status,
+                'contact_id' => $appointment->contact_id,
+            ], $organization->id);
+            
             return response()->json($appointment, 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
@@ -180,7 +190,27 @@ class AppointmentController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $oldStatus = $appointment->status;
         $appointment->update($validated);
+        $appointment->refresh();
+
+        // Dispatch webhook for status changes
+        if (isset($validated['status']) && $validated['status'] !== $oldStatus) {
+            if ($validated['status'] === 'confirmed') {
+                app(WebhookService::class)->dispatch('appointment.confirmed', [
+                    'id' => $appointment->id,
+                    'title' => $appointment->title,
+                    'starts_at' => $appointment->starts_at,
+                    'status' => $appointment->status,
+                ], $organization->id);
+            } else {
+                app(WebhookService::class)->dispatch('appointment.updated', [
+                    'id' => $appointment->id,
+                    'title' => $appointment->title,
+                    'status' => $appointment->status,
+                ], $organization->id);
+            }
+        }
 
         return response()->json($appointment->load(['contact', 'bookedByCoordinator', 'appointmentType']));
     }
@@ -204,6 +234,15 @@ class AppointmentController extends Controller
         ]);
 
         $appointment->cancel($validated['reason'] ?? null);
+        $appointment->refresh();
+
+        // Dispatch webhook
+        app(WebhookService::class)->dispatch('appointment.cancelled', [
+            'id' => $appointment->id,
+            'title' => $appointment->title,
+            'status' => $appointment->status,
+            'cancellation_reason' => $validated['reason'] ?? null,
+        ], $organization->id);
 
         return response()->json($appointment->load(['contact', 'bookedByCoordinator', 'appointmentType']));
     }

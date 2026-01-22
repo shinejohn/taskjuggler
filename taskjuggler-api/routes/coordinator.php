@@ -113,5 +113,13 @@ Route::prefix('coordinator')->middleware('auth:sanctum')->group(function () {
         Route::put('/payment-method', [\App\Modules\Coordinator\Controllers\BillingController::class, 'updatePaymentMethod']);
         Route::post('/cancel', [\App\Modules\Coordinator\Controllers\BillingController::class, 'cancel']);
     });
+
+    // Webhooks
+    Route::prefix('organizations/{orgId}/webhooks')->group(function () {
+        Route::get('/', [\App\Modules\Coordinator\Controllers\WebhookController::class, 'index']);
+        Route::post('/', [\App\Modules\Coordinator\Controllers\WebhookController::class, 'store']);
+        Route::put('/{id}', [\App\Modules\Coordinator\Controllers\WebhookController::class, 'update']);
+        Route::delete('/{id}', [\App\Modules\Coordinator\Controllers\WebhookController::class, 'destroy']);
+    });
 });
 

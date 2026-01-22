@@ -13,7 +13,7 @@ export const useIntegrationsStore = defineStore('integrations', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/integrations');
-      integrations.value = response.data.data || [];
+      integrations.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load integrations';
@@ -32,8 +32,9 @@ export const useIntegrationsStore = defineStore('integrations', () => {
     error.value = null;
     try {
       const response = await api.post('/urpa/integrations', data);
-      integrations.value.push(response.data);
-      return response.data;
+      const result = response.data.data || response.data;
+      integrations.value.push(result);
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to connect integration';
       throw err;

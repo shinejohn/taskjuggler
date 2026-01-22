@@ -24,7 +24,7 @@ export const useActivitiesStore = defineStore('activities', () => {
     error.value = null;
     try {
       const response = await api.get('/urpa/activities', { params: filters });
-      activities.value = response.data.data || [];
+      activities.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load activities';
@@ -39,8 +39,9 @@ export const useActivitiesStore = defineStore('activities', () => {
     error.value = null;
     try {
       const response = await api.post('/urpa/activities', data);
-      activities.value.unshift(response.data);
-      return response.data;
+      const result = response.data.data || response.data;
+      activities.value.unshift(result);
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create activity';
       throw err;
@@ -58,7 +59,7 @@ export const useActivitiesStore = defineStore('activities', () => {
     try {
       const echo = getEcho();
       const channelName = `urpa.user.${authStore.user.id}`;
-      
+
       // Clean up existing listener if any
       if (echoChannel) {
         echo.leave(channelName);

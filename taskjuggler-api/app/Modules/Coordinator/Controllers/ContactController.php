@@ -5,6 +5,7 @@ namespace App\Modules\Coordinator\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Coordinator\Models\Organization;
 use App\Modules\Coordinator\Models\Contact;
+use App\Modules\Coordinator\Services\WebhookService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -112,6 +113,15 @@ class ContactController extends Controller
         $validated['organization_id'] = $organization->id;
         $contact = Contact::create($validated);
 
+        // Dispatch webhook
+        app(WebhookService::class)->dispatch('contact.created', [
+            'id' => $contact->id,
+            'name' => trim(($contact->first_name ?? '') . ' ' . ($contact->last_name ?? '')),
+            'email' => $contact->email,
+            'phone' => $contact->phone,
+            'company' => $contact->company,
+        ], $organization->id);
+
         return response()->json($contact, 201);
     }
 
@@ -151,6 +161,15 @@ class ContactController extends Controller
         ]);
 
         $contact->update($validated);
+        $contact->refresh();
+
+        // Dispatch webhook
+        app(WebhookService::class)->dispatch('contact.updated', [
+            'id' => $contact->id,
+            'name' => trim(($contact->first_name ?? '') . ' ' . ($contact->last_name ?? '')),
+            'email' => $contact->email,
+            'phone' => $contact->phone,
+        ], $organization->id);
 
         return response()->json($contact);
     }

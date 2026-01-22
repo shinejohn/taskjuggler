@@ -54,8 +54,9 @@ export const useCallsStore = defineStore('calls', () => {
     error.value = null;
     try {
       const response = await callsApi.getById(orgStore.currentOrganization.id, id);
-      currentCall.value = response.data;
-      return response.data;
+      const data = (response.data as any).data || response.data;
+      currentCall.value = data;
+      return data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load call';
       throw err;

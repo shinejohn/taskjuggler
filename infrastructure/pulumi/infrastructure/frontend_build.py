@@ -12,11 +12,16 @@ def create_frontend_build_projects(
     environment: str,
     frontend_projects: list[str],
     frontend_buckets: dict,
+    api_url: str = None,
 ) -> dict:
     """Create CodeBuild projects for frontend builds"""
     
     config = pulumi.Config()
     build_projects = {}
+    
+    # Ensure URL has protocol
+    if api_url and not api_url.startswith("http"):
+        api_url = f"https://{api_url}" # Default to HTTPS for production
     
     for frontend_name in frontend_projects:
         bucket = frontend_buckets[frontend_name]["bucket"]
@@ -85,6 +90,32 @@ def create_frontend_build_projects(
             }
         )
         
+        # Environment variables
+        env_vars = [
+            aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
+                name="AWS_DEFAULT_REGION",
+                value="us-east-1",
+            ),
+            aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
+                name="S3_BUCKET",
+                value=bucket.id,
+            ),
+            aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
+                name="FRONTEND_NAME",
+                value=frontend_name,
+            ),
+            # Inject API URL for Vite
+            aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
+                name="VITE_API_URL",
+                value=api_url or "http://localhost:8000/api",
+            ),
+            # Inject App Name for Vite (Capitalize and replace hyphens)
+            aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
+                name="VITE_APP_NAME",
+                value=frontend_name.replace("-web", "").replace("-", " ").title(),
+            ),
+        ]
+        
         # CodeBuild Project
         build_project = aws.codebuild.Project(
             f"{project_name}-{environment}-{frontend_name}-build",
@@ -102,20 +133,7 @@ def create_frontend_build_projects(
                 type="LINUX_CONTAINER",
                 image="aws/codebuild/standard:7.0",
                 compute_type="BUILD_GENERAL1_SMALL",
-                environment_variables=[
-                    aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
-                        name="AWS_DEFAULT_REGION",
-                        value="us-east-1",
-                    ),
-                    aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
-                        name="S3_BUCKET",
-                        value=bucket.id,
-                    ),
-                    aws.codebuild.ProjectEnvironmentEnvironmentVariableArgs(
-                        name="FRONTEND_NAME",
-                        value=frontend_name,
-                    ),
-                ],
+                environment_variables=env_vars,
             ),
             logs_config=aws.codebuild.ProjectLogsConfigArgs(
                 cloudwatch_logs=aws.codebuild.ProjectLogsConfigCloudwatchLogsArgs(

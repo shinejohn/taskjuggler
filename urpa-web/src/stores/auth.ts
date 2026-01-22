@@ -37,11 +37,11 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await api.post<LoginResponse>('/auth/register', data);
       const responseData: any = response.data;
-      const data = responseData.data || responseData;
-      token.value = data.token;
-      user.value = data.user;
+      const result = responseData.data || responseData;
+      token.value = result.token;
+      user.value = result.user;
       localStorage.setItem('urpa_token', token.value as string);
-      return data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Registration failed';
       throw err;
@@ -60,8 +60,8 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchUser(): Promise<void> {
     if (!token.value) return;
     try {
-      const response = await api.get<User>('/auth/user');
-      user.value = response.data;
+      const response = await api.get('/auth/user');
+      user.value = response.data.data || response.data;
     } catch (err) {
       await logout();
     }

@@ -26,7 +26,7 @@ export const useCoordinatorsStore = defineStore('coordinators', () => {
         orgId = orgStore.currentOrganization.id;
       }
       const response = await coordinatorsApi.getByOrganization(orgId);
-      coordinators.value = response.data;
+      coordinators.value = (response.data as any).data || response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load coordinators';
       throw err;
@@ -40,8 +40,9 @@ export const useCoordinatorsStore = defineStore('coordinators', () => {
     error.value = null;
     try {
       const response = await coordinatorsApi.getById(id);
-      currentCoordinator.value = response.data;
-      return response.data;
+      const data = (response.data as any).data || response.data;
+      currentCoordinator.value = data;
+      return data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load coordinator';
       throw err;
@@ -55,8 +56,9 @@ export const useCoordinatorsStore = defineStore('coordinators', () => {
     error.value = null;
     try {
       const response = await coordinatorsApi.create(orgId, data);
-      coordinators.value.push(response.data);
-      return response.data;
+      const result = (response.data as any).data || response.data;
+      coordinators.value.push(result);
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create coordinator';
       throw err;
@@ -70,14 +72,15 @@ export const useCoordinatorsStore = defineStore('coordinators', () => {
     error.value = null;
     try {
       const response = await coordinatorsApi.update(id, data);
+      const result = (response.data as any).data || response.data;
       const index = coordinators.value.findIndex(c => c.id === id);
       if (index !== -1) {
-        coordinators.value[index] = response.data;
+        coordinators.value[index] = result;
       }
       if (currentCoordinator.value?.id === id) {
-        currentCoordinator.value = response.data;
+        currentCoordinator.value = result;
       }
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to update coordinator';
       throw err;

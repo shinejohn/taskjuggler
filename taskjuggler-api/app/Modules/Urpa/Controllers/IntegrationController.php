@@ -368,5 +368,111 @@ class IntegrationController extends Controller
         // TODO: Implement Dropbox token exchange
         return null;
     }
+
+    /**
+     * Register webhook integration
+     * POST /api/urpa/integrations/webhooks
+     */
+    public function registerWebhook(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'webhook_url' => 'required|url|max:500',
+            'webhook_secret' => 'required|string|min:16',
+            'events' => 'required|array',
+            'events.*' => 'string|in:activity.created,activity.updated,activity.completed,contact.created,contact.updated,ai_task.created,ai_task.completed,taskjuggler.synced',
+        ]);
+
+        $integration = UrpaIntegration::create([
+            'user_id' => $request->user()->id,
+            'name' => $validated['name'],
+            'type' => 'webhook',
+            'provider' => 'webhook',
+            'config' => [
+                'webhook_url' => $validated['webhook_url'],
+                'webhook_secret' => $validated['webhook_secret'],
+                'events' => $validated['events'],
+            ],
+            'connected_at' => now(),
+        ]);
+
+        return response()->json($integration, 201);
+    }
+
+    /**
+     * List webhook integrations
+     * GET /api/urpa/integrations/webhooks
+     */
+    public function listWebhooks(Request $request): JsonResponse
+    {
+        $webhooks = UrpaIntegration::where('user_id', $request->user()->id)
+            ->where('type', 'webhook')
+            ->get()
+            ->map(function ($integration) {
+                return [
+                    'id' => $integration->id,
+                    'name' => $integration->name,
+                    'webhook_url' => $integration->config['webhook_url'] ?? null,
+                    'events' => $integration->config['events'] ?? [],
+                    'connected_at' => $integration->connected_at,
+                ];
+            });
+
+        return response()->json(['data' => $webhooks]);
+    }
+
+    /**
+     * Update webhook integration
+     * PUT /api/urpa/integrations/webhooks/{id}
+     */
+    public function updateWebhook(Request $request, string $id): JsonResponse
+    {
+        $integration = UrpaIntegration::where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->where('type', 'webhook')
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'webhook_url' => 'sometimes|url|max:500',
+            'webhook_secret' => 'sometimes|string|min:16',
+            'events' => 'sometimes|array',
+            'events.*' => 'string|in:activity.created,activity.updated,activity.completed,contact.created,contact.updated,ai_task.created,ai_task.completed,taskjuggler.synced',
+        ]);
+
+        $config = $integration->config ?? [];
+        if (isset($validated['webhook_url'])) {
+            $config['webhook_url'] = $validated['webhook_url'];
+        }
+        if (isset($validated['webhook_secret'])) {
+            $config['webhook_secret'] = $validated['webhook_secret'];
+        }
+        if (isset($validated['events'])) {
+            $config['events'] = $validated['events'];
+        }
+
+        $integration->update([
+            'name' => $validated['name'] ?? $integration->name,
+            'config' => $config,
+        ]);
+
+        return response()->json($integration);
+    }
+
+    /**
+     * Delete webhook integration
+     * DELETE /api/urpa/integrations/webhooks/{id}
+     */
+    public function deleteWebhook(Request $request, string $id): JsonResponse
+    {
+        $integration = UrpaIntegration::where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->where('type', 'webhook')
+            ->firstOrFail();
+
+        $integration->delete();
+
+        return response()->json(['message' => 'Webhook deleted']);
+    }
 }
 

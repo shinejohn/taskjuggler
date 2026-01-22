@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Urpa\Events\ActivityCreated;
 use App\Modules\Urpa\Models\UrpaActivity;
 use App\Modules\Urpa\Models\UrpaIntegration;
+use App\Modules\Urpa\Services\WebhookService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -123,6 +124,15 @@ class ActivityController extends Controller
         // Broadcast activity created event
         event(new ActivityCreated($activity));
 
+        // Dispatch webhook
+        app(WebhookService::class)->dispatch('activity.created', [
+            'id' => $activity->id,
+            'activity_type' => $activity->activity_type,
+            'title' => $activity->title,
+            'status' => $activity->status,
+            'source' => $activity->source,
+        ], $request->user()->id);
+
         return response()->json($activity->load('contact'), 201);
     }
 
@@ -144,7 +154,28 @@ class ActivityController extends Controller
             'description' => 'sometimes|string',
         ]);
 
+        $oldStatus = $activity->status;
         $activity->update($validated);
+        $activity->refresh();
+
+        // Dispatch webhook for status changes
+        if (isset($validated['status']) && $validated['status'] !== $oldStatus) {
+            if ($validated['status'] === 'completed') {
+                app(WebhookService::class)->dispatch('activity.completed', [
+                    'id' => $activity->id,
+                    'activity_type' => $activity->activity_type,
+                    'title' => $activity->title,
+                    'status' => $activity->status,
+                ], $request->user()->id);
+            } else {
+                app(WebhookService::class)->dispatch('activity.updated', [
+                    'id' => $activity->id,
+                    'activity_type' => $activity->activity_type,
+                    'title' => $activity->title,
+                    'status' => $activity->status,
+                ], $request->user()->id);
+            }
+        }
 
         return response()->json($activity->load('contact'));
     }

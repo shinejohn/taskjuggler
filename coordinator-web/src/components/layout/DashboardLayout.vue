@@ -100,7 +100,6 @@ import {
   BarChart3,
   Bell,
   User,
-  CreditCard,
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -110,7 +109,7 @@ const isDropdownOpen = ref(false);
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  // { name: '4 Calls', path: '/coordinators', icon: Users },
+  { name: '4 Calls', path: '/coordinators', icon: Users },
   { name: 'Appointments', path: '/appointments', icon: Calendar },
   { name: 'Contacts', path: '/contacts', icon: Contact },
   { name: 'Calls', path: '/calls', icon: Phone },

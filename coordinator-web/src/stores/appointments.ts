@@ -28,10 +28,11 @@ export const useAppointmentsStore = defineStore('appointments', () => {
         page: filters?.page || page.value,
         per_page: filters?.per_page || perPage.value,
       });
-      appointments.value = response.data.data;
-      total.value = response.data.total || response.data.data.length;
-      page.value = response.data.page || page.value;
-      perPage.value = response.data.per_page || perPage.value;
+      const data = (response.data as any).data || response.data;
+      appointments.value = Array.isArray(data) ? data : data.data;
+      total.value = (response.data as any).total || (data.meta ? data.meta.total : data.length);
+      page.value = (response.data as any).page || (data.meta ? data.meta.current_page : page.value);
+      perPage.value = (response.data as any).per_page || (data.meta ? data.meta.per_page : perPage.value);
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load appointments';
       throw err;
@@ -50,7 +51,7 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     error.value = null;
     try {
       const response = await appointmentsApi.getToday(orgStore.currentOrganization.id);
-      todayAppointments.value = response.data.data;
+      todayAppointments.value = (response.data as any).data || response.data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load today\'s appointments';
       throw err;
@@ -69,8 +70,9 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     error.value = null;
     try {
       const response = await appointmentsApi.getById(orgStore.currentOrganization.id, id);
-      currentAppointment.value = response.data;
-      return response.data;
+      const data = (response.data as any).data || response.data;
+      currentAppointment.value = data;
+      return data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load appointment';
       throw err;
@@ -130,14 +132,16 @@ export const useAppointmentsStore = defineStore('appointments', () => {
       );
 
       // Replace optimistic appointment with real one
+      const result = (response.data as any).data || response.data;
+      // Replace optimistic appointment with real one
       const index = appointments.value.findIndex(a => a.id === optimisticId);
       if (index !== -1) {
-        appointments.value[index] = response.data;
+        appointments.value[index] = result;
       } else {
-        appointments.value.push(response.data);
+        appointments.value.push(result);
       }
 
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create appointment';
       throw err;
@@ -156,14 +160,15 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     error.value = null;
     try {
       const response = await appointmentsApi.update(orgStore.currentOrganization.id, id, data);
+      const result = (response.data as any).data || response.data;
       const index = appointments.value.findIndex(a => a.id === id);
       if (index !== -1) {
-        appointments.value[index] = response.data;
+        appointments.value[index] = result;
       }
       if (currentAppointment.value?.id === id) {
-        currentAppointment.value = response.data;
+        currentAppointment.value = result;
       }
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to update appointment';
       throw err;
@@ -182,14 +187,15 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     error.value = null;
     try {
       const response = await appointmentsApi.cancel(orgStore.currentOrganization.id, id, reason);
+      const result = (response.data as any).data || response.data;
       const index = appointments.value.findIndex(a => a.id === id);
       if (index !== -1) {
-        appointments.value[index] = response.data;
+        appointments.value[index] = result;
       }
       if (currentAppointment.value?.id === id) {
-        currentAppointment.value = response.data;
+        currentAppointment.value = result;
       }
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to cancel appointment';
       throw err;

@@ -92,6 +92,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/{id}/sync', [IntegrationController::class, 'sync']);
         Route::get('/{id}/sync-status', [IntegrationController::class, 'syncStatus']);
         
+        // Webhook registration
+        Route::post('/webhooks', [IntegrationController::class, 'registerWebhook']);
+        Route::get('/webhooks', [IntegrationController::class, 'listWebhooks']);
+        Route::put('/webhooks/{id}', [IntegrationController::class, 'updateWebhook']);
+        Route::delete('/webhooks/{id}', [IntegrationController::class, 'deleteWebhook']);
+        
+        // Webhook events
+        Route::prefix('webhooks/events')->group(function () {
+            Route::get('/', [\App\Modules\Urpa\Controllers\WebhookEventController::class, 'index']);
+            Route::get('/{id}', [\App\Modules\Urpa\Controllers\WebhookEventController::class, 'show']);
+            Route::post('/{id}/retry', [\App\Modules\Urpa\Controllers\WebhookEventController::class, 'retry']);
+        });
+        
         // OAuth flows
         Route::get('/oauth/{provider}/redirect', [IntegrationController::class, 'oauthRedirect']);
         Route::get('/oauth/{provider}/callback', [IntegrationController::class, 'oauthCallback']);

@@ -1,0 +1,7840 @@
+{
+  "database": {
+    "transactions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "amount",
+          "type": "decimal"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "vendor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "execution_id",
+          "type": "uuid"
+        },
+        {
+          "name": "stripe_payment_intent_id",
+          "type": "string"
+        },
+        {
+          "name": "stripe_transfer_id",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175033_create_transactions_table.php",
+      "model": "App\\Models\\Transaction"
+    },
+    "relationship_history": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "relationship_id",
+          "type": "uuid"
+        },
+        {
+          "name": "actor_a_id",
+          "type": "uuid"
+        },
+        {
+          "name": "actor_b_id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "event_type",
+          "type": "string"
+        },
+        {
+          "name": "outcome",
+          "type": "string"
+        },
+        {
+          "name": "response_time_ms",
+          "type": "integer"
+        },
+        {
+          "name": "completion_time_ms",
+          "type": "integer"
+        },
+        {
+          "name": "metadata",
+          "type": "json"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_17_000004_create_tef_relationship_history_table.php",
+      "model": "App\\Models\\RelationshipHistory"
+    },
+    "personal_access_tokens": {
+      "columns": [
+        {
+          "name": "tokenable",
+          "type": "morphs"
+        },
+        {
+          "name": "name",
+          "type": "text"
+        },
+        {
+          "name": "token",
+          "type": "string"
+        },
+        {
+          "name": "abilities",
+          "type": "text"
+        },
+        {
+          "name": "last_used_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "current_profile_id",
+          "type": "uuid"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "slug",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "color",
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "type": "string"
+        },
+        {
+          "name": "is_default",
+          "type": "boolean"
+        },
+        {
+          "name": "settings",
+          "type": "jsonb"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_16_201200_force_create_missing_tables.php"
+    },
+    "contact_list_members": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "list_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "phone",
+          "type": "string"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175032_create_contact_list_members_table.php",
+      "model": "App\\Models\\ContactListMember"
+    },
+    "routing_rules": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "priority",
+          "type": "integer"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "conditions",
+          "type": "jsonb"
+        },
+        {
+          "name": "actions",
+          "type": "jsonb"
+        },
+        {
+          "name": "times_matched",
+          "type": "integer"
+        },
+        {
+          "name": "last_matched_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175032_create_routing_rules_table.php",
+      "model": "App\\Models\\RoutingRule"
+    },
+    "appointment_types": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "duration_minutes",
+          "type": "integer"
+        },
+        {
+          "name": "color",
+          "type": "string"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "buffer_before_minutes",
+          "type": "integer"
+        },
+        {
+          "name": "buffer_after_minutes",
+          "type": "integer"
+        },
+        {
+          "name": "advance_booking_days",
+          "type": "integer"
+        },
+        {
+          "name": "cancellation_hours",
+          "type": "integer"
+        },
+        {
+          "name": "price",
+          "type": "decimal"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        },
+        {
+          "name": "booking_slug",
+          "type": "string"
+        },
+        {
+          "name": "is_public",
+          "type": "boolean"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_11_000000_create_appointment_types_table.php",
+      "model": "App\\Models\\AppointmentType"
+    },
+    "actors": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "actor_type",
+          "type": "string"
+        },
+        {
+          "name": "display_name",
+          "type": "string"
+        },
+        {
+          "name": "capabilities",
+          "type": "json"
+        },
+        {
+          "name": "contact_methods",
+          "type": "json"
+        },
+        {
+          "name": "metadata",
+          "type": "json"
+        },
+        {
+          "name": "authentication",
+          "type": "json"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_17_000001_create_tef_actors_table.php",
+      "model": "App\\Models\\Actor"
+    },
+    "users": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "password",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "phone",
+          "type": "string"
+        },
+        {
+          "name": "timezone",
+          "type": "string"
+        },
+        {
+          "name": "plan",
+          "type": "string"
+        },
+        {
+          "name": "plan_expires_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "stripe_customer_id",
+          "type": "string"
+        },
+        {
+          "name": "settings",
+          "type": "jsonb"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "token",
+          "type": "string"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "ip_address",
+          "type": "string"
+        },
+        {
+          "name": "user_agent",
+          "type": "text"
+        },
+        {
+          "name": "payload",
+          "type": "longText"
+        },
+        {
+          "name": "last_activity",
+          "type": "integer"
+        }
+      ],
+      "defined_in_migration": "0001_01_01_000000_create_users_table.php",
+      "model": "App\\Modules\\Core\\Models\\User"
+    },
+    "sites": {
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "name": "auth_type",
+          "type": "string"
+        },
+        {
+          "name": "auth_config",
+          "type": "json"
+        },
+        {
+          "name": "max_pages",
+          "type": "integer"
+        },
+        {
+          "name": "checks",
+          "type": "json"
+        },
+        {
+          "name": "last_scan_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_27_233451_create_sites_table.php",
+      "model": "App\\Modules\\SiteHealth\\Models\\Site"
+    },
+    "profiles": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "slug",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "color",
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "type": "string"
+        },
+        {
+          "name": "is_default",
+          "type": "boolean"
+        },
+        {
+          "name": "settings",
+          "type": "jsonb"
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_16_222333_create_profiles_table.php",
+      "model": "App\\Modules\\Core\\Models\\Profile"
+    },
+    "ideacircuit_meeting_messages": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "meeting_id",
+          "type": "uuid"
+        },
+        {
+          "name": "participant_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "message_text",
+          "type": "text"
+        },
+        {
+          "name": "message_type",
+          "type": "string"
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "uuid"
+        },
+        {
+          "name": "thread_count",
+          "type": "integer"
+        },
+        {
+          "name": "is_ai_generated",
+          "type": "boolean"
+        },
+        {
+          "name": "sentiment",
+          "type": "string"
+        },
+        {
+          "name": "intent",
+          "type": "string"
+        },
+        {
+          "name": "confidence_score",
+          "type": "decimal"
+        },
+        {
+          "name": "mentioned_users",
+          "type": "jsonb"
+        },
+        {
+          "name": "action_items",
+          "type": "jsonb"
+        },
+        {
+          "name": "key_phrases",
+          "type": "jsonb"
+        },
+        {
+          "name": "has_attachments",
+          "type": "boolean"
+        },
+        {
+          "name": "attachment_urls",
+          "type": "jsonb"
+        },
+        {
+          "name": "is_edited",
+          "type": "boolean"
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean"
+        },
+        {
+          "name": "edited_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb"
+        }
+      ],
+      "defined_in_migration": "2026_01_10_155242_create_ideacircuit_meeting_messages_table.php"
+    },
+    "conversations": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "participants",
+          "type": "json"
+        },
+        {
+          "name": "message_count",
+          "type": "integer"
+        },
+        {
+          "name": "last_message_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "conversation_id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "message_type",
+          "type": "string"
+        },
+        {
+          "name": "source_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "target_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "reply_to_id",
+          "type": "uuid"
+        },
+        {
+          "name": "payload",
+          "type": "json"
+        },
+        {
+          "name": "delivered_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "read_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_17_000003_create_tef_conversations_table.php",
+      "model": "App\\Models\\Conversation"
+    },
+    "cache": {
+      "columns": [
+        {
+          "name": "key",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "mediumText"
+        },
+        {
+          "name": "expiration",
+          "type": "integer"
+        },
+        {
+          "name": "key",
+          "type": "string"
+        },
+        {
+          "name": "owner",
+          "type": "string"
+        },
+        {
+          "name": "expiration",
+          "type": "integer"
+        }
+      ],
+      "defined_in_migration": "0001_01_01_000001_create_cache_table.php"
+    },
+    "tasks": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2026_01_16_025111_create_tasks_table.php",
+      "model": "App\\Modules\\Tasks\\Models\\Task"
+    },
+    "ideacircuit_meetings": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "meeting_type",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "visibility",
+          "type": "string"
+        },
+        {
+          "name": "requires_approval",
+          "type": "boolean"
+        },
+        {
+          "name": "allow_guests",
+          "type": "boolean"
+        },
+        {
+          "name": "max_participants",
+          "type": "integer"
+        },
+        {
+          "name": "guest_join_url",
+          "type": "string"
+        },
+        {
+          "name": "guest_access_code",
+          "type": "string"
+        },
+        {
+          "name": "guest_url_expires_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "chime_meeting_id",
+          "type": "string"
+        },
+        {
+          "name": "chime_region",
+          "type": "string"
+        },
+        {
+          "name": "chime_external_id",
+          "type": "string"
+        },
+        {
+          "name": "chime_media_placement",
+          "type": "jsonb"
+        },
+        {
+          "name": "ai_participant_enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "ai_script_id",
+          "type": "uuid"
+        },
+        {
+          "name": "ai_voice_enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "ai_language",
+          "type": "string"
+        },
+        {
+          "name": "recording_enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "recording_status",
+          "type": "string"
+        },
+        {
+          "name": "transcription_enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "scheduled_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "started_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "ended_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "duration_seconds",
+          "type": "integer"
+        },
+        {
+          "name": "settings",
+          "type": "jsonb"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb"
+        }
+      ],
+      "defined_in_migration": "2026_01_10_155240_create_ideacircuit_meetings_table.php"
+    },
+    "ideacircuit_meeting_notes": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "meeting_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "category",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "text"
+        },
+        {
+          "name": "note_type",
+          "type": "string"
+        },
+        {
+          "name": "tags",
+          "type": "jsonb"
+        },
+        {
+          "name": "priority",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "assigned_to",
+          "type": "uuid"
+        },
+        {
+          "name": "due_date",
+          "type": "timestampTz"
+        },
+        {
+          "name": "is_shared",
+          "type": "boolean"
+        },
+        {
+          "name": "shared_with_participant_ids",
+          "type": "jsonb"
+        },
+        {
+          "name": "confidence_score",
+          "type": "decimal"
+        },
+        {
+          "name": "extracted_from_transcript",
+          "type": "boolean"
+        },
+        {
+          "name": "source_timestamp_ms",
+          "type": "bigInteger"
+        },
+        {
+          "name": "completed_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb"
+        }
+      ],
+      "defined_in_migration": "2026_01_10_155242_create_ideacircuit_meeting_notes_table.php"
+    },
+    "scheduled_scans": {
+      "columns": [
+        {
+          "name": "site_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "frequency",
+          "type": "string"
+        },
+        {
+          "name": "day_of_week",
+          "type": "integer"
+        },
+        {
+          "name": "day_of_month",
+          "type": "integer"
+        },
+        {
+          "name": "time",
+          "type": "time"
+        },
+        {
+          "name": "enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_27_233457_create_scheduled_scans_table.php",
+      "model": "App\\Modules\\SiteHealth\\Models\\ScheduledScan"
+    },
+    "jobs": {
+      "columns": [
+        {
+          "name": "queue",
+          "type": "string"
+        },
+        {
+          "name": "payload",
+          "type": "longText"
+        },
+        {
+          "name": "attempts",
+          "type": "unsignedTinyInteger"
+        },
+        {
+          "name": "reserved_at",
+          "type": "unsignedInteger"
+        },
+        {
+          "name": "available_at",
+          "type": "unsignedInteger"
+        },
+        {
+          "name": "created_at",
+          "type": "unsignedInteger"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "total_jobs",
+          "type": "integer"
+        },
+        {
+          "name": "pending_jobs",
+          "type": "integer"
+        },
+        {
+          "name": "failed_jobs",
+          "type": "integer"
+        },
+        {
+          "name": "failed_job_ids",
+          "type": "longText"
+        },
+        {
+          "name": "options",
+          "type": "mediumText"
+        },
+        {
+          "name": "cancelled_at",
+          "type": "integer"
+        },
+        {
+          "name": "created_at",
+          "type": "integer"
+        },
+        {
+          "name": "finished_at",
+          "type": "integer"
+        },
+        {
+          "name": "uuid",
+          "type": "string"
+        },
+        {
+          "name": "connection",
+          "type": "text"
+        },
+        {
+          "name": "queue",
+          "type": "text"
+        },
+        {
+          "name": "payload",
+          "type": "longText"
+        },
+        {
+          "name": "exception",
+          "type": "longText"
+        },
+        {
+          "name": "failed_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "0001_01_01_000002_create_jobs_table.php"
+    },
+    "ideacircuit_meeting_appointments": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "meeting_id",
+          "type": "uuid"
+        },
+        {
+          "name": "appointment_id",
+          "type": "uuid"
+        }
+      ],
+      "defined_in_migration": "2026_01_10_155242_create_ideacircuit_meeting_appointments_table.php"
+    },
+    "availability_slots": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "day_of_week",
+          "type": "integer"
+        },
+        {
+          "name": "start_time",
+          "type": "time"
+        },
+        {
+          "name": "end_time",
+          "type": "time"
+        },
+        {
+          "name": "start_date",
+          "type": "date"
+        },
+        {
+          "name": "end_date",
+          "type": "date"
+        },
+        {
+          "name": "specific_date",
+          "type": "date"
+        },
+        {
+          "name": "timezone",
+          "type": "string"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_11_000001_create_availability_slots_table.php",
+      "model": "App\\Models\\AvailabilitySlot"
+    },
+    "contact_lists": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175032_create_contact_lists_table.php",
+      "model": "App\\Models\\ContactList"
+    },
+    "direct_messages": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "sender_id",
+          "type": "uuid"
+        },
+        {
+          "name": "recipient_id",
+          "type": "uuid"
+        },
+        {
+          "name": "content",
+          "type": "text"
+        },
+        {
+          "name": "read_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_11_300002_create_direct_messages_table.php",
+      "model": "App\\Models\\DirectMessage"
+    },
+    "ideacircuit_meeting_tasks": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "meeting_id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        }
+      ],
+      "defined_in_migration": "2026_01_10_155242_create_ideacircuit_meeting_tasks_table.php"
+    },
+    "ideacircuit_meeting_transcripts": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "meeting_id",
+          "type": "uuid"
+        },
+        {
+          "name": "participant_id",
+          "type": "uuid"
+        },
+        {
+          "name": "transcript_text",
+          "type": "text"
+        },
+        {
+          "name": "speaker_name",
+          "type": "string"
+        },
+        {
+          "name": "speaker_id",
+          "type": "uuid"
+        },
+        {
+          "name": "confidence_score",
+          "type": "decimal"
+        },
+        {
+          "name": "is_final",
+          "type": "boolean"
+        },
+        {
+          "name": "is_partial",
+          "type": "boolean"
+        },
+        {
+          "name": "language",
+          "type": "string"
+        },
+        {
+          "name": "detected_language",
+          "type": "string"
+        },
+        {
+          "name": "start_time_ms",
+          "type": "bigInteger"
+        },
+        {
+          "name": "end_time_ms",
+          "type": "bigInteger"
+        },
+        {
+          "name": "duration_ms",
+          "type": "integer"
+        },
+        {
+          "name": "sentiment",
+          "type": "string"
+        },
+        {
+          "name": "sentiment_score",
+          "type": "decimal"
+        },
+        {
+          "name": "key_phrases",
+          "type": "jsonb"
+        },
+        {
+          "name": "entities",
+          "type": "jsonb"
+        },
+        {
+          "name": "topics",
+          "type": "jsonb"
+        },
+        {
+          "name": "action_items",
+          "type": "jsonb"
+        },
+        {
+          "name": "questions",
+          "type": "jsonb"
+        },
+        {
+          "name": "speaker_emotion",
+          "type": "string"
+        },
+        {
+          "name": "speaking_rate_wpm",
+          "type": "integer"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb"
+        }
+      ],
+      "defined_in_migration": "2026_01_10_155242_create_ideacircuit_meeting_transcripts_table.php"
+    },
+    "appointments": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "appointment_type_id",
+          "type": "uuid"
+        },
+        {
+          "name": "host_id",
+          "type": "uuid"
+        },
+        {
+          "name": "guest_name",
+          "type": "string"
+        },
+        {
+          "name": "guest_email",
+          "type": "string"
+        },
+        {
+          "name": "guest_phone",
+          "type": "string"
+        },
+        {
+          "name": "start_time",
+          "type": "timestamp"
+        },
+        {
+          "name": "end_time",
+          "type": "timestamp"
+        },
+        {
+          "name": "timezone",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "confirmed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "cancelled_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "cancellation_reason",
+          "type": "text"
+        },
+        {
+          "name": "notes",
+          "type": "text"
+        },
+        {
+          "name": "internal_notes",
+          "type": "text"
+        },
+        {
+          "name": "meeting_location",
+          "type": "string"
+        },
+        {
+          "name": "meeting_url",
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "send_reminder_email",
+          "type": "boolean"
+        },
+        {
+          "name": "send_reminder_sms",
+          "type": "boolean"
+        },
+        {
+          "name": "booking_source",
+          "type": "string"
+        },
+        {
+          "name": "ip_address",
+          "type": "string"
+        },
+        {
+          "name": "user_agent",
+          "type": "text"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_11_000002_create_appointments_table.php",
+      "model": "App\\Models\\Appointment"
+    },
+    "assistant_channels": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "channel_type",
+          "type": "string"
+        },
+        {
+          "name": "phone_number",
+          "type": "string"
+        },
+        {
+          "name": "twilio_sid",
+          "type": "string"
+        },
+        {
+          "name": "email_address",
+          "type": "string"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "greeting_message",
+          "type": "text"
+        },
+        {
+          "name": "voicemail_greeting",
+          "type": "text"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175026_create_assistant_channels_table.php",
+      "model": "App\\Models\\AssistantChannel"
+    },
+    "scanner_scans": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2026_01_16_080202_create_scanner_scans_table.php"
+    },
+    "task_actions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "action_type",
+          "type": "string"
+        },
+        {
+          "name": "action_data",
+          "type": "jsonb"
+        },
+        {
+          "name": "previous_value",
+          "type": "string"
+        },
+        {
+          "name": "new_value",
+          "type": "string"
+        },
+        {
+          "name": "reason",
+          "type": "text"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_11_100002_create_task_actions_table.php",
+      "model": "App\\Modules\\Tasks\\Models\\TaskAction"
+    },
+    "marketplace_vendors": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "vendor_type",
+          "type": "string"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "business_name",
+          "type": "string"
+        },
+        {
+          "name": "ai_provider",
+          "type": "string"
+        },
+        {
+          "name": "ai_config",
+          "type": "jsonb"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "logo_url",
+          "type": "string"
+        },
+        {
+          "name": "categories",
+          "type": "jsonb"
+        },
+        {
+          "name": "services",
+          "type": "jsonb"
+        },
+        {
+          "name": "address",
+          "type": "string"
+        },
+        {
+          "name": "pricing_model",
+          "type": "string"
+        },
+        {
+          "name": "base_rate",
+          "type": "decimal"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "is_verified",
+          "type": "boolean"
+        },
+        {
+          "name": "total_jobs",
+          "type": "integer"
+        },
+        {
+          "name": "completed_jobs",
+          "type": "integer"
+        },
+        {
+          "name": "average_rating",
+          "type": "decimal"
+        },
+        {
+          "name": "stripe_account_id",
+          "type": "string"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175032_create_marketplace_vendors_table.php",
+      "model": "App\\Models\\MarketplaceVendor"
+    },
+    "notifications": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "body",
+          "type": "text"
+        },
+        {
+          "name": "data",
+          "type": "jsonb"
+        },
+        {
+          "name": "channels",
+          "type": "jsonb"
+        },
+        {
+          "name": "sent_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "read_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175033_create_notifications_table.php",
+      "model": "App\\Models\\Notification"
+    },
+    "task_messages": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "sender_id",
+          "type": "uuid"
+        },
+        {
+          "name": "sender_type",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "text"
+        },
+        {
+          "name": "content_type",
+          "type": "string"
+        },
+        {
+          "name": "source_channel",
+          "type": "string"
+        },
+        {
+          "name": "source_channel_ref",
+          "type": "string"
+        },
+        {
+          "name": "attachments",
+          "type": "jsonb"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "last_read_message_id",
+          "type": "uuid"
+        },
+        {
+          "name": "last_read_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_11_300001_create_task_messages_table.php",
+      "model": "App\\Modules\\Tasks\\Models\\TaskMessage"
+    },
+    "contact_team_members": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "owner_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "phone",
+          "type": "string"
+        },
+        {
+          "name": "role",
+          "type": "string"
+        },
+        {
+          "name": "can_receive_tasks",
+          "type": "boolean"
+        },
+        {
+          "name": "notification_preferences",
+          "type": "jsonb"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175031_create_team_members_table.php"
+    },
+    "subscriptions": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2026_01_16_025112_create_subscriptions_table.php"
+    },
+    "ai_tool_executions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "vendor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "config_id",
+          "type": "uuid"
+        },
+        {
+          "name": "input_data",
+          "type": "jsonb"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "started_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "completed_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "output_data",
+          "type": "jsonb"
+        },
+        {
+          "name": "deliverable_urls",
+          "type": "jsonb"
+        },
+        {
+          "name": "error_message",
+          "type": "text"
+        },
+        {
+          "name": "tokens_used",
+          "type": "integer"
+        },
+        {
+          "name": "cost",
+          "type": "decimal"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175033_create_ai_tool_executions_table.php",
+      "model": "App\\Models\\AiToolExecution"
+    },
+    "marketplace_listings": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "requestor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "category",
+          "type": "string"
+        },
+        {
+          "name": "location_required",
+          "type": "boolean"
+        },
+        {
+          "name": "location",
+          "type": "jsonb"
+        },
+        {
+          "name": "location_radius_miles",
+          "type": "integer"
+        },
+        {
+          "name": "budget_type",
+          "type": "string"
+        },
+        {
+          "name": "budget_min",
+          "type": "decimal"
+        },
+        {
+          "name": "budget_max",
+          "type": "decimal"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "assigned_vendor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "assigned_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "needed_by",
+          "type": "timestampTz"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175032_create_marketplace_listings_table.php",
+      "model": "App\\Models\\MarketplaceListing"
+    },
+    "scans": {
+      "columns": [
+        {
+          "name": "site_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "started_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "pages_scanned",
+          "type": "integer"
+        },
+        {
+          "name": "total_pages",
+          "type": "integer"
+        },
+        {
+          "name": "health_score",
+          "type": "integer"
+        },
+        {
+          "name": "category_scores",
+          "type": "json"
+        },
+        {
+          "name": "issue_count",
+          "type": "integer"
+        },
+        {
+          "name": "error",
+          "type": "text"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_27_233457_create_scans_table.php",
+      "model": "App\\Modules\\SiteHealth\\Models\\Scan"
+    },
+    "inbox_items": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "source_type",
+          "type": "string"
+        },
+        {
+          "name": "source_id",
+          "type": "string"
+        },
+        {
+          "name": "channel_id",
+          "type": "uuid"
+        },
+        {
+          "name": "from_identifier",
+          "type": "string"
+        },
+        {
+          "name": "from_name",
+          "type": "string"
+        },
+        {
+          "name": "subject",
+          "type": "string"
+        },
+        {
+          "name": "body",
+          "type": "text"
+        },
+        {
+          "name": "attachments",
+          "type": "jsonb"
+        },
+        {
+          "name": "extracted_data",
+          "type": "jsonb"
+        },
+        {
+          "name": "processing_status",
+          "type": "string"
+        },
+        {
+          "name": "processing_error",
+          "type": "text"
+        },
+        {
+          "name": "routed_to_task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "routing_rule_id",
+          "type": "uuid"
+        },
+        {
+          "name": "auto_response_sent",
+          "type": "boolean"
+        },
+        {
+          "name": "auto_response_text",
+          "type": "text"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "received_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "processed_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175032_create_inbox_items_table.php",
+      "model": "App\\Models\\InboxItem"
+    },
+    "scanner_sites": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2026_01_16_080202_create_scanner_sites_table.php"
+    },
+    "claim_codes": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "claimed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "claimed_by_user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_17_000006_create_tef_claim_codes_table.php",
+      "model": "App\\Models\\ClaimCode"
+    },
+    "ai_tool_configs": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "vendor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "provider",
+          "type": "string"
+        },
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "api_endpoint",
+          "type": "string"
+        },
+        {
+          "name": "api_key_encrypted",
+          "type": "text"
+        },
+        {
+          "name": "input_schema",
+          "type": "jsonb"
+        },
+        {
+          "name": "output_schema",
+          "type": "jsonb"
+        },
+        {
+          "name": "prompt_template",
+          "type": "text"
+        },
+        {
+          "name": "max_execution_time",
+          "type": "integer"
+        },
+        {
+          "name": "max_tokens",
+          "type": "integer"
+        },
+        {
+          "name": "retry_count",
+          "type": "integer"
+        },
+        {
+          "name": "auto_execute",
+          "type": "boolean"
+        },
+        {
+          "name": "requires_approval",
+          "type": "boolean"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175032_create_ai_tool_configs_table.php",
+      "model": "App\\Models\\AiToolConfig"
+    },
+    "marketplace_bids": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "listing_id",
+          "type": "uuid"
+        },
+        {
+          "name": "vendor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "amount",
+          "type": "decimal"
+        },
+        {
+          "name": "message",
+          "type": "text"
+        },
+        {
+          "name": "estimated_completion",
+          "type": "timestampTz"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "created_at",
+          "type": "timestampTz"
+        }
+      ],
+      "defined_in_migration": "2025_12_09_175032_create_marketplace_bids_table.php",
+      "model": "App\\Models\\MarketplaceBid"
+    },
+    "scanner_issues": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2026_01_16_080202_create_scanner_issues_table.php"
+    },
+    "relationships": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "actor_a_id",
+          "type": "uuid"
+        },
+        {
+          "name": "actor_b_id",
+          "type": "uuid"
+        },
+        {
+          "name": "relationship_type",
+          "type": "string"
+        },
+        {
+          "name": "permissions",
+          "type": "json"
+        },
+        {
+          "name": "established_via",
+          "type": "string"
+        },
+        {
+          "name": "trust_score",
+          "type": "decimal"
+        },
+        {
+          "name": "task_count",
+          "type": "integer"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_17_000002_create_tef_relationships_table.php",
+      "model": "App\\Models\\Relationship"
+    },
+    "ideacircuit_meeting_participants": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "meeting_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "is_guest",
+          "type": "boolean"
+        },
+        {
+          "name": "guest_name",
+          "type": "string"
+        },
+        {
+          "name": "guest_email",
+          "type": "string"
+        },
+        {
+          "name": "guest_access_token",
+          "type": "string"
+        },
+        {
+          "name": "guest_expires_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "display_name",
+          "type": "string"
+        },
+        {
+          "name": "avatar_url",
+          "type": "string"
+        },
+        {
+          "name": "role",
+          "type": "string"
+        },
+        {
+          "name": "chime_attendee_id",
+          "type": "string"
+        },
+        {
+          "name": "chime_external_user_id",
+          "type": "string"
+        },
+        {
+          "name": "chime_join_token",
+          "type": "string"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "connection_status",
+          "type": "string"
+        },
+        {
+          "name": "joined_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "left_at",
+          "type": "timestampTz"
+        },
+        {
+          "name": "total_duration_seconds",
+          "type": "integer"
+        },
+        {
+          "name": "is_muted",
+          "type": "boolean"
+        },
+        {
+          "name": "is_video_off",
+          "type": "boolean"
+        },
+        {
+          "name": "is_screen_sharing",
+          "type": "boolean"
+        },
+        {
+          "name": "can_chat",
+          "type": "boolean"
+        },
+        {
+          "name": "can_share_screen",
+          "type": "boolean"
+        },
+        {
+          "name": "can_record",
+          "type": "boolean"
+        },
+        {
+          "name": "can_view_notes",
+          "type": "boolean"
+        },
+        {
+          "name": "can_edit_notes",
+          "type": "boolean"
+        },
+        {
+          "name": "can_invite_others",
+          "type": "boolean"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb"
+        }
+      ],
+      "defined_in_migration": "2026_01_10_155242_create_ideacircuit_meeting_participants_table.php"
+    },
+    "issues": {
+      "columns": [
+        {
+          "name": "scan_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "site_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "category",
+          "type": "string"
+        },
+        {
+          "name": "severity",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "message",
+          "type": "text"
+        },
+        {
+          "name": "page_url",
+          "type": "string"
+        },
+        {
+          "name": "selector",
+          "type": "string"
+        },
+        {
+          "name": "html_context",
+          "type": "text"
+        },
+        {
+          "name": "wcag_criteria",
+          "type": "json"
+        },
+        {
+          "name": "fix_code",
+          "type": "text"
+        },
+        {
+          "name": "fix_explanation",
+          "type": "text"
+        },
+        {
+          "name": "fix_confidence",
+          "type": "integer"
+        },
+        {
+          "name": "screenshot_url",
+          "type": "string"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_27_233457_create_issues_table.php",
+      "model": "App\\Modules\\SiteHealth\\Models\\Issue"
+    },
+    "team_invitations": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "team_id",
+          "type": "uuid"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "phone",
+          "type": "string"
+        },
+        {
+          "name": "invite_code",
+          "type": "string"
+        },
+        {
+          "name": "invited_by",
+          "type": "uuid"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_24_000001_create_team_invitations_table.php",
+      "model": "App\\Models\\TeamInvitation"
+    },
+    "delegation_rules": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "delegator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "delegate_id",
+          "type": "uuid"
+        },
+        {
+          "name": "scope",
+          "type": "json"
+        },
+        {
+          "name": "constraints",
+          "type": "json"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_17_000005_create_tef_delegation_rules_table.php",
+      "model": "App\\Models\\DelegationRule"
+    },
+    "task_invitations": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "task_id",
+          "type": "uuid"
+        },
+        {
+          "name": "invite_code",
+          "type": "string"
+        },
+        {
+          "name": "invited_email",
+          "type": "string"
+        },
+        {
+          "name": "invited_phone",
+          "type": "string"
+        },
+        {
+          "name": "invited_name",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "enum"
+        },
+        {
+          "name": "role",
+          "type": "enum"
+        },
+        {
+          "name": "invited_by_user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "accepted_by_user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "accepted_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_11_200000_create_task_invitations_table.php",
+      "model": "App\\Modules\\Tasks\\Models\\TaskInvitation"
+    },
+    "teams": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "avatar_url",
+          "type": "string"
+        },
+        {
+          "name": "created_by",
+          "type": "uuid"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "team_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "is_admin",
+          "type": "boolean"
+        },
+        {
+          "name": "joined_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "team_id",
+          "type": "uuid"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "phone",
+          "type": "string"
+        },
+        {
+          "name": "invite_code",
+          "type": "string"
+        },
+        {
+          "name": "invited_by",
+          "type": "uuid"
+        },
+        {
+          "name": "status",
+          "type": "enum"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "team_id",
+          "type": "uuid"
+        },
+        {
+          "name": "team_id",
+          "type": "dropColumn"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_12_11_300000_create_teams_tables.php",
+      "model": "App\\Modules\\Core\\Models\\Team"
+    },
+    "coord_campaigns": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "enum"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "target_contacts",
+          "type": "json"
+        },
+        {
+          "name": "target_count",
+          "type": "integer"
+        },
+        {
+          "name": "script",
+          "type": "json"
+        },
+        {
+          "name": "filters",
+          "type": "json"
+        },
+        {
+          "name": "scheduled_start_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "scheduled_end_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "schedule_rules",
+          "type": "json"
+        },
+        {
+          "name": "contacts_processed",
+          "type": "integer"
+        },
+        {
+          "name": "contacts_contacted",
+          "type": "integer"
+        },
+        {
+          "name": "contacts_answered",
+          "type": "integer"
+        },
+        {
+          "name": "appointments_booked",
+          "type": "integer"
+        },
+        {
+          "name": "appointments_confirmed",
+          "type": "integer"
+        },
+        {
+          "name": "appointments_rescheduled",
+          "type": "integer"
+        },
+        {
+          "name": "answer_rate",
+          "type": "decimal"
+        },
+        {
+          "name": "booking_rate",
+          "type": "decimal"
+        },
+        {
+          "name": "confirmation_rate",
+          "type": "decimal"
+        },
+        {
+          "name": "started_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "paused_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "settings",
+          "type": "json"
+        },
+        {
+          "name": "metadata",
+          "type": "json"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_01_02_000008_create_coordinator_campaigns_table.php",
+      "model": "App\\Modules\\Coordinator\\Models\\Campaign"
+    },
+    "coord_ai_agents": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "agent_id",
+          "type": "string"
+        },
+        {
+          "name": "agent_type",
+          "type": "string"
+        },
+        {
+          "name": "agent_name",
+          "type": "string"
+        },
+        {
+          "name": "version",
+          "type": "string"
+        },
+        {
+          "name": "platform",
+          "type": "string"
+        },
+        {
+          "name": "deployment_id",
+          "type": "string"
+        },
+        {
+          "name": "capabilities",
+          "type": "json"
+        },
+        {
+          "name": "agent_secret_hash",
+          "type": "string"
+        },
+        {
+          "name": "last_authenticated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "agent_id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "session_token",
+          "type": "string"
+        },
+        {
+          "name": "session_type",
+          "type": "string"
+        },
+        {
+          "name": "permissions",
+          "type": "json"
+        },
+        {
+          "name": "restrictions",
+          "type": "json"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "last_used_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "ip_address",
+          "type": "string"
+        },
+        {
+          "name": "user_agent",
+          "type": "text"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "agent_id",
+          "type": "uuid"
+        },
+        {
+          "name": "packet_id",
+          "type": "string"
+        },
+        {
+          "name": "version",
+          "type": "string"
+        },
+        {
+          "name": "checksum",
+          "type": "string"
+        },
+        {
+          "name": "platform_knowledge",
+          "type": "json"
+        },
+        {
+          "name": "industry_id",
+          "type": "string"
+        },
+        {
+          "name": "industry_knowledge",
+          "type": "json"
+        },
+        {
+          "name": "business_profile",
+          "type": "json"
+        },
+        {
+          "name": "business_faqs",
+          "type": "json"
+        },
+        {
+          "name": "team",
+          "type": "json"
+        },
+        {
+          "name": "calendar_summary",
+          "type": "json"
+        },
+        {
+          "name": "conversation_context",
+          "type": "json"
+        },
+        {
+          "name": "rules",
+          "type": "json"
+        },
+        {
+          "name": "ttl_seconds",
+          "type": "integer"
+        },
+        {
+          "name": "refresh_after_seconds",
+          "type": "integer"
+        },
+        {
+          "name": "invalidation_events",
+          "type": "json"
+        },
+        {
+          "name": "generated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "context_packet_id",
+          "type": "uuid"
+        },
+        {
+          "name": "event_type",
+          "type": "string"
+        },
+        {
+          "name": "sections_affected",
+          "type": "json"
+        },
+        {
+          "name": "urgency",
+          "type": "string"
+        },
+        {
+          "name": "delivery_method",
+          "type": "string"
+        },
+        {
+          "name": "delivered",
+          "type": "boolean"
+        },
+        {
+          "name": "delivered_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "metadata",
+          "type": "json"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "agent_id",
+          "type": "uuid"
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid"
+        },
+        {
+          "name": "session_id",
+          "type": "uuid"
+        },
+        {
+          "name": "interaction_id",
+          "type": "string"
+        },
+        {
+          "name": "channel",
+          "type": "string"
+        },
+        {
+          "name": "started_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "ended_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "duration_seconds",
+          "type": "integer"
+        },
+        {
+          "name": "customer_identified",
+          "type": "boolean"
+        },
+        {
+          "name": "customer_info",
+          "type": "json"
+        },
+        {
+          "name": "intent",
+          "type": "json"
+        },
+        {
+          "name": "outcome",
+          "type": "json"
+        },
+        {
+          "name": "conversation_summary",
+          "type": "text"
+        },
+        {
+          "name": "transcript_reference",
+          "type": "string"
+        },
+        {
+          "name": "sentiment",
+          "type": "json"
+        },
+        {
+          "name": "faqs_used",
+          "type": "json"
+        },
+        {
+          "name": "unknown_questions",
+          "type": "json"
+        },
+        {
+          "name": "agent_version",
+          "type": "string"
+        },
+        {
+          "name": "analyzed_for_learning",
+          "type": "boolean"
+        },
+        {
+          "name": "analyzed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "agent_id",
+          "type": "uuid"
+        },
+        {
+          "name": "question",
+          "type": "string"
+        },
+        {
+          "name": "proposed_answer",
+          "type": "text"
+        },
+        {
+          "name": "context",
+          "type": "text"
+        },
+        {
+          "name": "frequency",
+          "type": "integer"
+        },
+        {
+          "name": "priority",
+          "type": "string"
+        },
+        {
+          "name": "first_asked_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "last_asked_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "cluster_id",
+          "type": "uuid"
+        },
+        {
+          "name": "canonical_question",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "approved_faq_id",
+          "type": "uuid"
+        },
+        {
+          "name": "reviewed_by_user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "reviewed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "review_notes",
+          "type": "text"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "customer_patterns",
+          "type": "json"
+        },
+        {
+          "name": "conversation_patterns",
+          "type": "json"
+        },
+        {
+          "name": "faq_effectiveness",
+          "type": "json"
+        },
+        {
+          "name": "customer_vocabulary",
+          "type": "json"
+        },
+        {
+          "name": "period_start",
+          "type": "date"
+        },
+        {
+          "name": "period_end",
+          "type": "date"
+        },
+        {
+          "name": "interaction_count",
+          "type": "integer"
+        },
+        {
+          "name": "last_analyzed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "agent_id",
+          "type": "uuid"
+        },
+        {
+          "name": "version_id",
+          "type": "string"
+        },
+        {
+          "name": "parent_version_id",
+          "type": "uuid"
+        },
+        {
+          "name": "identity",
+          "type": "json"
+        },
+        {
+          "name": "personality",
+          "type": "json"
+        },
+        {
+          "name": "communication",
+          "type": "json"
+        },
+        {
+          "name": "voice",
+          "type": "json"
+        },
+        {
+          "name": "behavior",
+          "type": "json"
+        },
+        {
+          "name": "prompts",
+          "type": "json"
+        },
+        {
+          "name": "approval_status",
+          "type": "string"
+        },
+        {
+          "name": "approved_by_user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "approved_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "approval_notes",
+          "type": "text"
+        },
+        {
+          "name": "baseline_metrics",
+          "type": "json"
+        },
+        {
+          "name": "current_metrics",
+          "type": "json"
+        },
+        {
+          "name": "review_date",
+          "type": "date"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "persona_configuration_id",
+          "type": "uuid"
+        },
+        {
+          "name": "consensus_id",
+          "type": "string"
+        },
+        {
+          "name": "initiated_by",
+          "type": "string"
+        },
+        {
+          "name": "category",
+          "type": "string"
+        },
+        {
+          "name": "specific_element",
+          "type": "string"
+        },
+        {
+          "name": "ai_agent_position",
+          "type": "json"
+        },
+        {
+          "name": "command_center_position",
+          "type": "json"
+        },
+        {
+          "name": "conflict_type",
+          "type": "string"
+        },
+        {
+          "name": "proposed_resolution",
+          "type": "json"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "requires_smb_approval",
+          "type": "boolean"
+        },
+        {
+          "name": "resolution",
+          "type": "json"
+        },
+        {
+          "name": "resolved_by_user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "resolved_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "agent_id",
+          "type": "uuid"
+        },
+        {
+          "name": "suggestion_id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "category",
+          "type": "string"
+        },
+        {
+          "name": "priority",
+          "type": "string"
+        },
+        {
+          "name": "current_config",
+          "type": "json"
+        },
+        {
+          "name": "proposed_config",
+          "type": "json"
+        },
+        {
+          "name": "evidence",
+          "type": "json"
+        },
+        {
+          "name": "reasoning",
+          "type": "text"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "requires_approval",
+          "type": "boolean"
+        },
+        {
+          "name": "auto_apply_eligible",
+          "type": "boolean"
+        },
+        {
+          "name": "reviewed_by_user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "reviewed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "review_notes",
+          "type": "text"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "interaction_id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "feedback_type",
+          "type": "string"
+        },
+        {
+          "name": "rating",
+          "type": "integer"
+        },
+        {
+          "name": "source",
+          "type": "string"
+        },
+        {
+          "name": "comments",
+          "type": "text"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "agent_id",
+          "type": "uuid"
+        },
+        {
+          "name": "session_id",
+          "type": "uuid"
+        },
+        {
+          "name": "event_type",
+          "type": "string"
+        },
+        {
+          "name": "resource_type",
+          "type": "string"
+        },
+        {
+          "name": "resource_id",
+          "type": "uuid"
+        },
+        {
+          "name": "data_accessed",
+          "type": "json"
+        },
+        {
+          "name": "justification",
+          "type": "text"
+        },
+        {
+          "name": "actor_type",
+          "type": "string"
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "contains_phi",
+          "type": "boolean"
+        },
+        {
+          "name": "contains_pii",
+          "type": "boolean"
+        },
+        {
+          "name": "compliance_mode",
+          "type": "string"
+        },
+        {
+          "name": "ip_address",
+          "type": "string"
+        },
+        {
+          "name": "user_agent",
+          "type": "text"
+        },
+        {
+          "name": "metadata",
+          "type": "json"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_01_02_000001_create_coordinator_protocol_tables.php",
+      "model": "App\\Modules\\Coordinator\\Models\\AiAgent"
+    },
+    "coord_contacts": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "first_name",
+          "type": "string"
+        },
+        {
+          "name": "last_name",
+          "type": "string"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "phone",
+          "type": "string"
+        },
+        {
+          "name": "phone_secondary",
+          "type": "string"
+        },
+        {
+          "name": "company",
+          "type": "string"
+        },
+        {
+          "name": "job_title",
+          "type": "string"
+        },
+        {
+          "name": "address",
+          "type": "text"
+        },
+        {
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "name": "state",
+          "type": "string"
+        },
+        {
+          "name": "postal_code",
+          "type": "string"
+        },
+        {
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "name": "source",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "tags",
+          "type": "json"
+        },
+        {
+          "name": "custom_fields",
+          "type": "json"
+        },
+        {
+          "name": "notes",
+          "type": "text"
+        },
+        {
+          "name": "lifetime_value",
+          "type": "decimal"
+        },
+        {
+          "name": "last_contacted_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "channel",
+          "type": "string"
+        },
+        {
+          "name": "direction",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "summary",
+          "type": "text"
+        },
+        {
+          "name": "outcome",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "json"
+        },
+        {
+          "name": "started_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "ended_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "assigned_to_user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "priority",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "due_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "completion_notes",
+          "type": "text"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "category",
+          "type": "string"
+        },
+        {
+          "name": "key",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "priority",
+          "type": "integer"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "sort_order",
+          "type": "integer"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "questions",
+          "type": "json"
+        },
+        {
+          "name": "trigger_type",
+          "type": "string"
+        },
+        {
+          "name": "trigger_conditions",
+          "type": "json"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "survey_id",
+          "type": "uuid"
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "responses",
+          "type": "json"
+        },
+        {
+          "name": "notes",
+          "type": "text"
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_01_02_000004_create_coordinator_crm_table.php",
+      "model": "App\\Modules\\Coordinator\\Models\\Contact"
+    },
+    "coord_appointment_types": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "duration_minutes",
+          "type": "integer"
+        },
+        {
+          "name": "price",
+          "type": "decimal"
+        },
+        {
+          "name": "color",
+          "type": "string"
+        },
+        {
+          "name": "buffer_before",
+          "type": "json"
+        },
+        {
+          "name": "buffer_after",
+          "type": "json"
+        },
+        {
+          "name": "availability",
+          "type": "json"
+        },
+        {
+          "name": "requires_confirmation",
+          "type": "boolean"
+        },
+        {
+          "name": "allow_online_booking",
+          "type": "boolean"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "sort_order",
+          "type": "integer"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid"
+        },
+        {
+          "name": "appointment_type_id",
+          "type": "uuid"
+        },
+        {
+          "name": "booked_by_coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "assigned_to_user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "starts_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "ends_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "location",
+          "type": "string"
+        },
+        {
+          "name": "location_type",
+          "type": "string"
+        },
+        {
+          "name": "notes",
+          "type": "text"
+        },
+        {
+          "name": "cancellation_reason",
+          "type": "text"
+        },
+        {
+          "name": "reminders_sent",
+          "type": "json"
+        },
+        {
+          "name": "confirmed_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "cancelled_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "is_default",
+          "type": "boolean"
+        },
+        {
+          "name": "weekly_hours",
+          "type": "json"
+        },
+        {
+          "name": "exceptions",
+          "type": "json"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "starts_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "ends_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "all_day",
+          "type": "boolean"
+        },
+        {
+          "name": "recurrence_rule",
+          "type": "string"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_01_02_000005_create_coordinator_calendar_table.php",
+      "model": "App\\Modules\\Coordinator\\Models\\AppointmentType"
+    },
+    "coord_organizations": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "slug",
+          "type": "string"
+        },
+        {
+          "name": "industry",
+          "type": "string"
+        },
+        {
+          "name": "phone",
+          "type": "string"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "website",
+          "type": "string"
+        },
+        {
+          "name": "address",
+          "type": "text"
+        },
+        {
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "name": "state",
+          "type": "string"
+        },
+        {
+          "name": "postal_code",
+          "type": "string"
+        },
+        {
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "name": "timezone",
+          "type": "string"
+        },
+        {
+          "name": "business_hours",
+          "type": "json"
+        },
+        {
+          "name": "settings",
+          "type": "json"
+        },
+        {
+          "name": "subscription_tier",
+          "type": "string"
+        },
+        {
+          "name": "compliance_modes",
+          "type": "json"
+        },
+        {
+          "name": "trial_ends_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "user_id",
+          "type": "foreignId"
+        },
+        {
+          "name": "role",
+          "type": "string"
+        },
+        {
+          "name": "permissions",
+          "type": "json"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_01_02_000002_create_coordinator_organizations_table.php",
+      "model": "App\\Modules\\Coordinator\\Models\\Organization"
+    },
+    "coord_faq_categories": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "sort_order",
+          "type": "integer"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "category_id",
+          "type": "uuid"
+        },
+        {
+          "name": "question",
+          "type": "text"
+        },
+        {
+          "name": "answer",
+          "type": "text"
+        },
+        {
+          "name": "keywords",
+          "type": "json"
+        },
+        {
+          "name": "priority",
+          "type": "string"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "sort_order",
+          "type": "integer"
+        },
+        {
+          "name": "use_count",
+          "type": "integer"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "transcript",
+          "type": "text"
+        },
+        {
+          "name": "audio_url",
+          "type": "string"
+        },
+        {
+          "name": "duration_seconds",
+          "type": "integer"
+        },
+        {
+          "name": "trigger_phrase",
+          "type": "string"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_01_02_000007_create_coordinator_knowledge_base_table.php"
+    },
+    "coord_role_templates": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "display_name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "direction",
+          "type": "string"
+        },
+        {
+          "name": "base_price",
+          "type": "decimal"
+        },
+        {
+          "name": "primary_goal",
+          "type": "string"
+        },
+        {
+          "name": "capabilities",
+          "type": "json"
+        },
+        {
+          "name": "channels",
+          "type": "json"
+        },
+        {
+          "name": "suggested_industries",
+          "type": "json"
+        },
+        {
+          "name": "default_prompts",
+          "type": "json"
+        },
+        {
+          "name": "default_scripts",
+          "type": "json"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "sort_order",
+          "type": "integer"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "display_name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "age_range",
+          "type": "string"
+        },
+        {
+          "name": "personality_traits",
+          "type": "json"
+        },
+        {
+          "name": "communication_style",
+          "type": "text"
+        },
+        {
+          "name": "best_for_industries",
+          "type": "json"
+        },
+        {
+          "name": "gender",
+          "type": "string"
+        },
+        {
+          "name": "voice_id",
+          "type": "string"
+        },
+        {
+          "name": "personality_prompts",
+          "type": "json"
+        },
+        {
+          "name": "example_greetings",
+          "type": "json"
+        },
+        {
+          "name": "tone_guidelines",
+          "type": "json"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "sort_order",
+          "type": "integer"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "role_template_id",
+          "type": "uuid"
+        },
+        {
+          "name": "persona_template_id",
+          "type": "uuid"
+        },
+        {
+          "name": "display_name",
+          "type": "string"
+        },
+        {
+          "name": "voice_id",
+          "type": "string"
+        },
+        {
+          "name": "custom_greeting",
+          "type": "text"
+        },
+        {
+          "name": "custom_prompts",
+          "type": "json"
+        },
+        {
+          "name": "custom_scripts",
+          "type": "json"
+        },
+        {
+          "name": "availability",
+          "type": "json"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "monthly_price",
+          "type": "decimal"
+        },
+        {
+          "name": "activated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "display_name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "price",
+          "type": "decimal"
+        },
+        {
+          "name": "savings_percentage",
+          "type": "decimal"
+        },
+        {
+          "name": "target_industries",
+          "type": "json"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "sort_order",
+          "type": "integer"
+        },
+        {
+          "name": "bundle_id",
+          "type": "uuid"
+        },
+        {
+          "name": "role_template_id",
+          "type": "uuid"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_01_02_000003_create_coordinator_roles_and_personas_table.php",
+      "model": "App\\Modules\\Coordinator\\Models\\RoleTemplate"
+    },
+    "coord_phone_numbers": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "phone_number",
+          "type": "string"
+        },
+        {
+          "name": "provider",
+          "type": "string"
+        },
+        {
+          "name": "provider_id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "capabilities",
+          "type": "string"
+        },
+        {
+          "name": "assigned_coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "is_primary",
+          "type": "boolean"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean"
+        },
+        {
+          "name": "forwarding_rules",
+          "type": "json"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid"
+        },
+        {
+          "name": "phone_number_id",
+          "type": "uuid"
+        },
+        {
+          "name": "direction",
+          "type": "string"
+        },
+        {
+          "name": "from_number",
+          "type": "string"
+        },
+        {
+          "name": "to_number",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "duration_seconds",
+          "type": "integer"
+        },
+        {
+          "name": "recording_url",
+          "type": "string"
+        },
+        {
+          "name": "transcript",
+          "type": "text"
+        },
+        {
+          "name": "transcript_segments",
+          "type": "json"
+        },
+        {
+          "name": "ai_summary",
+          "type": "text"
+        },
+        {
+          "name": "outcome",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "json"
+        },
+        {
+          "name": "provider",
+          "type": "string"
+        },
+        {
+          "name": "provider_call_id",
+          "type": "string"
+        },
+        {
+          "name": "cost",
+          "type": "decimal"
+        },
+        {
+          "name": "started_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "answered_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "ended_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid"
+        },
+        {
+          "name": "phone_number_id",
+          "type": "uuid"
+        },
+        {
+          "name": "direction",
+          "type": "string"
+        },
+        {
+          "name": "from_number",
+          "type": "string"
+        },
+        {
+          "name": "to_number",
+          "type": "string"
+        },
+        {
+          "name": "body",
+          "type": "text"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "media_urls",
+          "type": "json"
+        },
+        {
+          "name": "provider",
+          "type": "string"
+        },
+        {
+          "name": "provider_message_id",
+          "type": "string"
+        },
+        {
+          "name": "cost",
+          "type": "decimal"
+        },
+        {
+          "name": "sent_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "delivered_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "organization_id",
+          "type": "uuid"
+        },
+        {
+          "name": "coordinator_id",
+          "type": "uuid"
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid"
+        },
+        {
+          "name": "direction",
+          "type": "string"
+        },
+        {
+          "name": "from_email",
+          "type": "string"
+        },
+        {
+          "name": "to_email",
+          "type": "string"
+        },
+        {
+          "name": "cc",
+          "type": "json"
+        },
+        {
+          "name": "bcc",
+          "type": "json"
+        },
+        {
+          "name": "subject",
+          "type": "string"
+        },
+        {
+          "name": "body_text",
+          "type": "text"
+        },
+        {
+          "name": "body_html",
+          "type": "text"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "attachments",
+          "type": "json"
+        },
+        {
+          "name": "provider",
+          "type": "string"
+        },
+        {
+          "name": "provider_message_id",
+          "type": "string"
+        },
+        {
+          "name": "sent_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "opened_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp"
+        }
+      ],
+      "defined_in_migration": "2025_01_02_000006_create_coordinator_communications_table.php"
+    },
+    "messages": {
+      "columns": [],
+      "model": "App\\Models\\Message",
+      "note": "No migration found"
+    },
+    "team_members": {
+      "columns": [],
+      "model": "App\\Models\\TeamMember",
+      "note": "No migration found"
+    },
+    "coord_coordinators": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\Coordinator",
+      "note": "No migration found"
+    },
+    "coord_context_invalidations": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\ContextInvalidation",
+      "note": "No migration found"
+    },
+    "coord_persona_configurations": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\PersonaConfiguration",
+      "note": "No migration found"
+    },
+    "coord_appointments": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\Appointment",
+      "note": "No migration found"
+    },
+    "coord_call_logs": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\CallLog",
+      "note": "No migration found"
+    },
+    "coord_configuration_suggestions": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\ConfigurationSuggestion",
+      "note": "No migration found"
+    },
+    "coord_context_packets": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\ContextPacket",
+      "note": "No migration found"
+    },
+    "coord_ai_agent_sessions": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\AiAgentSession",
+      "note": "No migration found"
+    },
+    "coord_business_information": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\BusinessInformation",
+      "note": "No migration found"
+    },
+    "coord_faq_suggestions": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\FaqSuggestion",
+      "note": "No migration found"
+    },
+    "coord_organization_members": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\OrganizationMember",
+      "note": "No migration found"
+    },
+    "coord_business_experience": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\BusinessExperience",
+      "note": "No migration found"
+    },
+    "coord_audit_logs": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\AuditLog",
+      "note": "No migration found"
+    },
+    "coord_consensus_requests": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\ConsensusRequest",
+      "note": "No migration found"
+    },
+    "coord_persona_templates": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\PersonaTemplate",
+      "note": "No migration found"
+    },
+    "coord_ai_feedback": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\AiFeedback",
+      "note": "No migration found"
+    },
+    "coord_ai_interactions": {
+      "columns": [],
+      "model": "App\\Modules\\Coordinator\\Models\\AiInteraction",
+      "note": "No migration found"
+    },
+    "process_executions": {
+      "columns": [],
+      "model": "App\\Modules\\Processes\\Models\\ProcessExecution",
+      "note": "No migration found"
+    },
+    "process_steps": {
+      "columns": [],
+      "model": "App\\Modules\\Processes\\Models\\ProcessStep",
+      "note": "No migration found"
+    },
+    "processs": {
+      "columns": [],
+      "model": "App\\Modules\\Processes\\Models\\Process",
+      "note": "No migration found"
+    },
+    "projects": {
+      "columns": [],
+      "model": "App\\Modules\\Projects\\Models\\Project",
+      "note": "No migration found"
+    },
+    "project_members": {
+      "columns": [],
+      "model": "App\\Modules\\Projects\\Models\\ProjectMember",
+      "note": "No migration found"
+    },
+    "urpa_voice_responses": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaVoiceResponse",
+      "note": "No migration found"
+    },
+    "urpa_ai_tasks": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaAiTask",
+      "note": "No migration found"
+    },
+    "urpa_ai_sessions": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaAiSession",
+      "note": "No migration found"
+    },
+    "urpa_user_personas": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaUserPersona",
+      "note": "No migration found"
+    },
+    "urpa_fibonacci_link": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaFibonacciLink",
+      "note": "No migration found"
+    },
+    "urpa_integrations": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaIntegration",
+      "note": "No migration found"
+    },
+    "urpa_ai_messages": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaAiMessage",
+      "note": "No migration found"
+    },
+    "urpa_activities": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaActivity",
+      "note": "No migration found"
+    },
+    "urpa_contacts": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaContact",
+      "note": "No migration found"
+    },
+    "urpa_artifacts": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaArtifact",
+      "note": "No migration found"
+    },
+    "urpa_taskjuggler_link": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaTaskjugglerLink",
+      "note": "No migration found"
+    },
+    "urpa_user_profiles": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaUserProfile",
+      "note": "No migration found"
+    },
+    "urpa_phone_calls": {
+      "columns": [],
+      "model": "App\\Modules\\Urpa\\Models\\UrpaPhoneCall",
+      "note": "No migration found"
+    },
+    "communication_sms": {
+      "columns": [],
+      "model": "App\\Modules\\Communications\\Models\\CommunicationSms",
+      "note": "No migration found"
+    },
+    "communication_recordings": {
+      "columns": [],
+      "model": "App\\Modules\\Communications\\Models\\CommunicationRecording",
+      "note": "No migration found"
+    },
+    "communication_calls": {
+      "columns": [],
+      "model": "App\\Modules\\Communications\\Models\\CommunicationCall",
+      "note": "No migration found"
+    }
+  },
+  "migrations": [
+    "2025_12_09_175033_create_transactions_table.php",
+    "2025_12_17_000004_create_tef_relationship_history_table.php",
+    "2025_12_16_201027_create_personal_access_tokens_table.php",
+    "2025_12_09_175032_create_contact_list_members_table.php",
+    "2025_12_09_175032_create_routing_rules_table.php",
+    "2025_12_11_000000_create_appointment_types_table.php",
+    "2025_12_17_000001_create_tef_actors_table.php",
+    "0001_01_01_000000_create_users_table.php",
+    "2025_12_27_233451_create_sites_table.php",
+    "2025_12_16_222333_create_profiles_table.php",
+    "2026_01_10_155242_create_ideacircuit_meeting_messages_table.php",
+    "2025_12_17_000003_create_tef_conversations_table.php",
+    "0001_01_01_000001_create_cache_table.php",
+    "2026_01_16_025111_create_tasks_table.php",
+    "2026_01_10_155240_create_ideacircuit_meetings_table.php",
+    "2026_01_10_155242_create_ideacircuit_meeting_notes_table.php",
+    "2025_12_27_233457_create_scheduled_scans_table.php",
+    "0001_01_01_000002_create_jobs_table.php",
+    "2026_01_10_155242_create_ideacircuit_meeting_appointments_table.php",
+    "2025_12_11_000001_create_availability_slots_table.php",
+    "2025_12_09_175032_create_contact_lists_table.php",
+    "2025_12_11_300002_create_direct_messages_table.php",
+    "2026_01_10_155242_create_ideacircuit_meeting_tasks_table.php",
+    "2026_01_10_155242_create_ideacircuit_meeting_transcripts_table.php",
+    "2025_12_11_000002_create_appointments_table.php",
+    "2025_12_09_175026_create_assistant_channels_table.php",
+    "2026_01_16_080202_create_scanner_scans_table.php",
+    "2025_12_11_100002_create_task_actions_table.php",
+    "2025_12_09_175032_create_marketplace_vendors_table.php",
+    "2025_12_09_175033_create_notifications_table.php",
+    "2025_12_11_300001_create_task_messages_table.php",
+    "2025_12_09_175031_create_team_members_table.php",
+    "2026_01_16_025112_create_subscriptions_table.php",
+    "2025_12_09_175033_create_ai_tool_executions_table.php",
+    "2025_12_09_175032_create_marketplace_listings_table.php",
+    "2025_12_16_201100_fix_missing_tables_and_columns.php",
+    "2025_12_27_233457_create_scans_table.php",
+    "2025_12_09_175032_create_inbox_items_table.php",
+    "2026_01_16_080202_create_scanner_sites_table.php",
+    "2025_12_17_000006_create_tef_claim_codes_table.php",
+    "2025_12_09_175032_create_ai_tool_configs_table.php",
+    "2025_12_09_175032_create_marketplace_bids_table.php",
+    "2026_01_16_080202_create_scanner_issues_table.php",
+    "2025_12_17_000002_create_tef_relationships_table.php",
+    "2026_01_10_155242_create_ideacircuit_meeting_participants_table.php",
+    "2025_12_27_233457_create_issues_table.php",
+    "2025_12_24_000001_create_team_invitations_table.php",
+    "2025_12_17_000005_create_tef_delegation_rules_table.php",
+    "2025_12_11_200000_create_task_invitations_table.php",
+    "2025_12_11_300000_create_teams_tables.php",
+    "2025_12_16_201200_force_create_missing_tables.php",
+    "2025_01_02_000008_create_coordinator_campaigns_table.php",
+    "2025_01_02_000001_create_coordinator_protocol_tables.php",
+    "2025_01_02_000004_create_coordinator_crm_table.php",
+    "2025_01_02_000005_create_coordinator_calendar_table.php",
+    "2025_01_02_000002_create_coordinator_organizations_table.php",
+    "2025_01_02_000007_create_coordinator_knowledge_base_table.php",
+    "2025_01_02_000003_create_coordinator_roles_and_personas_table.php",
+    "2025_01_02_000006_create_coordinator_communications_table.php"
+  ],
+  "models": {
+    "AiToolExecution": {
+      "model": "AiToolExecution",
+      "class": "App\\Models\\AiToolExecution",
+      "table": "ai_tool_executions",
+      "fillable": [
+        "task_id",
+        "vendor_id",
+        "config_id",
+        "input_data",
+        "status",
+        "started_at",
+        "completed_at",
+        "output_data",
+        "deliverable_urls",
+        "error_message",
+        "tokens_used",
+        "cost"
+      ],
+      "relationships": [
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "vendor",
+          "type": "belongsTo"
+        },
+        {
+          "method": "config",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/AiToolExecution.php"
+    },
+    "Team": {
+      "model": "Team",
+      "class": "App\\Modules\\Core\\Models\\Team",
+      "table": "teams",
+      "fillable": [
+        "name",
+        "slug",
+        "description",
+        "avatar_url",
+        "owner_id",
+        "created_by",
+        "profile_id",
+        "settings"
+      ],
+      "relationships": [
+        {
+          "method": "creator",
+          "type": "belongsTo"
+        },
+        {
+          "method": "profile",
+          "type": "belongsTo"
+        },
+        {
+          "method": "members",
+          "type": "belongsTo"
+        },
+        {
+          "method": "tasks",
+          "type": "hasMany"
+        },
+        {
+          "method": "invitations",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Core/Models/Team.php"
+    },
+    "RelationshipHistory": {
+      "model": "RelationshipHistory",
+      "class": "App\\Models\\RelationshipHistory",
+      "table": "relationship_history",
+      "fillable": [
+        "relationship_id",
+        "actor_a_id",
+        "actor_b_id",
+        "task_id",
+        "event_type",
+        "outcome",
+        "response_time_ms",
+        "completion_time_ms",
+        "metadata"
+      ],
+      "relationships": [
+        {
+          "method": "relationship",
+          "type": "belongsTo"
+        },
+        {
+          "method": "actorA",
+          "type": "belongsTo"
+        },
+        {
+          "method": "actorB",
+          "type": "belongsTo"
+        },
+        {
+          "method": "task",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/RelationshipHistory.php"
+    },
+    "InboxItem": {
+      "model": "InboxItem",
+      "class": "App\\Models\\InboxItem",
+      "table": "inbox_items",
+      "fillable": [
+        "user_id",
+        "source_type",
+        "source_id",
+        "channel_id",
+        "from_identifier",
+        "from_name",
+        "subject",
+        "body",
+        "attachments",
+        "extracted_data",
+        "processing_status",
+        "processing_error",
+        "routed_to_task_id",
+        "routing_rule_id",
+        "auto_response_sent",
+        "auto_response_text",
+        "status",
+        "received_at",
+        "processed_at"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "channel",
+          "type": "belongsTo"
+        },
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "routingRule",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/InboxItem.php"
+    },
+    "Transaction": {
+      "model": "Transaction",
+      "class": "App\\Models\\Transaction",
+      "table": "transactions",
+      "fillable": [
+        "user_id",
+        "type",
+        "amount",
+        "currency",
+        "task_id",
+        "vendor_id",
+        "execution_id",
+        "stripe_payment_intent_id",
+        "stripe_transfer_id",
+        "status"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "vendor",
+          "type": "belongsTo"
+        },
+        {
+          "method": "execution",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/Transaction.php"
+    },
+    "ContactList": {
+      "model": "ContactList",
+      "class": "App\\Models\\ContactList",
+      "table": "contact_lists",
+      "fillable": [
+        "user_id",
+        "name",
+        "description"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "members",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/ContactList.php"
+    },
+    "MarketplaceListing": {
+      "model": "MarketplaceListing",
+      "class": "App\\Models\\MarketplaceListing",
+      "table": "marketplace_listings",
+      "fillable": [
+        "requestor_id",
+        "task_id",
+        "title",
+        "description",
+        "category",
+        "location_required",
+        "location",
+        "location_radius_miles",
+        "budget_type",
+        "budget_min",
+        "budget_max",
+        "status",
+        "assigned_vendor_id",
+        "assigned_at",
+        "needed_by",
+        "expires_at"
+      ],
+      "relationships": [
+        {
+          "method": "requestor",
+          "type": "belongsTo"
+        },
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "assignedVendor",
+          "type": "belongsTo"
+        },
+        {
+          "method": "bids",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/MarketplaceListing.php"
+    },
+    "ClaimCode": {
+      "model": "ClaimCode",
+      "class": "App\\Models\\ClaimCode",
+      "table": "claim_codes",
+      "fillable": [
+        "actor_id",
+        "code",
+        "expires_at",
+        "claimed_at",
+        "claimed_by_user_id"
+      ],
+      "relationships": [
+        {
+          "method": "actor",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/ClaimCode.php"
+    },
+    "TeamInvitation": {
+      "model": "TeamInvitation",
+      "class": "App\\Models\\TeamInvitation",
+      "table": "team_invitations",
+      "fillable": [
+        "team_id",
+        "email",
+        "phone",
+        "invite_code",
+        "invited_by",
+        "status",
+        "expires_at"
+      ],
+      "relationships": [
+        {
+          "method": "team",
+          "type": "belongsTo"
+        },
+        {
+          "method": "inviter",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/TeamInvitation.php"
+    },
+    "DelegationRule": {
+      "model": "DelegationRule",
+      "class": "App\\Models\\DelegationRule",
+      "table": "delegation_rules",
+      "fillable": [
+        "delegator_id",
+        "delegate_id",
+        "target_actor_id",
+        "scope",
+        "constraints",
+        "conditions",
+        "is_active",
+        "status",
+        "priority",
+        "required_capabilities",
+        "execution_count",
+        "expires_at"
+      ],
+      "relationships": [
+        {
+          "method": "delegator",
+          "type": "belongsTo"
+        },
+        {
+          "method": "delegate",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/DelegationRule.php"
+    },
+    "Appointment": {
+      "model": "Appointment",
+      "class": "App\\Modules\\Coordinator\\Models\\Appointment",
+      "table": "coord_appointments",
+      "fillable": [
+        "organization_id",
+        "contact_id",
+        "appointment_type_id",
+        "booked_by_coordinator_id",
+        "assigned_to_user_id",
+        "title",
+        "description",
+        "starts_at",
+        "ends_at",
+        "status",
+        "location",
+        "location_type",
+        "notes",
+        "cancellation_reason",
+        "reminders_sent",
+        "confirmed_at",
+        "cancelled_at"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "contact",
+          "type": "belongsTo"
+        },
+        {
+          "method": "appointmentType",
+          "type": "belongsTo"
+        },
+        {
+          "method": "bookedByCoordinator",
+          "type": "belongsTo"
+        },
+        {
+          "method": "assignedToUser",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/Appointment.php"
+    },
+    "AssistantChannel": {
+      "model": "AssistantChannel",
+      "class": "App\\Models\\AssistantChannel",
+      "table": "assistant_channels",
+      "fillable": [
+        "user_id",
+        "channel_type",
+        "phone_number",
+        "twilio_sid",
+        "email_address",
+        "is_active",
+        "greeting_message",
+        "voicemail_greeting"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "inboxItems",
+          "type": "hasMany"
+        },
+        {
+          "method": "tasks",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/AssistantChannel.php"
+    },
+    "User": {
+      "model": "User",
+      "class": "App\\Modules\\Core\\Models\\User",
+      "table": "users",
+      "fillable": [
+        "email",
+        "password",
+        "name",
+        "phone",
+        "timezone",
+        "plan",
+        "plan_expires_at",
+        "stripe_customer_id",
+        "settings",
+        "push_token",
+        "push_platform",
+        "actor_type",
+        "avatar_url",
+        "current_team_id",
+        "current_profile_id"
+      ],
+      "relationships": [
+        {
+          "method": "tasks",
+          "type": "hasMany"
+        },
+        {
+          "method": "assignedTasks",
+          "type": "hasMany"
+        },
+        {
+          "method": "teamMembers",
+          "type": "hasMany"
+        },
+        {
+          "method": "routingRules",
+          "type": "hasMany"
+        },
+        {
+          "method": "contactLists",
+          "type": "hasMany"
+        },
+        {
+          "method": "assistantChannels",
+          "type": "hasMany"
+        },
+        {
+          "method": "inboxItems",
+          "type": "hasMany"
+        },
+        {
+          "method": "notifications",
+          "type": "hasMany"
+        },
+        {
+          "method": "transactions",
+          "type": "hasMany"
+        },
+        {
+          "method": "marketplaceVendors",
+          "type": "hasMany"
+        },
+        {
+          "method": "appointmentTypes",
+          "type": "hasMany"
+        },
+        {
+          "method": "availabilitySlots",
+          "type": "hasMany"
+        },
+        {
+          "method": "hostedAppointments",
+          "type": "hasMany"
+        },
+        {
+          "method": "teams",
+          "type": "belongsTo"
+        },
+        {
+          "method": "profiles",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Core/Models/User.php"
+    },
+    "AppointmentType": {
+      "model": "AppointmentType",
+      "class": "App\\Modules\\Coordinator\\Models\\AppointmentType",
+      "table": "coord_appointment_types",
+      "fillable": [
+        "organization_id",
+        "name",
+        "description",
+        "duration_minutes",
+        "price",
+        "color",
+        "buffer_before",
+        "buffer_after",
+        "availability",
+        "requires_confirmation",
+        "allow_online_booking",
+        "is_active",
+        "sort_order"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "appointments",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/AppointmentType.php"
+    },
+    "ContactListMember": {
+      "model": "ContactListMember",
+      "class": "App\\Models\\ContactListMember",
+      "table": "contact_list_members",
+      "fillable": [
+        "list_id",
+        "name",
+        "phone",
+        "email",
+        "metadata"
+      ],
+      "relationships": [
+        {
+          "method": "list",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/ContactListMember.php"
+    },
+    "Task": {
+      "model": "Task",
+      "class": "App\\Modules\\Tasks\\Models\\Task",
+      "table": "tasks",
+      "fillable": [
+        "title",
+        "description",
+        "status",
+        "color_state",
+        "priority",
+        "requestor_id",
+        "owner_id",
+        "team_member_id",
+        "marketplace_vendor_id",
+        "source_type",
+        "source_channel_id",
+        "source_channel",
+        "source_channel_ref",
+        "extracted_data",
+        "routing_rule_id",
+        "contact_name",
+        "contact_phone",
+        "contact_email",
+        "location_address",
+        "location_unit",
+        "location_city",
+        "location_state",
+        "location_zip",
+        "location_coords",
+        "due_date",
+        "start_date",
+        "completed_at",
+        "marketplace_listing_id",
+        "deliverables",
+        "tags",
+        "metadata",
+        "invite_code",
+        "invite_expires_at",
+        "team_id",
+        "profile_id"
+      ],
+      "relationships": [
+        {
+          "method": "requestor",
+          "type": "belongsTo"
+        },
+        {
+          "method": "owner",
+          "type": "belongsTo"
+        },
+        {
+          "method": "teamMember",
+          "type": "belongsTo"
+        },
+        {
+          "method": "marketplaceVendor",
+          "type": "belongsTo"
+        },
+        {
+          "method": "routingRule",
+          "type": "belongsTo"
+        },
+        {
+          "method": "sourceChannel",
+          "type": "belongsTo"
+        },
+        {
+          "method": "marketplaceListing",
+          "type": "hasOne"
+        },
+        {
+          "method": "aiExecutions",
+          "type": "hasMany"
+        },
+        {
+          "method": "actions",
+          "type": "hasMany"
+        },
+        {
+          "method": "invitations",
+          "type": "hasMany"
+        },
+        {
+          "method": "project",
+          "type": "belongsTo"
+        },
+        {
+          "method": "process",
+          "type": "belongsTo"
+        },
+        {
+          "method": "team",
+          "type": "belongsTo"
+        },
+        {
+          "method": "profile",
+          "type": "belongsTo"
+        },
+        {
+          "method": "messages",
+          "type": "hasMany"
+        },
+        {
+          "method": "latestMessage",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Tasks/Models/Task.php"
+    },
+    "MarketplaceVendor": {
+      "model": "MarketplaceVendor",
+      "class": "App\\Models\\MarketplaceVendor",
+      "table": "marketplace_vendors",
+      "fillable": [
+        "vendor_type",
+        "user_id",
+        "business_name",
+        "ai_provider",
+        "ai_config",
+        "name",
+        "description",
+        "logo_url",
+        "categories",
+        "services",
+        "service_area",
+        "address",
+        "pricing_model",
+        "base_rate",
+        "currency",
+        "is_active",
+        "is_verified",
+        "total_jobs",
+        "completed_jobs",
+        "average_rating",
+        "stripe_account_id"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "aiToolConfig",
+          "type": "hasOne"
+        },
+        {
+          "method": "tasks",
+          "type": "hasMany"
+        },
+        {
+          "method": "listings",
+          "type": "hasMany"
+        },
+        {
+          "method": "bids",
+          "type": "hasMany"
+        },
+        {
+          "method": "executions",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/MarketplaceVendor.php"
+    },
+    "Actor": {
+      "model": "Actor",
+      "class": "App\\Models\\Actor",
+      "table": "actors",
+      "fillable": [
+        "actor_type",
+        "display_name",
+        "capabilities",
+        "contact_methods",
+        "metadata",
+        "authentication",
+        "status",
+        "organization_id",
+        "user_id"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "relationshipsAsA",
+          "type": "hasMany"
+        },
+        {
+          "method": "relationshipsAsB",
+          "type": "hasMany"
+        },
+        {
+          "method": "sentMessages",
+          "type": "hasMany"
+        },
+        {
+          "method": "receivedMessages",
+          "type": "hasMany"
+        },
+        {
+          "method": "claimCode",
+          "type": "hasOne"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/Actor.php"
+    },
+    "AiToolConfig": {
+      "model": "AiToolConfig",
+      "class": "App\\Models\\AiToolConfig",
+      "table": "ai_tool_configs",
+      "fillable": [
+        "vendor_id",
+        "provider",
+        "model",
+        "api_endpoint",
+        "api_key_encrypted",
+        "input_schema",
+        "output_schema",
+        "prompt_template",
+        "max_execution_time",
+        "max_tokens",
+        "retry_count",
+        "auto_execute",
+        "requires_approval"
+      ],
+      "relationships": [
+        {
+          "method": "vendor",
+          "type": "belongsTo"
+        },
+        {
+          "method": "executions",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/AiToolConfig.php"
+    },
+    "TaskInvitation": {
+      "model": "TaskInvitation",
+      "class": "App\\Modules\\Tasks\\Models\\TaskInvitation",
+      "table": "task_invitations",
+      "fillable": [
+        "task_id",
+        "invite_code",
+        "invited_email",
+        "invited_phone",
+        "invited_name",
+        "status",
+        "role",
+        "invited_by_user_id",
+        "accepted_by_user_id",
+        "accepted_at",
+        "expires_at"
+      ],
+      "relationships": [
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "invitedBy",
+          "type": "belongsTo"
+        },
+        {
+          "method": "acceptedBy",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Tasks/Models/TaskInvitation.php"
+    },
+    "Relationship": {
+      "model": "Relationship",
+      "class": "App\\Models\\Relationship",
+      "table": "relationships",
+      "fillable": [
+        "actor_a_id",
+        "actor_b_id",
+        "relationship_type",
+        "permissions",
+        "established_via",
+        "trust_score",
+        "task_count",
+        "expires_at"
+      ],
+      "relationships": [
+        {
+          "method": "actorA",
+          "type": "belongsTo"
+        },
+        {
+          "method": "actorB",
+          "type": "belongsTo"
+        },
+        {
+          "method": "history",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/Relationship.php"
+    },
+    "Conversation": {
+      "model": "Conversation",
+      "class": "App\\Models\\Conversation",
+      "table": "conversations",
+      "fillable": [
+        "task_id",
+        "participants",
+        "message_count",
+        "last_message_at"
+      ],
+      "relationships": [
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "messages",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/Conversation.php"
+    },
+    "TaskMessage": {
+      "model": "TaskMessage",
+      "class": "App\\Modules\\Tasks\\Models\\TaskMessage",
+      "table": "task_messages",
+      "fillable": [
+        "task_id",
+        "sender_id",
+        "sender_type",
+        "content",
+        "content_type",
+        "source_channel",
+        "source_channel_ref",
+        "attachments",
+        "metadata"
+      ],
+      "relationships": [
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "sender",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Tasks/Models/TaskMessage.php"
+    },
+    "TaskAction": {
+      "model": "TaskAction",
+      "class": "App\\Modules\\Tasks\\Models\\TaskAction",
+      "table": "task_actions",
+      "fillable": [
+        "task_id",
+        "user_id",
+        "action_type",
+        "action_data",
+        "previous_value",
+        "new_value",
+        "reason"
+      ],
+      "relationships": [
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "user",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Tasks/Models/TaskAction.php"
+    },
+    "DirectMessage": {
+      "model": "DirectMessage",
+      "class": "App\\Models\\DirectMessage",
+      "table": "direct_messages",
+      "fillable": [
+        "sender_id",
+        "recipient_id",
+        "content",
+        "read_at"
+      ],
+      "relationships": [
+        {
+          "method": "sender",
+          "type": "belongsTo"
+        },
+        {
+          "method": "recipient",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/DirectMessage.php"
+    },
+    "AvailabilitySlot": {
+      "model": "AvailabilitySlot",
+      "class": "App\\Models\\AvailabilitySlot",
+      "table": "availability_slots",
+      "fillable": [
+        "user_id",
+        "day_of_week",
+        "start_time",
+        "end_time",
+        "start_date",
+        "end_date",
+        "specific_date",
+        "timezone",
+        "is_active"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/AvailabilitySlot.php"
+    },
+    "MarketplaceBid": {
+      "model": "MarketplaceBid",
+      "class": "App\\Models\\MarketplaceBid",
+      "table": "marketplace_bids",
+      "fillable": [
+        "listing_id",
+        "vendor_id",
+        "amount",
+        "message",
+        "estimated_completion",
+        "status"
+      ],
+      "relationships": [
+        {
+          "method": "listing",
+          "type": "belongsTo"
+        },
+        {
+          "method": "vendor",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/MarketplaceBid.php"
+    },
+    "Notification": {
+      "model": "Notification",
+      "class": "App\\Models\\Notification",
+      "table": "notifications",
+      "fillable": [
+        "user_id",
+        "type",
+        "title",
+        "body",
+        "data",
+        "channels",
+        "sent_at",
+        "read_at",
+        "created_at"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/Notification.php"
+    },
+    "Message": {
+      "model": "Message",
+      "class": "App\\Models\\Message",
+      "table": "messages",
+      "fillable": [
+        "conversation_id",
+        "task_id",
+        "message_type",
+        "source_actor_id",
+        "target_actor_id",
+        "reply_to_id",
+        "payload",
+        "delivered_at",
+        "read_at"
+      ],
+      "relationships": [
+        {
+          "method": "conversation",
+          "type": "belongsTo"
+        },
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "sourceActor",
+          "type": "belongsTo"
+        },
+        {
+          "method": "targetActor",
+          "type": "belongsTo"
+        },
+        {
+          "method": "replyTo",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/Message.php"
+    },
+    "RoutingRule": {
+      "model": "RoutingRule",
+      "class": "App\\Models\\RoutingRule",
+      "table": "routing_rules",
+      "fillable": [
+        "user_id",
+        "name",
+        "description",
+        "priority",
+        "is_active",
+        "conditions",
+        "actions",
+        "times_matched",
+        "last_matched_at"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "tasks",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/RoutingRule.php"
+    },
+    "TeamMember": {
+      "model": "TeamMember",
+      "class": "App\\Models\\TeamMember",
+      "table": "team_members",
+      "fillable": [
+        "owner_id",
+        "user_id",
+        "name",
+        "email",
+        "phone",
+        "role",
+        "can_receive_tasks",
+        "notification_preferences"
+      ],
+      "relationships": [
+        {
+          "method": "owner",
+          "type": "belongsTo"
+        },
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "tasks",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Models/TeamMember.php"
+    },
+    "RoleTemplate": {
+      "model": "RoleTemplate",
+      "class": "App\\Modules\\Coordinator\\Models\\RoleTemplate",
+      "table": "coord_role_templates",
+      "fillable": [
+        "name",
+        "display_name",
+        "description",
+        "direction",
+        "base_price",
+        "primary_goal",
+        "capabilities",
+        "channels",
+        "suggested_industries",
+        "default_prompts",
+        "default_scripts",
+        "is_active",
+        "sort_order"
+      ],
+      "relationships": [
+        {
+          "method": "coordinators",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/RoleTemplate.php"
+    },
+    "Coordinator": {
+      "model": "Coordinator",
+      "class": "App\\Modules\\Coordinator\\Models\\Coordinator",
+      "table": "coord_coordinators",
+      "fillable": [
+        "organization_id",
+        "role_template_id",
+        "persona_template_id",
+        "display_name",
+        "voice_id",
+        "custom_greeting",
+        "custom_prompts",
+        "custom_scripts",
+        "availability",
+        "status",
+        "monthly_price",
+        "activated_at"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "roleTemplate",
+          "type": "belongsTo"
+        },
+        {
+          "method": "personaTemplate",
+          "type": "belongsTo"
+        },
+        {
+          "method": "aiAgents",
+          "type": "hasMany"
+        },
+        {
+          "method": "personaConfigurations",
+          "type": "hasMany"
+        },
+        {
+          "method": "activePersonaConfiguration",
+          "type": "hasOne"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/Coordinator.php"
+    },
+    "Campaign": {
+      "model": "Campaign",
+      "class": "App\\Modules\\Coordinator\\Models\\Campaign",
+      "table": "coord_campaigns",
+      "fillable": [
+        "organization_id",
+        "coordinator_id",
+        "name",
+        "type",
+        "status",
+        "description",
+        "target_contacts",
+        "target_count",
+        "script",
+        "filters",
+        "scheduled_start_at",
+        "scheduled_end_at",
+        "schedule_rules",
+        "contacts_processed",
+        "contacts_contacted",
+        "contacts_answered",
+        "appointments_booked",
+        "appointments_confirmed",
+        "appointments_rescheduled",
+        "answer_rate",
+        "booking_rate",
+        "confirmation_rate",
+        "started_at",
+        "completed_at",
+        "paused_at",
+        "settings",
+        "metadata"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "coordinator",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/Campaign.php"
+    },
+    "ContextInvalidation": {
+      "model": "ContextInvalidation",
+      "class": "App\\Modules\\Coordinator\\Models\\ContextInvalidation",
+      "table": "coord_context_invalidations",
+      "fillable": [
+        "organization_id",
+        "context_packet_id",
+        "event_type",
+        "sections_affected",
+        "urgency",
+        "delivery_method",
+        "delivered",
+        "delivered_at",
+        "metadata"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "contextPacket",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/ContextInvalidation.php"
+    },
+    "PersonaConfiguration": {
+      "model": "PersonaConfiguration",
+      "class": "App\\Modules\\Coordinator\\Models\\PersonaConfiguration",
+      "table": "coord_persona_configurations",
+      "fillable": [
+        "organization_id",
+        "coordinator_id",
+        "agent_id",
+        "version_id",
+        "parent_version_id",
+        "identity",
+        "personality",
+        "communication",
+        "voice",
+        "behavior",
+        "prompts",
+        "approval_status",
+        "approved_by_user_id",
+        "approved_at",
+        "approval_notes",
+        "baseline_metrics",
+        "current_metrics",
+        "review_date",
+        "is_active"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "coordinator",
+          "type": "belongsTo"
+        },
+        {
+          "method": "agent",
+          "type": "belongsTo"
+        },
+        {
+          "method": "parentVersion",
+          "type": "belongsTo"
+        },
+        {
+          "method": "childVersions",
+          "type": "hasMany"
+        },
+        {
+          "method": "approvedBy",
+          "type": "belongsTo"
+        },
+        {
+          "method": "consensusRequests",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/PersonaConfiguration.php"
+    },
+    "CallLog": {
+      "model": "CallLog",
+      "class": "App\\Modules\\Coordinator\\Models\\CallLog",
+      "table": "coord_call_logs",
+      "fillable": [
+        "organization_id",
+        "communication_call_id",
+        "coordinator_id",
+        "contact_id",
+        "phone_number_id",
+        "direction",
+        "from_number",
+        "to_number",
+        "status",
+        "duration_seconds",
+        "recording_url",
+        "transcript",
+        "transcript_segments",
+        "ai_summary",
+        "outcome",
+        "metadata",
+        "provider",
+        "provider_call_id",
+        "cost",
+        "started_at",
+        "answered_at",
+        "ended_at"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "coordinator",
+          "type": "belongsTo"
+        },
+        {
+          "method": "contact",
+          "type": "belongsTo"
+        },
+        {
+          "method": "communicationCall",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/CallLog.php"
+    },
+    "ConfigurationSuggestion": {
+      "model": "ConfigurationSuggestion",
+      "class": "App\\Modules\\Coordinator\\Models\\ConfigurationSuggestion",
+      "table": "coord_configuration_suggestions",
+      "fillable": [
+        "organization_id",
+        "coordinator_id",
+        "agent_id",
+        "suggestion_id",
+        "type",
+        "category",
+        "priority",
+        "current_config",
+        "proposed_config",
+        "evidence",
+        "reasoning",
+        "status",
+        "requires_approval",
+        "auto_apply_eligible",
+        "reviewed_by_user_id",
+        "reviewed_at",
+        "review_notes"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "coordinator",
+          "type": "belongsTo"
+        },
+        {
+          "method": "agent",
+          "type": "belongsTo"
+        },
+        {
+          "method": "reviewedBy",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/ConfigurationSuggestion.php"
+    },
+    "ContextPacket": {
+      "model": "ContextPacket",
+      "class": "App\\Modules\\Coordinator\\Models\\ContextPacket",
+      "table": "coord_context_packets",
+      "fillable": [
+        "organization_id",
+        "agent_id",
+        "packet_id",
+        "version",
+        "checksum",
+        "platform_knowledge",
+        "industry_id",
+        "industry_knowledge",
+        "business_profile",
+        "business_faqs",
+        "team",
+        "calendar_summary",
+        "conversation_context",
+        "rules",
+        "ttl_seconds",
+        "refresh_after_seconds",
+        "invalidation_events",
+        "generated_at",
+        "expires_at",
+        "is_active"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "agent",
+          "type": "belongsTo"
+        },
+        {
+          "method": "invalidations",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/ContextPacket.php"
+    },
+    "Contact": {
+      "model": "Contact",
+      "class": "App\\Modules\\Coordinator\\Models\\Contact",
+      "table": "coord_contacts",
+      "fillable": [
+        "organization_id",
+        "first_name",
+        "last_name",
+        "email",
+        "phone",
+        "phone_secondary",
+        "company",
+        "job_title",
+        "address",
+        "city",
+        "state",
+        "postal_code",
+        "country",
+        "source",
+        "status",
+        "tags",
+        "custom_fields",
+        "notes",
+        "lifetime_value",
+        "last_contacted_at"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "interactions",
+          "type": "hasMany"
+        },
+        {
+          "method": "appointments",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/Contact.php"
+    },
+    "AiAgentSession": {
+      "model": "AiAgentSession",
+      "class": "App\\Modules\\Coordinator\\Models\\AiAgentSession",
+      "table": "coord_ai_agent_sessions",
+      "fillable": [
+        "agent_id",
+        "organization_id",
+        "session_token",
+        "session_type",
+        "permissions",
+        "restrictions",
+        "expires_at",
+        "last_used_at",
+        "ip_address",
+        "user_agent"
+      ],
+      "relationships": [
+        {
+          "method": "agent",
+          "type": "belongsTo"
+        },
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "interactions",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/AiAgentSession.php"
+    },
+    "BusinessInformation": {
+      "model": "BusinessInformation",
+      "class": "App\\Modules\\Coordinator\\Models\\BusinessInformation",
+      "table": "coord_business_information",
+      "fillable": [
+        "organization_id",
+        "services",
+        "description",
+        "specialties",
+        "certifications",
+        "years_in_business",
+        "number_of_locations",
+        "additional_info"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/BusinessInformation.php"
+    },
+    "FaqSuggestion": {
+      "model": "FaqSuggestion",
+      "class": "App\\Modules\\Coordinator\\Models\\FaqSuggestion",
+      "table": "coord_faq_suggestions",
+      "fillable": [
+        "organization_id",
+        "agent_id",
+        "question",
+        "proposed_answer",
+        "context",
+        "frequency",
+        "priority",
+        "first_asked_at",
+        "last_asked_at",
+        "cluster_id",
+        "canonical_question",
+        "status",
+        "approved_faq_id",
+        "reviewed_by_user_id",
+        "reviewed_at",
+        "review_notes"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "agent",
+          "type": "belongsTo"
+        },
+        {
+          "method": "reviewedBy",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/FaqSuggestion.php"
+    },
+    "OrganizationMember": {
+      "model": "OrganizationMember",
+      "class": "App\\Modules\\Coordinator\\Models\\OrganizationMember",
+      "table": "coord_organization_members",
+      "fillable": [
+        "organization_id",
+        "user_id",
+        "role",
+        "permissions"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "user",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/OrganizationMember.php"
+    },
+    "BusinessExperience": {
+      "model": "BusinessExperience",
+      "class": "App\\Modules\\Coordinator\\Models\\BusinessExperience",
+      "table": "coord_business_experience",
+      "fillable": [
+        "organization_id",
+        "customer_patterns",
+        "conversation_patterns",
+        "faq_effectiveness",
+        "customer_vocabulary",
+        "period_start",
+        "period_end",
+        "interaction_count",
+        "last_analyzed_at"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/BusinessExperience.php"
+    },
+    "AuditLog": {
+      "model": "AuditLog",
+      "class": "App\\Modules\\Coordinator\\Models\\AuditLog",
+      "table": "coord_audit_logs",
+      "fillable": [
+        "organization_id",
+        "agent_id",
+        "session_id",
+        "event_type",
+        "resource_type",
+        "resource_id",
+        "data_accessed",
+        "justification",
+        "actor_type",
+        "actor_id",
+        "contains_phi",
+        "contains_pii",
+        "compliance_mode",
+        "ip_address",
+        "user_agent",
+        "metadata"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "agent",
+          "type": "belongsTo"
+        },
+        {
+          "method": "session",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/AuditLog.php"
+    },
+    "ConsensusRequest": {
+      "model": "ConsensusRequest",
+      "class": "App\\Modules\\Coordinator\\Models\\ConsensusRequest",
+      "table": "coord_consensus_requests",
+      "fillable": [
+        "organization_id",
+        "coordinator_id",
+        "persona_configuration_id",
+        "consensus_id",
+        "initiated_by",
+        "category",
+        "specific_element",
+        "ai_agent_position",
+        "command_center_position",
+        "conflict_type",
+        "proposed_resolution",
+        "status",
+        "requires_smb_approval",
+        "resolution",
+        "resolved_by_user_id",
+        "resolved_at"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "coordinator",
+          "type": "belongsTo"
+        },
+        {
+          "method": "personaConfiguration",
+          "type": "belongsTo"
+        },
+        {
+          "method": "resolvedBy",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/ConsensusRequest.php"
+    },
+    "Organization": {
+      "model": "Organization",
+      "class": "App\\Modules\\Coordinator\\Models\\Organization",
+      "table": "coord_organizations",
+      "fillable": [
+        "user_id",
+        "name",
+        "slug",
+        "industry",
+        "phone",
+        "email",
+        "website",
+        "address",
+        "city",
+        "state",
+        "postal_code",
+        "country",
+        "timezone",
+        "business_hours",
+        "settings",
+        "subscription_tier",
+        "subscription_status",
+        "stripe_customer_id",
+        "stripe_subscription_id",
+        "stripe_payment_method_id",
+        "compliance_modes",
+        "trial_ends_at"
+      ],
+      "relationships": [
+        {
+          "method": "owner",
+          "type": "belongsTo"
+        },
+        {
+          "method": "members",
+          "type": "hasMany"
+        },
+        {
+          "method": "coordinators",
+          "type": "hasMany"
+        },
+        {
+          "method": "contacts",
+          "type": "hasMany"
+        },
+        {
+          "method": "appointments",
+          "type": "hasMany"
+        },
+        {
+          "method": "aiAgents",
+          "type": "hasMany"
+        },
+        {
+          "method": "contextPackets",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/Organization.php"
+    },
+    "PersonaTemplate": {
+      "model": "PersonaTemplate",
+      "class": "App\\Modules\\Coordinator\\Models\\PersonaTemplate",
+      "table": "coord_persona_templates",
+      "fillable": [
+        "name",
+        "display_name",
+        "description",
+        "age_range",
+        "personality_traits",
+        "communication_style",
+        "best_for_industries",
+        "gender",
+        "voice_id",
+        "personality_prompts",
+        "example_greetings",
+        "tone_guidelines",
+        "is_active",
+        "sort_order"
+      ],
+      "relationships": [
+        {
+          "method": "coordinators",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/PersonaTemplate.php"
+    },
+    "AiFeedback": {
+      "model": "AiFeedback",
+      "class": "App\\Modules\\Coordinator\\Models\\AiFeedback",
+      "table": "coord_ai_feedback",
+      "fillable": [
+        "interaction_id",
+        "organization_id",
+        "feedback_type",
+        "rating",
+        "source",
+        "comments"
+      ],
+      "relationships": [
+        {
+          "method": "interaction",
+          "type": "belongsTo"
+        },
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/AiFeedback.php"
+    },
+    "AiInteraction": {
+      "model": "AiInteraction",
+      "class": "App\\Modules\\Coordinator\\Models\\AiInteraction",
+      "table": "coord_ai_interactions",
+      "fillable": [
+        "organization_id",
+        "agent_id",
+        "contact_id",
+        "session_id",
+        "interaction_id",
+        "channel",
+        "started_at",
+        "ended_at",
+        "duration_seconds",
+        "customer_identified",
+        "customer_info",
+        "intent",
+        "outcome",
+        "conversation_summary",
+        "transcript_reference",
+        "sentiment",
+        "faqs_used",
+        "unknown_questions",
+        "agent_version",
+        "analyzed_for_learning",
+        "analyzed_at"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "agent",
+          "type": "belongsTo"
+        },
+        {
+          "method": "contact",
+          "type": "belongsTo"
+        },
+        {
+          "method": "session",
+          "type": "belongsTo"
+        },
+        {
+          "method": "feedback",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/AiInteraction.php"
+    },
+    "AiAgent": {
+      "model": "AiAgent",
+      "class": "App\\Modules\\Coordinator\\Models\\AiAgent",
+      "table": "coord_ai_agents",
+      "fillable": [
+        "organization_id",
+        "coordinator_id",
+        "agent_id",
+        "agent_type",
+        "agent_name",
+        "version",
+        "platform",
+        "deployment_id",
+        "capabilities",
+        "agent_secret_hash",
+        "last_authenticated_at",
+        "status"
+      ],
+      "relationships": [
+        {
+          "method": "organization",
+          "type": "belongsTo"
+        },
+        {
+          "method": "coordinator",
+          "type": "belongsTo"
+        },
+        {
+          "method": "sessions",
+          "type": "hasMany"
+        },
+        {
+          "method": "interactions",
+          "type": "hasMany"
+        },
+        {
+          "method": "contextPackets",
+          "type": "hasMany"
+        },
+        {
+          "method": "personaConfigurations",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Coordinator/Models/AiAgent.php"
+    },
+    "Profile": {
+      "model": "Profile",
+      "class": "App\\Modules\\Core\\Models\\Profile",
+      "table": "profiles",
+      "fillable": [
+        "user_id",
+        "name",
+        "slug",
+        "description",
+        "color",
+        "icon",
+        "is_default",
+        "settings"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Core/Models/Profile.php"
+    },
+    "ProcessExecution": {
+      "model": "ProcessExecution",
+      "class": "App\\Modules\\Processes\\Models\\ProcessExecution",
+      "table": "process_executions",
+      "fillable": [
+        "process_id",
+        "task_id",
+        "project_id",
+        "status",
+        "started_at",
+        "completed_at",
+        "error_message",
+        "execution_data",
+        "step_results",
+        "current_step_order"
+      ],
+      "relationships": [
+        {
+          "method": "process",
+          "type": "belongsTo"
+        },
+        {
+          "method": "task",
+          "type": "belongsTo"
+        },
+        {
+          "method": "project",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Processes/Models/ProcessExecution.php"
+    },
+    "ProcessStep": {
+      "model": "ProcessStep",
+      "class": "App\\Modules\\Processes\\Models\\ProcessStep",
+      "table": "process_steps",
+      "fillable": [
+        "process_id",
+        "name",
+        "order",
+        "step_type",
+        "config",
+        "description"
+      ],
+      "relationships": [
+        {
+          "method": "process",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Processes/Models/ProcessStep.php"
+    },
+    "Process": {
+      "model": "Process",
+      "class": "App\\Modules\\Processes\\Models\\Process",
+      "table": "processs",
+      "fillable": [
+        "team_id",
+        "profile_id",
+        "name",
+        "slug",
+        "description",
+        "status",
+        "trigger_type",
+        "trigger_config",
+        "project_id"
+      ],
+      "relationships": [
+        {
+          "method": "team",
+          "type": "belongsTo"
+        },
+        {
+          "method": "profile",
+          "type": "belongsTo"
+        },
+        {
+          "method": "project",
+          "type": "belongsTo"
+        },
+        {
+          "method": "steps",
+          "type": "hasMany"
+        },
+        {
+          "method": "executions",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Processes/Models/Process.php"
+    },
+    "Project": {
+      "model": "Project",
+      "class": "App\\Modules\\Projects\\Models\\Project",
+      "table": "projects",
+      "fillable": [
+        "team_id",
+        "profile_id",
+        "owner_id",
+        "name",
+        "code",
+        "description",
+        "methodology",
+        "status",
+        "priority",
+        "start_date",
+        "target_end_date",
+        "actual_end_date",
+        "budget",
+        "budget_spent",
+        "settings",
+        "tags",
+        "health_score"
+      ],
+      "relationships": [
+        {
+          "method": "team",
+          "type": "belongsTo"
+        },
+        {
+          "method": "profile",
+          "type": "belongsTo"
+        },
+        {
+          "method": "owner",
+          "type": "belongsTo"
+        },
+        {
+          "method": "members",
+          "type": "belongsTo"
+        },
+        {
+          "method": "projectMembers",
+          "type": "hasMany"
+        },
+        {
+          "method": "tasks",
+          "type": "hasMany"
+        },
+        {
+          "method": "processes",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Projects/Models/Project.php"
+    },
+    "ProjectMember": {
+      "model": "ProjectMember",
+      "class": "App\\Modules\\Projects\\Models\\ProjectMember",
+      "table": "project_members",
+      "fillable": [
+        "project_id",
+        "user_id",
+        "role",
+        "allocation_percentage"
+      ],
+      "relationships": [
+        {
+          "method": "project",
+          "type": "belongsTo"
+        },
+        {
+          "method": "user",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Projects/Models/ProjectMember.php"
+    },
+    "ScheduledScan": {
+      "model": "ScheduledScan",
+      "class": "App\\Modules\\SiteHealth\\Models\\ScheduledScan",
+      "table": "scheduled_scans",
+      "fillable": [
+        "site_id",
+        "frequency",
+        "day_of_week",
+        "day_of_month",
+        "time",
+        "enabled"
+      ],
+      "relationships": [
+        {
+          "method": "site",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/SiteHealth/Models/ScheduledScan.php"
+    },
+    "Issue": {
+      "model": "Issue",
+      "class": "App\\Modules\\SiteHealth\\Models\\Issue",
+      "table": "issues",
+      "fillable": [
+        "scan_id",
+        "site_id",
+        "category",
+        "severity",
+        "status",
+        "title",
+        "message",
+        "page_url",
+        "selector",
+        "html_context",
+        "wcag_criteria",
+        "fix_code",
+        "fix_explanation",
+        "fix_confidence",
+        "screenshot_url"
+      ],
+      "relationships": [
+        {
+          "method": "scan",
+          "type": "belongsTo"
+        },
+        {
+          "method": "site",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/SiteHealth/Models/Issue.php"
+    },
+    "Scan": {
+      "model": "Scan",
+      "class": "App\\Modules\\SiteHealth\\Models\\Scan",
+      "table": "scans",
+      "fillable": [
+        "site_id",
+        "status",
+        "started_at",
+        "completed_at",
+        "pages_scanned",
+        "total_pages",
+        "health_score",
+        "category_scores",
+        "issue_count",
+        "error"
+      ],
+      "relationships": [
+        {
+          "method": "site",
+          "type": "belongsTo"
+        },
+        {
+          "method": "issues",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/SiteHealth/Models/Scan.php"
+    },
+    "Site": {
+      "model": "Site",
+      "class": "App\\Modules\\SiteHealth\\Models\\Site",
+      "table": "sites",
+      "fillable": [
+        "user_id",
+        "name",
+        "url",
+        "auth_type",
+        "auth_config",
+        "max_pages",
+        "checks",
+        "last_scan_at"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "scans",
+          "type": "hasMany"
+        },
+        {
+          "method": "issues",
+          "type": "hasMany"
+        },
+        {
+          "method": "scheduledScans",
+          "type": "hasMany"
+        },
+        {
+          "method": "latestScan",
+          "type": "hasOne"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/SiteHealth/Models/Site.php"
+    },
+    "UrpaVoiceResponse": {
+      "model": "UrpaVoiceResponse",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaVoiceResponse",
+      "table": "urpa_voice_responses",
+      "fillable": [
+        "category",
+        "intent",
+        "text_content",
+        "audio_url",
+        "audio_duration_ms",
+        "trigger_phrases",
+        "context_requirements",
+        "has_personalization",
+        "personalization_slots",
+        "usage_count",
+        "is_active"
+      ],
+      "relationships": [
+        {
+          "method": "aiMessages",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaVoiceResponse.php"
+    },
+    "UrpaAiTask": {
+      "model": "UrpaAiTask",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaAiTask",
+      "table": "urpa_ai_tasks",
+      "fillable": [
+        "user_id",
+        "session_id",
+        "title",
+        "description",
+        "status",
+        "source_type",
+        "source_id",
+        "taskjuggler_task_id",
+        "synced_to_taskjuggler",
+        "due_at",
+        "completed_at"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "session",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaAiTask.php"
+    },
+    "UrpaAiSession": {
+      "model": "UrpaAiSession",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaAiSession",
+      "table": "urpa_ai_sessions",
+      "fillable": [
+        "user_id",
+        "session_type",
+        "persona_used",
+        "status",
+        "started_at",
+        "ended_at",
+        "message_count",
+        "ai_request_count",
+        "context"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "messages",
+          "type": "hasMany"
+        },
+        {
+          "method": "tasks",
+          "type": "hasMany"
+        },
+        {
+          "method": "artifacts",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaAiSession.php"
+    },
+    "UrpaUserPersona": {
+      "model": "UrpaUserPersona",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaUserPersona",
+      "table": "urpa_user_personas",
+      "fillable": [
+        "user_id",
+        "persona_type",
+        "name",
+        "description",
+        "voice_id",
+        "system_prompt",
+        "is_default"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaUserPersona.php"
+    },
+    "UrpaFibonacciLink": {
+      "model": "UrpaFibonacciLink",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaFibonacciLink",
+      "table": "urpa_fibonacci_link",
+      "fillable": [
+        "urpa_user_id",
+        "fibonacci_business_id",
+        "sync_faqs",
+        "sync_polls",
+        "sync_business_info",
+        "publishing_enabled",
+        "publishing_team_id"
+      ],
+      "relationships": [
+        {
+          "method": "urpaUser",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaFibonacciLink.php"
+    },
+    "UrpaIntegration": {
+      "model": "UrpaIntegration",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaIntegration",
+      "table": "urpa_integrations",
+      "fillable": [
+        "user_id",
+        "integration_type",
+        "provider",
+        "status",
+        "access_token_encrypted",
+        "refresh_token_encrypted",
+        "token_expires_at",
+        "config",
+        "last_sync_at",
+        "sync_cursor",
+        "sync_error",
+        "connected_at"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaIntegration.php"
+    },
+    "UrpaAiMessage": {
+      "model": "UrpaAiMessage",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaAiMessage",
+      "table": "urpa_ai_messages",
+      "fillable": [
+        "session_id",
+        "role",
+        "content",
+        "is_voice",
+        "audio_url",
+        "transcript",
+        "used_prerecorded",
+        "prerecorded_response_id",
+        "input_tokens",
+        "output_tokens"
+      ],
+      "relationships": [
+        {
+          "method": "session",
+          "type": "belongsTo"
+        },
+        {
+          "method": "prerecordedResponse",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaAiMessage.php"
+    },
+    "UrpaActivity": {
+      "model": "UrpaActivity",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaActivity",
+      "table": "urpa_activities",
+      "fillable": [
+        "user_id",
+        "activity_type",
+        "source",
+        "title",
+        "description",
+        "raw_content",
+        "status",
+        "is_read",
+        "is_starred",
+        "contact_id",
+        "external_id",
+        "activity_timestamp"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "contact",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaActivity.php"
+    },
+    "UrpaContact": {
+      "model": "UrpaContact",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaContact",
+      "table": "urpa_contacts",
+      "fillable": [
+        "user_id",
+        "first_name",
+        "last_name",
+        "email",
+        "phone",
+        "company",
+        "job_title",
+        "source",
+        "external_id",
+        "tags",
+        "notes",
+        "avatar_url",
+        "last_contacted_at"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "activities",
+          "type": "hasMany"
+        },
+        {
+          "method": "phoneCalls",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaContact.php"
+    },
+    "UrpaArtifact": {
+      "model": "UrpaArtifact",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaArtifact",
+      "table": "urpa_artifacts",
+      "fillable": [
+        "user_id",
+        "session_id",
+        "artifact_type",
+        "title",
+        "content",
+        "language",
+        "storage_provider",
+        "storage_path",
+        "file_size_bytes",
+        "tags"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "session",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaArtifact.php"
+    },
+    "UrpaTaskjugglerLink": {
+      "model": "UrpaTaskjugglerLink",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaTaskjugglerLink",
+      "table": "urpa_taskjuggler_link",
+      "fillable": [
+        "urpa_user_id",
+        "taskjuggler_user_id",
+        "sync_tasks",
+        "sync_projects",
+        "auto_create_tasks",
+        "urpa_originated",
+        "tj_originated"
+      ],
+      "relationships": [
+        {
+          "method": "urpaUser",
+          "type": "belongsTo"
+        },
+        {
+          "method": "taskjugglerUser",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaTaskjugglerLink.php"
+    },
+    "UrpaUserProfile": {
+      "model": "UrpaUserProfile",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaUserProfile",
+      "table": "urpa_user_profiles",
+      "fillable": [
+        "user_id",
+        "subscription_tier",
+        "subscription_status",
+        "subscription_started_at",
+        "subscription_ends_at",
+        "has_text_assistant",
+        "has_phone_assistant",
+        "phone_number",
+        "phone_number_sid",
+        "ai_requests_limit",
+        "ai_requests_used",
+        "storage_limit_gb",
+        "storage_used_gb",
+        "default_persona",
+        "theme",
+        "widget_visibility"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "personas",
+          "type": "hasMany"
+        },
+        {
+          "method": "activities",
+          "type": "hasMany"
+        },
+        {
+          "method": "contacts",
+          "type": "hasMany"
+        },
+        {
+          "method": "integrations",
+          "type": "hasMany"
+        },
+        {
+          "method": "phoneCalls",
+          "type": "hasMany"
+        },
+        {
+          "method": "aiSessions",
+          "type": "hasMany"
+        },
+        {
+          "method": "artifacts",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaUserProfile.php"
+    },
+    "UrpaPhoneCall": {
+      "model": "UrpaPhoneCall",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaPhoneCall",
+      "table": "urpa_phone_calls",
+      "fillable": [
+        "user_id",
+        "communication_call_id",
+        "direction",
+        "caller_number",
+        "callee_number",
+        "status",
+        "duration_seconds",
+        "handled_by_ai",
+        "ai_persona_used",
+        "recording_url",
+        "recording_storage_path",
+        "transcript",
+        "ai_summary",
+        "actions_taken",
+        "vapi_call_id",
+        "vapi_assistant_id",
+        "contact_id",
+        "started_at",
+        "ended_at"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "communicationCall",
+          "type": "belongsTo"
+        },
+        {
+          "method": "contact",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaPhoneCall.php"
+    },
+    "CommunicationSms": {
+      "model": "CommunicationSms",
+      "class": "App\\Modules\\Communications\\Models\\CommunicationSms",
+      "table": "communication_sms",
+      "fillable": [
+        "user_id",
+        "from_number",
+        "to_number",
+        "message",
+        "direction",
+        "status",
+        "aws_message_id",
+        "error_message",
+        "metadata",
+        "sent_at",
+        "delivered_at"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Communications/Models/CommunicationSms.php"
+    },
+    "CommunicationRecording": {
+      "model": "CommunicationRecording",
+      "class": "App\\Modules\\Communications\\Models\\CommunicationRecording",
+      "table": "communication_recordings",
+      "fillable": [
+        "call_id",
+        "s3_bucket",
+        "s3_key",
+        "duration_seconds",
+        "transcription_id",
+        "transcription_text",
+        "status",
+        "metadata"
+      ],
+      "relationships": [
+        {
+          "method": "call",
+          "type": "belongsTo"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Communications/Models/CommunicationRecording.php"
+    },
+    "CommunicationCall": {
+      "model": "CommunicationCall",
+      "class": "App\\Modules\\Communications\\Models\\CommunicationCall",
+      "table": "communication_calls",
+      "fillable": [
+        "user_id",
+        "caller_number",
+        "callee_number",
+        "direction",
+        "status",
+        "aws_connect_contact_id",
+        "recording_url",
+        "transcription_id",
+        "metadata",
+        "initiated_at",
+        "connected_at",
+        "ended_at",
+        "duration_seconds"
+      ],
+      "relationships": [
+        {
+          "method": "user",
+          "type": "belongsTo"
+        },
+        {
+          "method": "recordings",
+          "type": "hasMany"
+        }
+      ],
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Communications/Models/CommunicationCall.php"
+    }
+  }
+}

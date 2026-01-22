@@ -26,10 +26,11 @@ export const useContactsStore = defineStore('contacts', () => {
         page: filters?.page || page.value,
         per_page: filters?.per_page || perPage.value,
       });
-      contacts.value = response.data.data;
-      total.value = response.data.total;
-      page.value = response.data.page;
-      perPage.value = response.data.per_page;
+      const data = (response.data as any).data || response.data;
+      contacts.value = Array.isArray(data) ? data : data.data;
+      total.value = (response.data as any).total || (data.meta ? data.meta.total : data.length);
+      page.value = (response.data as any).page || (data.meta ? data.meta.current_page : page.value);
+      perPage.value = (response.data as any).per_page || (data.meta ? data.meta.per_page : perPage.value);
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load contacts';
       throw err;
@@ -48,8 +49,9 @@ export const useContactsStore = defineStore('contacts', () => {
     error.value = null;
     try {
       const response = await contactsApi.getById(orgStore.currentOrganization.id, id);
-      currentContact.value = response.data;
-      return response.data;
+      const data = (response.data as any).data || response.data;
+      currentContact.value = data;
+      return data;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load contact';
       throw err;
@@ -68,9 +70,10 @@ export const useContactsStore = defineStore('contacts', () => {
     error.value = null;
     try {
       const response = await contactsApi.create(orgStore.currentOrganization.id, data);
-      contacts.value.unshift(response.data);
+      const result = (response.data as any).data || response.data;
+      contacts.value.unshift(result);
       total.value += 1;
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create contact';
       throw err;
@@ -89,14 +92,15 @@ export const useContactsStore = defineStore('contacts', () => {
     error.value = null;
     try {
       const response = await contactsApi.update(orgStore.currentOrganization.id, id, data);
+      const result = (response.data as any).data || response.data;
       const index = contacts.value.findIndex(c => c.id === id);
       if (index !== -1) {
-        contacts.value[index] = response.data;
+        contacts.value[index] = result;
       }
       if (currentContact.value?.id === id) {
-        currentContact.value = response.data;
+        currentContact.value = result;
       }
-      return response.data;
+      return result;
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to update contact';
       throw err;
