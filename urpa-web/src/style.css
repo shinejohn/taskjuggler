@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 @source "../../shared-ui/src/**/*.{vue,js,ts}";
+@source "../**/*.{vue,js,ts}";
+@source "./**/*.{vue,js,ts}";
+@source "../index.html";
 @source "../../urpa-web/src/**/*.{vue,js,ts}";
-@source "../../urpa-web/index.html";
 
 @theme {
   --animate-blob: blob 7s infinite;
