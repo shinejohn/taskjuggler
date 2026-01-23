@@ -4,7 +4,6 @@
 @source "../**/*.{vue,js,ts}";
 @source "./**/*.{vue,js,ts}";
 @source "../index.html";
-@source "../../urpa-web/src/**/*.{vue,js,ts}";
 
 @theme {
   --animate-blob: blob 7s infinite;
