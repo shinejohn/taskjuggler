@@ -138,19 +138,19 @@ class McpServerService
     private function handleCreateTask(array $arguments): array
     {
         try {
-            $task = Task::create([
-                'title' => $arguments['title'],
-                'description' => $arguments['description'] ?? null,
-                'priority' => $arguments['priority'] ?? 'normal',
-                'due_date' => isset($arguments['due_date']) ? \Carbon\Carbon::parse($arguments['due_date']) : null,
-                'tags' => $arguments['tags'] ?? [],
-                'status' => 'pending',
-                'source_channel' => 'ai_agent',
-            ]);
+            $tool = new \App\AiTools\Domain\TaskTool();
+            $result = $tool->execute(array_merge(['action' => 'create'], $arguments));
+
+            if (!empty($result['error'])) {
+                return [
+                    'success' => false,
+                    'error' => $result['message'] ?? 'Failed to create task',
+                ];
+            }
 
             return [
                 'success' => true,
-                'task_id' => $task->id,
+                'task_id' => $result['task']['id'],
                 'message' => 'Task created successfully',
             ];
         } catch (\Exception $e) {
@@ -168,19 +168,21 @@ class McpServerService
     private function handleGetTask(array $arguments): array
     {
         try {
-            $task = Task::findOrFail($arguments['task_id']);
-            
+            $tool = new \App\AiTools\Domain\TaskTool();
+            // Map task_id to id
+            $args = ['action' => 'get', 'id' => $arguments['task_id']];
+            $result = $tool->execute($args);
+
+            if (!empty($result['error'])) {
+                return [
+                    'success' => false,
+                    'error' => $result['message'],
+                ];
+            }
+
             return [
                 'success' => true,
-                'task' => [
-                    'id' => $task->id,
-                    'title' => $task->title,
-                    'description' => $task->description,
-                    'status' => $task->status,
-                    'priority' => $task->priority,
-                    'due_date' => $task->due_date?->toIso8601String(),
-                    'created_at' => $task->created_at->toIso8601String(),
-                ],
+                'task' => $result['task'],
             ];
         } catch (\Exception $e) {
             return [
@@ -196,34 +198,12 @@ class McpServerService
     private function handleListTasks(array $arguments): array
     {
         try {
-            $query = Task::query();
-
-            if (isset($arguments['status'])) {
-                $query->where('status', $arguments['status']);
-            }
-
-            if (isset($arguments['priority'])) {
-                $query->where('priority', $arguments['priority']);
-            }
-
-            if (isset($arguments['owner_id'])) {
-                $query->where('owner_id', $arguments['owner_id']);
-            }
-
-            $limit = $arguments['limit'] ?? 20;
-            $tasks = $query->limit($limit)->get();
+            $tool = new \App\AiTools\Domain\TaskTool();
+            $result = $tool->execute(array_merge(['action' => 'list'], $arguments));
 
             return [
                 'success' => true,
-                'tasks' => $tasks->map(function ($task) {
-                    return [
-                        'id' => $task->id,
-                        'title' => $task->title,
-                        'status' => $task->status,
-                        'priority' => $task->priority,
-                        'due_date' => $task->due_date?->toIso8601String(),
-                    ];
-                })->toArray(),
+                'tasks' => $result['tasks'],
             ];
         } catch (\Exception $e) {
             return [
@@ -239,14 +219,23 @@ class McpServerService
     private function handleUpdateTaskStatus(array $arguments): array
     {
         try {
-            $task = Task::findOrFail($arguments['task_id']);
-            $task->update(['status' => $arguments['status']]);
+            $tool = new \App\AiTools\Domain\TaskTool();
+            // Map task_id to id
+            $args = array_merge(
+                ['action' => 'update', 'id' => $arguments['task_id']],
+                $arguments
+            );
+            $result = $tool->execute($args);
+
+            if (!empty($result['error'])) {
+                return ['success' => false, 'error' => $result['message']];
+            }
 
             return [
                 'success' => true,
                 'message' => 'Task status updated',
-                'task_id' => $task->id,
-                'status' => $task->status,
+                'task_id' => $arguments['task_id'],
+                'status' => $arguments['status'],
             ];
         } catch (\Exception $e) {
             return [
@@ -261,21 +250,11 @@ class McpServerService
      */
     private function handleAcceptTask(array $arguments): array
     {
-        try {
-            $task = Task::findOrFail($arguments['task_id']);
-            $task->update(['status' => 'accepted']);
-
-            return [
-                'success' => true,
-                'message' => 'Task accepted',
-                'task_id' => $task->id,
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'error' => $e->getMessage(),
-            ];
-        }
+        // Accept is basically update status to 'accepted'?
+        // Or specific logic?
+        // TaskTool doesn't have 'accept', but has 'assign' or 'update status'
+        // Let's use update status
+        return $this->handleUpdateTaskStatus(array_merge($arguments, ['status' => 'accepted']));
     }
 
     /**
@@ -284,28 +263,22 @@ class McpServerService
     private function handleCompleteTask(array $arguments): array
     {
         try {
-            $task = Task::findOrFail($arguments['task_id']);
-            
-            $updateData = ['status' => 'completed'];
-            
-            if (isset($arguments['completion_notes'])) {
-                $metadata = $task->metadata ?? [];
-                $metadata['completion_notes'] = $arguments['completion_notes'];
-                $updateData['metadata'] = $metadata;
-            }
+            $tool = new \App\AiTools\Domain\TaskTool();
+            // Map task_id to id
+            $args = array_merge(
+                ['action' => 'complete', 'id' => $arguments['task_id']],
+                $arguments
+            );
+            $result = $tool->execute($args);
 
-            if (isset($arguments['output_data'])) {
-                $metadata = $task->metadata ?? [];
-                $metadata['output_data'] = $arguments['output_data'];
-                $updateData['metadata'] = $metadata;
+            if (!empty($result['error'])) {
+                return ['success' => false, 'error' => $result['message']];
             }
-
-            $task->update($updateData);
 
             return [
                 'success' => true,
                 'message' => 'Task completed',
-                'task_id' => $task->id,
+                'task_id' => $arguments['task_id'],
             ];
         } catch (\Exception $e) {
             return [
@@ -327,8 +300,18 @@ class McpServerService
                 ->first();
 
             if (!$requestorActor) {
-                Log::error('Requestor actor not found', ['task_id' => $task->id]);
-                return false;
+                // Fallback: create mock actor from user if necessary
+                $user = \App\Models\User::find($task->requestor_id);
+                if ($user) {
+                    $requestorActor = new Actor([
+                        'actor_id' => $user->id, // Use UUID if possible
+                        'display_name' => $user->name,
+                        'actor_type' => Actor::TYPE_HUMAN
+                    ]);
+                } else {
+                    Log::error('Requestor actor not found', ['task_id' => $task->id]);
+                    return false;
+                }
             }
 
             // Create TEF envelope
@@ -388,7 +371,7 @@ class McpServerService
     private function getAgentMcpEndpoint(Actor $agent): ?string
     {
         $contactMethods = $agent->contact_methods ?? [];
-        
+
         foreach ($contactMethods as $method) {
             if (($method['protocol'] ?? null) === 'mcp' || ($method['protocol'] ?? null) === 'http') {
                 return $method['endpoint'] ?? null;

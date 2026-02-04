@@ -61,3 +61,27 @@ Broadcast::channel('meetings.{meetingId}', function ($user, $meetingId) {
     
     return $isHost || $isParticipant;
 });
+
+// ScribeMD Live Dashboard channels
+Broadcast::channel('scribemd.visit.{visitId}', function ($user, $visitId) {
+    // Verify user has access to this visit (is the provider or has permission)
+    $visit = \Illuminate\Support\Facades\DB::table('scribemd_visits')
+        ->where('id', $visitId)
+        ->first();
+    
+    if (!$visit) {
+        return false;
+    }
+    
+    // Provider who created the visit always has access
+    if ((string) $visit->provider_id === (string) $user->id) {
+        return true;
+    }
+    
+    // Check if user has organization-level access (same practice)
+    if ($user->practice_id && $visit->practice_id) {
+        return (string) $user->practice_id === (string) $visit->practice_id;
+    }
+    
+    return false;
+});

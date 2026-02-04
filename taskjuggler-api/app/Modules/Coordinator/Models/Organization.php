@@ -37,6 +37,9 @@ class Organization extends Model
         'stripe_subscription_id',
         'stripe_payment_method_id',
         'compliance_modes',
+        'enabled_modules',
+        'enabled_features',
+        'logo_url',
         'trial_ends_at',
     ];
 
@@ -44,6 +47,8 @@ class Organization extends Model
         'business_hours' => 'array',
         'settings' => 'array',
         'compliance_modes' => 'array',
+        'enabled_modules' => 'array',
+        'enabled_features' => 'array',
         'trial_ends_at' => 'datetime',
     ];
 
@@ -81,6 +86,16 @@ class Organization extends Model
     public function contextPackets()
     {
         return $this->hasMany(ContextPacket::class, 'organization_id');
+    }
+
+    public function roles()
+    {
+        return $this->hasMany(\App\Models\Role::class, 'organization_id');
+    }
+
+    public function auditLogs()
+    {
+        return $this->hasMany(\App\Models\AuditLog::class, 'organization_id');
     }
 
     // Scopes

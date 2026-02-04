@@ -17,6 +17,8 @@ class UrpaActivity extends Model
     protected $fillable = [
         'user_id',
         'activity_type',
+        'mode',           // [NEW]
+        'is_hipaa',       // [NEW]
         'source',
         'title',
         'description',
@@ -25,6 +27,8 @@ class UrpaActivity extends Model
         'is_read',
         'is_starred',
         'contact_id',
+        'patient_id',     // [NEW]
+        'encounter_id',   // [NEW]
         'external_id',
         'activity_timestamp',
     ];
@@ -33,6 +37,7 @@ class UrpaActivity extends Model
         'raw_content' => 'array',
         'is_read' => 'boolean',
         'is_starred' => 'boolean',
+        'is_hipaa' => 'boolean', // [NEW]
         'activity_timestamp' => 'datetime',
     ];
 
@@ -61,6 +66,11 @@ class UrpaActivity extends Model
     public function scopeByType($query, string $type)
     {
         return $query->where('activity_type', $type);
+    }
+
+    public function scopeByMode($query, string $mode)
+    {
+        return $query->where('mode', $mode);
     }
 
     public function scopeByStatus($query, string $status)

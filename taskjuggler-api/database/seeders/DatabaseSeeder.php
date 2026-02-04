@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         // Seed coordinator test user
         $this->call([
             CoordinatorTestUserSeeder::class,
+            \Database\Seeders\UrpaSeeder::class, // [NEW] URPA Data
         ]);
     }
 }

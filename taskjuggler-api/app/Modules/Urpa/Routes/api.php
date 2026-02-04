@@ -9,6 +9,7 @@ use App\Modules\Urpa\Controllers\PhoneController;
 use App\Modules\Urpa\Controllers\IntegrationController;
 use App\Modules\Urpa\Controllers\TaskJugglerController;
 use App\Modules\Urpa\Controllers\FibonacciController;
+use App\Modules\Urpa\Controllers\ModeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,25 @@ use App\Modules\Urpa\Controllers\FibonacciController;
 */
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    
+    // Mode Management
+    Route::prefix('mode')->group(function () {
+        Route::get('/', [ModeController::class, 'show']);
+        Route::post('/switch', [ModeController::class, 'switchMode']);
+        Route::put('/settings', [ModeController::class, 'updateSettings']);
+        Route::get('/audit-log', [ModeController::class, 'auditLog']);
+    });
+    
+    // Dashboard Data (Mode-Aware)
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/', [\App\Modules\Urpa\Controllers\DashboardDataController::class, 'index']);
+        Route::get('/emails', [\App\Modules\Urpa\Controllers\DashboardDataController::class, 'emails']);
+        Route::get('/calendar', [\App\Modules\Urpa\Controllers\DashboardDataController::class, 'calendar']);
+        Route::get('/tasks', [\App\Modules\Urpa\Controllers\DashboardDataController::class, 'tasks']);
+        Route::get('/voicemails', [\App\Modules\Urpa\Controllers\DashboardDataController::class, 'voicemails']);
+        Route::get('/messages', [\App\Modules\Urpa\Controllers\DashboardDataController::class, 'messages']);
+        Route::get('/stats', [\App\Modules\Urpa\Controllers\DashboardDataController::class, 'stats']);
+    });
     
     // Activities
     Route::prefix('activities')->group(function () {

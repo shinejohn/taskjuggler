@@ -28,6 +28,18 @@ class Team extends Model
         'settings',
     ];
 
+    protected $appends = [
+        'is_hipaa',
+    ];
+
+    /**
+     * Accessor for is_hipaa attribute (for JSON serialization)
+     */
+    public function getIsHipaaAttribute(): bool
+    {
+        return $this->isHipaa();
+    }
+
     /**
      * Team creator
      */
@@ -116,6 +128,33 @@ class Team extends Model
     public function removeMember(User $user): void
     {
         $this->members()->detach($user->id);
+    }
+
+    /**
+     * Check if this team is a HIPAA-compliant context.
+     * In the 4healthcare platform, teams are HIPAA by default unless explicitly tagged as 'personal'.
+     */
+    public function isHipaa(): bool
+    {
+        $settings = $this->settings ?? [];
+        if (is_string($settings)) {
+            $settings = json_decode($settings, true) ?? [];
+        }
+
+        // Check explicit flag, default to TRUE in this environment
+        return ($settings['hipaa_compliant'] ?? true) !== false;
+    }
+
+    /**
+     * Get the display name for an application based on the team's context.
+     * e.g., "URPA" becomes "URPA HIPAA" for medical teams.
+     */
+    public function getAppName(string $baseName): string
+    {
+        if ($this->isHipaa()) {
+            return "{$baseName} HIPAA";
+        }
+        return $baseName;
     }
 }
 
