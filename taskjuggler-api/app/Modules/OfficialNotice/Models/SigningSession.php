@@ -9,6 +9,8 @@ class SigningSession extends Model
 {
     use HasUuids;
 
+    protected $table = 'on_signing_sessions';
+
     protected $guarded = ['id'];
 
     protected $casts = [
@@ -20,6 +22,11 @@ class SigningSession extends Model
 
     public function signatures()
     {
-        return $this->hasMany(Signature::class);
+        return $this->hasMany(Signature::class, 'session_id');
+    }
+
+    public function document()
+    {
+        return $this->belongsTo(Document::class);
     }
 }

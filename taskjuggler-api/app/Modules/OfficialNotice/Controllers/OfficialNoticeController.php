@@ -109,4 +109,18 @@ class OfficialNoticeController extends Controller
             'data' => $document
         ]);
     }
+
+    /**
+     * Serve the document file for viewing
+     */
+    public function viewDocumentFile($id)
+    {
+        $document = Document::findOrFail($id);
+        
+        if (!\Storage::exists($document->file_path)) {
+            return response()->json(['error' => 'File not found'], 404);
+        }
+
+        return response()->file(storage_path('app/' . $document->file_path));
+    }
 }

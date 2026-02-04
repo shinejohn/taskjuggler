@@ -46,7 +46,7 @@ class SigningSessionController extends Controller
 
     public function show($sessionId)
     {
-        $session = SigningSession::with('signatures')->findOrFail($sessionId);
+        $session = SigningSession::with(['signatures', 'document'])->findOrFail($sessionId);
 
         return response()->json([
             'success' => true,
@@ -108,6 +108,44 @@ class SigningSessionController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Verification requested'
+        ]);
+    }
+
+    public function verifyFace(Request $request, $sessionId)
+    {
+        $request->validate([
+            'face_image_base64' => 'required'
+        ]);
+
+        $session = SigningSession::findOrFail($sessionId);
+        $userId = Auth::id();
+
+        // Find signature
+        $signature = $session->signatures()->where('party_id', $userId)->firstOrFail();
+
+        // Get user's identity verification record
+        $verification = $this->signingService->getIdentityService()->getVerification(\Illuminate\Support\Facades\Auth::user());
+
+        if (!$verification) {
+            return response()->json(['error' => 'No verified identity found'], 400);
+        }
+
+        // Perform match
+        $result = $this->faceMatchService->matchFace($verification, $request->input('face_image_base64'));
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'error' => $result['message'] ?? 'Face match failed'
+            ], 400);
+        }
+
+        // Record success
+        $this->faceMatchService->recordFaceMatch($signature, $result, $request->input('face_image_base64'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Face verified'
         ]);
     }
 

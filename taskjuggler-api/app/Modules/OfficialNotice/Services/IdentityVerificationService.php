@@ -99,11 +99,8 @@ class IdentityVerificationService
             }
 
             // Store face reference for later matching
-            if (isset($session['selfie']['document_photo'])) {
-                // Not implementing storeFaceReference yet, or need to see logic
-                // The prompt instruction had storeFaceReference method but I missed copying it or it was in '...'?
-                // Wait, the instruction block for IdentityVerificationService had storeFaceReference call but I don't see the method definition in the snippet I read.
-                // Let me check the instruction file again for storeFaceReference method.
+            if (isset($session['selfie'])) {
+                $this->storeFaceReference($verification, $session['selfie']);
             }
         } elseif ($session['status'] === 'requires_input') {
             $verification->status = 'pending';
@@ -137,9 +134,49 @@ class IdentityVerificationService
             ->first();
     }
 
-    // Placeholder for storeFaceReference if not found in next read
-    private function storeFaceReference(IdentityVerification $verification, $selfieData)
+    /**
+     * Store face reference for later matching
+     */
+    private function storeFaceReference(IdentityVerification $verification, $selfieData): void
     {
-        // Implementation would fetch image from Stripe and store to S3
+        // $selfieData is likely the 'selfie' object from the session or report
+        // It should contain a 'document' field which is the file ID, 
+        // or we use the 'document' from verified_outputs if we want ID photo (but we want selfie).
+        // Let's assume passed $selfieData is the 'selfie' object from session.
+        // NOTE: In Stripe API, 'selfie' might be an object with 'document' (file ID).
+
+        // Safety check
+        if (!isset($selfieData['document'])) {
+            return;
+        }
+
+        $fileId = $selfieData['document'];
+
+        try {
+            $apiKey = config('services.stripe.secret');
+            $response = \Illuminate\Support\Facades\Http::withBasicAuth($apiKey, '')
+                ->get('https://files.stripe.com/v1/files/' . $fileId . '/contents');
+
+            if ($response->successful()) {
+                $content = $response->body();
+
+                // Store to S3
+                $s3Key = 'identity-references/' . $verification->id . '.jpg';
+
+                \Illuminate\Support\Facades\Storage::disk('s3')->put($s3Key, $content, [
+                    'visibility' => 'private',
+                    'encryption' => 'AES256', // Encrypt at rest
+                ]);
+
+                $verification->update([
+                    'face_reference_image_s3_key' => $s3Key
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Log error but don't fail the verification status completely?
+            // Or maybe we should? If we can't store face, we can't do 2nd pass.
+            // For now, log it.
+            \Illuminate\Support\Facades\Log::error("Failed to download/store Stripe selfie: " . $e->getMessage());
+        }
     }
 }

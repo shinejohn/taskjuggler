@@ -15,6 +15,23 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(router);
 
+// Module System Initialization
+import { registerModule } from './modules/loader';
+import { doctorModule } from './modules/doctor';
+import { useUiStore } from './stores/ui';
+
+// Initialize UI Store (populates default nav items)
+const uiStore = useUiStore();
+
+// Register Modules
+registerModule(doctorModule, app, router);
+
+// Add module nav items to the UI store
+if (doctorModule.navItems) {
+  uiStore.addNavItems(doctorModule.navItems);
+}
+
+
 // Initialize Echo and real-time listeners after auth store is available
 const authStore = useAuthStore();
 
@@ -26,19 +43,19 @@ async function initializeRealtime() {
   try {
     // Initialize Echo with token
     initializeEcho(authStore.token);
-    
+
     // Fetch user if not already loaded
     if (!authStore.user) {
       await authStore.fetchUser();
     }
-    
+
     // Setup real-time listeners if authenticated
     if (authStore.isAuthenticated && authStore.user) {
       const { useActivitiesStore } = await import('./stores/activities');
       const { usePhoneStore } = await import('./stores/phone');
       const activitiesStore = useActivitiesStore();
       const phoneStore = usePhoneStore();
-      
+
       activitiesStore.setupRealtimeListeners();
       phoneStore.setupRealtimeListeners();
     }

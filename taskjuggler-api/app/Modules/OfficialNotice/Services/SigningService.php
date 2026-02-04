@@ -16,6 +16,12 @@ class SigningService
     ) {
     }
 
+    public function getIdentityService()
+    {
+        return $this->identityService;
+    }
+
+
     /**
      * Create a new signing session
      */
@@ -148,12 +154,11 @@ class SigningService
             throw new \Exception('ID verification required before signing');
         }
 
-        // Calculate document hash
-        // Assuming document content is accessible via Storage
-        // $document = \App\Modules\OfficialNotice\Models\Document::find($session->document_id);
-        // $documentHash = hash('sha256', \Illuminate\Support\Facades\Storage::get($document->file_path));
-        // Simple hash mock for MVP:
-        $documentHash = hash('sha256', 'mock_content');
+        // Calculate document hash for integrity verification
+        $document = \App\Modules\OfficialNotice\Models\Document::find($session->document_id);
+        $documentHash = $document && \Illuminate\Support\Facades\Storage::exists($document->file_path)
+            ? hash('sha256', \Illuminate\Support\Facades\Storage::get($document->file_path))
+            : hash('sha256', 'document_not_found_' . $session->document_id);
 
         // Store signature image
         $s3Key = 'signatures/' . $signature->id . '.png';

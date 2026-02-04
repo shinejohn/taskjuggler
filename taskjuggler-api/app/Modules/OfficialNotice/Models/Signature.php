@@ -9,6 +9,8 @@ class Signature extends Model
 {
     use HasUuids;
 
+    protected $table = 'on_signatures';
+
     protected $guarded = ['id'];
 
     protected $casts = [

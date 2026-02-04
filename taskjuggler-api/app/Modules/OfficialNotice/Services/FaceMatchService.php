@@ -31,53 +31,85 @@ class FaceMatchService
         IdentityVerification $verification,
         string $liveImageBase64
     ): array {
-        // Get stored reference image
-        $referenceImage = Storage::disk('s3')->get($verification->face_reference_image_s3_key);
+        try {
+            // Get stored reference image
+            if (!$verification->face_reference_image_s3_key) {
+                return [
+                    'success' => false,
+                    'reason' => 'no_reference',
+                    'message' => 'No face reference found. Please complete ID verification first.',
+                ];
+            }
 
-        // Decode live image
-        $liveImageBytes = base64_decode($liveImageBase64);
+            $referenceImage = Storage::disk('s3')->get($verification->face_reference_image_s3_key);
 
-        // Perform liveness detection first
-        $livenessResult = $this->checkLiveness($liveImageBytes);
+            if (!$referenceImage) {
+                return [
+                    'success' => false,
+                    'reason' => 'reference_not_found',
+                    'message' => 'Face reference image could not be retrieved.',
+                ];
+            }
 
-        if (!$livenessResult['is_live']) {
+            // Decode live image
+            $liveImageBytes = base64_decode($liveImageBase64);
+
+            // Perform liveness detection first
+            $livenessResult = $this->checkLiveness($liveImageBytes);
+
+            if (!$livenessResult['is_live']) {
+                return [
+                    'success' => false,
+                    'reason' => 'liveness_failed',
+                    'message' => 'Could not confirm this is a live person. Please try again.',
+                ];
+            }
+
+            // Compare faces
+            $result = $this->rekognition->compareFaces([
+                'SourceImage' => [
+                    'Bytes' => $referenceImage,
+                ],
+                'TargetImage' => [
+                    'Bytes' => $liveImageBytes,
+                ],
+                'SimilarityThreshold' => $this->matchThreshold * 100,
+            ]);
+
+            $faceMatches = $result->get('FaceMatches');
+
+            if (empty($faceMatches)) {
+                return [
+                    'success' => false,
+                    'reason' => 'no_match',
+                    'confidence' => 0,
+                    'message' => 'Face does not match verified identity. Please try again.',
+                ];
+            }
+
+            $confidence = $faceMatches[0]['Similarity'] / 100;
+
+            return [
+                'success' => $confidence >= $this->matchThreshold,
+                'confidence' => $confidence,
+                'is_live' => $livenessResult['is_live'],
+                'liveness_confidence' => $livenessResult['confidence'],
+            ];
+        } catch (\Aws\Exception\AwsException $e) {
+            \Illuminate\Support\Facades\Log::error('AWS Rekognition face match failed: ' . $e->getMessage());
             return [
                 'success' => false,
-                'reason' => 'liveness_failed',
-                'message' => 'Could not confirm this is a live person. Please try again.',
+                'reason' => 'service_error',
+                'message' => 'Face verification service is temporarily unavailable. Please try again later.',
             ];
-        }
-
-        // Compare faces
-        $result = $this->rekognition->compareFaces([
-            'SourceImage' => [
-                'Bytes' => $referenceImage,
-            ],
-            'TargetImage' => [
-                'Bytes' => $liveImageBytes,
-            ],
-            'SimilarityThreshold' => $this->matchThreshold * 100,
-        ]);
-
-        $faceMatches = $result->get('FaceMatches');
-
-        if (empty($faceMatches)) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Face match unexpected error: ' . $e->getMessage());
             return [
                 'success' => false,
-                'reason' => 'no_match',
-                'confidence' => 0,
-                'message' => 'Face does not match verified identity. Please try again.',
+                'reason' => 'unexpected_error',
+                'message' => 'An unexpected error occurred during face verification.',
             ];
         }
-
-        $confidence = $faceMatches[0]['Similarity'] / 100;
-
-        return [
-            'success' => $confidence >= $this->matchThreshold,
-            'confidence' => $confidence,
-            'is_live' => $livenessResult['is_live'],
-            'liveness_confidence' => $livenessResult['confidence'],
-        ];
     }
 
     /**

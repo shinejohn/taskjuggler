@@ -1,0 +1,357 @@
+
+  GET|HEAD        api/ai/agents .............................................. generated::ub4cS8plumM6xd4k › Api\AI\AgentController@index
+  POST            api/ai/agents/claim ........................................ generated::ugHUBJEiGSLoUAvO › Api\AI\AgentController@claim
+  POST            api/ai/agents/register .................................. generated::ZB58yEeq0joTTpXU › Api\AI\AgentController@register
+  GET|HEAD        api/ai/agents/{id} .......................................... generated::c59yCL9QCe26vOBQ › Api\AI\AgentController@show
+  DELETE          api/ai/agents/{id} ....................................... generated::u4s2s2oOTvTUCSWJ › Api\AI\AgentController@destroy
+  PUT             api/ai/agents/{id}/capabilities ............... generated::UW3Agx1r3P2a2hAs › Api\AI\AgentController@updateCapabilities
+  POST            api/ai/agents/{id}/claim-code .................. generated::Gyx0CTuaRFFZf5mg › Api\AI\AgentController@generateClaimCode
+  POST            api/ai/agents/{id}/delegate-task .................... generated::63AKVfLCRCKRm1BN › Api\AI\AgentController@delegateTask
+  GET|HEAD        api/appointment-types ................................... appointment-types.index › Api\AppointmentTypeController@index
+  POST            api/appointment-types ................................... appointment-types.store › Api\AppointmentTypeController@store
+  GET|HEAD        api/appointment-types/{appointment_type} .................. appointment-types.show › Api\AppointmentTypeController@show
+  PUT|PATCH       api/appointment-types/{appointment_type} .............. appointment-types.update › Api\AppointmentTypeController@update
+  DELETE          api/appointment-types/{appointment_type} ............ appointment-types.destroy › Api\AppointmentTypeController@destroy
+  GET|HEAD        api/appointments ................................................. appointments.index › Api\AppointmentController@index
+  POST            api/appointments ................................................. appointments.store › Api\AppointmentController@store
+  GET|HEAD        api/appointments/{appointment} ..................................... appointments.show › Api\AppointmentController@show
+  PUT|PATCH       api/appointments/{appointment} ................................. appointments.update › Api\AppointmentController@update
+  DELETE          api/appointments/{appointment} ............................... appointments.destroy › Api\AppointmentController@destroy
+  POST            api/appointments/{appointment}/confirm ................ generated::I75WVI1BO6es66dC › Api\AppointmentController@confirm
+  POST            api/auth/forgot-password ..... generated::mJr6sDh2aDIUaQ2C › App\Modules\Core\Controllers\AuthController@forgotPassword
+  GET|HEAD        api/auth/google/callback ..... generated::UG2uMa2xcxBu4qLW › App\Modules\Core\Controllers\AuthController@googleCallback
+  GET|HEAD        api/auth/google/url .......... generated::iCOrZT7yl9qjXdKe › App\Modules\Core\Controllers\AuthController@googleOAuthUrl
+  POST            api/auth/login ........................ generated::9ri7QTEmGfMVn9wy › App\Modules\Core\Controllers\AuthController@login
+  POST            api/auth/logout ...................... generated::qwl8pp7Qqvfq6uT4 › App\Modules\Core\Controllers\AuthController@logout
+  POST            api/auth/push-token ....... generated::h9VEfKbR3PslXzKd › App\Modules\Core\Controllers\AuthController@registerPushToken
+  POST            api/auth/register .................. generated::AnDUgitMA9uB6S6R › App\Modules\Core\Controllers\AuthController@register
+  POST            api/auth/reset-password ....... generated::8ywdUsZ7gJaFMY0D › App\Modules\Core\Controllers\AuthController@resetPassword
+  GET|HEAD        api/auth/user .......................... generated::d30xHeMicCGF99FL › App\Modules\Core\Controllers\AuthController@user
+  GET|HEAD        api/availability-slots ................................ availability-slots.index › Api\AvailabilitySlotController@index
+  POST            api/availability-slots ................................ availability-slots.store › Api\AvailabilitySlotController@store
+  GET|HEAD        api/availability-slots/{availability_slot} .............. availability-slots.show › Api\AvailabilitySlotController@show
+  PUT|PATCH       api/availability-slots/{availability_slot} .......... availability-slots.update › Api\AvailabilitySlotController@update
+  DELETE          api/availability-slots/{availability_slot} ........ availability-slots.destroy › Api\AvailabilitySlotController@destroy
+  GET|POST|HEAD   api/broadcasting/auth ........ generated::W8UZY5b3OLOvzz5a › Illuminate\Broadcasting › BroadcastController@authenticate
+  GET|HEAD        api/channels ................................................ generated::2xSnhnsJ951GglxD › Api\ChannelController@index
+  POST            api/channels/email .................................... generated::tozwePojSGaIKT3x › Api\ChannelController@createEmail
+  POST            api/channels/phone ................................. generated::yoYjtGDUSSk9Kyci › Api\ChannelController@provisionPhone
+  PUT             api/channels/{channel} ..................................... generated::jm49KT4KiyeS3tot › Api\ChannelController@update
+  DELETE          api/channels/{channel} .................................... generated::64IU1nBEpyvGw0BT › Api\ChannelController@destroy
+  POST            api/communications/webhooks/aws-connect generated::HstJ68HZRkMZYOQY › App\Modules\Communications\Controllers\AwsWebhoo…
+  POST            api/communications/webhooks/aws-sms generated::CcDV5ffZX9EVccvG › App\Modules\Communications\Controllers\AwsWebhookCon…
+  GET|HEAD        api/contact-lists ............................................... contact-lists.index › Api\ContactListController@index
+  POST            api/contact-lists ............................................... contact-lists.store › Api\ContactListController@store
+  POST            api/contact-lists/import ....................... generated::jV2ZqBoRgD3y5O3k › Api\ContactListController@importContacts
+  POST            api/contact-lists/{contactList}/members ............. generated::sTFqmcCgNwHIqKUK › Api\ContactListController@addMember
+  DELETE          api/contact-lists/{contactList}/members/{member} . generated::lvqnfXpSyctFHR2i › Api\ContactListController@removeMember
+  GET|HEAD        api/contact-lists/{contact_list} .................................. contact-lists.show › Api\ContactListController@show
+  PUT|PATCH       api/contact-lists/{contact_list} .............................. contact-lists.update › Api\ContactListController@update
+  DELETE          api/contact-lists/{contact_list} ............................ contact-lists.destroy › Api\ContactListController@destroy
+  GET|HEAD        api/coordinator/coordinators/{coordinator} coordinators.show › App\Modules\Coordinator\Controllers\CoordinatorControll…
+  PUT|PATCH       api/coordinator/coordinators/{coordinator} coordinators.update › App\Modules\Coordinator\Controllers\CoordinatorContro…
+  DELETE          api/coordinator/coordinators/{coordinator} coordinators.destroy › App\Modules\Coordinator\Controllers\CoordinatorContr…
+  POST            api/coordinator/onboarding/complete generated::twilyf8Vfb05cHne › App\Modules\Coordinator\Controllers\OnboardingContro…
+  GET|HEAD        api/coordinator/onboarding/persona-templates generated::yJsAVMilPqsobdMH › App\Modules\Coordinator\Controllers\Onboard…
+  GET|HEAD        api/coordinator/onboarding/role-templates generated::wvGhV79ogOeq8rBd › App\Modules\Coordinator\Controllers\Onboarding…
+  GET|HEAD        api/coordinator/organizations .. organizations.index › App\Modules\Coordinator\Controllers\OrganizationController@index
+  POST            api/coordinator/organizations .. organizations.store › App\Modules\Coordinator\Controllers\OrganizationController@store
+  GET|HEAD        api/coordinator/organizations/{orgId}/appointments generated::zUve9HNdi9970Drb › App\Modules\Coordinator\Controllers\A…
+  POST            api/coordinator/organizations/{orgId}/appointments generated::4P2zXcFDRDH9FEbc › App\Modules\Coordinator\Controllers\A…
+  GET|HEAD        api/coordinator/organizations/{orgId}/appointments/today generated::mdC7XbwGuriP5da3 › App\Modules\Coordinator\Control…
+  GET|HEAD        api/coordinator/organizations/{orgId}/appointments/{id} generated::iMnTKmCDGVaVoOXH › App\Modules\Coordinator\Controll…
+  PUT             api/coordinator/organizations/{orgId}/appointments/{id} generated::S48H53oIE42X8OEk › App\Modules\Coordinator\Controll…
+  DELETE          api/coordinator/organizations/{orgId}/appointments/{id} generated::82UxtPwHr6hxukrE › App\Modules\Coordinator\Controll…
+  POST            api/coordinator/organizations/{orgId}/appointments/{id}/cancel generated::FQuP8jHJwWWr4RmG › App\Modules\Coordinator\C…
+  GET|HEAD        api/coordinator/organizations/{orgId}/billing generated::8rySEdi70SB6MmHW › App\Modules\Coordinator\Controllers\Billin…
+  POST            api/coordinator/organizations/{orgId}/billing/cancel generated::j78E4RAW7ZTQDaCi › App\Modules\Coordinator\Controllers…
+  GET|HEAD        api/coordinator/organizations/{orgId}/billing/history generated::tCUVKbKuJhheQHNl › App\Modules\Coordinator\Controller…
+  PUT             api/coordinator/organizations/{orgId}/billing/payment-method generated::Ox910H5g7zyB4gLk › App\Modules\Coordinator\Con…
+  GET|HEAD        api/coordinator/organizations/{orgId}/calls generated::N94ltbwoBHQ2DsA7 › App\Modules\Coordinator\Controllers\CallLogC…
+  GET|HEAD        api/coordinator/organizations/{orgId}/calls/stats generated::ZLe1Gxu05wxZHJ2X › App\Modules\Coordinator\Controllers\Ca…
+  GET|HEAD        api/coordinator/organizations/{orgId}/calls/{id} generated::RjwIh2I6CkBUYcWM › App\Modules\Coordinator\Controllers\Cal…
+  GET|HEAD        api/coordinator/organizations/{orgId}/campaigns generated::249KGjCCpcrIpmWo › App\Modules\Coordinator\Controllers\Camp…
+  POST            api/coordinator/organizations/{orgId}/campaigns generated::QpSGZMGSDGYRnrGJ › App\Modules\Coordinator\Controllers\Camp…
+  GET|HEAD        api/coordinator/organizations/{orgId}/campaigns/{id} generated::HwvOgWp41YyUDL1v › App\Modules\Coordinator\Controllers…
+  PUT             api/coordinator/organizations/{orgId}/campaigns/{id} generated::EtnfA09K0RuCa8tH › App\Modules\Coordinator\Controllers…
+  DELETE          api/coordinator/organizations/{orgId}/campaigns/{id} generated::1J3EithDc5mch6VN › App\Modules\Coordinator\Controllers…
+  POST            api/coordinator/organizations/{orgId}/campaigns/{id}/pause generated::kh5DULu59oMoJHhV › App\Modules\Coordinator\Contr…
+  POST            api/coordinator/organizations/{orgId}/campaigns/{id}/start generated::Dq1xoUHWNazbxD6C › App\Modules\Coordinator\Contr…
+  GET|HEAD        api/coordinator/organizations/{orgId}/campaigns/{id}/stats generated::PaYvZAd8lq34mcgZ › App\Modules\Coordinator\Contr…
+  GET|HEAD        api/coordinator/organizations/{orgId}/contacts generated::cQxJKQLxDBMB9gcu › App\Modules\Coordinator\Controllers\Conta…
+  POST            api/coordinator/organizations/{orgId}/contacts generated::x8UKeeSuqJ6G7de4 › App\Modules\Coordinator\Controllers\Conta…
+  POST            api/coordinator/organizations/{orgId}/contacts/bulk-delete generated::sRwM2gXqaRF4KUdy › App\Modules\Coordinator\Contr…
+  POST            api/coordinator/organizations/{orgId}/contacts/bulk-tag generated::AnGmqLzcOGlPFaxg › App\Modules\Coordinator\Controll…
+  GET|HEAD        api/coordinator/organizations/{orgId}/contacts/{id} generated::7ufHOqeZiq9UBU2F › App\Modules\Coordinator\Controllers\…
+  PUT             api/coordinator/organizations/{orgId}/contacts/{id} generated::Naet6XOOcrh2BjZ0 › App\Modules\Coordinator\Controllers\…
+  DELETE          api/coordinator/organizations/{orgId}/contacts/{id} generated::vBtcvdCNERUnbql2 › App\Modules\Coordinator\Controllers\…
+  GET|HEAD        api/coordinator/organizations/{orgId}/coordinators generated::ZemJuTRO3TjnndU7 › App\Modules\Coordinator\Controllers\C…
+  POST            api/coordinator/organizations/{orgId}/coordinators generated::aIZNmzFZIs2TrweV › App\Modules\Coordinator\Controllers\C…
+  GET|HEAD        api/coordinator/organizations/{orgId}/dashboard/metrics generated::5GLPo2yvoYqfxt8r › App\Modules\Coordinator\Controll…
+  GET|HEAD        api/coordinator/organizations/{orgId}/dashboard/recent-calls generated::40tedQyr7h1R0UIN › App\Modules\Coordinator\Con…
+  GET|HEAD        api/coordinator/organizations/{orgId}/dashboard/today-appointments generated::bpcXrXYzaU1l65A9 › App\Modules\Coordinat…
+  GET|HEAD        api/coordinator/organizations/{organization} organizations.show › App\Modules\Coordinator\Controllers\OrganizationCont…
+  PUT|PATCH       api/coordinator/organizations/{organization} organizations.update › App\Modules\Coordinator\Controllers\OrganizationCo…
+  DELETE          api/coordinator/organizations/{organization} organizations.destroy › App\Modules\Coordinator\Controllers\OrganizationC…
+  GET|HEAD        api/health ................................................................................ generated::k20ATpZMSPBVMsiO
+  GET|HEAD        api/inbox ..................................................... generated::WN9fwcIz44WOBDBX › Api\InboxController@index
+  GET|HEAD        api/inbox/{inboxItem} .......................................... generated::3KGZRb0xQpOXRh21 › Api\InboxController@show
+  POST            api/inbox/{inboxItem}/create-task ........................ generated::sIjO7zqrWb2kcZS8 › Api\InboxController@createTask
+  POST            api/inbox/{inboxItem}/dismiss ............................... generated::asZ3AtEpp0FH64Yq › Api\InboxController@dismiss
+  POST            api/inbox/{inboxItem}/process ............................... generated::vwGDyu3wWRsua8yd › Api\InboxController@process
+  POST            api/internal/ai/auth generated::LAfZbPNMi7z2L9Da › App\Modules\Coordinator\Controllers\AiAgentAuthController@authentic…
+  POST            api/internal/ai/auth/refresh generated::fc8vpiyAlxTvvKAl › App\Modules\Coordinator\Controllers\AiAgentAuthController@r…
+  GET|HEAD        api/internal/ai/calendar/{business_id}/availability generated::rBt5bGMRq3K8BBYP › App\Modules\Coordinator\Controllers\…
+  POST            api/internal/ai/calendar/{business_id}/bookings generated::LO2rnhanSefXpXmn › App\Modules\Coordinator\Controllers\Real…
+  GET|HEAD        api/internal/ai/context/{business_id} generated::TSKplaSrTGGV4gYB › App\Modules\Coordinator\Controllers\ContextPacketC…
+  GET|HEAD        api/internal/ai/context/{business_id}/refresh generated::xXt5xw7Yk3y1Ps9D › App\Modules\Coordinator\Controllers\Contex…
+  GET|HEAD        api/internal/ai/crm/{business_id}/customers/lookup generated::H7zwuyX9zh67SaE9 › App\Modules\Coordinator\Controllers\R…
+  POST            api/internal/ai/crm/{business_id}/leads generated::biCHBUHPI6hcVVFV › App\Modules\Coordinator\Controllers\RealTimeOper…
+  POST            api/internal/ai/interactions/{business_id} generated::zmTrnbuCgZhjS6iN › App\Modules\Coordinator\Controllers\AiInterac…
+  POST            api/internal/ai/interactions/{interaction_id}/feedback generated::Pb5nBw6Af3d1hmKB › App\Modules\Coordinator\Controlle…
+  GET|HEAD        api/iot/devices .......................................... generated::8in8e3bNQaqzToPJ › Api\IoT\DeviceController@index
+  POST            api/iot/devices/claim .................................... generated::Dyt66u25Zm9MafDN › Api\IoT\DeviceController@claim
+  POST            api/iot/devices/register .............................. generated::xbmP0vf38nXgX8nw › Api\IoT\DeviceController@register
+  GET|HEAD        api/iot/devices/{id} ...................................... generated::4aCQvoy5cvvMwNQz › Api\IoT\DeviceController@show
+  DELETE          api/iot/devices/{id} ................................... generated::4k6IfJsguswdjdsf › Api\IoT\DeviceController@destroy
+  PUT             api/iot/devices/{id}/capabilities ........... generated::fHcKwbJNJ7KRMAQy › Api\IoT\DeviceController@updateCapabilities
+  POST            api/iot/devices/{id}/claim-code .............. generated::Ltegtm92mSVaPSNN › Api\IoT\DeviceController@generateClaimCode
+  POST            api/iot/devices/{id}/send-task ........................ generated::s0xXWlkPdfNDpZX4 › Api\IoT\DeviceController@sendTask
+  GET|HEAD        api/marketplace/listings ........................ generated::gmIh6LiHhoTKXCRU › Api\Marketplace\ListingController@index
+  POST            api/marketplace/listings ........................ generated::Gl9REXzYpoPqt6bC › Api\Marketplace\ListingController@store
+  GET|HEAD        api/marketplace/listings/{listing} ............... generated::Sc3YA2mFsA28Quib › Api\Marketplace\ListingController@show
+  POST            api/marketplace/listings/{listing}/assign ...... generated::Ul9TF80bVv8po7GU › Api\Marketplace\ListingController@assign
+  POST            api/marketplace/listings/{listing}/bid ............ generated::pojpdZWC3buVI6sg › Api\Marketplace\ListingController@bid
+  GET|HEAD        api/marketplace/vendors .......................... generated::XBDeZa7DpGOxF5TV › Api\Marketplace\VendorController@index
+  POST            api/marketplace/vendors .......................... generated::W6PF1X9THCifaQOo › Api\Marketplace\VendorController@store
+  GET|HEAD        api/marketplace/vendors/{vendor} .................. generated::axL7XqWNmwXQm74v › Api\Marketplace\VendorController@show
+  PUT             api/marketplace/vendors/{vendor} ................ generated::lhzFxfqMM19G1C7j › Api\Marketplace\VendorController@update
+  GET|HEAD        api/mcp/api-key ............................................. generated::H2alXcfvQT1AeVVE › Api\McpController@getApiKey
+  POST            api/mcp/api-key/regenerate ........................... generated::LK6nSoBnTEjQFHvS › Api\McpController@regenerateApiKey
+  POST            api/mcp/get-token ............................................ generated::uBdWe7n64vJX6Ij7 › Api\McpController@getToken
+  POST            api/mcp/login ................................................... generated::p16kb3AZpfHVtarG › Api\McpController@login
+  POST            api/mcp/register ............................................. generated::bLhhSGn6mttvI0gV › Api\McpController@register
+  POST            api/mcp/validate-key ...................................... generated::r0BdaqFGbJFwtPA7 › Api\McpController@validateKey
+  GET|HEAD        api/messages/conversations .................... generated::wXjOqo3k9KcwbPyZ › Api\DirectMessageController@conversations
+  POST            api/messages/to/{user} ................................. generated::ywK3omzqupYWz0vw › Api\DirectMessageController@send
+  GET|HEAD        api/messages/unread ............................. generated::KMyLCIsVCuwQE4h7 › Api\DirectMessageController@unreadCount
+  GET|HEAD        api/messages/with/{user} ........................... generated::xEtMgyfevhhYsQDm › Api\DirectMessageController@messages
+  GET|HEAD        api/performance/cache/stats ....................... generated::pMH61in8QMWtbVaf › Api\Performance\CacheController@stats
+  DELETE          api/performance/cache/user ............... generated::V0vL84vWZWmi6MEU › Api\Performance\CacheController@clearUserCache
+  POST            api/performance/cache/warm-up .................... generated::FIP0vKb7mRBe0LSH › Api\Performance\CacheController@warmUp
+  GET|HEAD        api/processes ............................. processes.index › App\Modules\Processes\Controllers\ProcessController@index
+  POST            api/processes ............................. processes.store › App\Modules\Processes\Controllers\ProcessController@store
+  GET|HEAD        api/processes/executions generated::XHmOITKgj0jYQGPY › App\Modules\Processes\Controllers\ProcessExecutionController@in…
+  GET|HEAD        api/processes/executions/{execution} generated::v3aJREtG2U8xByja › App\Modules\Processes\Controllers\ProcessExecutionC…
+  GET|HEAD        api/processes/{process} ..................... processes.show › App\Modules\Processes\Controllers\ProcessController@show
+  PUT|PATCH       api/processes/{process} ................. processes.update › App\Modules\Processes\Controllers\ProcessController@update
+  DELETE          api/processes/{process} ............... processes.destroy › App\Modules\Processes\Controllers\ProcessController@destroy
+  POST            api/processes/{process}/execute generated::tPNg2ZTwwP6NI71p › App\Modules\Processes\Controllers\ProcessController@exec…
+  GET|HEAD        api/processes/{process}/executions generated::l2kUUDtRUnYFwqBX › App\Modules\Processes\Controllers\ProcessExecutionCon…
+  POST            api/processes/{process}/publish generated::cvpMch2mpsCdiDbj › App\Modules\Processes\Controllers\ProcessController@publ…
+  GET|HEAD        api/processes/{process}/steps ............. steps.index › App\Modules\Processes\Controllers\ProcessStepController@index
+  POST            api/processes/{process}/steps ............. steps.store › App\Modules\Processes\Controllers\ProcessStepController@store
+  GET|HEAD        api/processes/{process}/steps/{step} ........ steps.show › App\Modules\Processes\Controllers\ProcessStepController@show
+  PUT|PATCH       api/processes/{process}/steps/{step} .... steps.update › App\Modules\Processes\Controllers\ProcessStepController@update
+  DELETE          api/processes/{process}/steps/{step} .. steps.destroy › App\Modules\Processes\Controllers\ProcessStepController@destroy
+  GET|HEAD        api/profiles .................................... profiles.index › App\Modules\Core\Controllers\ProfileController@index
+  POST            api/profiles .................................... profiles.store › App\Modules\Core\Controllers\ProfileController@store
+  GET|HEAD        api/profiles/{profile} ............................ profiles.show › App\Modules\Core\Controllers\ProfileController@show
+  PUT|PATCH       api/profiles/{profile} ........................ profiles.update › App\Modules\Core\Controllers\ProfileController@update
+  DELETE          api/profiles/{profile} ...................... profiles.destroy › App\Modules\Core\Controllers\ProfileController@destroy
+  POST            api/profiles/{profile}/set-default ... profiles.set-default › App\Modules\Core\Controllers\ProfileController@setDefault
+  GET|HEAD        api/projects ................................ projects.index › App\Modules\Projects\Controllers\ProjectController@index
+  POST            api/projects ................................ projects.store › App\Modules\Projects\Controllers\ProjectController@store
+  GET|HEAD        api/projects/{project} ........................ projects.show › App\Modules\Projects\Controllers\ProjectController@show
+  PUT|PATCH       api/projects/{project} .................... projects.update › App\Modules\Projects\Controllers\ProjectController@update
+  DELETE          api/projects/{project} .................. projects.destroy › App\Modules\Projects\Controllers\ProjectController@destroy
+  GET|HEAD        api/projects/{project}/members generated::aNhT5Bw4XMs2uk4s › App\Modules\Projects\Controllers\ProjectMemberController@…
+  POST            api/projects/{project}/members generated::cK3XlOkoAk8bwgad › App\Modules\Projects\Controllers\ProjectMemberController@…
+  PUT             api/projects/{project}/members/{member} generated::iki2ws0bKmLB1Ziw › App\Modules\Projects\Controllers\ProjectMemberCo…
+  DELETE          api/projects/{project}/members/{member} generated::tEKcKkW99Xr3XSy8 › App\Modules\Projects\Controllers\ProjectMemberCo…
+  GET|HEAD        api/projects/{project}/stats ... generated::6kjGr8AqbdUID1eN › App\Modules\Projects\Controllers\ProjectController@stats
+  GET|HEAD        api/public/booking/{slug} ................ generated::HJ3aN2lTGl1sxh8u › Api\PublicBookingController@getAppointmentType
+  POST            api/public/booking/{slug}/book .............. generated::xUBfFHYdEFNxmKmE › Api\PublicBookingController@bookAppointment
+  GET|HEAD        api/public/booking/{slug}/slots ........... generated::nCbzUvqKt4zag9HJ › Api\PublicBookingController@getAvailableSlots
+  GET|HEAD        api/routing-rules ............................................... routing-rules.index › Api\RoutingRuleController@index
+  POST            api/routing-rules ............................................... routing-rules.store › Api\RoutingRuleController@store
+  POST            api/routing-rules/reorder ............................. generated::XNOmaxWr73hRLeLr › Api\RoutingRuleController@reorder
+  POST            api/routing-rules/test ................................... generated::mQk1zoEZH70qcyuC › Api\RoutingRuleController@test
+  GET|HEAD        api/routing-rules/{routing_rule} .................................. routing-rules.show › Api\RoutingRuleController@show
+  PUT|PATCH       api/routing-rules/{routing_rule} .............................. routing-rules.update › Api\RoutingRuleController@update
+  DELETE          api/routing-rules/{routing_rule} ............................ routing-rules.destroy › Api\RoutingRuleController@destroy
+  GET|HEAD        api/scanner/dashboard .................................... scanner.dashboard › Scanner\ScannerDashboardController@index
+  GET|HEAD        api/scanner/issues ........................................ scanner.issues.index › Scanner\ScannerIssueController@index
+  POST            api/scanner/issues/bulk ............................... scanner.issues.bulk › Scanner\ScannerIssueController@bulkUpdate
+  GET|HEAD        api/scanner/issues/{issue} .................................. scanner.issues.show › Scanner\ScannerIssueController@show
+  PUT             api/scanner/issues/{issue} .............................. scanner.issues.update › Scanner\ScannerIssueController@update
+  POST            api/scanner/issues/{issue}/fix ........................ scanner.issues.fix › Scanner\ScannerIssueController@generateFix
+  GET|HEAD        api/scanner/mcp/keys ................................... scanner.mcp.keys.index › Scanner\ScannerMcpController@listKeys
+  POST            api/scanner/mcp/keys .................................. scanner.mcp.keys.store › Scanner\ScannerMcpController@createKey
+  DELETE          api/scanner/mcp/keys/{key} .......................... scanner.mcp.keys.destroy › Scanner\ScannerMcpController@revokeKey
+  GET|HEAD        api/scanner/scans/{scan} ...................................... scanner.scans.show › Scanner\ScannerScanController@show
+  GET|HEAD        api/scanner/scans/{scan}/report ........................... scanner.scans.report › Scanner\ScannerScanController@report
+  GET|HEAD        api/scanner/sites ........................................... scanner.sites.index › Scanner\ScannerSiteController@index
+  POST            api/scanner/sites ........................................... scanner.sites.store › Scanner\ScannerSiteController@store
+  GET|HEAD        api/scanner/sites/{site} ...................................... scanner.sites.show › Scanner\ScannerSiteController@show
+  PUT|PATCH       api/scanner/sites/{site} .................................. scanner.sites.update › Scanner\ScannerSiteController@update
+  DELETE          api/scanner/sites/{site} ................................ scanner.sites.destroy › Scanner\ScannerSiteController@destroy
+  POST            api/scanner/sites/{site}/scan ................................ scanner.sites.scan › Scanner\ScannerScanController@store
+  GET|HEAD        api/scanner/sites/{site}/scans .............................. scanner.sites.scans › Scanner\ScannerScanController@index
+  GET|HEAD        api/scanner/usage ................................................ scanner.usage › Scanner\ScannerUsageController@index
+  POST            api/subscriptions/checkout . generated::x05FVO93xWUlUc2C › App\Modules\Core\Controllers\SubscriptionController@checkout
+  GET|HEAD        api/tasks ............................................ tasks.index › App\Modules\Tasks\Controllers\TaskController@index
+  POST            api/tasks ............................................ tasks.store › App\Modules\Tasks\Controllers\TaskController@store
+  POST            api/tasks/export/csv ............. generated::ePK2Z0fPwrCNEXMq › App\Modules\Tasks\Controllers\TaskController@exportCsv
+  POST            api/tasks/export/ical ... generated::Yr1dl65kGFOvQwiL › App\Modules\Tasks\Controllers\TaskController@exportIcalMultiple
+  POST            api/tasks/export/pdf ............. generated::GcLCPd5TdPD4V0hz › App\Modules\Tasks\Controllers\TaskController@exportPdf
+  POST            api/tasks/import/tef ............. generated::h0KW8UBpy43rDprt › App\Modules\Tasks\Controllers\TaskController@importTef
+  GET|HEAD        api/tasks/{task} ....................................... tasks.show › App\Modules\Tasks\Controllers\TaskController@show
+  PUT|PATCH       api/tasks/{task} ................................... tasks.update › App\Modules\Tasks\Controllers\TaskController@update
+  DELETE          api/tasks/{task} ................................. tasks.destroy › App\Modules\Tasks\Controllers\TaskController@destroy
+  POST            api/tasks/{task}/accept ............. generated::8IlvKaJ8KmZeNEts › App\Modules\Tasks\Controllers\TaskController@accept
+  POST            api/tasks/{task}/assign ............. generated::7cJg7lHgMXtpO69k › App\Modules\Tasks\Controllers\TaskController@assign
+  GET|HEAD        api/tasks/{task}/calendar/google generated::TJ575iCFYyKdnPVy › App\Modules\Tasks\Controllers\TaskController@googleCale…
+  GET|HEAD        api/tasks/{task}/calendar/outlook generated::qq5NxQquy9NIP6Ml › App\Modules\Tasks\Controllers\TaskController@outlookCa…
+  POST            api/tasks/{task}/complete ......... generated::fv59sxDyo9p6eO8A › App\Modules\Tasks\Controllers\TaskController@complete
+  POST            api/tasks/{task}/decline ........... generated::25mRYRVO9I3I8Xyv › App\Modules\Tasks\Controllers\TaskController@decline
+  GET|HEAD        api/tasks/{task}/export/ical .... generated::NCwSvGi7txKpS1Cf › App\Modules\Tasks\Controllers\TaskController@exportIcal
+  GET|HEAD        api/tasks/{task}/export/tef ...... generated::TjYtUc3dZxyXeGns › App\Modules\Tasks\Controllers\TaskController@exportTef
+  POST            api/tasks/{task}/invite ... generated::ErBGbMtFkNigfQpU › App\Modules\Tasks\Controllers\TaskController@createInvitation
+  GET|HEAD        api/tasks/{task}/invite/{inviteCode} generated::IIi94TllOjoneAD0 › App\Modules\Tasks\Controllers\TaskController@getByI…
+  POST            api/tasks/{task}/invite/{inviteCode}/accept generated::uldVJ2gWtsXLV4WP › App\Modules\Tasks\Controllers\TaskController…
+  POST            api/tasks/{task}/invite/{inviteCode}/decline generated::uJNr1aONRTwf3hbr › App\Modules\Tasks\Controllers\TaskControlle…
+  GET|HEAD        api/tasks/{task}/messages ......... generated::Fa6aMdrXf7ojDw7t › App\Modules\Tasks\Controllers\TaskController@messages
+  POST            api/tasks/{task}/messages ...... generated::2kbC82hX6smSkLg6 › App\Modules\Tasks\Controllers\TaskController@sendMessage
+  POST            api/tasks/{task}/messages/read generated::HuTaUfBsSHxmaoj3 › App\Modules\Tasks\Controllers\TaskController@markMessages…
+  GET|HEAD        api/tasks/{task}/messages/unread generated::tGyFBTR5qjeNsFFT › App\Modules\Tasks\Controllers\TaskController@unreadCount
+  GET|HEAD        api/tasks/{task}/tef ................. generated::bkr7ox196Qv15Mox › App\Modules\Tasks\Controllers\TaskController@toTef
+  GET|HEAD        api/tasks/{task}/tef/envelope generated::eN7jiFhqFuvbsCUu › App\Modules\Tasks\Controllers\TaskController@exportTefEnve…
+  GET|HEAD        api/tasks/{task}/timeline ......... generated::H9g2INaWGOA1TIrA › App\Modules\Tasks\Controllers\TaskController@timeline
+  PUT             api/tasks/{task}/timeline ... generated::9QfuBPCirROcOc2H › App\Modules\Tasks\Controllers\TaskController@updateTimeline
+  POST            api/tasks/{task}/watch ............... generated::dZOIcyoYPPAmhVQi › App\Modules\Tasks\Controllers\TaskController@watch
+  GET|HEAD        api/team ........................................................................ team.index › Api\TeamController@index
+  POST            api/team ........................................................................ team.store › Api\TeamController@store
+  GET|HEAD        api/team/{team} ................................................................... team.show › Api\TeamController@show
+  PUT|PATCH       api/team/{team} ............................................................... team.update › Api\TeamController@update
+  DELETE          api/team/{team} ............................................................. team.destroy › Api\TeamController@destroy
+  GET|HEAD        api/teams ...................................................... generated::DHNviDy9AyNlkEvt › Api\TeamController@index
+  POST            api/teams ...................................................... generated::pFEhAlJu8xshBtxK › Api\TeamController@store
+  GET|HEAD        api/teams/invite/{inviteCode} .......................... generated::fzdQcBY6y1kEP32m › Api\TeamController@getInvitation
+  POST            api/teams/join/{inviteCode} ......................... generated::JwY1xA5m7lPYUWBX › Api\TeamController@acceptInvitation
+  GET|HEAD        api/teams/{team} ................................................ generated::ckSHbcmCNEKcwRUo › Api\TeamController@show
+  PUT             api/teams/{team} .............................................. generated::ze7yqa3BPwrPrmYK › Api\TeamController@update
+  DELETE          api/teams/{team} ............................................. generated::c7sCE5V05UViIm9H › Api\TeamController@destroy
+  POST            api/teams/{team}/invite ....................................... generated::x1o2DLbThaIA7pTU › Api\TeamController@invite
+  POST            api/teams/{team}/leave ......................................... generated::aYZMlKlZUuLxCTd6 › Api\TeamController@leave
+  GET|HEAD        api/teams/{team}/members ..................................... generated::g6Fhlz9JrIdKT3Lv › Api\TeamController@members
+  DELETE          api/teams/{team}/members/{user} ......................... generated::dVKpShw9vHUkqt4C › Api\TeamController@removeMember
+  GET|HEAD        api/teams/{team}/tasks ......................................... generated::sXcT8NcBW1thFkJF › Api\TeamController@tasks
+  POST            api/tef/v1/actors ...................................... generated::aXkhw8K2IWfMZC89 › Api\TEF\ActorController@register
+  POST            api/tef/v1/actors/claim ................................... generated::g3krc3VdAluf5FPf › Api\TEF\ActorController@claim
+  GET|HEAD        api/tef/v1/actors/{id} ..................................... generated::ZrpyjlNQz3ax4lLX › Api\TEF\ActorController@show
+  PUT             api/tef/v1/actors/{id} ................................... generated::8Ez3ZvQliKwTi4mW › Api\TEF\ActorController@update
+  DELETE          api/tef/v1/actors/{id} .................................. generated::UvIeiHvLRKNN3x10 › Api\TEF\ActorController@destroy
+  POST            api/tef/v1/actors/{id}/authenticate ................ generated::zjJuqZXwlOrANwPC › Api\TEF\ActorController@authenticate
+  GET|HEAD        api/tef/v1/actors/{id}/capabilities ................ generated::XdpNR5Ouyjb6OxyO › Api\TEF\ActorController@capabilities
+  GET|HEAD        api/tef/v1/conversations/task/{taskId} ............ generated::A0kx9pHtdYbKy0w2 › Api\TEF\ConversationController@byTask
+  GET|HEAD        api/tef/v1/conversations/{id} ....................... generated::oXE8l4onYpGBqlPh › Api\TEF\ConversationController@show
+  POST            api/tef/v1/messages ..................................... generated::W1JgibPM1o7M0GRX › Api\TEF\MessageController@store
+  GET|HEAD        api/tef/v1/messages ..................................... generated::GCWuWr2lC1ev4sKl › Api\TEF\MessageController@index
+  GET|HEAD        api/tef/v1/messages/{id} ................................. generated::UzUiWqjPn1jku4No › Api\TEF\MessageController@show
+  POST            api/tef/v1/messages/{id}/read ........................ generated::CBBbXdz2hOtM0Bmo › Api\TEF\MessageController@markRead
+  POST            api/tef/v1/relationships ........................... generated::S11J34bC5jcdukZy › Api\TEF\RelationshipController@store
+  GET|HEAD        api/tef/v1/relationships ........................... generated::V8bdugZaY7IQOFbT › Api\TEF\RelationshipController@index
+  GET|HEAD        api/tef/v1/relationships/{id} ....................... generated::oXcqvPu8PvaKOsBi › Api\TEF\RelationshipController@show
+  PUT             api/tef/v1/relationships/{id} ..................... generated::kaTGj4KzAC5ruWU1 › Api\TEF\RelationshipController@update
+  DELETE          api/tef/v1/relationships/{id} .................... generated::6ZYocxg1oogK97D1 › Api\TEF\RelationshipController@destroy
+  GET|HEAD        api/tef/v1/relationships/{id}/history ............ generated::LRfxUeugnSM1sVUQ › Api\TEF\RelationshipController@history
+  GET|HEAD        api/tef/v1/relationships/{id}/trust-score ............. generated::s6Vc7hzftzeXp3Cv › Api\TEF\TrustScoreController@show
+  PUT             api/tef/v1/relationships/{id}/trust-score ........... generated::gwS6d4lksxnMJTAn › Api\TEF\TrustScoreController@update
+  POST            api/tef/v1/relationships/{id}/trust-score/recalculate generated::wLpQfDwEXyHKE3CO › Api\TEF\TrustScoreController@recal…
+  POST            api/test-fix/analyze .......................................... generated::U0ZlwSfB58f7978n › TestFixController@analyze
+  POST            api/test-fix/apply ......................................... generated::pQ8A1v3hwHRleggc › TestFixController@applyFixes
+  GET|HEAD        api/test-results/all ................................ generated::sE8G4PWCOID6gGOd › TestResultsController@getAllResults
+  GET|HEAD        api/test-results/latest .......................... generated::RnUSnxhN7dvmhywr › TestResultsController@getLatestResults
+  POST            api/test-results/run ..................................... generated::fveOgaLzWVfh3aXT › TestResultsController@runTests
+  GET|HEAD        api/test-results/{filename} ............................. generated::JHgPQo9abevvKzHU › TestResultsController@getResult
+  GET|HEAD        api/urpa/activities ............... generated::g8iFn1RQtLOqSBBc › App\Modules\Urpa\Controllers\ActivityController@index
+  POST            api/urpa/activities ............... generated::RXXyrsyd0gbwGuT7 › App\Modules\Urpa\Controllers\ActivityController@store
+  POST            api/urpa/activities/sync ........... generated::RoeySofVRGAwRupX › App\Modules\Urpa\Controllers\ActivityController@sync
+  GET|HEAD        api/urpa/activities/{id} ........... generated::xBHZaanSGoD4vghQ › App\Modules\Urpa\Controllers\ActivityController@show
+  PUT             api/urpa/activities/{id} ......... generated::2OSX3STW4NbyYfpv › App\Modules\Urpa\Controllers\ActivityController@update
+  DELETE          api/urpa/activities/{id} ........ generated::R3OqXmW0qJ5TVuF5 › App\Modules\Urpa\Controllers\ActivityController@destroy
+  PATCH           api/urpa/activities/{id}/read generated::EN9iOVHsElU5XEXw › App\Modules\Urpa\Controllers\ActivityController@markAsRead
+  PATCH           api/urpa/activities/{id}/star generated::BRmOWkYQu46MQGti › App\Modules\Urpa\Controllers\ActivityController@toggleStar
+  GET|HEAD        api/urpa/ai/artifacts ............... generated::JtMOKzgIVeOgU4Wm › App\Modules\Urpa\Controllers\AiController@artifacts
+  POST            api/urpa/ai/artifacts ........ generated::FfvfLzjG8SOP1UOL › App\Modules\Urpa\Controllers\AiController@generateArtifact
+  GET|HEAD        api/urpa/ai/sessions ................. generated::lkit4AOismcT8Q1x › App\Modules\Urpa\Controllers\AiController@sessions
+  POST            api/urpa/ai/sessions ............ generated::nh9fLJ0LOyR0jG9h › App\Modules\Urpa\Controllers\AiController@createSession
+  PATCH           api/urpa/ai/sessions/{id}/complete generated::nr9k8WbdJjIkOOV8 › App\Modules\Urpa\Controllers\AiController@completeSes…
+  GET|HEAD        api/urpa/ai/sessions/{id}/messages generated::w9olMzD2ZDQgekx8 › App\Modules\Urpa\Controllers\AiController@getMessages
+  POST            api/urpa/ai/sessions/{id}/messages generated::Ko9p9nm6HfxSzX3y › App\Modules\Urpa\Controllers\AiController@sendMessage
+  GET|HEAD        api/urpa/ai/tasks ....................... generated::qVD1XJevCubpWBYf › App\Modules\Urpa\Controllers\AiController@tasks
+  GET|HEAD        api/urpa/contacts .................. generated::q2omAxQ2CQbvfGfm › App\Modules\Urpa\Controllers\ContactController@index
+  POST            api/urpa/contacts .................. generated::1BbSWZ83aLy7nSs6 › App\Modules\Urpa\Controllers\ContactController@store
+  POST            api/urpa/contacts/import .......... generated::lmN8qeTpcW7Qn0NS › App\Modules\Urpa\Controllers\ContactController@import
+  GET|HEAD        api/urpa/contacts/{id} .............. generated::iKBo7ZNC8aijVEKM › App\Modules\Urpa\Controllers\ContactController@show
+  PUT             api/urpa/contacts/{id} ............ generated::eMDryi6X6KpWSrkK › App\Modules\Urpa\Controllers\ContactController@update
+  DELETE          api/urpa/contacts/{id} ........... generated::aXJSlR1H7IxAaeup › App\Modules\Urpa\Controllers\ContactController@destroy
+  GET|HEAD        api/urpa/integrations .......... generated::o6wu8RhD3A261ro9 › App\Modules\Urpa\Controllers\IntegrationController@index
+  POST            api/urpa/integrations .......... generated::KvBjBG7p6qTxxYHn › App\Modules\Urpa\Controllers\IntegrationController@store
+  GET|HEAD        api/urpa/integrations/fibonacci/crm/business/{businessId} generated::FWCVdJVOUjeFGCXX › App\Modules\Urpa\Controllers\F…
+  GET|HEAD        api/urpa/integrations/fibonacci/crm/business/{businessId}/faqs generated::0tuu4KMN71u0QBAW › App\Modules\Urpa\Controll…
+  GET|HEAD        api/urpa/integrations/fibonacci/crm/business/{businessId}/polls generated::EoxMVs5E5RmDXbYX › App\Modules\Urpa\Control…
+  POST            api/urpa/integrations/fibonacci/crm/business/{businessId}/sync-faqs generated::dwkHlbIyxgUEJxwi › App\Modules\Urpa\Con…
+  POST            api/urpa/integrations/fibonacci/crm/link generated::D232ijzMtgfB7zSG › App\Modules\Urpa\Controllers\FibonacciControlle…
+  POST            api/urpa/integrations/fibonacci/publishing/link generated::UjB02lvf4D0YUVTm › App\Modules\Urpa\Controllers\FibonacciCo…
+  GET|HEAD        api/urpa/integrations/fibonacci/publishing/team/{teamId} generated::peHLaqKsIwRP2QwZ › App\Modules\Urpa\Controllers\Fi…
+  GET|HEAD        api/urpa/integrations/fibonacci/publishing/teams/{teamId}/projects generated::7dxhWIRyO8sMWXMH › App\Modules\Urpa\Cont…
+  POST            api/urpa/integrations/fibonacci/publishing/teams/{teamId}/projects generated::MN78BS7XUg57UlTd › App\Modules\Urpa\Cont…
+  GET|HEAD        api/urpa/integrations/fibonacci/status generated::NMOethA6l5LDNmVJ › App\Modules\Urpa\Controllers\FibonacciController@…
+  GET|HEAD        api/urpa/integrations/oauth/{provider}/callback generated::HltCx9rg9EcwdwWT › App\Modules\Urpa\Controllers\Integration…
+  GET|HEAD        api/urpa/integrations/oauth/{provider}/redirect generated::6Asjc5cXUbUvJtmI › App\Modules\Urpa\Controllers\Integration…
+  POST            api/urpa/integrations/taskjuggler/link generated::DOlzRcAArIarhHX5 › App\Modules\Urpa\Controllers\TaskJugglerControlle…
+  GET|HEAD        api/urpa/integrations/taskjuggler/status generated::VTu5AwZMqrR18fpy › App\Modules\Urpa\Controllers\TaskJugglerControl…
+  POST            api/urpa/integrations/taskjuggler/sync generated::pGoA5tF6K3UOTfvh › App\Modules\Urpa\Controllers\TaskJugglerControlle…
+  GET|HEAD        api/urpa/integrations/taskjuggler/tasks generated::m9DqobFTG2GrDEmz › App\Modules\Urpa\Controllers\TaskJugglerControll…
+  POST            api/urpa/integrations/taskjuggler/tasks generated::eyNV2uZhw9lwxqmV › App\Modules\Urpa\Controllers\TaskJugglerControll…
+  GET|HEAD        api/urpa/integrations/{id} ...... generated::Hhe0LsM3qVuyjjBH › App\Modules\Urpa\Controllers\IntegrationController@show
+  PUT             api/urpa/integrations/{id} .... generated::yPvupLXjqZXmb1Rv › App\Modules\Urpa\Controllers\IntegrationController@update
+  DELETE          api/urpa/integrations/{id} ... generated::wPUkLWMRWjpbrrwB › App\Modules\Urpa\Controllers\IntegrationController@destroy
+  POST            api/urpa/integrations/{id}/sync . generated::F9fZNduyCmZpiToZ › App\Modules\Urpa\Controllers\IntegrationController@sync
+  GET|HEAD        api/urpa/integrations/{id}/sync-status generated::vTn5YYMG8tef2E3N › App\Modules\Urpa\Controllers\IntegrationControlle…
+  GET|HEAD        api/urpa/phone/calls ................. generated::VHeVsrLzRZH5qjHZ › App\Modules\Urpa\Controllers\PhoneController@index
+  POST            api/urpa/phone/calls ................. generated::9lpa6mLTyqaXmKQU › App\Modules\Urpa\Controllers\PhoneController@store
+  GET|HEAD        api/urpa/phone/calls/{id} ............. generated::1hETIINp9fdZsF8b › App\Modules\Urpa\Controllers\PhoneController@show
+  PUT             api/urpa/phone/calls/{id} ........... generated::ATJe1G0CaQaCSAGt › App\Modules\Urpa\Controllers\PhoneController@update
+  PATCH           api/urpa/phone/calls/{id}/complete generated::ixETVMA4xH3SraUq › App\Modules\Urpa\Controllers\PhoneController@complete
+  POST            api/urpa/voice/find-response .. generated::9Bbpcos8PBaUzRwt › App\Modules\Urpa\Controllers\VoiceController@findResponse
+  GET|HEAD        api/urpa/voice/prerecorded generated::kIEy25biqZ4eRRaA › App\Modules\Urpa\Controllers\VoiceController@getPrerecordedRe…
+  POST            api/urpa/voice/prerecorded/bulk generated::i0PXu1pcC15bfIPB › App\Modules\Urpa\Controllers\VoiceController@bulkCreateR…
+  POST            api/urpa/voice/prerecorded/{id}/used generated::YFEPasymgH4YwnZr › App\Modules\Urpa\Controllers\VoiceController@logUsa…
+  POST            api/urpa/voice/vapi/call .......... generated::UbqUTIXJdSw9KvMQ › App\Modules\Urpa\Controllers\VapiController@startCall
+  GET|HEAD        api/urpa/voice/vapi/call/{callId} generated::LPZb8IjTERZmQray › App\Modules\Urpa\Controllers\VapiController@getCallSta…
+  POST            api/urpa/voice/vapi/call/{callId}/end generated::e6gnNblRfkRGQSb6 › App\Modules\Urpa\Controllers\VapiController@endCall
+  POST            api/urpa/voice/vapi/webhook .... generated::ufuZOfhAD2lausMw › App\Modules\Urpa\Controllers\VoiceController@vapiWebhook
+  GET|HEAD        api/vendor/dashboard ......................... generated::v2shgg9I4kHaNftq › Api\Marketplace\VendorController@dashboard
+  GET|HEAD        api/vendor/earnings ........................... generated::44um14eMcjGmJ1yO › Api\Marketplace\VendorController@earnings
+  GET|HEAD        api/vendor/jobs ................................... generated::yUpwN1EPmhg16cGm › Api\Marketplace\VendorController@jobs
+  POST            api/webhooks/sendgrid/inbound ......................... webhooks.sendgrid.inbound › Webhooks\SendGridController@inbound
+  POST            api/webhooks/stripe ......... generated::FHXCN15aqCffc8WT › App\Modules\Core\Controllers\StripeWebhookController@handle
+  POST            api/webhooks/twilio/recording/{user} .................. webhooks.twilio.recording › Webhooks\TwilioController@recording
+  POST            api/webhooks/twilio/sms/{user} .................................... webhooks.twilio.sms › Webhooks\TwilioController@sms
+  POST            api/webhooks/twilio/transcription/{user} ...... webhooks.twilio.transcription › Webhooks\TwilioController@transcription
+  POST            api/webhooks/twilio/voice/{user} .............................. webhooks.twilio.voice › Webhooks\TwilioController@voice
+  GET|POST|HEAD   broadcasting/auth ............ generated::N4npU9JQFi5kNYGY › Illuminate\Broadcasting › BroadcastController@authenticate
+  GET|HEAD        docs/api ............................................................................................. scramble.docs.ui
+  GET|HEAD        docs/api.json .................................................................................. scramble.docs.document
+  POST            mcp/message ................................................ mcp.message › PhpMcp\Laravel › McpController@handleMessage
+  GET|HEAD        mcp/sse ............................................................ mcp.sse › PhpMcp\Laravel › McpController@handleSse
+  GET|HEAD        sanctum/csrf-cookie ................................. sanctum.csrf-cookie › Laravel\Sanctum › CsrfCookieController@show
+  GET|HEAD        storage/{path} .......................................................................................... storage.local
+  GET|HEAD        up ........................................................................................ generated::f0vHXfUv2BBFULCx
+  GET|HEAD        {any} ..................................................................................... generated::RAnfoHBGRBUhRrRI
+
+                                                                                                                     Showing [353] routes
+

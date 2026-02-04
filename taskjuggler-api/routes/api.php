@@ -62,10 +62,14 @@ if (file_exists(base_path('routes/coordinator.php'))) {
     require base_path('routes/coordinator.php');
 }
 
+// Load 4Doctors module routes
+require base_path('app/Modules/Doctors/Routes/api.php');
+
 // Load URPA module routes
 Route::prefix('urpa')->group(function () {
     require base_path('app/Modules/Urpa/Routes/api.php');
 });
+
 
 // Broadcasting authentication routes (must be before auth middleware)
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
@@ -166,7 +170,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/relationships/{id}', [RelationshipController::class, 'update']);
         Route::delete('/relationships/{id}', [RelationshipController::class, 'destroy']);
         Route::get('/relationships/{id}/history', [RelationshipController::class, 'history']);
-        
+
         // Trust Scores
         Route::get('/relationships/{id}/trust-score', [\App\Http\Controllers\Api\TEF\TrustScoreController::class, 'show']);
         Route::put('/relationships/{id}/trust-score', [\App\Http\Controllers\Api\TEF\TrustScoreController::class, 'update']);
@@ -232,16 +236,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('scanner')->group(function () {
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index']);
-        
+
         // Sites
         Route::apiResource('sites', SiteController::class);
         Route::post('/sites/{site}/scan', [ScanController::class, 'store']);
         Route::get('/sites/{site}/scans', [ScanController::class, 'index']);
-        
+
         // Scans
         Route::get('/scans/{scan}', [ScanController::class, 'show']);
         Route::get('/scans/{scan}/report', [ScanController::class, 'report']);
-        
+
         // Issues
         Route::get('/issues', [IssueController::class, 'index']);
         Route::get('/issues/{issue}', [IssueController::class, 'show']);
@@ -257,7 +261,7 @@ Route::middleware('auth:sanctum')->group(function () {
             // Dashboard
             Route::get('dashboard', [ScannerDashboardController::class, 'index'])->name('scanner.dashboard');
             Route::get('usage', [ScannerUsageController::class, 'index'])->name('scanner.usage');
-            
+
             // Sites (with limit check)
             Route::apiResource('sites', ScannerSiteController::class)
                 ->middleware(CheckScannerLimits::class)
@@ -268,7 +272,7 @@ Route::middleware('auth:sanctum')->group(function () {
                     'update' => 'scanner.sites.update',
                     'destroy' => 'scanner.sites.destroy',
                 ]);
-            
+
             // Scans
             Route::get('sites/{site}/scans', [ScannerScanController::class, 'index'])->name('scanner.sites.scans');
             Route::post('sites/{site}/scan', [ScannerScanController::class, 'store'])
@@ -276,14 +280,14 @@ Route::middleware('auth:sanctum')->group(function () {
                 ->name('scanner.sites.scan');
             Route::get('scans/{scan}', [ScannerScanController::class, 'show'])->name('scanner.scans.show');
             Route::get('scans/{scan}/report', [ScannerScanController::class, 'report'])->name('scanner.scans.report');
-            
+
             // Issues
             Route::get('issues', [ScannerIssueController::class, 'index'])->name('scanner.issues.index');
             Route::get('issues/{issue}', [ScannerIssueController::class, 'show'])->name('scanner.issues.show');
             Route::put('issues/{issue}', [ScannerIssueController::class, 'update'])->name('scanner.issues.update');
             Route::post('issues/bulk', [ScannerIssueController::class, 'bulkUpdate'])->name('scanner.issues.bulk');
             Route::post('issues/{issue}/fix', [ScannerIssueController::class, 'generateFix'])->name('scanner.issues.fix');
-            
+
             // MCP API Key Management
             Route::prefix('mcp')->group(function () {
                 Route::get('keys', [ScannerMcpController::class, 'listKeys'])->name('scanner.mcp.keys.index');
@@ -291,6 +295,18 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::delete('keys/{key}', [ScannerMcpController::class, 'revokeKey'])->name('scanner.mcp.keys.destroy');
             });
         });
+
+    // AI Gateway Integration
+    Route::prefix('ai/v1')->group(function () {
+        Route::post('/tasks', [\App\Http\Controllers\Api\TaskApiController::class, 'store']);
+        Route::put('/tasks/{id}', [\App\Http\Controllers\Api\TaskApiController::class, 'update']);
+        Route::post('/tasks/{id}/complete', [\App\Http\Controllers\Api\TaskApiController::class, 'complete']);
+        Route::post('/tasks/{id}/assign', [\App\Http\Controllers\Api\TaskApiController::class, 'assign']);
+
+        // Frontend Access to AI Tools
+        Route::get('/tools', [\App\Http\Controllers\Api\AiToolsController::class, 'index']);
+        Route::post('/tools/{tool}', [\App\Http\Controllers\Api\AiToolsController::class, 'execute']);
+    });
 });
 
 // MCP (Model Context Protocol) routes
@@ -298,11 +314,11 @@ Route::prefix('mcp')->group(function () {
     // Public registration/login
     Route::post('/register', [McpController::class, 'register']);
     Route::post('/login', [McpController::class, 'login']);
-    
+
     // API key validation (for MCP server)
     Route::post('/validate-key', [McpController::class, 'validateKey']);
     Route::post('/get-token', [McpController::class, 'getToken']);
-    
+
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/api-key', [McpController::class, 'getApiKey']);
