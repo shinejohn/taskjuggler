@@ -4,6 +4,7 @@ export interface User {
     email: string;
     role?: string;
     avatar_url?: string;
+    specialty?: string;
 }
 
 export interface LoginResponse {

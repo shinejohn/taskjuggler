@@ -143,7 +143,7 @@ import {
     AlertOctagon, CheckCircle2, Send 
 } from 'lucide-vue-next';
 import Card from '@/components/ui/Card.vue';
-import Badge from '@/components/ui/Badge.vue';
+// import Badge from '@/components/ui/Badge.vue';
 
 const medicationQuery = ref('');
 

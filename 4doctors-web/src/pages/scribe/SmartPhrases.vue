@@ -92,7 +92,7 @@
                     </div>
                 </div>
                 
-                <div class="p-4 space-y-4 flex-1 overflow-y-auto">
+                <div v-if="selectedPhrase" class="p-4 space-y-4 flex-1 overflow-y-auto">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-slate-500 uppercase">Trigger</label>
@@ -117,6 +117,9 @@
                         </label>
                         <textarea v-model="selectedPhrase.content" class="flex-1 w-full p-4 border border-slate-200 rounded-lg font-mono text-sm leading-relaxed resize-none focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50"></textarea>
                     </div>
+                </div>
+                <div v-else class="p-8 text-center text-slate-400 flex flex-col items-center justify-center h-full">
+                    <p>Select a phrase to edit</p>
                 </div>
             </Card>
 
@@ -159,7 +162,7 @@ import {
     Languages, Minimize2, Maximize2 
 } from 'lucide-vue-next';
 import Card from '@/components/ui/Card.vue';
-import Badge from '@/components/ui/Badge.vue';
+// import Badge from '@/components/ui/Badge.vue';
 
 const categories = [
     { id: 'all', name: 'All Phrases', count: 42 },

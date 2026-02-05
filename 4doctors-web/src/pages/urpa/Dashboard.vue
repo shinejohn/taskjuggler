@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { Bot, Mic, Calendar, Command, Mail, Phone, Search, GitBranch } from 'lucide-vue-next';
+import { Bot, Mic, Calendar, Command, Mail, Phone, GitBranch } from 'lucide-vue-next';
 import { onMounted } from 'vue';
 import { aiService } from '@/services/ai';
 

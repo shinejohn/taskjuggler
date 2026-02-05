@@ -105,7 +105,7 @@ import '@vue-flow/controls/dist/style.css';
 import '@vue-flow/minimap/dist/style.css';
 
 import { 
-    ArrowLeft, Play, Save, Plus, Minus, Zap, Mail, GitBranch, Clock,
+    ArrowLeft, Play, Save, Mail, GitBranch, Clock,
     MessageSquare, CheckSquare, Calendar
 } from 'lucide-vue-next';
 
@@ -153,7 +153,7 @@ const onDrop = (event: DragEvent) => {
   const data = event.dataTransfer?.getData('application/vueflow');
   if (!data) return;
   
-  const { type, subtype } = JSON.parse(data);
+  const { subtype } = JSON.parse(data);
   const position = {
       x: event.clientX - 300, // Adjust for sidebar offset approximation
       y: event.clientY - 100
