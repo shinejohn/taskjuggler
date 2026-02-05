@@ -14,7 +14,7 @@ onMounted(async () => {
     loading.value = true
     try {
         teams.value = await teamsApi.list()
-        if (teams.value.length > 0) {
+        if (teams.value && teams.value[0]) {
             selectTeam(teams.value[0])
         }
     } catch (e) {

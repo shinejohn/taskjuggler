@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import SignUpPageTemplate from '../../../shared-ui/src/templates/auth/SignUpPageTemplate.vue'
+import SignUpPageTemplate from '@taskjuggler/ui/templates/auth/SignUpPageTemplate.vue'
 import { CheckSquare } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'

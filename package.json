@@ -11,8 +11,8 @@
     "projects-web",
     "process-web",
     "ideacircuit-web",
-    "4doctors-web",
-    "official-notice-web"
+    "official-notice-web",
+    "4doctors-web"
   ],
   "scripts": {
     "install:all": "npm install",

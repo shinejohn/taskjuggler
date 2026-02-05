@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import ResetPasswordPageTemplate from '../../../shared-ui/src/templates/auth/ResetPasswordPageTemplate.vue'
+import ResetPasswordPageTemplate from '@taskjuggler/ui/templates/auth/ResetPasswordPageTemplate.vue'
 import { CheckSquare } from 'lucide-vue-next'
 import api from '@/utils/api'
 import { useRouter, useRoute } from 'vue-router'

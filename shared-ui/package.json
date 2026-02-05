@@ -7,6 +7,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./*": "./src/*",
     "./styles": "./src/styles.css",
     "./styles.css": "./src/styles.css"
   },

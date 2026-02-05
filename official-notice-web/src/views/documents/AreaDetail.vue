@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { areasApi } from '../../services/api'
-import type { DocumentArea, Document } from '../../types'
+import type { DocumentArea } from '../../types'
 
 const route = useRoute()
 const router = useRouter()
@@ -34,13 +34,12 @@ const loadArea = async () => {
     }
 }
 
-const onFileChange = (e: Event) => {
-    const target = e.target as HTMLInputElement
+const onFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement
     if (target.files && target.files.length > 0) {
-        selectedFile.value = target.files[0]
-        if (!uploadTitle.value) {
-            uploadTitle.value = target.files[0].name.replace(/\.[^/.]+$/, "")
-        }
+        selectedFile.value = target.files[0]!
+        // Default title to filename without extension
+        uploadTitle.value = target.files[0]!.name.replace(/\.[^/.]+$/, "")
     }
 }
 

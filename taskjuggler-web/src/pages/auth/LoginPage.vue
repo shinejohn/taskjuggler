@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import LoginPageTemplate from '../../../shared-ui/src/templates/auth/LoginPageTemplate.vue'
+import LoginPageTemplate from '@taskjuggler/ui/templates/auth/LoginPageTemplate.vue'
 import { CheckSquare } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
@@ -28,7 +28,7 @@ import api from '@/utils/api'
 const router = useRouter()
 const authStore = useAuthStore()
 
-async function handleLogin(email: string, password: string, rememberMe: boolean): Promise<void> {
+async function handleLogin(email: string, password: string, _rememberMe: boolean): Promise<void> {
   await authStore.login(email, password)
   authStore.fetchUser()
   router.push('/dashboard')

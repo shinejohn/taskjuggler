@@ -89,15 +89,21 @@ const getCoords = (event: MouseEvent | TouchEvent) => {
     if (!canvas.value) return { x: 0, y: 0 }
     const rect = canvas.value.getBoundingClientRect()
     
-    let clientX, clientY
+    let clientX: number = 0
+    let clientY: number = 0
+
     if (window.TouchEvent && event instanceof TouchEvent) {
-        clientX = event.touches[0].clientX
-        clientY = event.touches[0].clientY
+        if (event.touches && event.touches.length > 0) {
+          clientX = event.touches[0]!.clientX
+          clientY = event.touches[0]!.clientY
+        } else {
+             return { x: 0, y: 0 }
+        }
     } else {
         clientX = (event as MouseEvent).clientX
         clientY = (event as MouseEvent).clientY
     }
-    
+
     return {
         x: clientX - rect.left,
         y: clientY - rect.top
@@ -149,7 +155,7 @@ const emitSignature = () => {
     emit('update:signature', data)
 }
 
-watch(agreed, (val) => {
+watch(agreed, () => {
     // Parent might want to know about agreement separately, 
     // or we just gate the export. For now simpler to just let parent handle enabling 'Submit' 
     // based on signature presence + strict agreement checkbox in parent form, 

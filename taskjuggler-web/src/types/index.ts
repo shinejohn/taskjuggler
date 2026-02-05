@@ -4,8 +4,9 @@ export interface User {
   name: string;
   phone?: string;
   timezone: string;
-  plan: 'free' | 'starter' | 'pro' | 'business';
+  plan: 'free' | 'starter' | 'pro' | 'business' | 'enterprise';
   settings: Record<string, any>;
+  created_at?: string;
 }
 
 export interface Task {

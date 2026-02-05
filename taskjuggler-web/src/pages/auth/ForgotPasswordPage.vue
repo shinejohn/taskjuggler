@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import ForgotPasswordPageTemplate from '../../../shared-ui/src/templates/auth/ForgotPasswordPageTemplate.vue'
+import ForgotPasswordPageTemplate from '@taskjuggler/ui/templates/auth/ForgotPasswordPageTemplate.vue'
 import { CheckSquare } from 'lucide-vue-next'
 import api from '@/utils/api'
 

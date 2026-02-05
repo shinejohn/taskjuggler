@@ -27,4 +27,7 @@ export default defineConfig({
     sourcemap: false,
     minify: 'esbuild',
   },
+  preview: {
+    allowedHosts: ['idea-circuit-production.up.railway.app'],
+  },
 })
