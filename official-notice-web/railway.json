@@ -2,8 +2,8 @@
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
         "builder": "NIXPACKS",
-        "buildCommand": "npm install && npm run build -w shared-ui && npm run build -w official-notice-web",
-        "startCommand": "npm run start -w official-notice-web"
+        "buildCommand": "npm install --workspaces && npm run build --workspace=shared-ui && npm run build --workspace=official-notice-web",
+        "startCommand": "npm run start --workspace=official-notice-web"
     },
     "deploy": {
         "numReplicas": 1,
