@@ -122,15 +122,20 @@ const stepGreetings: Record<string, string> = {
 
 // Watch for step changes to trigger new greetings
 watch(() => props.currentStep, async (newStep) => {
-  if (stepGreetings[newStep]) {
+  const greeting = stepGreetings[newStep];
+  if (greeting) {
     isTyping.value = true;
     setTimeout(() => {
-      messages.value.push({ role: 'assistant', content: stepGreetings[newStep] });
+      messages.value.push({ role: 'assistant', content: greeting });
       isTyping.value = false;
       scrollToBottom();
     }, 800);
   }
 }, { immediate: true });
+
+const handleAction = (action: { label: string; handler: () => void }) => {
+  action.handler();
+};
 
 const scrollToBottom = async () => {
   await nextTick();

@@ -20,8 +20,8 @@ export const useOnboardingStore = defineStore('onboarding', () => {
 
     // Settings State
     const profileSettings = ref({
-        firstName: authStore.user?.first_name || '',
-        lastName: authStore.user?.last_name || '',
+        firstName: authStore.user?.name.split(' ')[0] || '',
+        lastName: authStore.user?.name.split(' ').slice(1).join(' ') || '',
         role: authStore.user?.role || '',
         specialty: '',
         phone: '',
@@ -47,14 +47,14 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     function nextStep() {
         const currentIndex = steps.indexOf(currentStep.value);
         if (currentIndex < steps.length - 1) {
-            currentStep.value = steps[currentIndex + 1];
+            currentStep.value = steps[currentIndex + 1]!;
         }
     }
 
     function previousStep() {
         const currentIndex = steps.indexOf(currentStep.value);
         if (currentIndex > 0) {
-            currentStep.value = steps[currentIndex - 1];
+            currentStep.value = steps[currentIndex - 1]!;
         }
     }
 

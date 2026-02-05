@@ -93,29 +93,34 @@
                 </div>
                 
                 <div class="p-4 space-y-4 flex-1 overflow-y-auto">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 uppercase">Trigger</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-slate-400 font-bold">.</span>
-                                <input v-model="selectedPhrase.trigger" type="text" class="w-full pl-6 pr-3 py-2 border border-slate-200 rounded-lg font-mono text-sm font-bold text-indigo-700 focus:ring-indigo-500 focus:border-indigo-500">
+                    <template v-if="selectedPhrase">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 uppercase">Trigger</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-slate-400 font-bold">.</span>
+                                    <input v-model="selectedPhrase.trigger" type="text" class="w-full pl-6 pr-3 py-2 border border-slate-200 rounded-lg font-mono text-sm font-bold text-indigo-700 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 uppercase">Category</label>
+                                <select class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>General Medicine</option>
+                                    <option>Cardiology</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 uppercase">Category</label>
-                            <select class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                <option>General Medicine</option>
-                                <option>Cardiology</option>
-                            </select>
-                        </div>
-                    </div>
 
-                    <div class="space-y-1 h-full flex flex-col">
-                        <label class="text-xs font-bold text-slate-500 uppercase flex justify-between">
-                            Content
-                            <span class="text-xs font-normal text-slate-400">{{ selectedPhrase.content.length }} chars</span>
-                        </label>
-                        <textarea v-model="selectedPhrase.content" class="flex-1 w-full p-4 border border-slate-200 rounded-lg font-mono text-sm leading-relaxed resize-none focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50"></textarea>
+                        <div class="space-y-1 h-full flex flex-col">
+                            <label class="text-xs font-bold text-slate-500 uppercase flex justify-between">
+                                Content
+                                <span class="text-xs font-normal text-slate-400">{{ selectedPhrase.content.length }} chars</span>
+                            </label>
+                            <textarea v-model="selectedPhrase.content" class="flex-1 w-full p-4 border border-slate-200 rounded-lg font-mono text-sm leading-relaxed resize-none focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50"></textarea>
+                        </div>
+                    </template>
+                    <div v-else class="flex items-center justify-center h-full text-slate-400">
+                        Select a phrase to edit
                     </div>
                 </div>
             </Card>

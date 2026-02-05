@@ -8,7 +8,7 @@ This guide details the exact environment variable configuration for the **4Healt
 | :--- | :--- | :--- | :--- |
 | **Database** | `Postgres-HC-HIPAA` | *None* | *Exports `DATABASE_URL`* |
 | **Cache** | `Valkey-HC` | *None* | *Exports `REDIS_URL`* |
-| **Backend** | `4Doctors API` | Postgres, Valkey | `${{Postgres-HC-HIPAA.DATABASE_URL}}`, `${{Valkey-HC.REDIS_URL}}` |
+| **Backend** | `4healthcare Backend API` | Postgres, Valkey | `${{Postgres-HC-HIPAA.DATABASE_URL}}`, `${{Valkey-HC.REDIS_URL}}` |
 | **Backend** | `4Doctors Worker` | Postgres, Valkey | `${{Postgres-HC-HIPAA.DATABASE_URL}}`, `${{Valkey-HC.REDIS_URL}}` |
 | **Backend** | `4Doctors Scheduler` | Postgres, Valkey | `${{Postgres-HC-HIPAA.DATABASE_URL}}`, `${{Valkey-HC.REDIS_URL}}` |
 
@@ -31,7 +31,7 @@ Copy these variables into the "Variables" tab for each service in Railway.
 ---
 
 ### 2. Backend Services (API, Worker, Scheduler)
-**Apply these variables to ALL THREE services:** `4Doctors API`, `4Doctors Worker`, `4Doctors Scheduler`.
+**Apply these variables to ALL THREE services:** `2healthcare backend api`, `4Doctors Worker`, `4Doctors Scheduler`.
 
 #### **A. Service Links (The "Address" Information)**
 These use Railway's template syntax to dynamically pull connection strings.

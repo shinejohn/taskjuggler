@@ -1,4 +1,4 @@
-import { api } from '@/lib/api';
+import api from '@/utils/api';
 import type { URPAMode } from '@/types/mode';
 
 /**
