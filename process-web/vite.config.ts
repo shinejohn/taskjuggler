@@ -14,6 +14,11 @@ export default defineConfig({
   server: {
     port: 3001,
   },
+  preview: {
+    allowedHosts: [
+      '4process-production.up.railway.app'
+    ]
+  },
   // VITE_API_URL will be available via import.meta.env.VITE_API_URL at runtime
   // Set it in Railway environment variables for production
 })

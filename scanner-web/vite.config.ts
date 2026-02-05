@@ -25,4 +25,9 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
   },
+  preview: {
+    allowedHosts: [
+      'site-health-production.up.railway.app'
+    ]
+  },
 })

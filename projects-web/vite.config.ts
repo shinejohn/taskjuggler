@@ -16,4 +16,9 @@ export default defineConfig({
     port: 3002,
     host: true,
   },
+  preview: {
+    allowedHosts: [
+      '4projects-production.up.railway.app'
+    ]
+  },
 })

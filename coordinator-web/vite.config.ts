@@ -59,5 +59,10 @@ export default defineConfig({
   optimizeDeps: {
     include: ['vue', 'vue-router', 'pinia', 'axios', 'lucide-vue-next'],
   },
+  preview: {
+    allowedHosts: [
+      '4calls-production.up.railway.app'
+    ]
+  },
 })
 

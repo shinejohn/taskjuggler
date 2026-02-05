@@ -31,4 +31,9 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    allowedHosts: [
+      'urpa-production.up.railway.app'
+    ]
+  },
 })
