@@ -52,6 +52,7 @@ if [ -z "$TARGET_WORKSPACE" ]; then
 fi
 
 # Run the build
-echo "Running: npm install && npm run build -w $TARGET_WORKSPACE"
+echo "Running: npm install && npm run build -w shared-ui && npm run build -w $TARGET_WORKSPACE"
 npm install
+npm run build -w shared-ui
 npm run build -w "$TARGET_WORKSPACE"
