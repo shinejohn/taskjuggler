@@ -3,7 +3,11 @@
     "build": {
         "builder": "NIXPACKS",
         "buildCommand": "npm install && npm run build -w shared-ui && npm run build -w official-notice-web",
-        "startCommand": "npm run start -w official-notice-web"
+        "startCommand": "npm run start -w official-notice-web",
+        "watchPaths": [
+            "official-notice-web/**",
+            "shared-ui/**"
+        ]
     },
     "deploy": {
         "numReplicas": 1,

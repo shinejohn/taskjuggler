@@ -3,7 +3,11 @@
     "build": {
         "builder": "NIXPACKS",
         "buildCommand": "npm install && npm run build -w shared-ui && npm run build -w process-web",
-        "startCommand": "npm run start -w process-web"
+        "startCommand": "npm run start -w process-web",
+        "watchPaths": [
+            "process-web/**",
+            "shared-ui/**"
+        ]
     },
     "deploy": {
         "numReplicas": 1,
