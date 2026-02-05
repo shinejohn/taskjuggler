@@ -13,4 +13,9 @@ export default defineConfig({
   },
   // VITE_API_URL will be available via import.meta.env.VITE_API_URL at runtime
   // Set it in Railway environment variables for production
+  preview: {
+    allowedHosts: [
+      'taskjuggler-web-production.up.railway.app'
+    ]
+  }
 })
