@@ -10,7 +10,9 @@
     "scanner-web",
     "projects-web",
     "process-web",
-    "ideacircuit-web"
+    "ideacircuit-web",
+    "4doctors-web",
+    "official-notice-web"
   ],
   "scripts": {
     "install:all": "npm install",
@@ -18,4 +20,3 @@
     "build:shared": "cd shared-ui && npm run build"
   }
 }
-
