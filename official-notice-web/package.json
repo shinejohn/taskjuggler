@@ -10,6 +10,7 @@
     "start": "vite preview --host 0.0.0.0 --port ${PORT:-5173}"
   },
   "dependencies": {
+    "@taskjuggler/ui": "file:../shared-ui",
     "axios": "^1.13.4",
     "date-fns": "^4.1.0",
     "lucide-vue-next": "^0.563.0",
