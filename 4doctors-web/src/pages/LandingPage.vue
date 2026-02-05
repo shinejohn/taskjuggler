@@ -60,7 +60,7 @@
         </h1>
         
         <p class="text-xl lg:text-2xl text-slate-500 mb-12 max-w-3xl mx-auto leading-relaxed text-balance font-medium">
-          Automate 80% of administrative work. AI Scribing, Claims, Prior Auth, and Patient scheduling—all seamlessly integrated into one beautiful platform.
+          Meet <strong>URPA (Your Personal Assistant)</strong>. We automate the drudgery of prescriptions, prior auths, and insurance—so you can focus on healing.
         </p>
         
         <!-- CTAs -->
@@ -118,8 +118,8 @@
                   <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-wider mb-6 text-teal-300">
                     <Bot class="w-3 h-3" /> Core Technology
                   </div>
-                  <h3 class="text-4xl font-black mb-4 group-hover:text-teal-300 transition-colors">Meet URPA.</h3>
-                  <p class="text-lg text-slate-300 max-w-lg leading-relaxed">Your Universal Robotic Process Automation agent. URPA doesn't just chat—it *does*. It answers calls, navigates portals, files claims, and drafts notes while you sleep.</p>
+                  <h3 class="text-4xl font-black mb-4 group-hover:text-teal-300 transition-colors">URPA = Your Personal Assistant.</h3>
+                  <p class="text-lg text-slate-300 max-w-lg leading-relaxed">It's not just a chatbot—it's a tireless worker. URPA handles appointments, processes insurance claims, and documents every visit. Free your staff from monotonous drudgery to focus on high-quality patient care.</p>
                 </div>
                 
                 <!-- Mock UI -->
@@ -147,7 +147,7 @@
               </div>
               <div>
                 <h3 class="text-2xl font-black text-slate-900 mb-2">Practice Mode</h3>
-                <p class="text-slate-500 font-medium">Labs, referrals, and smart scheduling integrated with ScribeMD.</p>
+                <p class="text-slate-500 font-medium">Automated prescriptions, prior auths, and full clinical workflows. Deliver high-quality, efficient service without the paperwork burnout.</p>
               </div>
            </div>
 
@@ -158,7 +158,7 @@
               </div>
               <div>
                 <h3 class="text-2xl font-black text-slate-900 mb-2">Business Mode</h3>
-                <p class="text-slate-500 font-medium">Staff management, payroll, vendor orders, and CME tracking.</p>
+                <p class="text-slate-500 font-medium">Optimize your bottom line. Automate billing, insurance processing, and staff management to save money.</p>
               </div>
            </div>
 
@@ -169,7 +169,7 @@
               </div>
               <div>
                 <h3 class="text-2xl font-black text-slate-900 mb-2">Personal Mode</h3>
-                <p class="text-slate-500 font-medium">Because you're human too. Travel, goals, and family time.</p>
+                <p class="text-slate-500 font-medium">Reclaim your life. URPA handles your personal tasks too, giving you back the time you used to spend on after-hours charting.</p>
               </div>
            </div>
         </div>
