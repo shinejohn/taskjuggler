@@ -62,8 +62,7 @@ if (file_exists(base_path('routes/coordinator.php'))) {
     require base_path('routes/coordinator.php');
 }
 
-// Load 4Doctors module routes
-require base_path('app/Modules/Doctors/Routes/api.php');
+
 
 // Load URPA module routes
 Route::prefix('urpa')->group(function () {
