@@ -43,17 +43,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { ClipboardCheck, Check } from 'lucide-vue-next';
 import ModeBadge from '@/components/core/ModeBadge.vue';
+import { urpaDashboardApi, type TaskItem } from '@/api/urpaDashboard';
 
-const tasks = ref([
-  { id: 1, title: 'Sign lab results for Johnson', patient: 'Sarah Johnson', due: 'Today', priority: 'high', completed: false },
-  { id: 2, title: 'Review MRI report', patient: 'John Smith', due: 'Today', priority: 'high', completed: false },
-  { id: 3, title: 'Complete prior auth', patient: 'Maria Garcia', due: 'Today', priority: 'medium', completed: true },
-  { id: 4, title: 'Call pharmacy about Rx', patient: 'Robert Chen', due: 'Today', priority: 'medium', completed: false },
-  { id: 5, title: 'Update treatment plan', patient: 'Lisa Williams', due: 'Tomorrow', priority: 'low', completed: false },
-]);
+const tasks = ref<TaskItem[]>([]);
+
+onMounted(async () => {
+  try {
+    tasks.value = await urpaDashboardApi.getTasks();
+  } catch (e) {
+    console.error('Failed to fetch clinical tasks:', e);
+  }
+});
 
 const prioritizedTasks = computed(() => {
   const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
@@ -67,6 +70,7 @@ const pendingCount = computed(() => tasks.value.filter(t => !t.completed).length
 
 const toggleTask = (id: number) => {
   const task = tasks.value.find(t => t.id === id);
+  // In a real app, we would call API to toggle status here
   if (task) task.completed = !task.completed;
 };
 </script>

@@ -30,6 +30,7 @@ export interface TaskItem {
     priority: 'high' | 'medium' | 'low';
     mode: URPAMode;
     completed: boolean;
+    patient?: string;
 }
 
 export interface VoicemailItem {
