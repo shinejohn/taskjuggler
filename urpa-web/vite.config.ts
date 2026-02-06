@@ -34,7 +34,8 @@ export default defineConfig({
   preview: {
     // Explicitly allow Railway production host
     allowedHosts: [
-      'urpa-production.up.railway.app'
+      'urpa-production.up.railway.app',
+      /^urpa.*\.up\.railway\.app$/
     ]
   },
 })

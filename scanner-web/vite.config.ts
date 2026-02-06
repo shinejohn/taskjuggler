@@ -27,7 +27,8 @@ export default defineConfig({
   },
   preview: {
     allowedHosts: [
-      'site-health-production.up.railway.app'
+      'site-health-production.up.railway.app',
+      /^site-health.*\.up\.railway\.app$/
     ]
   },
 })

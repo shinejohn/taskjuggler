@@ -1,0 +1,6 @@
+# Prevent Railway from detecting this as a Node.js project
+# This file tells Railway to use NIXPACKS instead of Railpack
+package.json
+package-lock.json
+node_modules
+.npmrc

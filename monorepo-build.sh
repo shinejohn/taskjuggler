@@ -6,6 +6,18 @@
 echo "Detecting service for build..."
 echo "RAILWAY_SERVICE_NAME: $RAILWAY_SERVICE_NAME"
 
+# Exit early if this is the API service (PHP backend, not Node.js)
+if [ "$RAILWAY_SERVICE_NAME" = "ai-tools-api" ] || [ "$RAILWAY_SERVICE_NAME" = "api-web" ] || [ "$RAILWAY_SERVICE_NAME" = "api" ]; then
+  echo "⚠️  ERROR: This is a PHP/Laravel backend service!"
+  echo "   Railway should be using NIXPACKS builder, not Railpack."
+  echo "   Please configure in Railway dashboard:"
+  echo "   1. Builder: NIXPACKS (not Railpack)"
+  echo "   2. Root Directory: taskjuggler-api"
+  echo ""
+  echo "   This script should NOT be running for the API service."
+  exit 1
+fi
+
 TARGET_WORKSPACE=""
 
 case "$RAILWAY_SERVICE_NAME" in

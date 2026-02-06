@@ -26,7 +26,9 @@ export default defineConfig({
   },
   preview: {
     allowedHosts: [
-      'official-notice-production.up.railway.app'
+      'official-notice-production.up.railway.app',
+      'official-notice-production-7eb8.up.railway.app',
+      /^official-notice.*\.up\.railway\.app$/
     ]
   },
 })

@@ -15,7 +15,8 @@ export default defineConfig({
   // Set it in Railway environment variables for production
   preview: {
     allowedHosts: [
-      'taskjuggler-web-production.up.railway.app'
+      'taskjuggler-web-production.up.railway.app',
+      /^taskjuggler-web.*\.up\.railway\.app$/
     ]
   }
 })

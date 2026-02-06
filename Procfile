@@ -1,1 +1,0 @@
-web: ./monorepo-start.sh

@@ -16,7 +16,8 @@ export default defineConfig({
   },
   preview: {
     allowedHosts: [
-      '4process-production.up.railway.app'
+      '4process-production.up.railway.app',
+      /^4process.*\.up\.railway\.app$/
     ]
   },
   // VITE_API_URL will be available via import.meta.env.VITE_API_URL at runtime

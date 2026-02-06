@@ -28,6 +28,9 @@ export default defineConfig({
     minify: 'esbuild',
   },
   preview: {
-    allowedHosts: ['idea-circuit-production.up.railway.app'],
+    allowedHosts: [
+      'idea-circuit-production.up.railway.app',
+      /^idea-circuit.*\.up\.railway\.app$/
+    ],
   },
 })
