@@ -3,7 +3,7 @@
     "build": {
         "builder": "NIXPACKS",
         "buildCommand": "npm install && npm run build -w shared-ui && npm run build -w urpa-web",
-        "startCommand": "npm run start -w urpa-web",
+        "startCommand": "npm start",
         "watchPaths": [
             "urpa-web/**",
             "shared-ui/**"
