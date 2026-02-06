@@ -1,0 +1,17 @@
+# Prevent Railway from auto-detecting Node.js/Railpack
+# This file tells Railway to ignore Node.js detection for the API service
+# The API service should use NIXPACKS builder with Root Directory: taskjuggler-api
+
+# Ignore root-level Node.js files that trigger Railpack detection
+package.json
+package-lock.json
+node_modules
+.npmrc
+.nvmrc
+
+# Ignore root Procfile (if it exists)
+Procfile
+Procfile.*
+
+# Only apply when Root Directory is NOT set (defaults to /)
+# When Root Directory is set to taskjuggler-api, Railway will look there instead
