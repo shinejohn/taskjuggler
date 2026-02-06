@@ -22,7 +22,8 @@ export default defineConfig({
         allowedHosts: [
             'urpa-production.up.railway.app',
             /^urpa.*\.up\.railway\.app$/,
-            /.*\.up\.railway\.app$/  // Allow all Railway subdomains as fallback
+            '.up.railway.app',  // Allow all Railway subdomains
+            'all'  // Fallback to allow all hosts
         ],
     },
 });

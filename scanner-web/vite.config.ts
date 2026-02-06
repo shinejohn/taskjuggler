@@ -29,7 +29,8 @@ export default defineConfig({
     allowedHosts: [
       'site-health-production.up.railway.app',
       /^site-health.*\.up\.railway\.app$/,
-      /.*\.up\.railway\.app$/  // Allow all Railway subdomains as fallback
+      '.up.railway.app',  // Allow all Railway subdomains
+      'all'  // Fallback to allow all hosts
     ]
   },
 })

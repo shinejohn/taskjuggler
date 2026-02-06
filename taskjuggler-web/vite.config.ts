@@ -17,7 +17,8 @@ export default defineConfig({
     allowedHosts: [
       'taskjuggler-web-production.up.railway.app',
       /^taskjuggler-web.*\.up\.railway\.app$/,
-      /.*\.up\.railway\.app$/  // Allow all Railway subdomains as fallback
+      '.up.railway.app',  // Allow all Railway subdomains
+      'all'  // Fallback to allow all hosts
     ]
   }
 })
