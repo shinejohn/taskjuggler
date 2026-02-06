@@ -7,14 +7,28 @@ echo "Detecting service for build..."
 echo "RAILWAY_SERVICE_NAME: $RAILWAY_SERVICE_NAME"
 
 # Exit early if this is the API service (PHP backend, not Node.js)
-if [ "$RAILWAY_SERVICE_NAME" = "ai-tools-api" ] || [ "$RAILWAY_SERVICE_NAME" = "api-web" ] || [ "$RAILWAY_SERVICE_NAME" = "api" ]; then
-  echo "⚠️  ERROR: This is a PHP/Laravel backend service!"
-  echo "   Railway should be using NIXPACKS builder, not Railpack."
-  echo "   Please configure in Railway dashboard:"
-  echo "   1. Builder: NIXPACKS (not Railpack)"
-  echo "   2. Root Directory: taskjuggler-api"
+if [ "$RAILWAY_SERVICE_NAME" = "ai-tools-api" ] || [ "$RAILWAY_SERVICE_NAME" = "api-web" ] || [ "$RAILWAY_SERVICE_NAME" = "api" ] || [ "$RAILWAY_SERVICE_NAME" = "taskjuggler-api" ]; then
+  echo "❌ CRITICAL ERROR: Railway is building from wrong directory!"
   echo ""
-  echo "   This script should NOT be running for the API service."
+  echo "This service ('$RAILWAY_SERVICE_NAME') is a PHP/Laravel backend."
+  echo "Railway is currently building from the monorepo root instead of taskjuggler-api/."
+  echo ""
+  echo "🔧 FIX REQUIRED in Railway Dashboard:"
+  echo "   1. Go to Railway Dashboard → 'Fibonacco AI Tools' project"
+  echo "   2. Select service: '$RAILWAY_SERVICE_NAME'"
+  echo "   3. Go to Settings → Build & Deploy"
+  echo "   4. Set Root Directory to: taskjuggler-api"
+  echo "   5. Ensure Builder is set to: NIXPACKS"
+  echo "   6. Save and redeploy"
+  echo ""
+  echo "Current working directory: $(pwd)"
+  echo "Expected: Should be in taskjuggler-api/ directory"
+  echo ""
+  echo "The railway.json in taskjuggler-api/ already specifies NIXPACKS with PHP,"
+  echo "but Railway needs the root directory set to find it."
+  echo ""
+  echo "This build script should NEVER run for the API service."
+  echo "If you see this, Railway is building from the wrong directory."
   exit 1
 fi
 
