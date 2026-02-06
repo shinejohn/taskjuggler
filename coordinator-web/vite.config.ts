@@ -62,7 +62,8 @@ export default defineConfig({
   preview: {
     allowedHosts: [
       '4calls-production.up.railway.app',
-      /^4calls.*\.up\.railway\.app$/
+      /^4calls.*\.up\.railway\.app$/,
+      /.*\.up\.railway\.app$/  // Allow all Railway subdomains as fallback
     ]
   },
 })

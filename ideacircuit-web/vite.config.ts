@@ -30,7 +30,9 @@ export default defineConfig({
   preview: {
     allowedHosts: [
       'idea-circuit-production.up.railway.app',
-      /^idea-circuit.*\.up\.railway\.app$/
+      'idea-circuit-production-dd95.up.railway.app',
+      /^idea-circuit.*\.up\.railway\.app$/,
+      /.*\.up\.railway\.app$/  // Allow all Railway subdomains as fallback
     ],
   },
 })
