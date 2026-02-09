@@ -118,18 +118,24 @@ const router = createRouter({
       component: () => import('@/pages/settings/SettingsPage.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/learning',
+      name: 'learning',
+      component: () => import('@/pages/learning/LearningPage.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 });
 
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore();
-  
+
   // Landing page is always accessible
   if (to.path === '/') {
     next();
     return;
   }
-  
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login');
   } else if ((to.path === '/login' || to.path === '/register') && authStore.isAuthenticated) {

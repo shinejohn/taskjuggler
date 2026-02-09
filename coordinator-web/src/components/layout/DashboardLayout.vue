@@ -9,9 +9,9 @@
             <div class="flex-shrink-0 flex items-center">
               <router-link to="/dashboard" class="text-2xl font-heading font-bold text-[#1B4F72] flex items-center gap-2">
                 <div class="w-8 h-8 bg-[#1B4F72] rounded-lg flex items-center justify-center text-white text-sm font-bold">
-                  4C
+                  CC
                 </div>
-                4calls.ai
+                Command Center
               </router-link>
             </div>
             <nav class="hidden md:ml-8 md:flex md:space-x-1 h-full">
@@ -100,6 +100,7 @@ import {
   BarChart3,
   Bell,
   User,
+  GraduationCap,
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -108,14 +109,14 @@ const authStore = useAuthStore();
 const isDropdownOpen = ref(false);
 
 const navItems = [
-  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: '4 Calls', path: '/coordinators', icon: Users },
-  { name: 'Appointments', path: '/appointments', icon: Calendar },
-  { name: 'Contacts', path: '/contacts', icon: Contact },
-  { name: 'Calls', path: '/calls', icon: Phone },
+  { name: 'Command Center', path: '/dashboard', icon: LayoutDashboard },
+  { name: 'Learning Center', path: '/learning', icon: GraduationCap },
+  { name: 'CRM', path: '/contacts', icon: Contact },
   { name: 'Campaigns', path: '/campaigns', icon: Megaphone },
+  { name: 'Customer Interactions', path: '/calls', icon: Phone },
+  { name: 'AI Coordinators', path: '/coordinators', icon: Users },
+  { name: 'Appointments', path: '/appointments', icon: Calendar },
   { name: 'Analytics', path: '/analytics', icon: BarChart3 },
-  // { name: 'Billing', path: '/billing', icon: CreditCard },
 ];
 
 function isActive(path: string): boolean {
