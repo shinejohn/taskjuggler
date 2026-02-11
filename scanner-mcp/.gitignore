@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.log
+.env
+.env.local
+sitehealth-apps.json
+audit-reports/
+audit-screenshots/

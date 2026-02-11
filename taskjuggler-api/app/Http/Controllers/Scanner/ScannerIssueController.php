@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Scanner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Scanner\Issue;
+use App\Services\ScannerFixGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class ScannerIssueController extends Controller
 {
+    public function __construct(
+        private ScannerFixGeneratorService $fixGenerator
+    ) {}
     public function index(Request $request): JsonResponse
     {
         $team = app('current_team');
@@ -109,12 +113,16 @@ class ScannerIssueController extends Controller
             return response()->json(['error' => 'Not found'], 404);
         }
         
-        // TODO: Call AI service to generate fix
-        // For now, return a placeholder response
+        $fix = $this->fixGenerator->generate($issue);
+        
+        $issue->update([
+            'fix_code' => $fix['fix_code'],
+            'fix_explanation' => $fix['explanation'],
+            'fix_confidence' => $fix['confidence'],
+        ]);
         
         return response()->json([
-            'message' => 'Fix generation not yet implemented',
-            'data' => $issue,
+            'data' => array_merge($fix, ['issue_id' => $issue->id]),
         ]);
     }
 }

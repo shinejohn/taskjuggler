@@ -122,4 +122,8 @@ return [
         'provider' => env('PHONE_NUMBER_PROVIDER', 'twilio'), // 'twilio' or 'aws'
     ],
 
+    'claude' => [
+        'api_key' => env('ANTHROPIC_API_KEY', env('CLAUDE_API_KEY')),
+    ],
+
 ];
