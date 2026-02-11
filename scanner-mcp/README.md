@@ -2,6 +2,8 @@
 
 **One branded toolset for internal product development.** Combines API-backed site scanning with local element auditing.
 
+> **Full setup guide:** See [SITEHEALTH_USER_GUIDE.md](./SITEHEALTH_USER_GUIDE.md) for install, config, and usage across Cursor, Claude Code, Antigravity, and CLI.
+
 ## Tools (13 total)
 
 ### API-backed (taskjuggler-api)
