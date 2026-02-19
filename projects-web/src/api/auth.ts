@@ -44,7 +44,7 @@ export const authApi = {
 
   async getUser(): Promise<User> {
     const { data } = await apiClient.get('/auth/user')
-    return data.user || data.data?.user || data
+    return (data as any)?.data ?? data
   },
 }
 

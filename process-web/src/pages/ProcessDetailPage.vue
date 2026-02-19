@@ -5,6 +5,11 @@
         <p class="text-gray-500">Loading process...</p>
       </div>
 
+      <div v-else-if="error" class="text-center py-12">
+        <p class="text-red-600 mb-4">{{ error }}</p>
+        <router-link to="/processes" class="text-primary-600 hover:underline">Back to processes</router-link>
+      </div>
+
       <div v-else-if="currentProcess" class="bg-white rounded-lg shadow p-6">
         <div class="flex justify-between items-start mb-6">
           <div>
@@ -64,6 +69,11 @@
           </div>
         </div>
       </div>
+
+      <div v-else class="text-center py-12">
+        <p class="text-gray-500">Process not found.</p>
+        <router-link to="/processes" class="text-primary-600 hover:underline">Back to processes</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -76,7 +86,7 @@ import { useProcessesStore } from '@/stores/processes'
 
 const route = useRoute()
 const processesStore = useProcessesStore()
-const { currentProcess, currentSteps, loading } = storeToRefs(processesStore)
+const { currentProcess, currentSteps, loading, error } = storeToRefs(processesStore)
 
 onMounted(async () => {
   const processId = route.params.id as string

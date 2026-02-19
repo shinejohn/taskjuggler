@@ -7,6 +7,16 @@
         <p class="text-gray-500">Loading executions...</p>
       </div>
 
+      <div v-else-if="error" class="text-center py-12">
+        <p class="text-red-600 mb-4">{{ error }}</p>
+        <button
+          @click="processesStore.fetchExecutions()"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+        >
+          Retry
+        </button>
+      </div>
+
       <div v-else-if="executions.length === 0" class="text-center py-12">
         <p class="text-gray-500">No executions yet.</p>
       </div>
@@ -56,7 +66,7 @@ import { onMounted } from 'vue'
 import { useProcessesStore } from '@/stores/processes'
 
 const processesStore = useProcessesStore()
-const { executions, loading } = processesStore
+const { executions, loading, error } = processesStore
 
 onMounted(() => {
   processesStore.fetchExecutions()

@@ -14,6 +14,16 @@
       <div class="text-gray-500">Loading timeline...</div>
     </div>
 
+    <div v-else-if="projectsStore.error" class="text-center py-12">
+      <div class="text-red-600 mb-4">{{ projectsStore.error }}</div>
+      <button
+        @click="retryFetch"
+        class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+      >
+        Retry
+      </button>
+    </div>
+
     <div v-else class="bg-white p-6 rounded-lg shadow">
       <p class="text-gray-500">Timeline view coming soon</p>
       <p class="text-sm text-gray-400 mt-2">This will display a Gantt chart view of the project timeline</p>
@@ -30,7 +40,7 @@ const route = useRoute()
 const projectsStore = useProjectsStore()
 const loading = ref(false)
 
-onMounted(async () => {
+async function retryFetch() {
   loading.value = true
   try {
     const projectId = route.params.id as string
@@ -39,6 +49,8 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(retryFetch)
 </script>
 

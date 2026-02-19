@@ -40,7 +40,7 @@ const authStore = useAuthStore()
 
 const handleGetStarted = () => {
   if (authStore.isAuthenticated) {
-    router.push('/projects/new')
+    router.push('/app/projects/new')
   } else {
     router.push('/register')
   }

@@ -8,12 +8,16 @@ export const useProcessesStore = defineStore('processes', () => {
   const currentSteps = ref<ProcessStep[]>([]);
   const executions = ref<ProcessExecution[]>([]);
   const loading = ref(false);
+  const error = ref<string | null>(null);
 
   async function fetchProcesses() {
     loading.value = true;
+    error.value = null;
     try {
       const response = await processesApi.list();
       processes.value = response.data || response;
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Failed to load processes';
     } finally {
       loading.value = false;
     }
@@ -21,9 +25,12 @@ export const useProcessesStore = defineStore('processes', () => {
 
   async function fetchProcess(id: string) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await processesApi.get(id);
       currentProcess.value = response.data || response;
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Failed to load process';
     } finally {
       loading.value = false;
     }
@@ -31,9 +38,12 @@ export const useProcessesStore = defineStore('processes', () => {
 
   async function fetchSteps(processId: string) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await processesApi.getSteps(processId);
       currentSteps.value = response.data || response;
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Failed to load steps';
     } finally {
       loading.value = false;
     }
@@ -97,11 +107,14 @@ export const useProcessesStore = defineStore('processes', () => {
 
   async function fetchExecutions(processId?: string) {
     loading.value = true;
+    error.value = null;
     try {
       const response = processId 
         ? await processesApi.getExecutions(processId)
         : await processesApi.getAllExecutions();
       executions.value = response.data || response;
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Failed to load executions';
     } finally {
       loading.value = false;
     }
@@ -118,6 +131,7 @@ export const useProcessesStore = defineStore('processes', () => {
     currentSteps,
     executions,
     loading,
+    error,
     fetchProcesses,
     fetchProcess,
     fetchSteps,

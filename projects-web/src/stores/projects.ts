@@ -6,18 +6,21 @@ export const useProjectsStore = defineStore('projects', () => {
   const projects = ref<Project[]>([])
   const currentProject = ref<Project | null>(null)
   const loading = ref(false)
+  const error = ref<string | null>(null)
 
   const activeProjects = computed(() => projects.value.filter((p: Project) => p.status === 'active'))
   const completedProjects = computed(() => projects.value.filter((p: Project) => p.status === 'completed'))
 
   async function fetchProjects() {
     loading.value = true
+    error.value = null
     try {
       const response = await projectsApi.list()
-      projects.value = response.data || response
-    } catch (error) {
-      console.error('Failed to fetch projects:', error)
-      throw error
+      const data = (response as any)?.data ?? response
+      projects.value = Array.isArray(data) ? data : (data?.data ?? [])
+    } catch (err: any) {
+      error.value = err.response?.data?.message || err.message || 'Failed to fetch projects'
+      throw err
     } finally {
       loading.value = false
     }
@@ -25,13 +28,15 @@ export const useProjectsStore = defineStore('projects', () => {
 
   async function fetchProject(id: string) {
     loading.value = true
+    error.value = null
     try {
       const response = await projectsApi.get(id)
-      currentProject.value = response.data || response
+      const data = (response as any)?.data ?? response
+      currentProject.value = data
       return currentProject.value
-    } catch (error) {
-      console.error('Failed to fetch project:', error)
-      throw error
+    } catch (err: any) {
+      error.value = err.response?.data?.message || err.message || 'Failed to fetch project'
+      throw err
     } finally {
       loading.value = false
     }
@@ -40,7 +45,7 @@ export const useProjectsStore = defineStore('projects', () => {
   async function createProject(data: Partial<Project>) {
     try {
       const response = await projectsApi.create(data)
-      const newProject = response.data || response
+      const newProject = (response as any)?.data ?? response
       projects.value.unshift(newProject)
       return newProject
     } catch (error) {
@@ -52,7 +57,7 @@ export const useProjectsStore = defineStore('projects', () => {
   async function updateProject(id: string, data: Partial<Project>) {
     try {
       const response = await projectsApi.update(id, data)
-      const updatedProject = response.data || response
+      const updatedProject = (response as any)?.data ?? response
       const index = projects.value.findIndex((p: Project) => p.id === id)
       if (index !== -1) projects.value[index] = updatedProject
       if (currentProject.value?.id === id) currentProject.value = updatedProject
@@ -161,6 +166,7 @@ export const useProjectsStore = defineStore('projects', () => {
     projects,
     currentProject,
     loading,
+    error,
     activeProjects,
     completedProjects,
     fetchProjects,

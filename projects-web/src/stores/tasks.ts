@@ -39,7 +39,8 @@ export const useTasksStore = defineStore('tasks', () => {
     error.value = null
     try {
       const response = await tasksApi.list(projectId, { ...filters.value, ...params })
-      tasks.value = response.data || response
+      const data = (response as any)?.data ?? response
+      tasks.value = Array.isArray(data) ? data : (data?.data ?? [])
       return tasks.value
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to fetch tasks'
@@ -54,7 +55,7 @@ export const useTasksStore = defineStore('tasks', () => {
     error.value = null
     try {
       const response = await tasksApi.get(projectId, taskId)
-      currentTask.value = response.data || response
+      currentTask.value = (response as any)?.data ?? response
       return currentTask.value
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to fetch task'
@@ -69,7 +70,7 @@ export const useTasksStore = defineStore('tasks', () => {
     error.value = null
     try {
       const response = await tasksApi.create(projectId, taskData)
-      const newTask = response.data || response
+      const newTask = (response as any)?.data ?? response
       tasks.value.unshift(newTask)
       return newTask
     } catch (err: any) {
@@ -85,7 +86,7 @@ export const useTasksStore = defineStore('tasks', () => {
     error.value = null
     try {
       const response = await tasksApi.update(projectId, taskId, taskData)
-      const updatedTask = response.data || response
+      const updatedTask = (response as any)?.data ?? response
       const index = tasks.value.findIndex(t => t.id === taskId)
       if (index !== -1) tasks.value[index] = updatedTask
       if (currentTask.value?.id === taskId) currentTask.value = updatedTask
@@ -135,7 +136,7 @@ export const useTasksStore = defineStore('tasks', () => {
           response = await tasksApi.cancel(projectId, taskId, data?.reason)
           break
       }
-      const updatedTask = response.data || response
+      const updatedTask = (response as any)?.data ?? response
       const index = tasks.value.findIndex(t => t.id === taskId)
       if (index !== -1) tasks.value[index] = updatedTask
       if (currentTask.value?.id === taskId) currentTask.value = updatedTask

@@ -111,7 +111,12 @@ const error = ref('')
 onMounted(async () => {
   if (isEdit.value) {
     const projectId = route.params.id as string
-    await projectsStore.fetchProject(projectId)
+    try {
+      await projectsStore.fetchProject(projectId)
+    } catch {
+      error.value = projectsStore.error || 'Failed to load project'
+      return
+    }
     if (projectsStore.currentProject) {
       form.value = {
         name: projectsStore.currentProject.name,

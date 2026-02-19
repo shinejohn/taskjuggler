@@ -14,6 +14,16 @@
       <div class="text-gray-500">Loading projects...</div>
     </div>
 
+    <div v-else-if="projectsStore.error" class="text-center py-12">
+      <div class="text-red-600 mb-4">{{ projectsStore.error }}</div>
+      <button
+        @click="projectsStore.fetchProjects()"
+        class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+      >
+        Retry
+      </button>
+    </div>
+
     <div v-else-if="projectsStore.projects.length === 0" class="text-center py-12">
       <div class="text-gray-500 mb-4">No projects yet</div>
       <button

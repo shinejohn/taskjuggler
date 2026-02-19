@@ -32,83 +32,82 @@ export interface Milestone {
 
 export const projectsApi = {
   async list(params?: any) {
-    const { data } = await apiClient.get('/api/projects', { params })
+    const { data } = await apiClient.get('/projects', { params })
     return data
   },
 
   async get(id: string) {
-    const { data } = await apiClient.get(`/api/projects/${id}`)
+    const { data } = await apiClient.get(`/projects/${id}`)
     return data
   },
 
   async getMembers(projectId: string) {
-    const { data } = await apiClient.get(`/api/projects/${projectId}/members`)
+    const { data } = await apiClient.get(`/projects/${projectId}/members`)
     return data
   },
 
   async create(projectData: Partial<Project>) {
-    const { data } = await apiClient.post('/api/projects', projectData)
+    const { data } = await apiClient.post('/projects', projectData)
     return data
   },
 
   async update(id: string, projectData: Partial<Project>) {
-    const { data } = await apiClient.put(`/api/projects/${id}`, projectData)
+    const { data } = await apiClient.put(`/projects/${id}`, projectData)
     return data
   },
 
   async delete(id: string) {
-    await apiClient.delete(`/api/projects/${id}`)
+    await apiClient.delete(`/projects/${id}`)
   },
 
   async getStats(id: string) {
-    const { data } = await apiClient.get(`/api/projects/${id}/stats`)
+    const { data } = await apiClient.get(`/projects/${id}/stats`)
     return data
   },
 
-  // Tasks within project
+  // Tasks within project (backend may have different structure - Task model links to projects)
   async getTasks(projectId: string) {
-    const { data } = await apiClient.get(`/api/projects/${projectId}/tasks`)
+    const { data } = await apiClient.get(`/projects/${projectId}/tasks`)
     return data
   },
 
   async addTask(projectId: string, taskData: any) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/tasks`, taskData)
+    const { data } = await apiClient.post(`/projects/${projectId}/tasks`, taskData)
     return data
   },
 
-  // Milestones (Note: These endpoints may need to be added to the backend)
+  // Milestones - backend Projects module may not have these; will 404 if missing
   async getMilestones(projectId: string) {
-    const { data } = await apiClient.get(`/api/projects/${projectId}/milestones`)
+    const { data } = await apiClient.get(`/projects/${projectId}/milestones`)
     return data
   },
 
   async createMilestone(projectId: string, milestoneData: Partial<Milestone>) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/milestones`, milestoneData)
+    const { data } = await apiClient.post(`/projects/${projectId}/milestones`, milestoneData)
     return data
   },
 
   async updateMilestone(projectId: string, milestoneId: string, milestoneData: Partial<Milestone>) {
-    const { data } = await apiClient.put(`/api/projects/${projectId}/milestones/${milestoneId}`, milestoneData)
+    const { data } = await apiClient.put(`/projects/${projectId}/milestones/${milestoneId}`, milestoneData)
     return data
   },
 
   async deleteMilestone(projectId: string, milestoneId: string) {
-    await apiClient.delete(`/api/projects/${projectId}/milestones/${milestoneId}`)
+    await apiClient.delete(`/projects/${projectId}/milestones/${milestoneId}`)
   },
 
   async completeMilestone(projectId: string, milestoneId: string) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/milestones/${milestoneId}/complete`)
+    const { data } = await apiClient.post(`/projects/${projectId}/milestones/${milestoneId}/complete`)
     return data
   },
 
-  // Timeline / Gantt (Note: These endpoints may need to be added to the backend)
   async getTimeline(projectId: string) {
-    const { data } = await apiClient.get(`/api/projects/${projectId}/timeline`)
+    const { data } = await apiClient.get(`/projects/${projectId}/timeline`)
     return data
   },
 
   async getGantt(projectId: string) {
-    const { data } = await apiClient.get(`/api/projects/${projectId}/gantt`)
+    const { data } = await apiClient.get(`/projects/${projectId}/gantt`)
     return data
   },
 }

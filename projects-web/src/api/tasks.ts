@@ -31,74 +31,76 @@ export interface Task {
 
 export const tasksApi = {
   async list(projectId: string, params?: any) {
-    const { data } = await apiClient.get(`/api/projects/${projectId}/tasks`, { params })
+    const { data } = await apiClient.get('/tasks', {
+      params: { ...params, project_id: projectId },
+    })
     return data
   },
 
-  async get(projectId: string, taskId: string) {
-    const { data } = await apiClient.get(`/api/projects/${projectId}/tasks/${taskId}`)
+  async get(_projectId: string, taskId: string) {
+    const { data } = await apiClient.get(`/tasks/${taskId}`)
     return data
   },
 
   async create(projectId: string, taskData: Partial<Task>) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/tasks`, taskData)
+    const { data } = await apiClient.post('/tasks', {
+      ...taskData,
+      project_id: projectId,
+    })
     return data
   },
 
-  async update(projectId: string, taskId: string, taskData: Partial<Task>) {
-    const { data } = await apiClient.put(`/api/projects/${projectId}/tasks/${taskId}`, taskData)
+  async update(_projectId: string, taskId: string, taskData: Partial<Task>) {
+    const { data } = await apiClient.put(`/tasks/${taskId}`, taskData)
     return data
   },
 
-  async delete(projectId: string, taskId: string) {
-    await apiClient.delete(`/api/projects/${projectId}/tasks/${taskId}`)
+  async delete(_projectId: string, taskId: string) {
+    await apiClient.delete(`/tasks/${taskId}`)
   },
 
-  // State transitions
-  async accept(projectId: string, taskId: string) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/tasks/${taskId}/accept`)
+  async accept(_projectId: string, taskId: string) {
+    const { data } = await apiClient.post(`/tasks/${taskId}/accept`)
     return data
   },
 
-  async decline(projectId: string, taskId: string, reason: string) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/tasks/${taskId}/decline`, { reason })
+  async decline(_projectId: string, taskId: string, reason: string) {
+    const { data } = await apiClient.post(`/tasks/${taskId}/decline`, { reason })
     return data
   },
 
-  async start(projectId: string, taskId: string) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/tasks/${taskId}/start`)
+  async start(_projectId: string, taskId: string) {
+    const { data } = await apiClient.post(`/tasks/${taskId}/start`)
     return data
   },
 
-  async complete(projectId: string, taskId: string, notes?: string) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/tasks/${taskId}/complete`, { notes })
+  async complete(_projectId: string, taskId: string, notes?: string) {
+    const { data } = await apiClient.post(`/tasks/${taskId}/complete`, { notes })
     return data
   },
 
-  async cancel(projectId: string, taskId: string, reason?: string) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/tasks/${taskId}/cancel`, { reason })
+  async cancel(_projectId: string, taskId: string, reason?: string) {
+    const { data } = await apiClient.post(`/tasks/${taskId}/cancel`, { reason })
     return data
   },
 
-  // Messages
-  async getMessages(projectId: string, taskId: string) {
-    const { data } = await apiClient.get(`/api/projects/${projectId}/tasks/${taskId}/messages`)
+  async getMessages(_projectId: string, taskId: string) {
+    const { data } = await apiClient.get(`/tasks/${taskId}/messages`)
     return data
   },
 
-  async addMessage(projectId: string, taskId: string, content: string) {
-    const { data } = await apiClient.post(`/api/projects/${projectId}/tasks/${taskId}/messages`, { content })
+  async addMessage(_projectId: string, taskId: string, content: string) {
+    const { data } = await apiClient.post(`/tasks/${taskId}/messages`, { content })
     return data
   },
 
-  // Cross-project
   async myTasks() {
-    const { data } = await apiClient.get('/api/my/tasks')
+    const { data } = await apiClient.get('/my/tasks')
     return data
   },
 
   async myRequests() {
-    const { data } = await apiClient.get('/api/my/requests')
+    const { data } = await apiClient.get('/my/requests')
     return data
   },
 }

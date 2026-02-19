@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -17,9 +18,8 @@ export default defineConfig({
   preview: {
     allowedHosts: [
       '4process-production.up.railway.app',
-      /^4process.*\.up\.railway\.app$/,
-      '.up.railway.app',  // Allow all Railway subdomains
-      'all'  // Fallback to allow all hosts
+      '.up.railway.app',
+      'all'
     ]
   },
   // VITE_API_URL will be available via import.meta.env.VITE_API_URL at runtime

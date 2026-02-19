@@ -4,6 +4,16 @@
       <div class="text-gray-500">Loading project...</div>
     </div>
 
+    <div v-else-if="projectsStore.error" class="text-center py-12">
+      <div class="text-red-600 mb-4">{{ projectsStore.error }}</div>
+      <button
+        @click="retryFetch"
+        class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+      >
+        Retry
+      </button>
+    </div>
+
     <div v-else-if="projectsStore.currentProject" class="space-y-6">
       <div class="flex justify-between items-start">
         <div>
@@ -89,7 +99,13 @@
     </div>
 
     <div v-else class="text-center py-12">
-      <div class="text-gray-500">Project not found</div>
+      <div class="text-gray-500 mb-4">Project not found</div>
+      <router-link
+        :to="{ name: 'projects' }"
+        class="inline-block px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+      >
+        Back to Projects
+      </router-link>
     </div>
   </div>
 </template>
@@ -104,17 +120,19 @@ const route = useRoute()
 const projectsStore = useProjectsStore()
 const milestones = ref<Milestone[]>([])
 
-onMounted(async () => {
+async function retryFetch() {
   const projectId = route.params.id as string
   await projectsStore.fetchProject(projectId)
-  
-  // Try to fetch milestones (may fail if endpoint doesn't exist yet)
-  try {
-    const milestoneData = await projectsStore.fetchMilestones(projectId)
-    milestones.value = Array.isArray(milestoneData) ? milestoneData : milestoneData.data || []
-  } catch (error) {
-    console.warn('Milestones endpoint not available yet')
+  if (projectsStore.currentProject) {
+    try {
+      const milestoneData = await projectsStore.fetchMilestones(projectId)
+      milestones.value = Array.isArray(milestoneData) ? milestoneData : (milestoneData as any)?.data ?? []
+    } catch {
+      milestones.value = []
+    }
   }
-})
+}
+
+onMounted(retryFetch)
 </script>
 

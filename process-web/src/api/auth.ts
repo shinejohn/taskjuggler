@@ -24,7 +24,7 @@ export const authApi = {
 
   async getUser() {
     const { data } = await apiClient.get('/auth/user');
-    return data;
+    return (data as any)?.data ?? data;
   },
 
   async logout() {

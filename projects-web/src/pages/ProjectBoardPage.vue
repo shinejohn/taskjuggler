@@ -22,6 +22,26 @@
       <div class="text-gray-500">Loading board...</div>
     </div>
 
+    <div v-else-if="tasksStore.error || projectsStore.error" class="text-center py-12">
+      <div class="text-red-600 mb-4">{{ tasksStore.error || projectsStore.error }}</div>
+      <button
+        @click="retryFetch"
+        class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+      >
+        Retry
+      </button>
+    </div>
+
+    <div v-else-if="tasksStore.tasks.length === 0" class="text-center py-12">
+      <div class="text-gray-500 mb-4">No tasks yet in this project</div>
+      <button
+        @click="showCreateTaskModal = true"
+        class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+      >
+        Add First Task
+      </button>
+    </div>
+
     <div v-else>
       <KanbanBoard
         :tasks="tasksStore.tasks"
@@ -111,11 +131,7 @@ const newTask = ref({
   priority: 'medium' as Task['priority'],
 })
 
-onMounted(async () => {
-  const projectId = route.params.id as string
-  await projectsStore.fetchProject(projectId)
-  await tasksStore.fetchTasks(projectId)
-})
+onMounted(retryFetch)
 
 async function handleCreateTask() {
   try {
@@ -131,6 +147,12 @@ async function handleCreateTask() {
 function handleTaskClick(task: Task) {
   // Navigate to task detail or show modal
   console.log('Task clicked:', task)
+}
+
+async function retryFetch() {
+  const projectId = route.params.id as string
+  await projectsStore.fetchProject(projectId)
+  await tasksStore.fetchTasks(projectId)
 }
 
 async function handleTaskMove(data: { taskId: string; action: string }) {
