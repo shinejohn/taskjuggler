@@ -22,8 +22,8 @@
 ## ❌ CANNOT COMPLETE (8 Items - Require External Access)
 
 1. **TaskJuggler Token Management** - Needs OAuth/API key system
-2. **Fibonacci CRM API** - Needs API credentials
-3. **Fibonacci Publishing API** - Needs API credentials
+2. **Fibonacco CRM API** - Needs API credentials
+3. **Fibonacco Publishing API** - Needs API credentials
 4. **Microsoft OAuth** - Needs Azure AD app registration
 5. **Slack OAuth** - Needs Slack app registration
 6. **Dropbox OAuth** - Needs Dropbox app registration

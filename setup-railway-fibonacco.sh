@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "=== Railway Setup for Fibonacci Platform ==="
+echo "=== Railway Setup for Fibonacco Platform ==="
 echo ""
 echo "This script sets up Railway for:"
-echo "  - fibonacci-api (web, worker, scheduler)"
+echo "  - fibonacco-api (web, worker, scheduler)"
 echo "  - taskjuggler frontend"
 echo ""
 echo "NOTE: Process and Projects frontends will be set up later when code is ready."
@@ -46,7 +46,7 @@ fi
 
 if [ "$PROJECT_LINKED" != "true" ]; then
     echo ""
-    echo "Please create a new Railway project called 'fibonacci' in the Railway dashboard,"
+    echo "Please create a new Railway project called 'fibonacco' in the Railway dashboard,"
     echo "or link to an existing project."
     echo ""
     echo "To link to existing project:"
@@ -82,7 +82,7 @@ fi
 echo ""
 echo "Setting API environment variables..."
 railway variables set \
-  APP_NAME="Fibonacci API" \
+  APP_NAME="Fibonacco API" \
   APP_ENV=production \
   APP_DEBUG=false \
   LOG_CHANNEL=stderr \

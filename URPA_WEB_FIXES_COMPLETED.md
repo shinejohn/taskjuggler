@@ -38,7 +38,7 @@
   - `urpa-web/src/stores/ai.ts` - Added `AISession`, `AIMessage`, `UrpaArtifact`, `AITask` types
   - `urpa-web/src/stores/integrations.ts` - Added `Integration` type
   - `urpa-web/src/stores/taskjuggler.ts` - Added `TaskJugglerLink` type
-  - `urpa-web/src/stores/fibonacci.ts` - Added `FibonacciLink` type
+  - `urpa-web/src/stores/fibonacco.ts` - Added `FibonaccoLink` type
   - `urpa-web/src/stores/voice.ts` - Added `PrerecordedResponse` type
   - `urpa-web/src/types/user.ts` - Created new type definitions
   - `urpa-web/src/types/phone.ts` - Created new type definitions
@@ -53,8 +53,8 @@
   - `urpa-web/src/components/phone/VapiVoiceInterface.vue` - Integrated Vapi API
   - `urpa-web/src/components/activities/ActionCard.vue` - Integrated activity creation API
   - `urpa-web/src/components/integrations/TaskJugglerWidget.vue` - Integrated TaskJuggler API
-  - `urpa-web/src/components/integrations/FibonacciCRMWidget.vue` - Integrated Fibonacci CRM API
-  - `urpa-web/src/components/integrations/FibonacciPublishingWidget.vue` - Integrated Fibonacci Publishing API
+  - `urpa-web/src/components/integrations/FibonaccoCRMWidget.vue` - Integrated Fibonacco CRM API
+  - `urpa-web/src/components/integrations/FibonaccoPublishingWidget.vue` - Integrated Fibonacco Publishing API
   - `urpa-web/src/components/ai/ArtifactPanel.vue` - Integrated Dropbox OAuth
 
 ### 7. Store Methods ✅
@@ -63,7 +63,7 @@
   - `urpa-web/src/stores/ai.ts` - Added `fetchSessions`, `fetchMessages`, `fetchArtifacts`, `generateArtifact`, `fetchTasks`
   - `urpa-web/src/stores/integrations.ts` - Added `connectIntegration`, `disconnectIntegration`, `syncIntegration`
   - `urpa-web/src/stores/taskjuggler.ts` - Added `linkAccount`, `sync`, `fetchTasks`, `createTask`
-  - `urpa-web/src/stores/fibonacci.ts` - Added `linkCRM`, `linkPublishing`, `fetchFAQs`, `syncFAQs`, `fetchProjects`, `createContentRequest`, `fetchBusinessInfo`
+  - `urpa-web/src/stores/fibonacco.ts` - Added `linkCRM`, `linkPublishing`, `fetchFAQs`, `syncFAQs`, `fetchProjects`, `createContentRequest`, `fetchBusinessInfo`
   - `urpa-web/src/stores/phone.ts` - Added `startCall`, `endCall`
   - `urpa-web/src/stores/voice.ts` - Added `findResponse`, `currentCallId`
 

@@ -31,14 +31,14 @@ app/Modules/Urpa/
 - **UrpaPhoneCall** - Phone call records
 - **UrpaVoiceResponse** - Pre-recorded voice responses
 - **UrpaTaskjugglerLink** - TaskJuggler integration link
-- **UrpaFibonacciLink** - Fibonacci CRM/Publishing integration
+- **UrpaFibonaccoLink** - Fibonacco CRM/Publishing integration
 
 ### Key Features
 1. **Unified Activity Feed** - Aggregates activities from multiple sources
 2. **AI Assistant** - Conversational AI with sessions and artifacts
 3. **Voice Integration** - Vapi phone assistant with pre-recorded responses
 4. **Contact Management** - Centralized contact database
-5. **External Integrations** - TaskJuggler, Fibonacci CRM/Publishing
+5. **External Integrations** - TaskJuggler, Fibonacco CRM/Publishing
 6. **Sync Services** - Bidirectional sync with external systems
 
 ### User Scoping
@@ -100,7 +100,7 @@ $table->timestamp('activity_timestamp');
 **Integrations:**
 ```php
 $table->uuid('user_id');
-$table->string('provider', 50); // taskjuggler, fibonacci_crm, etc.
+$table->string('provider', 50); // taskjuggler, fibonacco_crm, etc.
 $table->json('credentials')->nullable();
 $table->boolean('is_active')->default(true);
 $table->timestamp('last_synced_at')->nullable();

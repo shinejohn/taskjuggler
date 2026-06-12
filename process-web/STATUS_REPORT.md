@@ -62,9 +62,9 @@
 ### Backend API Status
 **Status: NOT FOUND**
 
-The markdown instructions state: *"The Process.ai Laravel backend code was already merged into fibonacci-api in the previous step"*
+The markdown instructions state: *"The Process.ai Laravel backend code was already merged into fibonacco-api in the previous step"*
 
-However, **fibonacci-api directory was not found** in the workspace.
+However, **fibonacco-api directory was not found** in the workspace.
 
 **What needs to be created/verified:**
 1. **API Routes** (`routes/api.php`):
@@ -136,8 +136,8 @@ Git status shows deleted migrations:
 ### Immediate Actions Required:
 
 1. **Locate or Create Backend API**:
-   - Find fibonacci-api or determine where Process API should be hosted
-   - If fibonacci-api doesn't exist, create Process API endpoints in taskjuggler-api or new location
+   - Find fibonacco-api or determine where Process API should be hosted
+   - If fibonacco-api doesn't exist, create Process API endpoints in taskjuggler-api or new location
 
 2. **Create Database Migrations**:
    - Create processes table migration

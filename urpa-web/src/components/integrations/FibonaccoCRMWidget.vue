@@ -7,7 +7,7 @@
             <Database class="h-5 w-5" />
           </div>
           <div>
-            <h3 :class="['text-base font-bold', textPrimary]">Fibonacci CRM</h3>
+            <h3 :class="['text-base font-bold', textPrimary]">Fibonacco CRM</h3>
             <p :class="['text-xs', textSecondary]">
               {{ linked ? 'Connected' : 'Not connected' }}
             </p>
@@ -21,7 +21,7 @@
         @click="handleLink"
         :class="['w-full px-4 py-2 rounded-lg text-white font-semibold transition-colors', theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600']"
       >
-        Connect Fibonacci CRM
+        Connect Fibonacco CRM
       </button>
       <div v-else class="space-y-2">
         <div class="flex items-center justify-between">
@@ -53,17 +53,17 @@
 import { ref, computed, onMounted } from 'vue';
 import { Database } from 'lucide-vue-next';
 import { useTheme } from '@/composables/useTheme';
-import { useFibonacciStore } from '@/stores/fibonacci';
+import { useFibonaccoStore } from '@/stores/fibonacco';
 
 const businessInfo = ref<any>(null);
 
 const { theme } = useTheme();
-const fibonacciStore = useFibonacciStore();
+const fibonaccoStore = useFibonaccoStore();
 
 const syncing = ref(false);
 
-const linked = computed(() => fibonacciStore.crmLinked);
-const faqsCount = computed(() => fibonacciStore.faqs.length);
+const linked = computed(() => fibonaccoStore.crmLinked);
+const faqsCount = computed(() => fibonaccoStore.faqs.length);
 
 const cardBg = computed(() => theme.value === 'dark' ? 'bg-slate-800/30' : 'bg-white/80');
 const cardBorder = computed(() => theme.value === 'dark' ? 'border-slate-700/50' : 'border-purple-200');
@@ -72,14 +72,14 @@ const textPrimary = computed(() => theme.value === 'dark' ? 'text-slate-200' : '
 const textSecondary = computed(() => theme.value === 'dark' ? 'text-slate-400' : 'text-gray-600');
 
 async function handleLink() {
-  // TODO: Open Fibonacci CRM link modal with business selection
+  // TODO: Open Fibonacco CRM link modal with business selection
   // For now, prompt for business ID
-  const businessId = prompt('Enter your Fibonacci CRM business ID:');
+  const businessId = prompt('Enter your Fibonacco CRM business ID:');
   if (businessId) {
     try {
-      await fibonacciStore.linkCRM(businessId);
-      await fibonacciStore.fetchBusinessInfo(businessId);
-      businessInfo.value = fibonacciStore.businessInfo;
+      await fibonaccoStore.linkCRM(businessId);
+      await fibonaccoStore.fetchBusinessInfo(businessId);
+      businessInfo.value = fibonaccoStore.businessInfo;
     } catch (error) {
       // Error handled by store
     }
@@ -92,7 +92,7 @@ async function handleSyncFAQs() {
   }
   syncing.value = true;
   try {
-    await fibonacciStore.syncFAQs(businessInfo.value.id);
+    await fibonaccoStore.syncFAQs(businessInfo.value.id);
   } catch (error) {
     // Error handled by store
   } finally {
@@ -101,10 +101,10 @@ async function handleSyncFAQs() {
 }
 
 onMounted(async () => {
-  await fibonacciStore.checkStatus();
-  if (fibonacciStore.link?.fibonacci_business_id) {
-    await fibonacciStore.fetchBusinessInfo(fibonacciStore.link.fibonacci_business_id);
-    businessInfo.value = fibonacciStore.businessInfo;
+  await fibonaccoStore.checkStatus();
+  if (fibonaccoStore.link?.fibonacco_business_id) {
+    await fibonaccoStore.fetchBusinessInfo(fibonaccoStore.link.fibonacco_business_id);
+    businessInfo.value = fibonaccoStore.businessInfo;
   }
 });
 </script>

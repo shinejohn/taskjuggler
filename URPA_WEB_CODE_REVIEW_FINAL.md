@@ -25,7 +25,7 @@ All placeholder pages (Profile, SetupWizard, Subscribe) have been successfully c
 - ✅ All AI components (AIAssistantInterface, AIControlCard, ArtifactPanel, AITasksCard)
 - ✅ All phone components (PhoneCard, VapiVoiceInterface)
 - ✅ All widget components (TravelCard, GoalsWidget)
-- ✅ All integration widgets (TaskJugglerWidget, FibonacciCRMWidget, FibonacciPublishingWidget)
+- ✅ All integration widgets (TaskJugglerWidget, FibonaccoCRMWidget, FibonaccoPublishingWidget)
 - ✅ SettingsPanel component
 
 ### Stores
@@ -86,8 +86,8 @@ POST /urpa/user-profile/upload-image
 #### 3. Integration Link Modals
 **Locations:**
 - `urpa-web/src/components/integrations/TaskJugglerWidget.vue` (line 78)
-- `urpa-web/src/components/integrations/FibonacciCRMWidget.vue` (line 75)
-- `urpa-web/src/components/integrations/FibonacciPublishingWidget.vue` (line 126)
+- `urpa-web/src/components/integrations/FibonaccoCRMWidget.vue` (line 75)
+- `urpa-web/src/components/integrations/FibonaccoPublishingWidget.vue` (line 126)
 
 **Issue:**
 - Currently using `prompt()` for user input

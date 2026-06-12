@@ -38,7 +38,7 @@
   },
 
   "remoteEnv": {
-    "VITE_API_URL": "${localEnv:VITE_API_URL:https://api.fibonacci.railway.app}",
+    "VITE_API_URL": "${localEnv:VITE_API_URL:https://api.fibonacco.railway.app}",
     "VITE_APP_NAME": "4Process.ai"
   }
 }

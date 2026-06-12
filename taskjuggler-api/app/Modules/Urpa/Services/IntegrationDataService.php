@@ -6,8 +6,8 @@ use App\Models\User;
 use App\Modules\Urpa\Models\UrpaIntegration;
 use App\Modules\Urpa\Models\UrpaActivity;
 use App\Modules\Urpa\Models\UrpaContact;
-use App\Modules\Urpa\Models\UrpaFibonacciLink;
-use App\Modules\Urpa\Services\FibonacciCrmService;
+use App\Modules\Urpa\Models\UrpaFibonaccoLink;
+use App\Modules\Urpa\Services\FibonaccoCrmService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 class IntegrationDataService
 {
     public function __construct(
-        private FibonacciCrmService $fibonacciCrmService
+        private FibonaccoCrmService $fibonaccoCrmService
     ) {}
 
     /**
@@ -202,25 +202,25 @@ class IntegrationDataService
     }
 
     /**
-     * Get business information from Fibonacci CRM
+     * Get business information from Fibonacco CRM
      */
     public function getBusinessInfo(User $user): array
     {
-        $fibonacciLink = UrpaFibonacciLink::where('urpa_user_id', $user->id)->first();
+        $fibonaccoLink = UrpaFibonaccoLink::where('urpa_user_id', $user->id)->first();
         
-        if (!$fibonacciLink || !$fibonacciLink->fibonacci_business_id) {
+        if (!$fibonaccoLink || !$fibonaccoLink->fibonacco_business_id) {
             return [];
         }
         
-        $cacheKey = "business_info:{$user->id}:{$fibonacciLink->fibonacci_business_id}";
+        $cacheKey = "business_info:{$user->id}:{$fibonaccoLink->fibonacco_business_id}";
         
-        return Cache::remember($cacheKey, now()->addHour(), function () use ($fibonacciLink) {
+        return Cache::remember($cacheKey, now()->addHour(), function () use ($fibonaccoLink) {
             try {
-                return $this->fibonacciCrmService->getBusinessData($fibonacciLink->fibonacci_business_id);
+                return $this->fibonaccoCrmService->getBusinessData($fibonaccoLink->fibonacco_business_id);
             } catch (\Exception $e) {
                 Log::error('Failed to fetch business info', [
                     'error' => $e->getMessage(),
-                    'business_id' => $fibonacciLink->fibonacci_business_id,
+                    'business_id' => $fibonaccoLink->fibonacco_business_id,
                 ]);
                 return [];
             }

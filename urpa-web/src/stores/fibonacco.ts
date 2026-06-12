@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import api from '@/utils/api';
-import type { FibonacciLink } from '@/types/integration';
+import type { FibonaccoLink } from '@/types/integration';
 
-export const useFibonacciStore = defineStore('fibonacci', () => {
+export const useFibonaccoStore = defineStore('fibonacco', () => {
   const crmLinked = ref(false);
   const publishingLinked = ref(false);
-  const link = ref<FibonacciLink | null>(null);
+  const link = ref<FibonaccoLink | null>(null);
   const faqs = ref<any[]>([]);
   const projects = ref<any[]>([]);
   const businessInfo = ref<any>(null);
@@ -17,7 +17,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await api.get('/urpa/integrations/fibonacci/status');
+      const response = await api.get('/urpa/integrations/fibonacco/status');
       const data = response.data.data || response.data;
       crmLinked.value = data.crm_linked || false;
       publishingLinked.value = data.publishing_linked || false;
@@ -35,7 +35,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await api.post('/urpa/integrations/fibonacci/crm/link', {
+      const response = await api.post('/urpa/integrations/fibonacco/crm/link', {
         business_id: businessId,
       });
       const result = response.data.data || response.data;
@@ -54,7 +54,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await api.post('/urpa/integrations/fibonacci/publishing/link', {
+      const response = await api.post('/urpa/integrations/fibonacco/publishing/link', {
         team_id: teamId,
       });
       const result = response.data.data || response.data;
@@ -73,7 +73,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await api.get(`/urpa/integrations/fibonacci/crm/business/${businessId}/faqs`);
+      const response = await api.get(`/urpa/integrations/fibonacco/crm/business/${businessId}/faqs`);
       faqs.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
@@ -88,7 +88,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     loading.value = true;
     error.value = null;
     try {
-      await api.post(`/urpa/integrations/fibonacci/crm/business/${businessId}/sync-faqs`);
+      await api.post(`/urpa/integrations/fibonacco/crm/business/${businessId}/sync-faqs`);
       await fetchFAQs(businessId);
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to sync FAQs';
@@ -102,7 +102,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await api.get(`/urpa/integrations/fibonacci/publishing/teams/${teamId}/projects`);
+      const response = await api.get(`/urpa/integrations/fibonacco/publishing/teams/${teamId}/projects`);
       projects.value = response.data.data || response.data || [];
       return response.data;
     } catch (err: any) {
@@ -120,7 +120,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await api.post(`/urpa/integrations/fibonacci/publishing/teams/${teamId}/projects`, data);
+      const response = await api.post(`/urpa/integrations/fibonacco/publishing/teams/${teamId}/projects`, data);
       const result = response.data.data || response.data;
       projects.value.unshift(result);
       return result;
@@ -136,7 +136,7 @@ export const useFibonacciStore = defineStore('fibonacci', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await api.get(`/urpa/integrations/fibonacci/crm/business/${businessId}`);
+      const response = await api.get(`/urpa/integrations/fibonacco/crm/business/${businessId}`);
       const data = response.data.data || response.data;
       businessInfo.value = data;
       return data;

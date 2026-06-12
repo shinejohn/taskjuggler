@@ -164,8 +164,8 @@ async function findResponse(userInput: string, context?: any) {
 
 **Locations:**
 - `src/components/integrations/TaskJugglerWidget.vue:78`
-- `src/components/integrations/FibonacciCRMWidget.vue:74`
-- `src/components/integrations/FibonacciPublishingWidget.vue:126`
+- `src/components/integrations/FibonaccoCRMWidget.vue:74`
+- `src/components/integrations/FibonaccoPublishingWidget.vue:126`
 
 **Issues:**
 - Link modals not implemented
@@ -450,7 +450,7 @@ tasks.value = [
 
 ---
 
-### 5.6 Fibonacci Store
+### 5.6 Fibonacco Store
 
 **Issues:**
 1. Missing methods: `linkCRM`, `linkPublishing`, `syncFAQs`, `createProject`
@@ -684,7 +684,7 @@ tasks.value = [
 
 ### Priority 3 (Medium - Fix When Possible)
 
-1. **Complete integration widgets** - TaskJuggler, Fibonacci CRM/Publishing
+1. **Complete integration widgets** - TaskJuggler, Fibonacco CRM/Publishing
 2. **Fetch real data** - Replace mock data in TravelCard, AITasksCard
 3. **Add virtual scrolling** - For long lists
 4. **Add request cancellation** - Prevent race conditions
@@ -710,7 +710,7 @@ tasks.value = [
 | `src/stores/ai.ts` | ⚠️ Incomplete | Missing methods | P2 |
 | `src/stores/integrations.ts` | ⚠️ Incomplete | Minimal implementation | P3 |
 | `src/stores/taskjuggler.ts` | ⚠️ Incomplete | Missing methods | P3 |
-| `src/stores/fibonacci.ts` | ⚠️ Incomplete | Missing methods | P3 |
+| `src/stores/fibonacco.ts` | ⚠️ Incomplete | Missing methods | P3 |
 | `src/pages/Login.vue` | ✅ Complete | TODO: OAuth | P2 |
 | `src/pages/SignUp.vue` | ✅ Complete | - | - |
 | `src/pages/Dashboard.vue` | ✅ Complete | - | - |

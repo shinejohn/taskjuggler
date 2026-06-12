@@ -20,10 +20,10 @@ export interface TaskJugglerLink {
   tj_originated: boolean;
 }
 
-export interface FibonacciLink {
+export interface FibonaccoLink {
   urpa_user_id: string;
-  fibonacci_business_id?: string;
-  fibonacci_team_id?: string;
+  fibonacco_business_id?: string;
+  fibonacco_team_id?: string;
   crm_linked: boolean;
   publishing_linked: boolean;
 }

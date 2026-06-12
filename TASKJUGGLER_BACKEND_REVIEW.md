@@ -488,17 +488,17 @@
 - `GET /urpa/integrations/taskjuggler/tasks` - List tasks
 - `POST /urpa/integrations/taskjuggler/tasks` - Create task
 
-#### Fibonacci Integration
-- `GET /urpa/integrations/fibonacci/status` - Get status
-- `POST /urpa/integrations/fibonacci/crm/link` - Link CRM
-- `GET /urpa/integrations/fibonacci/crm/business/{id}` - Get business profile
-- `GET /urpa/integrations/fibonacci/crm/business/{id}/faqs` - Get FAQs
-- `POST /urpa/integrations/fibonacci/crm/business/{id}/sync-faqs` - Sync FAQs
-- `GET /urpa/integrations/fibonacci/crm/business/{id}/polls` - Get polls
-- `POST /urpa/integrations/fibonacci/publishing/link` - Link publishing
-- `GET /urpa/integrations/fibonacci/publishing/team/{id}` - Get publishing team
-- `GET /urpa/integrations/fibonacci/publishing/teams/{id}/projects` - Get projects
-- `POST /urpa/integrations/fibonacci/publishing/teams/{id}/projects` - Create content request
+#### Fibonacco Integration
+- `GET /urpa/integrations/fibonacco/status` - Get status
+- `POST /urpa/integrations/fibonacco/crm/link` - Link CRM
+- `GET /urpa/integrations/fibonacco/crm/business/{id}` - Get business profile
+- `GET /urpa/integrations/fibonacco/crm/business/{id}/faqs` - Get FAQs
+- `POST /urpa/integrations/fibonacco/crm/business/{id}/sync-faqs` - Sync FAQs
+- `GET /urpa/integrations/fibonacco/crm/business/{id}/polls` - Get polls
+- `POST /urpa/integrations/fibonacco/publishing/link` - Link publishing
+- `GET /urpa/integrations/fibonacco/publishing/team/{id}` - Get publishing team
+- `GET /urpa/integrations/fibonacco/publishing/teams/{id}/projects` - Get projects
+- `POST /urpa/integrations/fibonacco/publishing/teams/{id}/projects` - Create content request
 
 ### Coordinator Module (`/api/coordinator`)
 
@@ -668,7 +668,7 @@
 - `PhoneController` - Phone call management
 - `IntegrationController` - Integration management
 - `TaskJugglerController` - TaskJuggler integration
-- `FibonacciController` - Fibonacci CRM/Publishing integration
+- `FibonaccoController` - Fibonacco CRM/Publishing integration
 
 **Features:**
 - Activity feed with read/unread status
@@ -678,7 +678,7 @@
 - Vapi integration for voice calls
 - External integrations (OAuth flows)
 - TaskJuggler integration
-- Fibonacci CRM and Publishing integration
+- Fibonacco CRM and Publishing integration
 
 **Routes:** `/api/urpa/*`
 

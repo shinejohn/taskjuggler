@@ -7,7 +7,7 @@
             <FileText class="h-5 w-5" />
           </div>
           <div>
-            <h3 :class="['text-base font-bold', textPrimary]">Fibonacci Publishing</h3>
+            <h3 :class="['text-base font-bold', textPrimary]">Fibonacco Publishing</h3>
             <p :class="['text-xs', textSecondary]">
               {{ linked ? 'Connected' : 'Not connected' }}
             </p>
@@ -100,11 +100,11 @@
 import { ref, computed, onMounted } from 'vue';
 import { FileText } from 'lucide-vue-next';
 import { useTheme } from '@/composables/useTheme';
-import { useFibonacciStore } from '@/stores/fibonacci';
+import { useFibonaccoStore } from '@/stores/fibonacco';
 import Modal from '@/components/ui/Modal.vue';
 
 const { theme } = useTheme();
-const fibonacciStore = useFibonacciStore();
+const fibonaccoStore = useFibonaccoStore();
 
 const showCreateModal = ref(false);
 const recentProjects = ref<any[]>([]);
@@ -113,8 +113,8 @@ const contentRequest = ref({
   topic: '',
 });
 
-const linked = computed(() => fibonacciStore.publishingLinked);
-const projectsCount = computed(() => fibonacciStore.projects.length);
+const linked = computed(() => fibonaccoStore.publishingLinked);
+const projectsCount = computed(() => fibonaccoStore.projects.length);
 
 const cardBg = computed(() => theme.value === 'dark' ? 'bg-slate-800/30' : 'bg-white/80');
 const cardBorder = computed(() => theme.value === 'dark' ? 'border-slate-700/50' : 'border-purple-200');
@@ -123,14 +123,14 @@ const textPrimary = computed(() => theme.value === 'dark' ? 'text-slate-200' : '
 const textSecondary = computed(() => theme.value === 'dark' ? 'text-slate-400' : 'text-gray-600');
 
 async function handleLink() {
-  // TODO: Open Fibonacci Publishing link modal with team selection
+  // TODO: Open Fibonacco Publishing link modal with team selection
   // For now, prompt for team ID
-  const teamId = prompt('Enter your Fibonacci Publishing team ID:');
+  const teamId = prompt('Enter your Fibonacco Publishing team ID:');
   if (teamId) {
     try {
-      await fibonacciStore.linkPublishing(teamId);
-      await fibonacciStore.fetchProjects(teamId);
-      recentProjects.value = fibonacciStore.projects.slice(0, 5);
+      await fibonaccoStore.linkPublishing(teamId);
+      await fibonaccoStore.fetchProjects(teamId);
+      recentProjects.value = fibonaccoStore.projects.slice(0, 5);
     } catch (error) {
       // Error handled by store
     }
@@ -142,13 +142,13 @@ async function handleCreateRequest() {
     return;
   }
   try {
-    const teamId = fibonacciStore.link?.fibonacci_team_id;
+    const teamId = fibonaccoStore.link?.fibonacco_team_id;
     if (!teamId) {
       alert('Please link your Publishing account first');
       return;
     }
-    await fibonacciStore.createContentRequest(teamId, contentRequest.value);
-    recentProjects.value = fibonacciStore.projects.slice(0, 5);
+    await fibonaccoStore.createContentRequest(teamId, contentRequest.value);
+    recentProjects.value = fibonaccoStore.projects.slice(0, 5);
     showCreateModal.value = false;
     contentRequest.value = { type: 'blog', topic: '' };
   } catch (error) {
@@ -157,10 +157,10 @@ async function handleCreateRequest() {
 }
 
 onMounted(async () => {
-  await fibonacciStore.checkStatus();
-  if (fibonacciStore.link?.fibonacci_team_id) {
-    await fibonacciStore.fetchProjects(fibonacciStore.link.fibonacci_team_id);
-    recentProjects.value = fibonacciStore.projects.slice(0, 5);
+  await fibonaccoStore.checkStatus();
+  if (fibonaccoStore.link?.fibonacco_team_id) {
+    await fibonaccoStore.fetchProjects(fibonaccoStore.link.fibonacco_team_id);
+    recentProjects.value = fibonaccoStore.projects.slice(0, 5);
   }
 });
 </script>

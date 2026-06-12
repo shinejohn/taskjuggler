@@ -8,15 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UrpaFibonacciLink extends Model
+class UrpaFibonaccoLink extends Model
 {
     use HasUuids, HasFactory;
 
-    protected $table = 'urpa_fibonacci_link';
+    protected $table = 'urpa_fibonacco_link';
 
     protected $fillable = [
         'urpa_user_id',
-        'fibonacci_business_id',
+        'fibonacco_business_id',
         'sync_faqs',
         'sync_polls',
         'sync_business_info',
@@ -40,7 +40,7 @@ class UrpaFibonacciLink extends Model
     // Methods
     public function isLinked(): bool
     {
-        return $this->fibonacci_business_id !== null;
+        return $this->fibonacco_business_id !== null;
     }
 
     public function hasPublishingEnabled(): bool

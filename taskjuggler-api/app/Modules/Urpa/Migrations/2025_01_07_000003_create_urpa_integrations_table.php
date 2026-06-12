@@ -70,10 +70,10 @@ return new class extends Migration
             }
         });
 
-        Schema::create('urpa_fibonacci_link', function (Blueprint $table) {
+        Schema::create('urpa_fibonacco_link', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('urpa_user_id');
-            $table->uuid('fibonacci_business_id')->nullable();
+            $table->uuid('fibonacco_business_id')->nullable();
             
             // Sync Settings
             $table->boolean('sync_faqs')->default(true);
@@ -94,7 +94,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('urpa_fibonacci_link');
+        Schema::dropIfExists('urpa_fibonacco_link');
         Schema::dropIfExists('urpa_taskjuggler_link');
         Schema::dropIfExists('urpa_integrations');
     }

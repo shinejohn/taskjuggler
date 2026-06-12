@@ -5021,9 +5021,9 @@
       "model": "App\\Modules\\Urpa\\Models\\UrpaUserPersona",
       "note": "No migration found"
     },
-    "urpa_fibonacci_link": {
+    "urpa_fibonacco_link": {
       "columns": [],
-      "model": "App\\Modules\\Urpa\\Models\\UrpaFibonacciLink",
+      "model": "App\\Modules\\Urpa\\Models\\UrpaFibonaccoLink",
       "note": "No migration found"
     },
     "urpa_integrations": {
@@ -7466,13 +7466,13 @@
       ],
       "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaUserPersona.php"
     },
-    "UrpaFibonacciLink": {
-      "model": "UrpaFibonacciLink",
-      "class": "App\\Modules\\Urpa\\Models\\UrpaFibonacciLink",
-      "table": "urpa_fibonacci_link",
+    "UrpaFibonaccoLink": {
+      "model": "UrpaFibonaccoLink",
+      "class": "App\\Modules\\Urpa\\Models\\UrpaFibonaccoLink",
+      "table": "urpa_fibonacco_link",
       "fillable": [
         "urpa_user_id",
-        "fibonacci_business_id",
+        "fibonacco_business_id",
         "sync_faqs",
         "sync_polls",
         "sync_business_info",
@@ -7485,7 +7485,7 @@
           "type": "belongsTo"
         }
       ],
-      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaFibonacciLink.php"
+      "file_path": "/Users/johnshine/Dropbox/Fibonacco/taskjuggler/Code/taskjuggler-api/app/Modules/Urpa/Models/UrpaFibonaccoLink.php"
     },
     "UrpaIntegration": {
       "model": "UrpaIntegration",

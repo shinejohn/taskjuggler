@@ -3,28 +3,28 @@
 namespace App\Modules\Urpa\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Urpa\Models\UrpaFibonacciLink;
-use App\Modules\Urpa\Services\FibonacciCrmService;
-use App\Modules\Urpa\Services\FibonacciPublishingService;
+use App\Modules\Urpa\Models\UrpaFibonaccoLink;
+use App\Modules\Urpa\Services\FibonaccoCrmService;
+use App\Modules\Urpa\Services\FibonaccoPublishingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class FibonacciController extends Controller
+class FibonaccoController extends Controller
 {
     public function __construct(
-        private FibonacciCrmService $crmService,
-        private FibonacciPublishingService $publishingService
+        private FibonaccoCrmService $crmService,
+        private FibonaccoPublishingService $publishingService
     ) {}
 
     /**
-     * Get Fibonacci link status
-     * GET /api/urpa/integrations/fibonacci/status
+     * Get Fibonacco link status
+     * GET /api/urpa/integrations/fibonacco/status
      */
     public function status(Request $request): JsonResponse
     {
         $user = $request->user();
         
-        $link = UrpaFibonacciLink::where('urpa_user_id', $user->id)->first();
+        $link = UrpaFibonaccoLink::where('urpa_user_id', $user->id)->first();
 
         return response()->json([
             'linked' => $link !== null && $link->isLinked(),
@@ -33,13 +33,13 @@ class FibonacciController extends Controller
     }
 
     /**
-     * Link Fibonacci CRM
-     * POST /api/urpa/integrations/fibonacci/crm/link
+     * Link Fibonacco CRM
+     * POST /api/urpa/integrations/fibonacco/crm/link
      */
     public function linkCrm(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'fibonacci_business_id' => 'required|uuid',
+            'fibonacco_business_id' => 'required|uuid',
             'sync_faqs' => 'sometimes|boolean',
             'sync_polls' => 'sometimes|boolean',
             'sync_business_info' => 'sometimes|boolean',
@@ -47,10 +47,10 @@ class FibonacciController extends Controller
 
         $user = $request->user();
 
-        $link = UrpaFibonacciLink::updateOrCreate(
+        $link = UrpaFibonaccoLink::updateOrCreate(
             ['urpa_user_id' => $user->id],
             [
-                'fibonacci_business_id' => $validated['fibonacci_business_id'],
+                'fibonacco_business_id' => $validated['fibonacco_business_id'],
                 'sync_faqs' => $validated['sync_faqs'] ?? true,
                 'sync_polls' => $validated['sync_polls'] ?? true,
                 'sync_business_info' => $validated['sync_business_info'] ?? true,
@@ -62,14 +62,14 @@ class FibonacciController extends Controller
 
     /**
      * Get business profile
-     * GET /api/urpa/integrations/fibonacci/crm/business/{businessId}
+     * GET /api/urpa/integrations/fibonacco/crm/business/{businessId}
      */
     public function getBusinessProfile(Request $request, string $businessId): JsonResponse
     {
         $user = $request->user();
         
-        $link = UrpaFibonacciLink::where('urpa_user_id', $user->id)
-            ->where('fibonacci_business_id', $businessId)
+        $link = UrpaFibonaccoLink::where('urpa_user_id', $user->id)
+            ->where('fibonacco_business_id', $businessId)
             ->firstOrFail();
 
         $profile = $this->crmService->getBusinessProfile($businessId);
@@ -79,14 +79,14 @@ class FibonacciController extends Controller
 
     /**
      * Get FAQs
-     * GET /api/urpa/integrations/fibonacci/crm/business/{businessId}/faqs
+     * GET /api/urpa/integrations/fibonacco/crm/business/{businessId}/faqs
      */
     public function getFAQs(Request $request, string $businessId): JsonResponse
     {
         $user = $request->user();
         
-        $link = UrpaFibonacciLink::where('urpa_user_id', $user->id)
-            ->where('fibonacci_business_id', $businessId)
+        $link = UrpaFibonaccoLink::where('urpa_user_id', $user->id)
+            ->where('fibonacco_business_id', $businessId)
             ->firstOrFail();
 
         $faqs = $this->crmService->getFAQs($businessId);
@@ -96,14 +96,14 @@ class FibonacciController extends Controller
 
     /**
      * Sync FAQs to voice responses
-     * POST /api/urpa/integrations/fibonacci/crm/business/{businessId}/sync-faqs
+     * POST /api/urpa/integrations/fibonacco/crm/business/{businessId}/sync-faqs
      */
     public function syncFAQs(Request $request, string $businessId): JsonResponse
     {
         $user = $request->user();
         
-        $link = UrpaFibonacciLink::where('urpa_user_id', $user->id)
-            ->where('fibonacci_business_id', $businessId)
+        $link = UrpaFibonaccoLink::where('urpa_user_id', $user->id)
+            ->where('fibonacco_business_id', $businessId)
             ->firstOrFail();
 
         $result = $this->crmService->syncFAQsToVoice($businessId);
@@ -113,14 +113,14 @@ class FibonacciController extends Controller
 
     /**
      * Get active polls
-     * GET /api/urpa/integrations/fibonacci/crm/business/{businessId}/polls
+     * GET /api/urpa/integrations/fibonacco/crm/business/{businessId}/polls
      */
     public function getPolls(Request $request, string $businessId): JsonResponse
     {
         $user = $request->user();
         
-        $link = UrpaFibonacciLink::where('urpa_user_id', $user->id)
-            ->where('fibonacci_business_id', $businessId)
+        $link = UrpaFibonaccoLink::where('urpa_user_id', $user->id)
+            ->where('fibonacco_business_id', $businessId)
             ->firstOrFail();
 
         $polls = $this->crmService->getActivePolls($businessId);
@@ -129,8 +129,8 @@ class FibonacciController extends Controller
     }
 
     /**
-     * Link Fibonacci Publishing
-     * POST /api/urpa/integrations/fibonacci/publishing/link
+     * Link Fibonacco Publishing
+     * POST /api/urpa/integrations/fibonacco/publishing/link
      */
     public function linkPublishing(Request $request): JsonResponse
     {
@@ -140,11 +140,11 @@ class FibonacciController extends Controller
 
         $user = $request->user();
 
-        $link = UrpaFibonacciLink::where('urpa_user_id', $user->id)->first();
+        $link = UrpaFibonaccoLink::where('urpa_user_id', $user->id)->first();
 
         if (!$link) {
             return response()->json([
-                'error' => 'Fibonacci CRM must be linked first',
+                'error' => 'Fibonacco CRM must be linked first',
             ], 400);
         }
 
@@ -158,13 +158,13 @@ class FibonacciController extends Controller
 
     /**
      * Get publishing team
-     * GET /api/urpa/integrations/fibonacci/publishing/team/{teamId}
+     * GET /api/urpa/integrations/fibonacco/publishing/team/{teamId}
      */
     public function getPublishingTeam(Request $request, string $teamId): JsonResponse
     {
         $user = $request->user();
         
-        $link = UrpaFibonacciLink::where('urpa_user_id', $user->id)
+        $link = UrpaFibonaccoLink::where('urpa_user_id', $user->id)
             ->where('publishing_team_id', $teamId)
             ->firstOrFail();
 
@@ -175,7 +175,7 @@ class FibonacciController extends Controller
 
     /**
      * Create content request
-     * POST /api/urpa/integrations/fibonacci/publishing/teams/{teamId}/projects
+     * POST /api/urpa/integrations/fibonacco/publishing/teams/{teamId}/projects
      */
     public function createContentRequest(Request $request, string $teamId): JsonResponse
     {
@@ -192,7 +192,7 @@ class FibonacciController extends Controller
 
         $user = $request->user();
         
-        $link = UrpaFibonacciLink::where('urpa_user_id', $user->id)
+        $link = UrpaFibonaccoLink::where('urpa_user_id', $user->id)
             ->where('publishing_team_id', $teamId)
             ->firstOrFail();
 
@@ -203,13 +203,13 @@ class FibonacciController extends Controller
 
     /**
      * Get content projects
-     * GET /api/urpa/integrations/fibonacci/publishing/teams/{teamId}/projects
+     * GET /api/urpa/integrations/fibonacco/publishing/teams/{teamId}/projects
      */
     public function getProjects(Request $request, string $teamId): JsonResponse
     {
         $user = $request->user();
         
-        $link = UrpaFibonacciLink::where('urpa_user_id', $user->id)
+        $link = UrpaFibonaccoLink::where('urpa_user_id', $user->id)
             ->where('publishing_team_id', $teamId)
             ->firstOrFail();
 

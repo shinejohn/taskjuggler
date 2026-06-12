@@ -85,7 +85,7 @@ taskjuggler-api/database/migrations/
 ## Project Name
 
 **Current:** `taskjuggler-api` (folder name)
-**Target:** `fibonacci-api` (per reorganization plan)
+**Target:** `fibonacco-api` (per reorganization plan)
 **Railway Project:** "Fibonacco AI"
 
 ---

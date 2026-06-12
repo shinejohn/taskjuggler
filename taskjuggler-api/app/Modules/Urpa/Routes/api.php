@@ -8,7 +8,7 @@ use App\Modules\Urpa\Controllers\VoiceController;
 use App\Modules\Urpa\Controllers\PhoneController;
 use App\Modules\Urpa\Controllers\IntegrationController;
 use App\Modules\Urpa\Controllers\TaskJugglerController;
-use App\Modules\Urpa\Controllers\FibonacciController;
+use App\Modules\Urpa\Controllers\FibonaccoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,25 +118,25 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/tasks', [TaskJugglerController::class, 'createTask']);
         });
 
-        // Fibonacci
-        Route::prefix('fibonacci')->group(function () {
-            Route::get('/status', [FibonacciController::class, 'status']);
+        // Fibonacco
+        Route::prefix('fibonacco')->group(function () {
+            Route::get('/status', [FibonaccoController::class, 'status']);
             
             // CRM
             Route::prefix('crm')->group(function () {
-                Route::post('/link', [FibonacciController::class, 'linkCrm']);
-                Route::get('/business/{businessId}', [FibonacciController::class, 'getBusinessProfile']);
-                Route::get('/business/{businessId}/faqs', [FibonacciController::class, 'getFAQs']);
-                Route::post('/business/{businessId}/sync-faqs', [FibonacciController::class, 'syncFAQs']);
-                Route::get('/business/{businessId}/polls', [FibonacciController::class, 'getPolls']);
+                Route::post('/link', [FibonaccoController::class, 'linkCrm']);
+                Route::get('/business/{businessId}', [FibonaccoController::class, 'getBusinessProfile']);
+                Route::get('/business/{businessId}/faqs', [FibonaccoController::class, 'getFAQs']);
+                Route::post('/business/{businessId}/sync-faqs', [FibonaccoController::class, 'syncFAQs']);
+                Route::get('/business/{businessId}/polls', [FibonaccoController::class, 'getPolls']);
             });
 
             // Publishing
             Route::prefix('publishing')->group(function () {
-                Route::post('/link', [FibonacciController::class, 'linkPublishing']);
-                Route::get('/team/{teamId}', [FibonacciController::class, 'getPublishingTeam']);
-                Route::get('/teams/{teamId}/projects', [FibonacciController::class, 'getProjects']);
-                Route::post('/teams/{teamId}/projects', [FibonacciController::class, 'createContentRequest']);
+                Route::post('/link', [FibonaccoController::class, 'linkPublishing']);
+                Route::get('/team/{teamId}', [FibonaccoController::class, 'getPublishingTeam']);
+                Route::get('/teams/{teamId}/projects', [FibonaccoController::class, 'getProjects']);
+                Route::post('/teams/{teamId}/projects', [FibonaccoController::class, 'createContentRequest']);
             });
         });
     });
