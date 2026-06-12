@@ -173,11 +173,14 @@
                     <td class="px-6 py-4 font-semibold text-slate-900">${{ invoice.amount.toFixed(2) }}</td>
                     <td class="px-6 py-4 text-right">
                       <button
+                        v-if="invoice.invoice_pdf || invoice.invoice_url"
+                        type="button"
                         @click="downloadInvoice(invoice)"
                         class="text-[#1B4F72] hover:underline text-sm font-medium"
                       >
                         Download
                       </button>
+                      <span v-else class="text-slate-400 text-sm">—</span>
                     </td>
                   </tr>
                   <tr v-if="billingHistory.length === 0 && !loading">
@@ -291,9 +294,11 @@ const addOns = ref([
   },
 ]);
 
-function downloadInvoice(_invoice: BillingHistoryItem) {
-  // TODO: Implement invoice download
-  // await billingApi.downloadInvoice(invoice.id);
+function downloadInvoice(invoice: BillingHistoryItem) {
+  const url = invoice.invoice_pdf || invoice.invoice_url;
+  if (url) {
+    window.open(url, '_blank', 'noopener');
+  }
 }
 
 async function cancelSubscription() {

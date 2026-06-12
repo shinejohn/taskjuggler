@@ -202,7 +202,6 @@ const handleVerifyChoice = async () => {
             window.location.href = result.url
         } else if (result.client_secret) {
             // If using Stripe.js embedded flow, would initialize here
-            console.log('Stripe client_secret received:', result.client_secret)
             alert('Stripe Identity flow would initialize here with Stripe.js')
         }
     } catch (e: any) {

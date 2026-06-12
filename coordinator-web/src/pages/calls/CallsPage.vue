@@ -10,11 +10,7 @@
           <p class="text-slate-500 mt-1">{{ callsStore.total }} total calls</p>
         </div>
         <div class="flex gap-3">
-          <Button variant="outline" @click="showDateFilter = !showDateFilter">
-            <Calendar :size="18" class="mr-2" />
-            Last 30 Days
-          </Button>
-          <Button variant="outline" @click="exportCalls">
+          <Button variant="outline" :disabled="callsStore.calls.length === 0" @click="exportCalls">
             <Download :size="18" class="mr-2" />
             Export
           </Button>
@@ -296,7 +292,6 @@ const organizationsStore = useOrganizationsStore();
 const searchQuery = ref('');
 const filterDirection = ref<'inbound' | 'outbound' | ''>('');
 const filterOutcome = ref('');
-const showDateFilter = ref(false);
 
 // Use utility functions for formatting
 const formatDate = formatRelativeDate;
@@ -330,8 +325,7 @@ function playRecording(call: CallLog) {
 }
 
 function viewTranscript(call: CallLog) {
-  // TODO: Implement transcript modal
-  // For now, show transcript in the call detail panel
+  // Transcript is rendered inside the call detail panel
   selectedCall.value = call;
   showCallPanel.value = true;
 }
@@ -350,8 +344,24 @@ function goToPage(page: number) {
 }
 
 function exportCalls() {
-  // TODO: Implement export functionality
-  // await callsApi.exportCalls(filters);
+  const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+  const rows = callsStore.calls.map((call) => [
+    call.started_at,
+    getContactName(call),
+    call.from_number,
+    getCoordinatorName(call),
+    call.direction,
+    formatDuration(call.duration_seconds),
+    call.outcome || 'Completed',
+  ].map((v) => escapeCsv(String(v ?? ''))).join(','));
+  const csv = ['Date,Contact,Phone,Coordinator,Direction,Duration,Outcome', ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `calls-export-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 async function fetchCalls(filters?: any) {

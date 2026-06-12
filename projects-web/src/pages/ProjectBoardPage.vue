@@ -109,6 +109,37 @@
         </form>
       </div>
     </div>
+
+    <!-- Task Detail Modal -->
+    <div
+      v-if="selectedTask"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      @click="selectedTask = null"
+    >
+      <div
+        class="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+        @click.stop
+      >
+        <h2 class="text-xl font-bold mb-2">{{ selectedTask.title }}</h2>
+        <p v-if="selectedTask.description" class="text-gray-700 mb-4 whitespace-pre-line">
+          {{ selectedTask.description }}
+        </p>
+        <p v-else class="text-gray-400 italic mb-4">No description</p>
+        <div class="flex gap-4 text-sm text-gray-600 mb-6">
+          <span><span class="font-medium">Priority:</span> {{ selectedTask.priority }}</span>
+          <span><span class="font-medium">Status:</span> {{ selectedTask.state }}</span>
+        </div>
+        <div class="flex justify-end">
+          <button
+            type="button"
+            @click="selectedTask = null"
+            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -125,6 +156,7 @@ const tasksStore = useTasksStore()
 const projectsStore = useProjectsStore()
 
 const showCreateTaskModal = ref(false)
+const selectedTask = ref<Task | null>(null)
 const newTask = ref({
   title: '',
   description: '',
@@ -145,8 +177,7 @@ async function handleCreateTask() {
 }
 
 function handleTaskClick(task: Task) {
-  // Navigate to task detail or show modal
-  console.log('Task clicked:', task)
+  selectedTask.value = task
 }
 
 async function retryFetch() {

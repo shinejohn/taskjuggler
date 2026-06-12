@@ -372,6 +372,14 @@ class Task extends Model
     }
 
     /**
+     * Alias for status — some frontends use "state" terminology
+     */
+    public function getStateAttribute(): ?string
+    {
+        return $this->status;
+    }
+
+    /**
      * Add computed fields to JSON output
      */
     protected $appends = [
@@ -382,6 +390,7 @@ class Task extends Model
         'owner_phone',
         'location',
         'contact_info',
+        'state',
     ];
 }
 

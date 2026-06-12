@@ -28,6 +28,8 @@ export interface BillingHistoryItem {
   amount: number;
   status: string;
   description: string;
+  invoice_url?: string | null;
+  invoice_pdf?: string | null;
 }
 
 export const billingApi = {

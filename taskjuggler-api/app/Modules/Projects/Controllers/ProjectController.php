@@ -136,6 +136,82 @@ class ProjectController extends Controller
             'health_score' => $healthScore,
         ]);
     }
+
+    public function tasks(Request $request, Project $project): JsonResponse
+    {
+        $teamId = $request->get('team_id') ?? app('current_team')?->id;
+        if ($project->team_id !== $teamId) {
+            abort(403, 'Unauthorized');
+        }
+
+        $tasks = $project->tasks()
+            ->with(['owner', 'requestor'])
+            ->when($request->get('status'), fn ($q, $status) => $q->where('status', $status))
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json(['data' => $tasks]);
+    }
+
+    public function addTask(Request $request, Project $project): JsonResponse
+    {
+        $teamId = $request->get('team_id') ?? app('current_team')?->id;
+        if ($project->team_id !== $teamId) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:500',
+            'description' => 'nullable|string',
+            'priority' => 'nullable|in:low,normal,high,urgent',
+            'due_date' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'owner_id' => 'nullable|uuid|exists:users,id',
+            'tags' => 'nullable|array',
+        ]);
+
+        $task = \App\Modules\Tasks\Models\Task::create([
+            ...$validated,
+            'project_id' => $project->id,
+            'team_id' => $project->team_id,
+            'requestor_id' => $request->user()->id,
+            'status' => \App\Modules\Tasks\Models\Task::STATUS_PENDING,
+            'priority' => $validated['priority'] ?? \App\Modules\Tasks\Models\Task::PRIORITY_NORMAL,
+        ]);
+
+        return response()->json(['data' => $task->load(['owner', 'requestor'])], 201);
+    }
+
+    public function timeline(Request $request, Project $project): JsonResponse
+    {
+        $teamId = $request->get('team_id') ?? app('current_team')?->id;
+        if ($project->team_id !== $teamId) {
+            abort(403, 'Unauthorized');
+        }
+
+        $tasks = $project->tasks()
+            ->select(['id', 'title', 'status', 'priority', 'start_date', 'due_date', 'completed_at', 'owner_id'])
+            ->with('owner:id,name,email')
+            ->orderByRaw('COALESCE(start_date, due_date, created_at)')
+            ->get();
+
+        $milestones = $project->milestones()
+            ->orderBy('target_date')
+            ->get();
+
+        return response()->json([
+            'data' => [
+                'project' => [
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'start_date' => $project->start_date,
+                    'target_end_date' => $project->target_end_date,
+                ],
+                'tasks' => $tasks,
+                'milestones' => $milestones,
+            ],
+        ]);
+    }
 }
 
 

@@ -64,6 +64,11 @@ class DashboardController extends Controller
         // Total contacts
         $totalContacts = Contact::where('organization_id', $organization->id)->count();
 
+        // New contacts this week
+        $newContactsThisWeek = Contact::where('organization_id', $organization->id)
+            ->where('created_at', '>=', $weekStart)
+            ->count();
+
         // No-show rate (last 30 days)
         $totalAppointments = Appointment::where('organization_id', $organization->id)
             ->where('starts_at', '>=', Carbon::now()->subDays(30))
@@ -101,6 +106,7 @@ class DashboardController extends Controller
             'appointments_this_week' => $appointmentsThisWeek,
             'appointments_trend' => $appointmentsTrend,
             'total_contacts' => $totalContacts,
+            'new_contacts_this_week' => $newContactsThisWeek,
             'no_show_rate' => $noShowRate,
             'no_show_trend' => $noShowTrend,
         ]);

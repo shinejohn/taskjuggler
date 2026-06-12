@@ -80,7 +80,7 @@ const unreadCount = computed(() =>
 async function fetchNotifications() {
   loading.value = true
   try {
-    const response = await api.get('/api/notifications?limit=10')
+    const response = await api.get('/notifications?limit=10')
     notifications.value = response.data.data || response.data || []
   } catch (error: any) {
     // Handle 404 gracefully if notification API doesn't exist yet
@@ -97,7 +97,7 @@ async function fetchNotifications() {
 
 async function markAllRead() {
   try {
-    await api.post('/api/notifications/mark-all-read')
+    await api.post('/notifications/mark-all-read')
     await fetchNotifications()
   } catch (error: any) {
     if (error.response?.status !== 404) {
@@ -109,7 +109,7 @@ async function markAllRead() {
 async function handleNotificationClick(notification: Notification) {
   if (!notification.read_at) {
     try {
-      await api.post(`/api/notifications/${notification.id}/read`)
+      await api.post(`/notifications/${notification.id}/read`)
       await fetchNotifications()
     } catch (error: any) {
       if (error.response?.status !== 404) {

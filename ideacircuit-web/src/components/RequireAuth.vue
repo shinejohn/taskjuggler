@@ -33,9 +33,9 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui';
 const router = useRouter();
 const { isAuthenticated, loading } = useAuth();
 
-// For testing purposes, allow access without authentication
-const isTestingMode = computed(() => 
-  import.meta.env.VITE_DEV_MODE === 'true' || window.location.hostname === 'localhost'
+// Auth bypass only in local Vite dev builds — never in production bundles
+const isTestingMode = computed(() =>
+  import.meta.env.DEV && import.meta.env.VITE_DEV_MODE === 'true'
 );
 
 // Redirect to login if not authenticated and not in testing mode

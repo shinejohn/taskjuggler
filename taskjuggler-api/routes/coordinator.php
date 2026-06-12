@@ -58,6 +58,9 @@ Route::prefix('coordinator')->middleware('auth:sanctum')->group(function () {
     Route::post('/organizations/{orgId}/coordinators', [CoordinatorController::class, 'store']);
     Route::apiResource('coordinators', CoordinatorController::class)->except(['index', 'store']);
 
+    // Analytics
+    Route::get('/organizations/{orgId}/analytics', [\App\Modules\Coordinator\Controllers\AnalyticsController::class, 'index']);
+
     // Dashboard
     Route::prefix('organizations/{orgId}/dashboard')->group(function () {
         Route::get('/metrics', [DashboardController::class, 'getMetrics']);

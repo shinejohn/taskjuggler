@@ -29,6 +29,8 @@
         </div>
       </div>
       <button
+        type="button"
+        aria-label="Close"
         @click="$emit('close')"
         class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
       >
@@ -47,6 +49,8 @@
             </span>
           </div>
           <button
+            type="button"
+            aria-label="Copy phone number"
             @click="contact.phone ? copyToClipboard(contact.phone) : undefined"
             class="text-slate-400 hover:text-[#1B4F72]"
           >
@@ -61,6 +65,8 @@
             </span>
           </div>
           <button
+            type="button"
+            aria-label="Copy email address"
             @click="contact.email ? copyToClipboard(contact.email) : undefined"
             class="text-slate-400 hover:text-[#1B4F72]"
           >
@@ -83,7 +89,19 @@
           >
             {{ tag }}
           </span>
+          <input
+            v-if="showAddTag"
+            v-model="newTag"
+            type="text"
+            aria-label="New tag"
+            placeholder="Tag name"
+            class="px-2.5 py-1 rounded-full border border-slate-300 text-xs w-28 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72]"
+            @keydown.enter.prevent="addTag"
+            @keydown.escape="showAddTag = false"
+          />
           <button
+            v-else
+            type="button"
             @click="showAddTag = true"
             class="px-2.5 py-1 rounded-full border border-dashed border-slate-300 text-slate-500 text-xs font-medium hover:border-[#1B4F72] hover:text-[#1B4F72] flex items-center gap-1 transition-colors"
           >
@@ -117,7 +135,6 @@
               {{ interaction.date }}
             </div>
             <div class="font-medium text-slate-900">{{ interaction.desc }}</div>
-            <div class="text-xs text-slate-500">by {{ interaction.by }}</div>
           </div>
 
           <div v-if="interactions.length === 0" class="text-sm text-slate-500 pl-6">
@@ -134,23 +151,30 @@
         </h3>
         <textarea
           v-model="note"
+          aria-label="Contact notes"
           class="w-full p-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B4F72]/20 focus:border-[#1B4F72] min-h-[100px]"
           placeholder="Add a note about this contact..."
         />
-        <button
-          @click="saveNote"
-          class="mt-2 px-4 py-2 bg-[#1B4F72] text-white rounded-lg hover:bg-[#153e5a] transition-colors flex items-center gap-2"
-        >
-          <Save :size="16" />
-          Save Note
-        </button>
+        <div class="mt-2 flex items-center gap-3">
+          <button
+            type="button"
+            :disabled="savingNote"
+            @click="saveNote"
+            class="px-4 py-2 bg-[#1B4F72] text-white rounded-lg hover:bg-[#153e5a] disabled:opacity-50 transition-colors flex items-center gap-2"
+          >
+            <Save :size="16" />
+            {{ savingNote ? 'Saving...' : 'Save Note' }}
+          </button>
+          <span v-if="noteSaved" class="text-sm text-green-600">Saved</span>
+          <span v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</span>
+        </div>
       </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import {
   X,
   Phone,
@@ -163,6 +187,7 @@ import {
   Save,
 } from 'lucide-vue-next';
 import type { Contact } from '@/api/contacts';
+import { useContactsStore } from '@/stores/contacts';
 
 interface Props {
   contact: Contact | null;
@@ -174,27 +199,47 @@ defineEmits<{
   close: [];
 }>();
 
+const contactsStore = useContactsStore();
+
 const note = ref('');
 const showAddTag = ref(false);
+const newTag = ref('');
+const savingNote = ref(false);
+const noteSaved = ref(false);
+const errorMessage = ref('');
 
-const interactions = ref([
-  {
-    type: 'call',
-    date: 'Today, 10:42 AM',
-    desc: 'Appointment Booked',
-    by: 'Sally',
-  },
-  {
-    type: 'appointment',
-    date: 'Yesterday, 2:15 PM',
-    desc: 'Service Call Completed',
-    by: 'Ed',
-  },
-]);
+interface Interaction {
+  type: string;
+  date: string;
+  desc: string;
+}
+
+const interactions = computed<Interaction[]>(() => {
+  const items: Interaction[] = [];
+  if (props.contact?.last_contacted_at) {
+    items.push({
+      type: 'call',
+      date: new Date(props.contact.last_contacted_at).toLocaleString(),
+      desc: 'Last contacted',
+    });
+  }
+  if (props.contact?.created_at) {
+    items.push({
+      type: 'note',
+      date: new Date(props.contact.created_at).toLocaleString(),
+      desc: `Contact added${props.contact.source ? ` via ${props.contact.source}` : ''}`,
+    });
+  }
+  return items;
+});
 
 watch(() => props.contact, (newContact) => {
   if (newContact) {
     note.value = newContact.notes || '';
+    noteSaved.value = false;
+    errorMessage.value = '';
+    showAddTag.value = false;
+    newTag.value = '';
   }
 });
 
@@ -227,9 +272,34 @@ function copyToClipboard(text: string) {
   }
 }
 
-function saveNote() {
-  // TODO: Implement API call to save note
-  // await contactsApi.saveNote(contact.value.id, note.value);
+async function saveNote() {
+  if (!props.contact) return;
+  savingNote.value = true;
+  noteSaved.value = false;
+  errorMessage.value = '';
+  try {
+    await contactsStore.updateContact(props.contact.id, { notes: note.value });
+    noteSaved.value = true;
+  } catch (err) {
+    const axiosErr = err as { response?: { data?: { message?: string } } };
+    errorMessage.value = axiosErr.response?.data?.message || 'Failed to save note';
+  } finally {
+    savingNote.value = false;
+  }
+}
+
+async function addTag() {
+  if (!props.contact || !newTag.value.trim()) return;
+  errorMessage.value = '';
+  const tags = [...new Set([...(props.contact.tags || []), newTag.value.trim()])];
+  try {
+    await contactsStore.updateContact(props.contact.id, { tags });
+    newTag.value = '';
+    showAddTag.value = false;
+  } catch (err) {
+    const axiosErr = err as { response?: { data?: { message?: string } } };
+    errorMessage.value = axiosErr.response?.data?.message || 'Failed to add tag';
+  }
 }
 </script>
 

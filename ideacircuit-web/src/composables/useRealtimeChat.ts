@@ -64,41 +64,19 @@ export const useRealtimeChat = (meetingId: string, participantId: string) => {
 
     // Use PresenceChannel for meeting room
     echo.join(`meetings.${meetingId}`)
-      .here((users: any[]) => {
-        console.log('Users in meeting:', users);
+      .here(() => {
         isConnected.value = true;
       })
-      .joining((user: any) => {
-        console.log('User joining:', user);
-      })
-      .leaving((user: any) => {
-        console.log('User leaving:', user);
-      })
-      .listen('.message.received', (data: any) => {
+      .listen('.message.received', (data: { message?: Message }) => {
         if (data.message) {
+          const incoming = data.message;
           // Avoid duplicates
-          if (!messages.value.some(msg => msg.id === data.message.id)) {
-            messages.value = [...messages.value, data.message];
+          if (!messages.value.some(msg => msg.id === incoming.id)) {
+            messages.value = [...messages.value, incoming];
           }
         }
       })
-      .listen('.note.created', (data: any) => {
-        console.log('Note created:', data);
-        // Handle note created event if needed
-      })
-      .listen('.participant.joined', (data: any) => {
-        console.log('Participant joined:', data);
-        // Handle participant joined event if needed
-      })
-      .listen('.participant.left', (data: any) => {
-        console.log('Participant left:', data);
-        // Handle participant left event if needed
-      })
-      .listen('.meeting.ended', (data: any) => {
-        console.log('Meeting ended:', data);
-        // Handle meeting ended event if needed
-      })
-      .error((error: any) => {
+      .error((error: unknown) => {
         console.error('Echo error:', error);
         isConnected.value = false;
       });

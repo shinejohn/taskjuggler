@@ -3,15 +3,14 @@ import api from '@/utils/api'
 export const activityLogger = {
   async log(action: string, details: Record<string, any>) {
     try {
-      await api.post('/api/activity', {
+      await api.post('/activity', {
         app: 'scanner',
         action,
         details,
         timestamp: new Date().toISOString(),
       })
-    } catch (error) {
-      // Don't break app if logging fails - just log to console
-      console.error('Failed to log activity:', error)
+    } catch {
+      // Activity logging is best-effort — never break the app if it fails
     }
   },
 

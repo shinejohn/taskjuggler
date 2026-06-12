@@ -65,7 +65,7 @@ export const projectsApi = {
     return data
   },
 
-  // Tasks within project (backend may have different structure - Task model links to projects)
+  // Tasks within project
   async getTasks(projectId: string) {
     const { data } = await apiClient.get(`/projects/${projectId}/tasks`)
     return data
@@ -76,7 +76,7 @@ export const projectsApi = {
     return data
   },
 
-  // Milestones - backend Projects module may not have these; will 404 if missing
+  // Milestones
   async getMilestones(projectId: string) {
     const { data } = await apiClient.get(`/projects/${projectId}/milestones`)
     return data
@@ -103,11 +103,6 @@ export const projectsApi = {
 
   async getTimeline(projectId: string) {
     const { data } = await apiClient.get(`/projects/${projectId}/timeline`)
-    return data
-  },
-
-  async getGantt(projectId: string) {
-    const { data } = await apiClient.get(`/projects/${projectId}/gantt`)
     return data
   },
 }

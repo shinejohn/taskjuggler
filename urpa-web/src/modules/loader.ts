@@ -9,12 +9,9 @@ const loadedModules: UrpaModule[] = [];
  * Register a module with the application
  */
 export function registerModule(module: UrpaModule, app: App, router: Router) {
-    console.log(`[ModuleLoader] Registering module: ${module.name} (${module.id})`);
-
     // 1. Register Routes
     if (module.routes) {
         module.routes.forEach(route => {
-            console.log(`[ModuleLoader] Adding route: ${route.path}`);
             router.addRoute(route);
         });
     }

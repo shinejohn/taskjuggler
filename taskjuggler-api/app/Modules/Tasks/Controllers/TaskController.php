@@ -44,10 +44,11 @@ class TaskController extends Controller
             
         // Scope to current profile
         $this->scopeToProfile($query, $request);
-        
+
         $tasks = $query
-            ->when($request->status, fn($q, $status) => $q->where('status', $status))
+            ->when($request->status ?? $request->state, fn($q, $status) => $q->where('status', $status))
             ->when($request->priority, fn($q, $priority) => $q->where('priority', $priority))
+            ->when($request->project_id, fn($q, $projectId) => $q->where('project_id', $projectId))
             ->orderBy('created_at', 'desc')
             ->paginate($request->per_page ?? 20);
 
@@ -178,6 +179,38 @@ class TaskController extends Controller
             $request->user(),
             $request->input('reason')
         );
+
+        return response()->json($task);
+    }
+
+    public function start(Request $request, Task $task)
+    {
+        $this->authorize('update', $task);
+
+        $task = $this->stateMachine->transitionTaskStatus(
+            $task,
+            Task::STATUS_IN_PROGRESS,
+            $request->user(),
+            $request->input('reason')
+        );
+
+        event(new TaskUpdated($task));
+
+        return response()->json($task);
+    }
+
+    public function cancel(Request $request, Task $task)
+    {
+        $this->authorize('update', $task);
+
+        $task = $this->stateMachine->transitionTaskStatus(
+            $task,
+            Task::STATUS_CANCELLED,
+            $request->user(),
+            $request->input('reason')
+        );
+
+        event(new TaskUpdated($task));
 
         return response()->json($task);
     }

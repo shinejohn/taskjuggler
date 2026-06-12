@@ -284,9 +284,7 @@ const activeCoordinators = computed(() => {
 });
 
 const newContactsThisWeek = computed(() => {
-  // TODO: Add new_contacts_this_week to DashboardMetrics API response
-  // For now, return 0 until the backend endpoint is updated
-  return (dashboardStore.metrics as any)?.new_contacts_this_week ?? 0;
+  return dashboardStore.metrics?.new_contacts_this_week ?? 0;
 });
 
 onMounted(async () => {

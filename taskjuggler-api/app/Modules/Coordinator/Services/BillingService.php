@@ -158,6 +158,8 @@ class BillingService
                     'amount' => $invoice->amount_paid / 100, // Convert from cents
                     'status' => $invoice->status,
                     'description' => $invoice->description ?? 'Monthly subscription',
+                    'invoice_url' => $invoice->hosted_invoice_url,
+                    'invoice_pdf' => $invoice->invoice_pdf,
                 ];
             }, $invoices->data);
         } catch (ApiErrorException $e) {

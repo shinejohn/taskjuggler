@@ -94,7 +94,7 @@
 import { ref } from 'vue'
 import { CheckIcon } from '@heroicons/vue/24/solid'
 
-defineEmits<{
+const emit = defineEmits<{
   'get-started': []
 }>()
 
@@ -105,9 +105,7 @@ const form = ref({
 })
 
 const handleSubmit = () => {
-  // Handle form submission
-  console.log('Form submitted:', form.value)
-  // You can emit an event or call an API here
+  emit('get-started')
 }
 </script>
 

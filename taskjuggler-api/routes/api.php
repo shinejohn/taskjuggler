@@ -99,6 +99,12 @@ Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+    Route::post('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'store']);
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Api\NotificationController::class, 'markAllRead']);
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markRead']);
+
     // Inbox
     Route::get('/inbox', [InboxController::class, 'index']);
     Route::get('/inbox/{inboxItem}', [InboxController::class, 'show']);

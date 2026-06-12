@@ -4,6 +4,7 @@ export interface DashboardMetrics {
   calls_today: number;
   appointments_this_week: number;
   total_contacts: number;
+  new_contacts_this_week: number;
   no_show_rate: number;
   calls_today_trend?: {
     value: string;

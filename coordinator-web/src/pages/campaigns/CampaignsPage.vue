@@ -12,6 +12,7 @@
           </p>
         </div>
         <button
+          type="button"
           @click="showCreateModal = true"
           class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
         >
@@ -26,6 +27,7 @@
           <button
             v-for="tab in tabs"
             :key="tab.id"
+            type="button"
             @click="activeTab = tab.id"
             :class="[
               'py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2',
@@ -144,6 +146,7 @@
             <div class="flex gap-2 mt-6 pt-4 border-t border-slate-100">
               <button
                 v-if="campaign.status === 'running'"
+                type="button"
                 @click="pauseCampaign(campaign)"
                 class="flex-1 py-2 px-3 border border-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
               >
@@ -152,6 +155,7 @@
               </button>
               <button
                 v-if="campaign.status === 'draft'"
+                type="button"
                 @click="editCampaign(campaign)"
                 class="flex-1 py-2 px-3 border border-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
               >
@@ -159,6 +163,7 @@
                 Edit
               </button>
               <button
+                type="button"
                 @click="viewCampaign(campaign)"
                 class="flex-1 py-2 px-3 bg-[#1B4F72] text-white font-medium rounded-lg hover:bg-[#153e5a] transition-colors"
               >
@@ -172,6 +177,7 @@
         <div v-if="filteredCampaigns.length === 0" class="lg:col-span-2 text-center py-12 bg-white rounded-xl border border-slate-200">
           <p class="text-slate-500 mb-4">No campaigns found</p>
           <button
+            type="button"
             @click="showCreateModal = true"
             class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold rounded-lg"
           >
@@ -180,6 +186,22 @@
         </div>
       </div>
     </div>
+
+    <!-- Create / Edit Modal -->
+    <CampaignFormModal
+      v-if="showCreateModal"
+      :campaign="editingCampaign"
+      @close="closeFormModal"
+      @saved="closeFormModal"
+    />
+
+    <!-- Detail Modal -->
+    <CampaignDetailModal
+      v-if="selectedCampaign"
+      :campaign="selectedCampaign"
+      @close="selectedCampaignId = null"
+      @edit="editCampaign"
+    />
   </DashboardLayout>
 </template>
 
@@ -187,6 +209,8 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { Plus, Pause, Edit } from 'lucide-vue-next';
 import DashboardLayout from '@/components/layout/DashboardLayout.vue';
+import CampaignFormModal from '@/components/campaigns/CampaignFormModal.vue';
+import CampaignDetailModal from '@/components/campaigns/CampaignDetailModal.vue';
 import { useCampaignsStore } from '@/stores/campaigns';
 import { useOrganizationsStore } from '@/stores/organizations';
 import type { Campaign } from '@/api/campaigns';
@@ -197,6 +221,12 @@ const organizationsStore = useOrganizationsStore();
 
 const activeTab = ref('all');
 const showCreateModal = ref(false);
+const editingCampaign = ref<Campaign | null>(null);
+const selectedCampaignId = ref<string | null>(null);
+
+const selectedCampaign = computed(() => {
+  return campaignsStore.campaigns.find(c => c.id === selectedCampaignId.value) ?? null;
+});
 
 const tabs = computed(() => {
   const all = campaignsStore.campaigns.length;
@@ -237,17 +267,19 @@ async function pauseCampaign(campaign: Campaign) {
   }
 }
 
-function editCampaign(_campaign: Campaign) {
-  // TODO: Implement edit modal
-  // const selectedCampaign = ref<Campaign | null>(null);
-  // const showEditModal = ref(false);
+function editCampaign(campaign: Campaign) {
+  selectedCampaignId.value = null;
+  editingCampaign.value = campaign;
+  showCreateModal.value = true;
 }
 
-function viewCampaign(_campaign: Campaign) {
-  // TODO: Navigate to campaign detail page
-  // import { useRouter } from 'vue-router';
-  // const router = useRouter();
-  // router.push(`/campaigns/${campaign.id}`);
+function viewCampaign(campaign: Campaign) {
+  selectedCampaignId.value = campaign.id;
+}
+
+function closeFormModal() {
+  showCreateModal.value = false;
+  editingCampaign.value = null;
 }
 
 onMounted(async () => {

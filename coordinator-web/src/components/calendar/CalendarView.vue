@@ -21,13 +21,6 @@
           </button>
         </div>
 
-        <button
-          @click="showCreateModal = true"
-          class="px-4 py-2 bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
-        >
-          <Plus :size="18" />
-          Manual Appointment
-        </button>
       </div>
     </div>
 
@@ -358,13 +351,22 @@
       @cancel="handleCancelAppointment"
       @edit="handleEditAppointment"
     />
+
+    <!-- Appointment Edit Modal -->
+    <AppointmentEditModal
+      v-if="showEditModal && selectedAppointment"
+      :appointment="selectedAppointment"
+      @close="showEditModal = false"
+      @saved="showEditModal = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { ChevronLeft, ChevronRight, Plus, Calendar } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-vue-next';
 import AppointmentModal from './AppointmentModal.vue';
+import AppointmentEditModal from './AppointmentEditModal.vue';
 import { useAppointmentsStore } from '@/stores/appointments';
 import { useCoordinatorsStore } from '@/stores/coordinators';
 import { useOrganizationsStore } from '@/stores/organizations';
@@ -378,7 +380,7 @@ const view = ref<'day' | 'week' | 'month'>('week');
 const selectedDate = ref(new Date());
 const selectedAppointment = ref<Appointment | null>(null);
 const showAppointmentModal = ref(false);
-const showCreateModal = ref(false);
+const showEditModal = ref(false);
 const selectedCoordinators = ref<string[]>([]);
 const selectedTypes = ref<string[]>([]);
 
@@ -629,10 +631,9 @@ async function handleCancelAppointment(appt: Appointment) {
 }
 
 function handleEditAppointment(appt: Appointment) {
-  // Logic to open edit modal or navigate to edit page
+  selectedAppointment.value = appt;
   showAppointmentModal.value = false;
-  // TODO: Implement edit flow
-  console.log('Edit appointment:', appt);
+  showEditModal.value = true;
 }
 
 function getAppointmentsForDate(date: string): Appointment[] {

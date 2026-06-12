@@ -11,6 +11,8 @@ Route::middleware(['auth:sanctum', 'module:tasks'])->group(function () {
     Route::post('/tasks/{task}/complete', [TaskController::class, 'complete']);
     Route::post('/tasks/{task}/accept', [TaskController::class, 'accept']);
     Route::post('/tasks/{task}/decline', [TaskController::class, 'decline']);
+    Route::post('/tasks/{task}/start', [TaskController::class, 'start']);
+    Route::post('/tasks/{task}/cancel', [TaskController::class, 'cancel']);
     Route::post('/tasks/{task}/watch', [TaskController::class, 'watch']);
     
     // Task timeline

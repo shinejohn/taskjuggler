@@ -68,6 +68,22 @@ class AuthController extends \App\Http\Controllers\Controller
                 }
             }
 
+            // Create personal team so TeamContext middleware has a fallback
+            if (Schema::hasTable('teams')) {
+                try {
+                    $team = \App\Modules\Core\Models\Team::create([
+                        'name' => $validated['name'] . "'s Team",
+                        'slug' => Str::slug($validated['name']) . '-' . uniqid(),
+                        'owner_id' => $user->id,
+                        'created_by' => $user->id,
+                    ]);
+                    $team->addMember($user, true);
+                    $user->update(['current_team_id' => $team->id]);
+                } catch (\Exception $e) {
+                    Log::warning('Could not create personal team for new user: ' . $e->getMessage());
+                }
+            }
+
             // Get app context from request header
             $appContext = $request->header('X-App-Context', 'taskjuggler'); // Default to taskjuggler for backward compatibility
 
@@ -156,6 +172,26 @@ class AuthController extends \App\Http\Controllers\Controller
     {
         $user = $request->user()->load('profiles');
         return $this->success($user, 'User retrieved successfully');
+    }
+
+    /**
+     * Update the authenticated user's profile fields
+     */
+    public function updateUser(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'timezone' => 'nullable|string|max:50',
+            'avatar_url' => 'nullable|string|max:2048',
+        ]);
+
+        $user->update($validated);
+
+        return $this->success($user->fresh()->load('profiles'), 'User updated successfully');
     }
 
     /**

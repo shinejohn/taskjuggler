@@ -50,7 +50,7 @@
           class="create-task-select"
         >
           <option value="low">Low</option>
-          <option value="medium">Medium</option>
+          <option value="normal">Normal</option>
           <option value="high">High</option>
           <option value="urgent">Urgent</option>
         </select>
@@ -93,10 +93,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import Modal from '@/components/ui/Modal.vue';
 import { Input, Label, Button } from '@taskjuggler/ui';
 import { useTasksStore } from '@/stores/tasks';
+import api from '@/utils/api';
 import type { Issue } from '@/types';
 
 interface Props {
@@ -104,54 +105,64 @@ interface Props {
   issue: Issue;
 }
 
+interface ProjectOption {
+  id: string;
+  name: string;
+}
+
+interface AssigneeOption {
+  id: string;
+  name: string;
+}
+
+interface ProjectMemberResponse {
+  user_id: string;
+  user: { id: string; name: string; email: string };
+}
+
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
   close: [];
-  created: [task: any];
+  created: [task: unknown];
 }>();
 
 const tasksStore = useTasksStore();
 const loading = ref(false);
 
 const form = reactive({
-  project_id: undefined as number | undefined,
-  assignee_id: undefined as number | undefined,
-  priority: 'medium' as 'low' | 'medium' | 'high' | 'urgent',
+  project_id: undefined as string | undefined,
+  assignee_id: undefined as string | undefined,
+  priority: 'normal' as 'low' | 'normal' | 'high' | 'urgent',
   due_date: undefined as string | undefined,
 });
 
-// Mock data for projects and assignees - these should be fetched from API in production
-const projects = ref<Array<{ id: number; name: string }>>([]);
-const assignees = ref<Array<{ id: number; name: string }>>([]);
+const projects = ref<ProjectOption[]>([]);
+const assignees = ref<AssigneeOption[]>([]);
 
 onMounted(async () => {
-  // Fetch projects and assignees from API
-  // Note: These endpoints may not exist yet - gracefully handle 404s
   try {
-    const api = (await import('@/utils/api')).default;
-    try {
-      const projectsResponse = await api.get('/api/projects');
-      projects.value = projectsResponse.data.data || [];
-    } catch (error: any) {
-      // Projects API may not exist yet - that's okay, form still works
-      if (error.response?.status !== 404) {
-        console.warn('Failed to fetch projects:', error);
-      }
-    }
-    
-    try {
-      const assigneesResponse = await api.get('/api/users');
-      assignees.value = assigneesResponse.data.data || [];
-    } catch (error: any) {
-      // Users API may not exist yet - that's okay, form still works
-      if (error.response?.status !== 404) {
-        console.warn('Failed to fetch assignees:', error);
-      }
-    }
-  } catch (error) {
-    // API import failed - that's okay, form still works without these
-    console.warn('Failed to load API client:', error);
+    const projectsResponse = await api.get('/projects');
+    projects.value = projectsResponse.data.data || [];
+  } catch {
+    // Projects are optional — the form still works without one
+    projects.value = [];
+  }
+});
+
+// Assignees come from the selected project's members
+watch(() => form.project_id, async (projectId) => {
+  form.assignee_id = undefined;
+  if (!projectId) {
+    assignees.value = [];
+    return;
+  }
+  try {
+    const membersResponse = await api.get(`/projects/${projectId}/members`);
+    const members: ProjectMemberResponse[] = membersResponse.data.data || [];
+    assignees.value = members.map((m) => ({ id: m.user_id, name: m.user.name }));
+  } catch {
+    assignees.value = [];
   }
 });
 
@@ -160,7 +171,7 @@ const handleClose = () => {
   // Reset form
   form.project_id = undefined;
   form.assignee_id = undefined;
-  form.priority = 'medium';
+  form.priority = 'normal';
   form.due_date = undefined;
 };
 

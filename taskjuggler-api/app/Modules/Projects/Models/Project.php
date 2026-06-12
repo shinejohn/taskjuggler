@@ -81,6 +81,11 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function milestones(): HasMany
+    {
+        return $this->hasMany(ProjectMilestone::class);
+    }
+
     public function processes(): HasMany
     {
         return $this->hasMany(\App\Modules\Processes\Models\Process::class);

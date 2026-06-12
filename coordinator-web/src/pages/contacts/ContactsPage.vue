@@ -289,11 +289,15 @@ function toggleSelect(id: string) {
   }
 }
 
-const selectedContact = ref<Contact | null>(null);
+const selectedContactId = ref<string | null>(null);
 const showContactSidebar = ref(false);
 
+const selectedContact = computed(() => {
+  return contactsStore.contacts.find(c => c.id === selectedContactId.value) ?? null;
+});
+
 function viewContact(contact: Contact) {
-  selectedContact.value = contact;
+  selectedContactId.value = contact.id;
   showContactSidebar.value = true;
 }
 

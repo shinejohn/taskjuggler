@@ -310,21 +310,26 @@
     <!-- Footer -->
     <div class="flex justify-between items-center pt-4 border-t border-slate-200">
       <p class="text-sm text-slate-500">
-        Last updated: {{ lastUpdated }}
+        <span v-if="saveMessage" class="text-green-600">{{ saveMessage }}</span>
+        <span v-else-if="errorMessage" class="text-red-600">{{ errorMessage }}</span>
+        <template v-else>Last updated: {{ lastUpdated }}</template>
       </p>
       <div class="flex gap-3">
         <button
+          type="button"
           @click="discardChanges"
           class="px-5 py-2.5 text-slate-600 font-medium rounded-lg hover:bg-slate-100 transition-colors"
         >
           Discard Changes
         </button>
         <button
+          type="button"
+          :disabled="saving"
           @click="saveProfile"
-          class="px-5 py-2.5 bg-[#1B4F72] hover:bg-[#153e5a] text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center gap-2"
+          class="px-5 py-2.5 bg-[#1B4F72] hover:bg-[#153e5a] disabled:opacity-50 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center gap-2"
         >
           <Save :size="18" />
-          Save Changes
+          {{ saving ? 'Saving...' : 'Save Changes' }}
         </button>
       </div>
     </div>
@@ -341,6 +346,9 @@ const organizationsStore = useOrganizationsStore();
 const sameAsPhysical = ref(true);
 const showAddService = ref(false);
 const newService = ref('');
+const saving = ref(false);
+const saveMessage = ref('');
+const errorMessage = ref('');
 
 const profile = ref({
   name: '',
@@ -406,38 +414,83 @@ function removeService(index: number) {
 }
 
 async function saveProfile() {
-  // TODO: Implement API call to save profile
-  // await settingsApi.updateBusinessProfile({
-  //   profile: profile.value,
-  //   businessHours: businessHours.value,
-  //   services: services.value
-  // });
-}
-
-async function discardChanges() {
-  // TODO: Reload profile data from API
-  // await loadProfile();
-}
-
-onMounted(async () => {
-  if (organizationsStore.currentOrganization) {
-    profile.value = {
-      name: organizationsStore.currentOrganization.name || '',
-      industry: organizationsStore.currentOrganization.industry || '',
-      yearEstablished: '',
-      description: '',
-      employeeCount: '',
-      phone: organizationsStore.currentOrganization.phone || '',
-      phoneSecondary: '',
-      email: organizationsStore.currentOrganization.email || '',
-      website: organizationsStore.currentOrganization.website || '',
-      address: organizationsStore.currentOrganization.address || '',
-      suite: '',
-      city: organizationsStore.currentOrganization.city || '',
-      state: organizationsStore.currentOrganization.state || '',
-      postalCode: organizationsStore.currentOrganization.postal_code || '',
-    };
+  const org = organizationsStore.currentOrganization;
+  if (!org) return;
+  saving.value = true;
+  saveMessage.value = '';
+  errorMessage.value = '';
+  try {
+    await organizationsStore.updateOrganization(org.id, {
+      name: profile.value.name,
+      industry: profile.value.industry,
+      phone: profile.value.phone || undefined,
+      email: profile.value.email || undefined,
+      website: profile.value.website || undefined,
+      address: profile.value.address || undefined,
+      city: profile.value.city || undefined,
+      state: profile.value.state || undefined,
+      postal_code: profile.value.postalCode || undefined,
+      business_hours: Object.fromEntries(
+        businessHours.value.map(d => [d.day.toLowerCase(), { open: d.open, start: d.start, end: d.end }])
+      ),
+      settings: {
+        ...(org.settings || {}),
+        business_profile: {
+          year_established: profile.value.yearEstablished,
+          description: profile.value.description,
+          employee_count: profile.value.employeeCount,
+          phone_secondary: profile.value.phoneSecondary,
+          suite: profile.value.suite,
+          services: services.value,
+        },
+      },
+    });
+    saveMessage.value = 'Profile saved';
+  } catch (err) {
+    const axiosErr = err as { response?: { data?: { message?: string } } };
+    errorMessage.value = axiosErr.response?.data?.message || 'Failed to save profile';
+  } finally {
+    saving.value = false;
   }
+}
+
+function loadProfile() {
+  const org = organizationsStore.currentOrganization;
+  if (!org) return;
+  const extras = (org.settings?.business_profile ?? {}) as Record<string, string | string[] | undefined>;
+  profile.value = {
+    name: org.name || '',
+    industry: org.industry || '',
+    yearEstablished: (extras.year_established as string) || '',
+    description: (extras.description as string) || '',
+    employeeCount: (extras.employee_count as string) || '',
+    phone: org.phone || '',
+    phoneSecondary: (extras.phone_secondary as string) || '',
+    email: org.email || '',
+    website: org.website || '',
+    address: org.address || '',
+    suite: (extras.suite as string) || '',
+    city: org.city || '',
+    state: org.state || '',
+    postalCode: org.postal_code || '',
+  };
+  services.value = Array.isArray(extras.services) ? [...extras.services] : [];
+  if (org.business_hours) {
+    businessHours.value = businessHours.value.map(d => {
+      const saved = org.business_hours?.[d.day.toLowerCase()];
+      return saved ? { day: d.day, open: !!saved.open, start: saved.start || d.start, end: saved.end || d.end } : d;
+    });
+  }
+}
+
+function discardChanges() {
+  saveMessage.value = '';
+  errorMessage.value = '';
+  loadProfile();
+}
+
+onMounted(() => {
+  loadProfile();
 });
 </script>
 

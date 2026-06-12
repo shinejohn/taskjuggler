@@ -93,15 +93,5 @@ export const tasksApi = {
     const { data } = await apiClient.post(`/tasks/${taskId}/messages`, { content })
     return data
   },
-
-  async myTasks() {
-    const { data } = await apiClient.get('/my/tasks')
-    return data
-  },
-
-  async myRequests() {
-    const { data } = await apiClient.get('/my/requests')
-    return data
-  },
 }
 

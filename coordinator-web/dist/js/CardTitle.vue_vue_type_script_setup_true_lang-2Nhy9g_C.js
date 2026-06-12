@@ -1,0 +1,1 @@
+import{c as n}from"./index-C19w2sZX.js";import{a as t,f as o,m as r,n as l,u as c,C as i}from"./vue-vendor-OqAIAQn_.js";const u=t({__name:"CardTitle",props:{class:{type:[Boolean,null,String,Object,Array]}},setup(e){const s=e;return(a,m)=>(o(),r("h3",{class:l(c(n)("text-2xl font-semibold leading-none tracking-tight",s.class))},[i(a.$slots,"default")],2))}});export{u as _};

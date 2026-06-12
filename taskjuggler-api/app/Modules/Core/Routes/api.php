@@ -27,6 +27,7 @@ Route::middleware('app.context')->group(function () {
 Route::middleware(['auth:sanctum', 'app.context'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'user']);
+    Route::put('/auth/user', [AuthController::class, 'updateUser']);
     Route::post('/auth/push-token', [AuthController::class, 'registerPushToken']);
     Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
     

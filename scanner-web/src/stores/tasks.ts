@@ -4,79 +4,40 @@ import type { Issue } from '@/types';
 
 export const useTasksStore = defineStore('tasks', () => {
   
-  async function createTaskFromIssue(issue: Issue, options?: {
-    assignee_id?: number;
-    project_id?: number;
+  interface CreateTaskOptions {
+    assignee_id?: string;
+    project_id?: string;
     due_date?: string;
-    priority?: 'low' | 'medium' | 'high' | 'urgent';
-  }) {
-    const taskData = {
-      title: `Fix: ${issue.title}`,
-      description: buildTaskDescription(issue),
-      type: 'bug',
-      priority: options?.priority || mapSeverityToPriority(issue.severity),
-      labels: ['accessibility', 'scanner-generated'],
-      metadata: {
-        source: 'scanner',
-        issue_id: issue.id,
-        scan_id: issue.scan_id,
-        site_id: issue.site_id,
-        category: issue.category,
-        wcag_criteria: issue.wcag_criteria,
-      },
-      ...options,
-    };
-
-    try {
-      const response = await api.post('/tasks', taskData);
-      return response.data.data;
-    } catch (error: any) {
-      // Handle 404 gracefully if task API doesn't exist yet
-      if (error.response?.status === 404) {
-        throw new Error('Task API endpoint not available yet');
-      }
-      throw error;
-    }
+    priority?: 'low' | 'normal' | 'high' | 'urgent';
   }
 
-  async function createTasksFromIssues(issues: Issue[], options?: {
-    project_id?: number;
-    assignee_id?: number;
-  }) {
-    const tasks = issues.map(issue => ({
+  function buildTaskPayload(issue: Issue, options?: CreateTaskOptions) {
+    return {
       title: `Fix: ${issue.title}`,
       description: buildTaskDescription(issue),
-      type: 'bug',
-      priority: mapSeverityToPriority(issue.severity),
-      labels: ['accessibility', 'scanner-generated'],
-      metadata: {
-        source: 'scanner',
-        issue_id: issue.id,
-        scan_id: issue.scan_id,
-        site_id: issue.site_id,
-        category: issue.category,
-        wcag_criteria: issue.wcag_criteria,
-      },
-      ...options,
-    }));
+      priority: options?.priority || mapSeverityToPriority(issue.severity),
+      due_date: options?.due_date,
+      tags: ['accessibility', 'scanner-generated'],
+      owner_id: options?.assignee_id,
+    };
+  }
 
-    try {
-      // Backend does not expose /tasks/bulk in current task routes;
-      // create tasks one-by-one to keep this action functional.
-      const created = await Promise.all(
-        tasks.map(async (task) => {
-          const response = await api.post('/tasks', task);
-          return response.data?.data ?? response.data;
-        })
-      );
-      return created;
-    } catch (error: any) {
-      // Handle 404 gracefully if task API doesn't exist yet
-      if (error.response?.status === 404) {
-        throw new Error('Task API endpoint not available yet');
-      }
-      throw error;
-    }
+  async function createTask(issue: Issue, options?: CreateTaskOptions) {
+    const payload = buildTaskPayload(issue, options);
+    // Project tasks go through the Projects module so they get project + team linkage
+    const response = options?.project_id
+      ? await api.post(`/projects/${options.project_id}/tasks`, payload)
+      : await api.post('/tasks', payload);
+    return response.data?.data ?? response.data;
+  }
+
+  async function createTaskFromIssue(issue: Issue, options?: CreateTaskOptions) {
+    return createTask(issue, options);
+  }
+
+  async function createTasksFromIssues(issues: Issue[], options?: CreateTaskOptions) {
+    // Backend does not expose /tasks/bulk; create tasks one-by-one
+    return Promise.all(issues.map(issue => createTask(issue, options)));
   }
 
   function buildTaskDescription(issue: Issue): string {
@@ -108,14 +69,14 @@ export const useTasksStore = defineStore('tasks', () => {
     return description;
   }
 
-  function mapSeverityToPriority(severity: string): 'low' | 'medium' | 'high' | 'urgent' {
-    const map: Record<string, 'low' | 'medium' | 'high' | 'urgent'> = {
+  function mapSeverityToPriority(severity: string): 'low' | 'normal' | 'high' | 'urgent' {
+    const map: Record<string, 'low' | 'normal' | 'high' | 'urgent'> = {
       critical: 'urgent',
       serious: 'high',
-      moderate: 'medium',
+      moderate: 'normal',
       minor: 'low',
     };
-    return map[severity] ?? 'medium';
+    return map[severity] ?? 'normal';
   }
 
   return {

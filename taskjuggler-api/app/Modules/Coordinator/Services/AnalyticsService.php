@@ -58,6 +58,16 @@ class AnalyticsService
         $bookingRate = $totalCalls > 0 ? round(($appointmentsBooked / $totalCalls) * 100, 2) : 0;
         $answerRate = $totalCalls > 0 ? round(($answeredCalls / $totalCalls) * 100, 2) : 0;
 
+        $outcomes = $calls->groupBy(function ($call) {
+            return $call->outcome ?? 'Other';
+        })->map->count()->sortDesc()->toArray();
+
+        $byHour = array_fill(0, 24, 0);
+        foreach ($calls as $call) {
+            $hour = (int) Carbon::parse($call->started_at)->format('G');
+            $byHour[$hour]++;
+        }
+
         return [
             'total_calls' => $totalCalls,
             'inbound_calls' => $inboundCalls,
@@ -69,6 +79,8 @@ class AnalyticsService
             'appointments_booked' => $appointmentsBooked,
             'booking_rate' => $bookingRate,
             'total_cost' => $calls->sum('cost'),
+            'outcomes' => $outcomes,
+            'by_hour' => $byHour,
         ];
     }
 

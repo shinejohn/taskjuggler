@@ -19,7 +19,8 @@ const SchedulePage = () => import('@/pages/SchedulePage.vue');
 // Auth guard
 const requireAuth = (_to: any, _from: any, next: any) => {
   const authStore = useAuthStore();
-  const isTestingMode = import.meta.env.VITE_DEV_MODE === 'true' || window.location.hostname === 'localhost';
+  // Auth bypass only in local Vite dev builds — never in production bundles
+  const isTestingMode = import.meta.env.DEV && import.meta.env.VITE_DEV_MODE === 'true';
 
   if (authStore.loading) {
     // Wait for auth check to complete
