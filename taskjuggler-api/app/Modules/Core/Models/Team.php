@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Team extends Model
 {
@@ -42,6 +43,14 @@ class Team extends Model
     public function profile(): BelongsTo
     {
         return $this->belongsTo(Profile::class);
+    }
+
+    /**
+     * Active subscription for this team (read by ModuleAccess middleware)
+     */
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class)->where('status', 'active');
     }
 
     /**

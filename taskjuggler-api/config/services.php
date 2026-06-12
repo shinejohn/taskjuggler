@@ -126,4 +126,17 @@ return [
         'api_key' => env('ANTHROPIC_API_KEY', env('CLAUDE_API_KEY')),
     ],
 
+    'provisioning' => [
+        // Shared secret for the Command Center CRM provisioning bridge
+        // (X-Provisioning-Secret header on POST /api/provision/subscription)
+        'secret' => env('PROVISIONING_SECRET'),
+    ],
+
+    'publishing' => [
+        // Multisite publishing platform (Day-News). Base URL includes /api/v1.
+        'base_url' => env('PUBLISHING_API_URL'),
+        // Bearer token for the /bridge/* read endpoints on the Multisite side
+        'bridge_key' => env('PUBLISHING_BRIDGE_API_KEY'),
+    ],
+
 ];

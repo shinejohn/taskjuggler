@@ -23,7 +23,7 @@ class ContactTest extends TestCase
         $this->user = User::factory()->create();
         $this->organization = Organization::factory()->create(['user_id' => $this->user->id]);
         
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->withHeaders(['X-App-Context' => 'coordinator'])->postJson('/api/auth/login', [
             'email' => $this->user->email,
             'password' => 'password',
         ]);

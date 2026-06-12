@@ -3,10 +3,16 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Core\Controllers\AuthController;
 use App\Modules\Core\Controllers\ProfileController;
+use App\Modules\Core\Controllers\ProvisioningController;
 use App\Modules\Core\Controllers\SubscriptionController;
 
 // Health check
 Route::get('/health', fn() => response()->json(['status' => 'ok', 'timestamp' => now()]));
+
+// CRM provisioning bridge (authenticated by X-Provisioning-Secret header,
+// not Sanctum — called server-to-server by the Command Center)
+Route::post('/provision/subscription', [ProvisioningController::class, 'provisionSubscription'])
+    ->name('core.provision.subscription');
 
 // Auth routes - with app context middleware
 Route::middleware('app.context')->group(function () {

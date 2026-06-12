@@ -49,3 +49,10 @@ Schedule::call(function () {
 
 // Update task color states hourly
 Schedule::command('tasks:update-colors')->hourly()->name('update-task-color-states');
+
+// Run schedule-triggered processes (Processes module)
+Schedule::call(function () {
+    if (config('modules.enabled.processes')) {
+        app(\App\Modules\Processes\Services\ProcessTriggerService::class)->handleScheduled();
+    }
+})->everyMinute()->name('run-scheduled-processes');

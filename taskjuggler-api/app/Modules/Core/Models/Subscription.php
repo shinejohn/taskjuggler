@@ -2,12 +2,13 @@
 
 namespace App\Modules\Core\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Subscription extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $table = 'subscriptions';
 

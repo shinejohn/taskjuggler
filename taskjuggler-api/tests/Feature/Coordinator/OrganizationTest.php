@@ -19,7 +19,7 @@ class OrganizationTest extends TestCase
         parent::setUp();
         
         $this->user = User::factory()->create();
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->withHeaders(['X-App-Context' => 'coordinator'])->postJson('/api/auth/login', [
             'email' => $this->user->email,
             'password' => 'password',
         ]);

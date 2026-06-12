@@ -26,7 +26,7 @@ class AppointmentTest extends TestCase
         $this->organization = Organization::factory()->create(['user_id' => $this->user->id]);
         $this->contact = Contact::factory()->create(['organization_id' => $this->organization->id]);
         
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->withHeaders(['X-App-Context' => 'coordinator'])->postJson('/api/auth/login', [
             'email' => $this->user->email,
             'password' => 'password',
         ]);

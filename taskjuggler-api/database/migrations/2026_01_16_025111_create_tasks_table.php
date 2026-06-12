@@ -11,8 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip if the Tasks module migration already created the real table.
+        // (This stub predates the module system and must never clobber it.)
+        if (Schema::hasTable('tasks')) {
+            return;
+        }
+
         Schema::create('tasks', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->timestamps();
         });
     }

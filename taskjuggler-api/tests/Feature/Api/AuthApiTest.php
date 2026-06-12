@@ -11,9 +11,12 @@ class AuthApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Login/register require an X-App-Context header (AppContext middleware). */
+    private array $appContext = ['X-App-Context' => 'taskjuggler'];
+
     public function test_user_can_register(): void
     {
-        $response = $this->postJson('/api/auth/register', [
+        $response = $this->withHeaders($this->appContext)->postJson('/api/auth/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -42,7 +45,7 @@ class AuthApiTest extends TestCase
             'password' => Hash::make('password123'),
         ]);
 
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->withHeaders($this->appContext)->postJson('/api/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -89,7 +92,7 @@ class AuthApiTest extends TestCase
 
     public function test_registration_requires_valid_email(): void
     {
-        $response = $this->postJson('/api/auth/register', [
+        $response = $this->withHeaders($this->appContext)->postJson('/api/auth/register', [
             'name' => 'Test User',
             'email' => 'invalid-email',
             'password' => 'password123',
@@ -107,7 +110,7 @@ class AuthApiTest extends TestCase
             'password' => Hash::make('password123'),
         ]);
 
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->withHeaders($this->appContext)->postJson('/api/auth/login', [
             'email' => 'test@example.com',
             'password' => 'wrong-password',
         ]);
