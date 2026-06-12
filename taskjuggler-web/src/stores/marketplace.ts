@@ -8,6 +8,7 @@ export const useMarketplaceStore = defineStore('marketplace', () => {
   const vendors = ref<MarketplaceVendor[]>([]);
   const currentListing = ref<MarketplaceListing | null>(null);
   const loading = ref(false);
+  const error = ref<string | null>(null);
   const pagination = ref({
     current_page: 1,
     last_page: 1,
@@ -21,15 +22,20 @@ export const useMarketplaceStore = defineStore('marketplace', () => {
 
   async function fetchListings(params: Record<string, any> = {}) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get('/marketplace/listings', { params });
-      listings.value = response.data.data;
+      const data = response.data;
+      listings.value = Array.isArray(data?.data) ? data.data : data ?? [];
       pagination.value = {
-        current_page: response.data.current_page,
-        last_page: response.data.last_page,
-        per_page: response.data.per_page,
-        total: response.data.total,
+        current_page: data?.current_page ?? 1,
+        last_page: data?.last_page ?? 1,
+        per_page: data?.per_page ?? 20,
+        total: data?.total ?? 0,
       };
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch listings';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -37,10 +43,14 @@ export const useMarketplaceStore = defineStore('marketplace', () => {
 
   async function fetchListing(id: string) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get(`/marketplace/listings/${id}`);
       currentListing.value = response.data;
       return response.data;
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch listing';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -74,9 +84,14 @@ export const useMarketplaceStore = defineStore('marketplace', () => {
 
   async function fetchVendors() {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get('/marketplace/vendors');
-      vendors.value = response.data;
+      const data = response.data;
+      vendors.value = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch vendors';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -92,6 +107,7 @@ export const useMarketplaceStore = defineStore('marketplace', () => {
     vendors,
     currentListing,
     loading,
+    error,
     pagination,
     openListings,
     fetchListings,

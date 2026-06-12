@@ -200,10 +200,10 @@ const loadResults = async () => {
     }
 
     const [latestRes, allRes] = await Promise.all([
-      api.get('/api/test-results/latest', {
+      api.get('/test-results/latest', {
         headers: { Authorization: `Bearer ${token}` },
       }).catch(() => ({ data: null })),
-      api.get('/api/test-results/all', {
+      api.get('/test-results/all', {
         headers: { Authorization: `Bearer ${token}` },
       }),
     ]);
@@ -219,7 +219,7 @@ const runTests = async () => {
   loading.value = true;
   try {
     const token = getAuthToken();
-    const response = await api.post('/api/test-results/run', {}, {
+    const response = await api.post('/test-results/run', {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
     
@@ -238,7 +238,7 @@ const analyzeResults = async () => {
 
   try {
     const token = getAuthToken();
-    const response = await api.post('/api/test-fix/analyze', {
+    const response = await api.post('/test-fix/analyze', {
       results: latestResults.value,
     }, {
       headers: { Authorization: `Bearer ${token}` },
@@ -255,7 +255,7 @@ const applyFixes = async () => {
 
   try {
     const token = getAuthToken();
-    const response = await api.post('/api/test-fix/apply', {
+    const response = await api.post('/test-fix/apply', {
       fixes: fixes.value,
     }, {
       headers: { Authorization: `Bearer ${token}` },
@@ -272,7 +272,7 @@ const applyFixes = async () => {
 const viewResult = async (filename: string) => {
   try {
     const token = getAuthToken();
-    const response = await api.get(`/api/test-results/${filename}`, {
+    const response = await api.get(`/test-results/${filename}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     selectedResult.value = response.data;

@@ -7,6 +7,7 @@ export const useInboxStore = defineStore('inbox', () => {
   const inboxItems = ref<InboxItem[]>([]);
   const currentItem = ref<InboxItem | null>(null);
   const loading = ref(false);
+  const error = ref<string | null>(null);
   const pagination = ref({
     current_page: 1,
     last_page: 1,
@@ -23,15 +24,20 @@ export const useInboxStore = defineStore('inbox', () => {
 
   async function fetchInboxItems(params: Record<string, any> = {}) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get('/inbox', { params });
-      inboxItems.value = response.data.data;
+      const data = response.data;
+      inboxItems.value = Array.isArray(data?.data) ? data.data : data ?? [];
       pagination.value = {
-        current_page: response.data.current_page,
-        last_page: response.data.last_page,
-        per_page: response.data.per_page,
-        total: response.data.total,
+        current_page: data?.current_page ?? 1,
+        last_page: data?.last_page ?? 1,
+        per_page: data?.per_page ?? 20,
+        total: data?.total ?? 0,
       };
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch inbox';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -39,10 +45,14 @@ export const useInboxStore = defineStore('inbox', () => {
 
   async function fetchInboxItem(id: string) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get(`/inbox/${id}`);
       currentItem.value = response.data;
       return response.data;
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch inbox item';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -79,6 +89,7 @@ export const useInboxStore = defineStore('inbox', () => {
     inboxItems,
     currentItem,
     loading,
+    error,
     pagination,
     unprocessedItems,
     processedItems,

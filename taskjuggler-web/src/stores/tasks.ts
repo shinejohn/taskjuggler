@@ -18,17 +18,22 @@ export const useTasksStore = defineStore('tasks', () => {
   const activeTasks = computed(() => tasks.value.filter(t => ['accepted', 'in_progress'].includes(t.status)));
   const completedTasks = computed(() => tasks.value.filter(t => t.status === 'completed'));
 
+  const error = ref<string | null>(null);
+
   async function fetchTasks(params: Record<string, any> = {}) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get('/tasks', { params });
-      tasks.value = response.data.data;
+      tasks.value = response.data.data ?? [];
       pagination.value = {
-        current_page: response.data.current_page,
-        last_page: response.data.last_page,
-        per_page: response.data.per_page,
-        total: response.data.total,
+        current_page: response.data.current_page ?? 1,
+        last_page: response.data.last_page ?? 1,
+        per_page: response.data.per_page ?? 20,
+        total: response.data.total ?? 0,
       };
+    } catch (err: any) {
+      error.value = err.response?.data?.message || err.message || 'Failed to load tasks';
     } finally {
       loading.value = false;
     }
@@ -36,10 +41,14 @@ export const useTasksStore = defineStore('tasks', () => {
 
   async function fetchTask(id: string) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get(`/tasks/${id}`);
-      currentTask.value = response.data;
-      return response.data;
+      currentTask.value = response.data?.data ?? response.data;
+      return currentTask.value;
+    } catch (err: any) {
+      error.value = err.response?.data?.message || err.message || 'Failed to load task';
+      return null;
     } finally {
       loading.value = false;
     }
@@ -99,6 +108,7 @@ export const useTasksStore = defineStore('tasks', () => {
     tasks,
     currentTask,
     loading,
+    error,
     pagination,
     pendingTasks,
     activeTasks,

@@ -40,12 +40,18 @@ export const useTeamsStore = defineStore('teams', () => {
   const teamMembers = ref<TeamMember[]>([]);
   const teamInvitations = ref<TeamInvitation[]>([]);
   const loading = ref(false);
+  const error = ref<string | null>(null);
 
   async function fetchTeams() {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get('/teams');
-      teams.value = response.data.teams || [];
+      const data = response.data;
+      teams.value = data?.teams ?? data?.data ?? (Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch teams';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -53,10 +59,14 @@ export const useTeamsStore = defineStore('teams', () => {
 
   async function fetchTeam(id: string) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get(`/teams/${id}`);
-      currentTeam.value = response.data.team;
-      return response.data.team;
+      currentTeam.value = response.data?.team ?? response.data?.data ?? response.data;
+      return currentTeam.value;
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch team';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -90,9 +100,13 @@ export const useTeamsStore = defineStore('teams', () => {
 
   async function fetchTeamMembers(teamId: string) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get(`/teams/${teamId}/members`);
-      teamMembers.value = response.data.members || [];
+      teamMembers.value = response.data?.members || [];
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch team members';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -143,6 +157,7 @@ export const useTeamsStore = defineStore('teams', () => {
     teamMembers,
     teamInvitations,
     loading,
+    error,
     fetchTeams,
     fetchTeam,
     createTeam,

@@ -54,16 +54,21 @@ export const useMessagesStore = defineStore('messages', () => {
   const unreadCounts = ref<Record<string, number>>({});
   const directUnreadCount = ref(0);
   const loading = ref(false);
+  const error = ref<string | null>(null);
 
   // Task Messages
   async function fetchTaskMessages(taskId: string, limit = 50, before?: string) {
     loading.value = true;
+    error.value = null;
     try {
       const params: any = { limit };
       if (before) params.before = before;
       const response = await api.get(`/tasks/${taskId}/messages`, { params });
-      taskMessages.value[taskId] = response.data.messages || [];
-      return response.data.messages;
+      taskMessages.value[taskId] = response.data?.messages || [];
+      return response.data?.messages || [];
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch messages';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -96,9 +101,13 @@ export const useMessagesStore = defineStore('messages', () => {
   // Direct Messages
   async function fetchConversations() {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get('/messages/conversations');
-      conversations.value = response.data.conversations || [];
+      conversations.value = response.data?.conversations || [];
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch conversations';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -106,10 +115,14 @@ export const useMessagesStore = defineStore('messages', () => {
 
   async function fetchDirectMessages(userId: string, limit = 50) {
     loading.value = true;
+    error.value = null;
     try {
       const response = await api.get(`/messages/with/${userId}`, { params: { limit } });
-      directMessages.value[userId] = response.data.messages || [];
+      directMessages.value[userId] = response.data?.messages || [];
       return response.data;
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch messages';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -138,6 +151,7 @@ export const useMessagesStore = defineStore('messages', () => {
     unreadCounts,
     directUnreadCount,
     loading,
+    error,
     fetchTaskMessages,
     sendTaskMessage,
     markTaskMessagesRead,

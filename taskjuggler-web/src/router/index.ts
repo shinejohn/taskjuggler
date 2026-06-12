@@ -123,6 +123,18 @@ const router = createRouter({
       component: () => import('@/pages/contacts/ContactListsPage.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/team',
+      name: 'team',
+      component: () => import('@/pages/team/TeamPage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/test-results',
+      name: 'test-results',
+      component: () => import('@/pages/test-results/TestResultsPage.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 });
 

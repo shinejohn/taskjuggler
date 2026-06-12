@@ -147,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useTeamStore } from '@/stores/team'
 import type { TeamMember } from '@/types'
 
@@ -225,12 +225,5 @@ async function deleteMember(id: string) {
   } catch (error) {
     // Error handled by API interceptor
   }
-}
-</script>
-
-<script lang="ts">
-import { computed } from 'vue'
-export default {
-  name: 'TeamPage'
 }
 </script>
