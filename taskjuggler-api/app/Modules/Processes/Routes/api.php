@@ -4,7 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Processes\Controllers\ProcessController;
 use App\Modules\Processes\Controllers\ProcessStepController;
 use App\Modules\Processes\Controllers\ProcessExecutionController;
+use App\Modules\Processes\Controllers\ProcessWebhookController;
 use App\Http\Middleware\TeamContext;
+
+// Inbound webhook trigger (public; webhook_id acts as the shared secret)
+Route::post('/webhooks/processes/{webhookId}', ProcessWebhookController::class);
 
 Route::middleware(['auth:sanctum', TeamContext::class])->group(function () {
     // Process Executions (literal routes MUST precede apiResource('processes'),

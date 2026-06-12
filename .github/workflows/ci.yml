@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (PHPUnit + routes + fresh-PG migrate)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: taskjuggler-api
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: taskjuggler_ci
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, sqlite3, pdo_pgsql, redis
+          coverage: none
+
+      - name: Install composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Route cache check (duplicate route names)
+        run: |
+          php artisan route:cache
+          php artisan route:clear
+
+      - name: Fresh-database migrate against PostgreSQL
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: '5432'
+          DB_DATABASE: taskjuggler_ci
+          DB_USERNAME: ci
+          DB_PASSWORD: ci
+        run: php artisan migrate --force --no-interaction
+
+      - name: Run tests
+        run: php artisan test --without-tty
+
+  frontend:
+    name: Frontend (build all workspaces)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared-ui
+        run: npm run build --workspace=shared-ui
+
+      - name: Build apps
+        run: |
+          for app in taskjuggler-web coordinator-web scanner-web process-web projects-web urpa-web ideacircuit-web official-notice-web; do
+            echo "::group::$app"
+            npm run build --workspace=$app
+            echo "::endgroup::"
+          done
+
+      - name: Check for debug statements
+        run: |
+          if grep -rn "console\.log\|console\.debug\|debugger;" \
+            --include="*.vue" --include="*.ts" \
+            taskjuggler-web/src coordinator-web/src scanner-web/src process-web/src \
+            projects-web/src urpa-web/src ideacircuit-web/src official-notice-web/src; then
+            echo "Debug statements found in committed code"
+            exit 1
+          fi
