@@ -642,6 +642,25 @@ if [[ -n "$FRONTEND_DIR" && -f "${FRONTEND_DIR}/package.json" ]]; then
             else
                 log "  ${GREEN}✓${NC} package-lock.json committed and consistent"
             fi
+
+            # Platform completeness — Railway builds on linux-x64. A lockfile
+            # generated on macOS with a dirty node_modules can silently omit
+            # other-platform native binaries (npm/cli#4828), failing the deploy
+            # with "Cannot find module @rollup/rollup-linux-x64-gnu".
+            # Fix: regenerate the lock from a CLEAN checkout:
+            #   git clone . /tmp/lockgen && cd /tmp/lockgen && npm install --package-lock-only
+            MISSING_LINUX=""
+            grep -q '"node_modules/rollup"' "$LOCKFILE" 2>/dev/null && ! grep -q 'node_modules/@rollup/rollup-linux-x64-gnu"' "$LOCKFILE" && MISSING_LINUX+=" @rollup/rollup-linux-x64-gnu"
+            grep -q '"node_modules/esbuild"' "$LOCKFILE" 2>/dev/null && ! grep -q 'node_modules/@esbuild/linux-x64"' "$LOCKFILE" && MISSING_LINUX+=" @esbuild/linux-x64"
+            grep -q '"node_modules/@tailwindcss/oxide"' "$LOCKFILE" 2>/dev/null && ! grep -q 'node_modules/@tailwindcss/oxide-linux-x64-gnu"' "$LOCKFILE" && MISSING_LINUX+=" @tailwindcss/oxide-linux-x64-gnu"
+            grep -q '"node_modules/lightningcss"' "$LOCKFILE" 2>/dev/null && ! grep -q 'node_modules/lightningcss-linux-x64-gnu"' "$LOCKFILE" && MISSING_LINUX+=" lightningcss-linux-x64-gnu"
+            if [[ -n "$MISSING_LINUX" ]]; then
+                log "  ${RED}❌ package-lock.json is missing linux-x64 native binaries (Railway will fail):${MISSING_LINUX}${NC}"
+                log "     Regenerate from a clean checkout (see comment in ship.sh) — npm/cli#4828"
+                inc_errors
+            else
+                log "  ${GREEN}✓${NC} package-lock.json includes linux-x64 binaries"
+            fi
         fi
     fi
 
