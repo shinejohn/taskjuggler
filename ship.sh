@@ -234,9 +234,12 @@ if [[ -n "$BACKEND_DIR" ]]; then
     log "${BOLD}${BLUE}━━━ Phase 2: PHP Checks ━━━${NC}"
     phase_start
 
+    # Include committed-but-unpushed changes (@{upstream}..HEAD) so checks
+    # still run when changes were committed before invoking ship.sh.
     CHANGED_PHP=$(
         { git diff --name-only HEAD 2>/dev/null
           git diff --name-only --cached 2>/dev/null
+          git diff --name-only @{upstream}..HEAD 2>/dev/null
           git ls-files --others --exclude-standard 2>/dev/null
         } | grep '\.php$' | grep "^${BACKEND_DIR}/" | sort -u
     ) || true
@@ -245,6 +248,7 @@ if [[ -n "$BACKEND_DIR" ]]; then
         CHANGED_PHP=$(
             { git diff --name-only HEAD 2>/dev/null
               git diff --name-only --cached 2>/dev/null
+              git diff --name-only @{upstream}..HEAD 2>/dev/null
               git ls-files --others --exclude-standard 2>/dev/null
             } | grep '\.php$' | sort -u
         ) || true

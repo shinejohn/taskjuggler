@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('process_id');
             $table->uuid('task_id')->nullable(); // Optional: linked task that triggered execution
             $table->uuid('project_id')->nullable(); // Optional: linked project
-            $table->enum('status', ['pending', 'running', 'completed', 'failed', 'cancelled'])->default('pending');
+            $table->string('status')->default('pending'); // pending, running, completed, failed, cancelled
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->text('error_message')->nullable();

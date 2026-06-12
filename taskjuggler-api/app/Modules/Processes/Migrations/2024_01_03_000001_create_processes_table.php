@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug');
             $table->text('description')->nullable();
-            $table->enum('status', ['draft', 'active', 'archived'])->default('draft');
+            $table->string('status')->default('draft'); // draft, active, archived
             $table->string('trigger_type'); // manual, task_created, task_updated, schedule, webhook
             $table->jsonb('trigger_config')->nullable(); // Configuration for trigger (e.g., schedule times, webhook URLs)
             $table->uuid('project_id')->nullable(); // Optional: link to a project
