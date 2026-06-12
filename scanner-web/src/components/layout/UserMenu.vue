@@ -32,7 +32,7 @@
       </DropdownMenuItem>
       
       <DropdownMenuItem as-child>
-        <RouterLink to="/settings/billing" class="menu-item">
+        <RouterLink to="/subscribe" class="menu-item">
           <CreditCardIcon />
           <span>Billing</span>
         </RouterLink>

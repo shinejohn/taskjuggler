@@ -5,7 +5,7 @@
     </div>
     <ul class="side-nav-menu">
       <li>
-        <RouterLink to="/" class="side-nav-link" active-class="active">
+        <RouterLink to="/dashboard" class="side-nav-link" active-class="active">
           Dashboard
         </RouterLink>
       </li>

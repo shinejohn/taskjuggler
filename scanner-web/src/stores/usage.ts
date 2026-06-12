@@ -36,7 +36,7 @@ export const useUsageStore = defineStore('usage', () => {
 
   async function fetchUsage() {
     try {
-      const response = await api.get<{ data: UsageData }>('/api/scanner/usage')
+      const response = await api.get<{ data: UsageData }>('/scanner/usage')
       usage.value = response.data.data || response.data
     } catch (error: any) {
       // Handle 404 gracefully if API doesn't exist yet

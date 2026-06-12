@@ -571,7 +571,7 @@
             </div>
             <button
               class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
-              @click="$router.push('/setup-wizard')"
+              @click="$router.push('/setup')"
             >
               <Sparkles class="h-5 w-5" />
               Configure Integrations

@@ -13,10 +13,10 @@ export const useUiStore = defineStore('ui', () => {
     // Default Navigation Items
     const navItems = ref<NavItem[]>([
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, to: '/dashboard' },
-        { id: 'inbox', label: 'Inbox', icon: MessageSquare, to: '/inbox' }, // Placeholder route
-        { id: 'calendar', label: 'Calendar', icon: Calendar, to: '/calendar' }, // Placeholder route
-        { id: 'calls', label: 'Phone', icon: Phone, to: '/calls' }, // Placeholder route
-        { id: 'settings', label: 'Settings', icon: Settings, to: '/settings' }, // Placeholder route
+        { id: 'inbox', label: 'Inbox', icon: MessageSquare, to: '/dashboard' },
+        { id: 'calendar', label: 'Calendar', icon: Calendar, to: '/dashboard' },
+        { id: 'calls', label: 'Phone', icon: Phone, to: '/dashboard' },
+        { id: 'settings', label: 'Settings', icon: Settings, to: '/profile' },
     ]);
 
     function addNavItems(items: NavItem[]) {

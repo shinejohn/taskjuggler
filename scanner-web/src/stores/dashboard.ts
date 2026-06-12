@@ -17,7 +17,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     try {
       // API automatically filters by team via X-Team-ID header
       const response = await dashboardApi.getStats();
-      stats.value = response.data.data;
+      stats.value = (response.data as any)?.data ?? response.data;
       
       // Fetch usage stats in parallel (fire-and-forget)
       usageStore.fetchUsage().catch(() => {

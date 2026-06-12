@@ -97,6 +97,11 @@ const router = createRouter({
         permission: 'scanner:view'
       },
     },
+    {
+      path: '/upgrade',
+      name: 'upgrade',
+      redirect: { name: 'subscribe' },
+    },
   ],
 });
 

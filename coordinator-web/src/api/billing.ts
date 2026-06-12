@@ -45,11 +45,5 @@ export const billingApi = {
   cancelSubscription(orgId: string): Promise<AxiosResponse<void>> {
     return api.post(`/coordinator/organizations/${orgId}/billing/cancel`);
   },
-  subscribe(orgId: string, plan: string): Promise<AxiosResponse<void>> {
-    return api.post(`/coordinator/organizations/${orgId}/billing/subscribe`, { plan });
-  },
-  updateAddons(orgId: string, addons: Record<string, boolean>): Promise<AxiosResponse<void>> {
-    return api.post(`/coordinator/organizations/${orgId}/billing/addons`, { addons });
-  },
 };
 

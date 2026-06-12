@@ -5,19 +5,20 @@ import type {
 } from '../types'
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || '/api',
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     }
 })
 
-// Add auth token to requests
+// Add auth token and app context to requests
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('auth_token')
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }
+    config.headers['X-App-Context'] = 'official-notice'
     return config
 })
 
@@ -34,15 +35,15 @@ api.interceptors.response.use(
     }
 )
 
-// Auth API
+// Auth API (Laravel returns { data: { token, user } })
 export const authApi = {
     login: async (email: string, password: string): Promise<AuthResponse> => {
         const { data } = await api.post('/auth/login', { email, password })
-        return data
+        return (data as any).data || data
     },
     register: async (name: string, email: string, password: string, password_confirmation: string): Promise<AuthResponse> => {
         const { data } = await api.post('/auth/register', { name, email, password, password_confirmation })
-        return data
+        return (data as any).data || data
     },
     logout: async (): Promise<void> => {
         await api.post('/auth/logout')
@@ -51,7 +52,7 @@ export const authApi = {
     },
     me: async (): Promise<User> => {
         const { data } = await api.get('/auth/user')
-        return data
+        return (data as any).data || data
     }
 }
 

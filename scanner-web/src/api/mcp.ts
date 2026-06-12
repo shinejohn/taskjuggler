@@ -18,8 +18,8 @@ export interface CreateMcpKeyResponse {
 }
 
 export const mcpApi = {
-  listKeys: () => api.get<{ data: McpApiKey[] }>('/api/scanner/mcp/keys'),
-  createKey: (data: CreateMcpKeyRequest) => api.post<{ data: CreateMcpKeyResponse }>('/api/scanner/mcp/keys', data),
-  revokeKey: (keyId: number) => api.delete(`/api/scanner/mcp/keys/${keyId}`),
+  listKeys: () => api.get<{ data: McpApiKey[] }>('/scanner/mcp/keys'),
+  createKey: (data: CreateMcpKeyRequest) => api.post<{ data: CreateMcpKeyResponse }>('/scanner/mcp/keys', data),
+  revokeKey: (keyId: number) => api.delete(`/scanner/mcp/keys/${keyId}`),
 }
 

@@ -51,17 +51,24 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout(): Promise<void> {
-    disconnectEcho();
-    token.value = null;
-    user.value = null;
-    localStorage.removeItem('urpa_token');
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Continue with logout even if API call fails
+    } finally {
+      disconnectEcho();
+      token.value = null;
+      user.value = null;
+      error.value = null;
+      localStorage.removeItem('urpa_token');
+    }
   }
 
   async function fetchUser(): Promise<void> {
     if (!token.value) return;
     try {
       const response = await api.get('/auth/user');
-      user.value = response.data.data || response.data;
+      user.value = (response.data as any)?.data ?? response.data;
     } catch (err) {
       await logout();
     }

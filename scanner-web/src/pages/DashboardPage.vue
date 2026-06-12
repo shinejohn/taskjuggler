@@ -12,6 +12,7 @@
 
       <div v-else-if="dashboardStore.error" class="dashboard-error">
         <p>{{ dashboardStore.error }}</p>
+        <Button @click="dashboardStore.fetchStats()">Retry</Button>
       </div>
 
       <div v-else-if="dashboardStore.stats" class="dashboard-content">

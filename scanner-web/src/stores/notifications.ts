@@ -9,7 +9,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     site_name: string;
   }) {
     try {
-      await api.post('/api/notifications', {
+      await api.post('/notifications', {
         type: 'scanner.scan_complete',
         title: `Scan Complete: ${results.site_name}`,
         message: `Health Score: ${results.health_score}/100 | ${results.issue_count} issues found`,
@@ -34,7 +34,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     if (issues.length === 0) return;
 
     try {
-      await api.post('/api/notifications', {
+      await api.post('/notifications', {
         type: 'scanner.critical_issues',
         title: `Critical Issues Detected`,
         message: `${issues.length} critical accessibility issues require immediate attention`,
@@ -62,7 +62,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     data?: any;
   }) {
     try {
-      await api.post(`/api/teams/${teamId}/notifications`, message);
+      await api.post(`/teams/${teamId}/notifications`, message);
     } catch (error: any) {
       // Handle 404 gracefully if notification API doesn't exist yet
       if (error.response?.status === 404) {

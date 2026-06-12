@@ -75,10 +75,10 @@
                 </router-link>
               </div>
               <div v-if="coordinatorsStore.loading" class="text-slate-500 text-center py-8">
-                Loading 4 Calls...
+                Loading coordinators...
               </div>
               <div v-else-if="activeCoordinators.length === 0" class="text-slate-500 text-center py-8">
-                No active 4 Calls. <router-link to="/coordinators" class="text-[#1B4F72] hover:underline">Add one</router-link> to get started.
+                No active AI coordinators. <router-link to="/coordinators" class="text-[#1B4F72] hover:underline">Add one</router-link> to get started.
               </div>
               <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <CoordinatorCard
@@ -124,7 +124,7 @@
                       <TableRow>
                         <TableHead>Time</TableHead>
                         <TableHead>Contact</TableHead>
-                        <TableHead>4 Call</TableHead>
+                        <TableHead>AI Coordinator</TableHead>
                         <TableHead>Duration</TableHead>
                         <TableHead>Outcome</TableHead>
                       </TableRow>
@@ -139,7 +139,7 @@
                         <TableCell class="font-medium text-slate-900">
                           {{ call.contact_name }}
                         </TableCell>
-                        <TableCell class="text-slate-600">{{ call.coordinator_name }}</TableCell>
+                        <TableCell class="text-slate-600">{{ call.coordinator_name || '—' }}</TableCell>
                         <TableCell class="text-slate-500 font-mono text-xs">
                           {{ call.duration }}
                         </TableCell>
@@ -221,19 +221,25 @@
               </CardHeader>
               <CardContent>
                 <div class="space-y-3">
-                  <Button variant="outline" class="w-full justify-start h-auto p-3">
-                    <Download :size="18" class="mr-3" />
-                    Import Contacts
+                  <Button variant="outline" class="w-full justify-start h-auto p-3" as-child>
+                    <router-link to="/contacts" class="flex items-center">
+                      <Download :size="18" class="mr-3" />
+                      Import Contacts
+                    </router-link>
                   </Button>
 
-                  <Button variant="outline" class="w-full justify-start h-auto p-3">
-                    <Megaphone :size="18" class="mr-3" />
-                    Create Campaign
+                  <Button variant="outline" class="w-full justify-start h-auto p-3" as-child>
+                    <router-link to="/campaigns" class="flex items-center">
+                      <Megaphone :size="18" class="mr-3" />
+                      Create Campaign
+                    </router-link>
                   </Button>
 
-                  <Button variant="outline" class="w-full justify-start h-auto p-3">
-                    <BarChart3 :size="18" class="mr-3" />
-                    View Analytics
+                  <Button variant="outline" class="w-full justify-start h-auto p-3" as-child>
+                    <router-link to="/analytics" class="flex items-center">
+                      <BarChart3 :size="18" class="mr-3" />
+                      View Analytics
+                    </router-link>
                   </Button>
                 </div>
               </CardContent>

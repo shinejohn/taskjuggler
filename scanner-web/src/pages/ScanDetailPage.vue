@@ -3,8 +3,9 @@
     <div v-if="loading" class="page-loading">
       <LoadingSpinner size="lg" />
     </div>
-    <div v-else-if="error" class="page-error">
-      <p>{{ error }}</p>
+    <div v-else-if="error || scansStore.error" class="page-error">
+      <p>{{ error || scansStore.error }}</p>
+      <Button @click="retryFetch">Retry</Button>
     </div>
     <div v-else-if="scan" class="scan-detail-page">
       <div class="scan-detail-header">
@@ -57,6 +58,10 @@
         </Card>
       </div>
     </div>
+    <div v-else class="page-error">
+      <p>Scan not found</p>
+      <router-link to="/sites"><Button>Back to Sites</Button></router-link>
+    </div>
   </AppLayout>
 </template>
 
@@ -82,18 +87,22 @@ const scanId = computed(() => parseInt(route.params.id as string))
 const scan = computed(() => scansStore.currentScan)
 const issues = computed(() => issuesStore.issues)
 
-onMounted(async () => {
+async function retryFetch() {
+  loading.value = true
+  error.value = null
   try {
     await Promise.all([
       scansStore.fetchScan(scanId.value),
       issuesStore.fetchIssues({ scan_id: scanId.value }),
     ])
   } catch (err: any) {
-    error.value = err.message || 'Failed to load scan details'
+    error.value = err.message || scansStore.error || issuesStore.error || 'Failed to load scan details'
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(retryFetch)
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString()

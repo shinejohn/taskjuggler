@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 function handleUpgrade() {
   const reason = props.feature ? `?upgrade_reason=${props.feature}` : ''
-  window.location.href = `/settings/billing${reason}`
+  window.location.href = `/subscribe${reason}`
 }
 </script>
 

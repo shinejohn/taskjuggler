@@ -17,8 +17,21 @@
       <ActionCard />
     </div>
 
+    <!-- Loading / Error -->
+    <div v-if="activitiesStore.loading && activitiesStore.activities.length === 0" class="flex-1 flex items-center justify-center p-8">
+      <p class="text-slate-500">Loading activities...</p>
+    </div>
+    <div v-else-if="activitiesStore.error && activitiesStore.activities.length === 0" class="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+      <p class="text-red-600">{{ activitiesStore.error }}</p>
+      <button
+        @click="activitiesStore.fetchActivities()"
+        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+      >
+        Retry
+      </button>
+    </div>
     <!-- Draggable Cards Grid -->
-    <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+    <div v-else class="flex-1 overflow-y-auto p-4 custom-scrollbar">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-fr">
         <DraggableCard
           v-for="(cardConfig, index) in cardOrder"

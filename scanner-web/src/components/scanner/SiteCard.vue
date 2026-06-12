@@ -139,7 +139,7 @@ const handleScan = async () => {
 }
 
 function handleUpgrade() {
-  window.location.href = '/settings/billing?upgrade_reason=sites'
+  window.location.href = '/subscribe?upgrade_reason=sites'
 }
 </script>
 

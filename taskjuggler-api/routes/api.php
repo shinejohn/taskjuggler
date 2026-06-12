@@ -57,6 +57,30 @@ require base_path('app/Modules/Projects/Routes/api.php');
 // Load Communications module routes
 require base_path('app/Modules/Communications/Routes/api.php');
 
+// IdeaCircuit (meetings, notes, messages, transcripts, AI, user)
+Route::prefix('ideacircuit')->middleware('auth:sanctum')->group(function () {
+    Route::get('meetings', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'index']);
+    Route::post('meetings', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'store']);
+    Route::get('meetings/{id}', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'show']);
+    Route::put('meetings/{id}', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'update']);
+    Route::delete('meetings/{id}', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'destroy']);
+    Route::post('meetings/{id}/join', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'join']);
+    Route::post('meetings/{id}/end', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'end']);
+    Route::get('meetings/{id}/notes', [\App\Http\Controllers\IdeaCircuit\NoteController::class, 'index']);
+    Route::post('meetings/{id}/notes', [\App\Http\Controllers\IdeaCircuit\NoteController::class, 'store']);
+    Route::get('meetings/{id}/messages', [\App\Http\Controllers\IdeaCircuit\MessageController::class, 'index']);
+    Route::post('meetings/{id}/messages', [\App\Http\Controllers\IdeaCircuit\MessageController::class, 'store']);
+    Route::get('meetings/{id}/transcript', [\App\Http\Controllers\IdeaCircuit\TranscriptController::class, 'show']);
+    Route::get('meetings/{id}/tasks', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'getTasks']);
+    Route::post('meetings/{id}/tasks', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'createTask']);
+    Route::get('meetings/{id}/appointments', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'getAppointments']);
+    Route::post('meetings/{id}/appointments', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'createAppointment']);
+    Route::post('ai/chat', [\App\Http\Controllers\IdeaCircuit\AIController::class, 'chat']);
+    Route::get('user/profile', [\App\Http\Controllers\IdeaCircuit\UserController::class, 'profile']);
+    Route::put('user/profile', [\App\Http\Controllers\IdeaCircuit\UserController::class, 'updateProfile']);
+    Route::get('user/activity', [\App\Http\Controllers\IdeaCircuit\UserController::class, 'activity']);
+});
+
 // Load Coordinator routes
 if (file_exists(base_path('routes/coordinator.php'))) {
     require base_path('routes/coordinator.php');

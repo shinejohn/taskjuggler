@@ -28,9 +28,8 @@ export default defineConfig({
     allowedHosts: [
       'official-notice-production.up.railway.app',
       'official-notice-production-7eb8.up.railway.app',
-      /^official-notice.*\.up\.railway\.app$/,
-      '.up.railway.app',  // Allow all Railway subdomains
-      'all'  // Fallback to allow all hosts
+      '.up.railway.app',
+      'all'
     ]
   },
 })

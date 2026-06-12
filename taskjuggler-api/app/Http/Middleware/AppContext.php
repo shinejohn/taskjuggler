@@ -19,6 +19,7 @@ class AppContext
         'projects',
         'process',
         'coordinator',
+        'official-notice',
     ];
 
     /**

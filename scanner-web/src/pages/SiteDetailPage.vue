@@ -3,8 +3,9 @@
     <div v-if="loading" class="page-loading">
       <LoadingSpinner size="lg" />
     </div>
-    <div v-else-if="error" class="page-error">
-      <p>{{ error }}</p>
+    <div v-else-if="error || sitesStore.error" class="page-error">
+      <p>{{ error || sitesStore.error }}</p>
+      <Button @click="retryFetch">Retry</Button>
     </div>
     <div v-else-if="site" class="site-detail-page">
       <div class="site-detail-header">
@@ -63,6 +64,10 @@
         </Card>
       </div>
     </div>
+    <div v-else class="page-error">
+      <p>Site not found</p>
+      <router-link to="/sites"><Button>Back to Sites</Button></router-link>
+    </div>
   </AppLayout>
 </template>
 
@@ -93,7 +98,9 @@ const site = computed(() => sitesStore.currentSite)
 const scans = computed(() => scansStore.scans)
 const openIssues = computed(() => issuesStore.issues.filter((i: Issue) => i.status === 'open'))
 
-onMounted(async () => {
+async function retryFetch() {
+  loading.value = true
+  error.value = null
   try {
     await Promise.all([
       sitesStore.fetchSite(siteId.value),
@@ -101,11 +108,13 @@ onMounted(async () => {
       issuesStore.fetchIssues({ site_id: siteId.value, status: 'open' }),
     ])
   } catch (err: any) {
-    error.value = err.message || 'Failed to load site details'
+    error.value = err.message || sitesStore.error || scansStore.error || issuesStore.error || 'Failed to load site details'
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(retryFetch)
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString()

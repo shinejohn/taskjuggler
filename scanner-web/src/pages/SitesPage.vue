@@ -31,6 +31,7 @@
 
       <div v-else-if="sitesStore.error" class="sites-error">
         <p>{{ sitesStore.error }}</p>
+        <Button @click="sitesStore.fetchSites()">Retry</Button>
       </div>
 
       <div v-else-if="sitesStore.sites.length === 0" class="sites-empty">

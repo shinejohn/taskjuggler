@@ -16,21 +16,12 @@ app.use(pinia);
 app.use(router);
 
 // Module System Initialization
-import { registerModule } from './modules/loader';
-import { doctorModule } from './modules/doctor';
+// Vertical modules register here via registerModule(module, app, router)
+// (Doctor vertical moved to the 4healthcare-Platform fork.)
 import { useUiStore } from './stores/ui';
 
 // Initialize UI Store (populates default nav items)
-const uiStore = useUiStore();
-
-// Register Modules
-registerModule(doctorModule, app, router);
-
-// Add module nav items to the UI store
-if (doctorModule.navItems) {
-  uiStore.addNavItems(doctorModule.navItems);
-}
-
+useUiStore();
 
 // Initialize Echo and real-time listeners after auth store is available
 const authStore = useAuthStore();

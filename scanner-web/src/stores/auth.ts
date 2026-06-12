@@ -70,7 +70,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return;
     try {
       const response = await api.get('/auth/user');
-      user.value = response.data.data || response.data;
+      user.value = (response.data as any)?.data ?? response.data;
       // Set current team from saved preference or default to first team
       if (user.value?.teams && user.value.teams.length > 0) {
         const firstTeam = user.value.teams[0];

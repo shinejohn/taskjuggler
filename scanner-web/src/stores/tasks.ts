@@ -61,8 +61,15 @@ export const useTasksStore = defineStore('tasks', () => {
     }));
 
     try {
-      const response = await api.post('/tasks/bulk', { tasks });
-      return response.data.data;
+      // Backend does not expose /tasks/bulk in current task routes;
+      // create tasks one-by-one to keep this action functional.
+      const created = await Promise.all(
+        tasks.map(async (task) => {
+          const response = await api.post('/tasks', task);
+          return response.data?.data ?? response.data;
+        })
+      );
+      return created;
     } catch (error: any) {
       // Handle 404 gracefully if task API doesn't exist yet
       if (error.response?.status === 404) {

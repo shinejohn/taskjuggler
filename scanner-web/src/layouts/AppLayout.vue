@@ -16,7 +16,7 @@
       <div class="header-center">
         <!-- Scanner-specific nav -->
         <nav class="scanner-nav">
-          <RouterLink to="/" class="nav-link">Dashboard</RouterLink>
+          <RouterLink to="/dashboard" class="nav-link">Dashboard</RouterLink>
           <RouterLink to="/sites" class="nav-link">Sites</RouterLink>
         </nav>
       </div>

@@ -59,6 +59,26 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/settings',
+      redirect: { name: 'profile' },
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/calls',
+      redirect: { name: 'dashboard' },
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/inbox',
+      redirect: { name: 'dashboard' },
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/calendar',
+      redirect: { name: 'dashboard' },
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/calls/:id',
       name: 'call-detail',
       component: () => import('@/pages/CallDetail.vue'),
