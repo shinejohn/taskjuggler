@@ -610,6 +610,41 @@ if [[ -n "$FRONTEND_DIR" && -f "${FRONTEND_DIR}/package.json" ]]; then
         fi
     fi
 
+    # npm lockfile check — without a committed package-lock.json, Railway
+    # resolves fresh dependency versions on every build (npm install at root),
+    # so deploys can break on dep drift even when local builds pass.
+    # (June 2026: vite 7.3.1→7.3.5 drift broke taskjuggler-web on Railway.)
+    if [[ -f "${FRONTEND_DIR}/package.json" ]]; then
+        LOCKFILE="${FRONTEND_DIR}/package-lock.json"
+        [[ "$FRONTEND_DIR" == "." ]] && LOCKFILE="package-lock.json"
+        if [[ ! -f "$LOCKFILE" ]]; then
+            log "  ${RED}❌ No package-lock.json — Railway will resolve fresh deps (version drift). Run: npm install, then commit the lockfile${NC}"
+            inc_errors
+        elif ! git ls-files --error-unmatch "$LOCKFILE" &>/dev/null; then
+            log "  ${RED}❌ package-lock.json exists but is not committed — Railway won't see it. Commit it${NC}"
+            inc_errors
+        else
+            # package.json changed without lockfile change → likely out of sync
+            PKG_CHANGED=$(
+                { git diff --name-only HEAD 2>/dev/null
+                  git diff --name-only --cached 2>/dev/null
+                } | grep -E '(^|/)package\.json$' | sort -u
+            ) || true
+            LOCK_CHANGED=$(
+                { git diff --name-only HEAD 2>/dev/null
+                  git diff --name-only --cached 2>/dev/null
+                } | grep -E '(^|/)package-lock\.json$' || true
+            )
+            if [[ -n "$PKG_CHANGED" && -z "$LOCK_CHANGED" ]]; then
+                log "  ${YELLOW}⚠️  package.json changed but package-lock.json didn't — run npm install to re-sync the lockfile:${NC}"
+                echo "$PKG_CHANGED" | head -5
+                inc_warnings
+            else
+                log "  ${GREEN}✓${NC} package-lock.json committed and consistent"
+            fi
+        fi
+    fi
+
     # TypeScript compilation (if tsconfig exists in frontend dir)
     TSCONFIG=""
     for candidate in "${FRONTEND_DIR}/tsconfig.json" "tsconfig.json"; do
@@ -624,7 +659,34 @@ if [[ -n "$FRONTEND_DIR" && -f "${FRONTEND_DIR}/package.json" ]]; then
         # Check if build script needs env vars (monorepo service selector)
         BUILD_SCRIPT=$(grep '"build"' "${FRONTEND_DIR}/package.json" | head -1)
         if echo "$BUILD_SCRIPT" | grep -qE 'monorepo-build|RAILWAY_SERVICE_NAME'; then
-            log "  ${CYAN}ℹ${NC}  Monorepo build (needs RAILWAY_SERVICE_NAME) — skipping local build test"
+            # npm workspaces monorepo — Railway rebuilds EVERY service on push to
+            # main, so a broken build in ANY workspace fails a deploy. Build them
+            # all locally (shared-ui first: the apps depend on it).
+            WS_LIST=$(node -p "(require('./package.json').workspaces||[]).join(' ')" 2>/dev/null) || WS_LIST=""
+            if [[ -z "$WS_LIST" ]]; then
+                log "  ${CYAN}ℹ${NC}  Monorepo build (needs RAILWAY_SERVICE_NAME) — no workspaces found, skipping"
+            else
+                log "  ${CYAN}npm workspaces monorepo — building all workspaces (Railway rebuilds every service on push)${NC}"
+                ORDERED=""
+                for WS in $WS_LIST; do [[ "$WS" == "shared-ui" ]] && ORDERED="$WS"; done
+                for WS in $WS_LIST; do [[ "$WS" != "shared-ui" ]] && ORDERED="$ORDERED $WS"; done
+                VITE_BUILD_OK=true
+                for WS in $ORDERED; do
+                    if [[ ! -f "$WS/package.json" ]] || ! grep -q '"build"' "$WS/package.json" 2>/dev/null; then
+                        continue
+                    fi
+                    log "  ${CYAN}Building ${WS}...${NC}"
+                    WS_RESULT=$(npm run build -w "$WS" 2>&1)
+                    if [[ $? -ne 0 ]]; then
+                        log "  ${RED}❌ ${WS} build FAILED:${NC}"
+                        echo "$WS_RESULT" | tail -12
+                        inc_errors
+                        VITE_BUILD_OK=false
+                    else
+                        log "  ${GREEN}✓${NC} ${WS} build passed"
+                    fi
+                done
+            fi
         else
             log "  ${CYAN}Vite build...${NC}"
             BUILD_RESULT=$(cd "$FRONTEND_DIR" && npm run build 2>&1)
