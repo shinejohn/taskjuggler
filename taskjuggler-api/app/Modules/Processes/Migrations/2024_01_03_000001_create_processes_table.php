@@ -35,10 +35,9 @@ return new class extends Migration
                 ->on('profiles')
                 ->onDelete('cascade');
 
-            $table->foreign('project_id')
-                ->references('id')
-                ->on('projects')
-                ->onDelete('set null');
+            // NOTE: project_id FK is added by the Projects module migration
+            // 2024_01_04_000002 — the projects table doesn't exist yet here
+            // (this file sorts before 2024_01_04_000001_create_projects_table).
 
             // Unique constraint: slug must be unique within team
             $table->unique(['team_id', 'slug']);

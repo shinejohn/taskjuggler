@@ -26,9 +26,8 @@ return new class extends Migration
             $table->text('message_text');
             $table->string('message_type')->default('text'); // text, system, ai_response, file, action, poll, reaction
             
-            // Reply/Thread Support
+            // Reply/Thread Support (self-FK added after create — see Schema::table below)
             $table->uuid('reply_to_message_id')->nullable();
-            $table->foreign('reply_to_message_id')->references('id')->on('ideacircuit_meeting_messages')->onDelete('set null');
             $table->integer('thread_count')->default(0);
             
             // AI Detection & Analysis
@@ -62,6 +61,12 @@ return new class extends Migration
             $table->index(['meeting_id', 'created_at']);
             $table->index('participant_id');
             $table->index('reply_to_message_id');
+        });
+
+        // Self-referencing FK must be added after create: inside Schema::create the
+        // PK command is appended after the FK commands, so PostgreSQL rejects the FK.
+        Schema::table('ideacircuit_meeting_messages', function (Blueprint $table) {
+            $table->foreign('reply_to_message_id')->references('id')->on('ideacircuit_meeting_messages')->onDelete('set null');
         });
     }
 

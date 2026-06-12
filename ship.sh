@@ -307,7 +307,7 @@ if [[ -n "$BACKEND_DIR" ]]; then
     # ========================================================================
     # PHASE 3: MIGRATION VALIDATION
     # ========================================================================
-    CHANGED_MIGRATIONS=$(echo "$CHANGED_PHP" | grep 'database/migrations/' || true)
+    CHANGED_MIGRATIONS=$(echo "$CHANGED_PHP" | grep -E 'database/migrations/|/Migrations/' || true)
     if [[ -z "$CHANGED_MIGRATIONS" ]]; then
         MIGRATION_COUNT=0
     else
@@ -359,6 +359,36 @@ if [[ -n "$BACKEND_DIR" ]]; then
 
             log "    ${GREEN}✓${NC} OK"
         done
+
+        # Full migration chain on a scratch PostgreSQL — catches ordering bugs,
+        # forward-reference FKs, bigint-vs-uuid FK type mismatches, and silent
+        # transaction rollbacks that SQLite-based tests cannot detect.
+        if command -v initdb >/dev/null 2>&1 && command -v pg_ctl >/dev/null 2>&1 && command -v createdb >/dev/null 2>&1; then
+            log "  Fresh-DB migrate check (scratch PostgreSQL)..."
+            SHIP_PGDIR=$(mktemp -d /tmp/ship-pg.XXXXXX)
+            SHIP_PGPORT=54331
+            if initdb -D "$SHIP_PGDIR" -U postgres -A trust >/dev/null 2>&1 \
+                && pg_ctl -D "$SHIP_PGDIR" -o "-p $SHIP_PGPORT -k $SHIP_PGDIR" -l "$SHIP_PGDIR/pg.log" start >/dev/null 2>&1; then
+                createdb -h "$SHIP_PGDIR" -p "$SHIP_PGPORT" -U postgres ship_migrate >/dev/null 2>&1
+                if (cd "$BACKEND_DIR" && DB_CONNECTION=pgsql DB_HOST="$SHIP_PGDIR" DB_PORT="$SHIP_PGPORT" \
+                    DB_DATABASE=ship_migrate DB_USERNAME=postgres DB_PASSWORD= \
+                    php artisan migrate --force --no-interaction > "$SHIP_PGDIR/migrate.log" 2>&1); then
+                    log "    ${GREEN}✓${NC} All migrations succeed on fresh PostgreSQL"
+                else
+                    log "    ${RED}❌ Migrations FAIL on fresh PostgreSQL:${NC}"
+                    grep -E 'FAIL|SQLSTATE' "$SHIP_PGDIR/migrate.log" | head -4 | while read line; do log "       ${RED}$line${NC}"; done
+                    inc_errors
+                fi
+                pg_ctl -D "$SHIP_PGDIR" stop >/dev/null 2>&1
+            else
+                log "    ${YELLOW}⚠️  Could not start scratch PostgreSQL — skipping fresh-DB migrate check${NC}"
+                inc_warnings
+            fi
+            rm -rf "$SHIP_PGDIR"
+        else
+            log "    ${YELLOW}⚠️  initdb/pg_ctl not found — skipping fresh-DB migrate check${NC}"
+            inc_warnings
+        fi
 
         phase_end
         log ""

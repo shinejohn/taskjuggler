@@ -69,6 +69,11 @@ return new class extends Migration
             }
             $table->foreign('source_actor_id')->references('id')->on('actors');
             $table->foreign('target_actor_id')->references('id')->on('actors');
+        });
+
+        // Self-referencing FK must be added after create: inside Schema::create the
+        // PK command is appended after the FK commands, so PostgreSQL rejects the FK.
+        Schema::table('messages', function (Blueprint $table) {
             $table->foreign('reply_to_id')->references('id')->on('messages')->onDelete('set null');
         });
     }

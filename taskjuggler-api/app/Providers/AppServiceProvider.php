@@ -50,5 +50,11 @@ class AppServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(app_path('Modules/Processes/Migrations'));
         $this->loadMigrationsFrom(app_path('Modules/Projects/Migrations'));
         $this->loadMigrationsFrom(app_path('Modules/Communications/Migrations'));
+
+        // Urpa and Coordinator are not in config('modules.enabled'), so the
+        // ModuleServiceProvider never loads their migrations — but main-dir
+        // migrations (e.g. urpa_webhook_events) FK their tables. Load explicitly.
+        $this->loadMigrationsFrom(app_path('Modules/Urpa/Migrations'));
+        $this->loadMigrationsFrom(app_path('Modules/Coordinator/Migrations'));
     }
 }

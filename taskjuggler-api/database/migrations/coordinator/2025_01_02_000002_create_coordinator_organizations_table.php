@@ -11,7 +11,7 @@ return new class extends Migration
         // Organizations (Businesses using Coordinator)
         Schema::create('coord_organizations', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Owner
+            $table->foreignUuid('user_id')->constrained()->onDelete('cascade'); // Owner
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('industry'); // dental, plumbing, restaurant, legal, etc.
@@ -43,7 +43,7 @@ return new class extends Migration
         Schema::create('coord_organization_members', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('organization_id');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
             $table->string('role')->default('member'); // owner, admin, member
             $table->json('permissions')->nullable();
             $table->timestamps();

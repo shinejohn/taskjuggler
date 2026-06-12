@@ -292,7 +292,7 @@ return new class extends Migration
             $table->uuid('approved_faq_id')->nullable(); // If approved, link to FAQ
             
             // Business Owner Review
-            $table->foreignId('reviewed_by_user_id')->nullable()->constrained('users');
+            $table->foreignUuid('reviewed_by_user_id')->nullable()->constrained('users');
             $table->timestamp('reviewed_at')->nullable();
             $table->text('review_notes')->nullable();
             
@@ -382,7 +382,7 @@ return new class extends Migration
             
             // Approval Status (from protocol Part 8.6)
             $table->string('approval_status')->default('pending'); // pending, approved, rejected
-            $table->foreignId('approved_by_user_id')->nullable()->constrained('users');
+            $table->foreignUuid('approved_by_user_id')->nullable()->constrained('users');
             $table->timestamp('approved_at')->nullable();
             $table->text('approval_notes')->nullable();
             
@@ -443,7 +443,7 @@ return new class extends Migration
             
             // Resolution
             $table->json('resolution')->nullable();
-            $table->foreignId('resolved_by_user_id')->nullable()->constrained('users');
+            $table->foreignUuid('resolved_by_user_id')->nullable()->constrained('users');
             $table->timestamp('resolved_at')->nullable();
             
             $table->timestamps();
@@ -494,7 +494,7 @@ return new class extends Migration
             $table->boolean('auto_apply_eligible')->default(false);
             
             // Review
-            $table->foreignId('reviewed_by_user_id')->nullable()->constrained('users');
+            $table->foreignUuid('reviewed_by_user_id')->nullable()->constrained('users');
             $table->timestamp('reviewed_at')->nullable();
             $table->text('review_notes')->nullable();
             

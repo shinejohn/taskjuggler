@@ -32,7 +32,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('actor_type', 50); // Using string instead of enum for Laravel compatibility
             $table->string('display_name');
-            $table->json('capabilities')->default('[]');
+            $table->jsonb('capabilities')->default('[]'); // jsonb: GIN-indexed below (GIN has no operator class for plain json)
             $table->json('contact_methods')->default('[]');
             $table->json('metadata')->default('{}');
             $table->json('authentication')->default('{}');

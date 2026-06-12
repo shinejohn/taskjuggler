@@ -39,7 +39,7 @@ return new class extends Migration
             $table->uuid('contact_id');
             $table->uuid('appointment_type_id')->nullable();
             $table->uuid('booked_by_coordinator_id')->nullable();
-            $table->foreignId('assigned_to_user_id')->nullable()->constrained('users');
+            $table->foreignUuid('assigned_to_user_id')->nullable()->constrained('users');
             $table->string('title');
             $table->text('description')->nullable();
             $table->timestamp('starts_at');
@@ -85,7 +85,7 @@ return new class extends Migration
         Schema::create('coord_availability_schedules', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('organization_id');
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignUuid('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('name');
             $table->boolean('is_default')->default(false);
             $table->json('weekly_hours'); // Hours for each day of week
@@ -102,7 +102,7 @@ return new class extends Migration
         Schema::create('coord_blocked_times', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('organization_id');
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignUuid('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('title')->nullable();
             $table->timestamp('starts_at');
             $table->timestamp('ends_at');

@@ -80,7 +80,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('contact_id');
             $table->uuid('coordinator_id')->nullable();
-            $table->foreignId('assigned_to_user_id')->nullable()->constrained('users');
+            $table->foreignUuid('assigned_to_user_id')->nullable()->constrained('users');
             $table->string('type'); // call, email, sms, task
             $table->string('priority')->default('normal'); // low, normal, high, urgent
             $table->text('description');

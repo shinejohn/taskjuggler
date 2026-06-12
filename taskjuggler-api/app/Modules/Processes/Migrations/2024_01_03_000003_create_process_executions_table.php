@@ -35,10 +35,8 @@ return new class extends Migration
                 ->on('tasks')
                 ->onDelete('set null');
 
-            $table->foreign('project_id')
-                ->references('id')
-                ->on('projects')
-                ->onDelete('set null');
+            // NOTE: project_id FK is added by the Projects module migration
+            // 2024_01_04_000002 — the projects table doesn't exist yet here.
 
             $table->index(['process_id', 'status']);
             $table->index('task_id');
