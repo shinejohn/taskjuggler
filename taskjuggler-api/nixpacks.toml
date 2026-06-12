@@ -3,11 +3,12 @@ nixPkgs = ['php82', 'php82Packages.composer', 'php82Packages.pdo_pgsql', 'postgr
 
 [phases.install]
 cmds = [
-  'composer install --no-interaction --optimize-autoloader --no-dev --prefer-dist'
+  'composer install --no-interaction --optimize-autoloader --no-dev --prefer-dist --no-scripts'
 ]
 
 [phases.build]
 cmds = [
+  'php artisan package:discover --ansi',
   'php artisan config:cache',
   'php artisan route:cache',
   'php artisan view:cache'

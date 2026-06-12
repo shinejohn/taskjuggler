@@ -499,9 +499,18 @@ if [[ -n "$BACKEND_DIR" ]]; then
     if [[ -n "$NIXPACKS_FILE" ]]; then
         log "  ${GREEN}✓${NC} Found: $NIXPACKS_FILE"
 
+        # A Dockerfile next to nixpacks.toml silently wins on Railway —
+        # nixpacks.toml and railway.json startCommand get ignored.
+        NIXPACKS_DIR=$(dirname "$NIXPACKS_FILE")
+        if [[ -f "$NIXPACKS_DIR/Dockerfile" ]]; then
+            log "  ${RED}❌ Dockerfile exists in $NIXPACKS_DIR — Railway uses it INSTEAD of nixpacks.toml${NC}"
+            log "     ${RED}Delete the Dockerfile or remove nixpacks.toml; they cannot coexist safely.${NC}"
+            inc_errors
+        fi
+
         # Check for --no-scripts (the bug we fixed!)
         if grep -q 'composer install' "$NIXPACKS_FILE" 2>/dev/null; then
-            INSTALL_PHASE=$(grep -A1 '\[phases.install\]' "$NIXPACKS_FILE" 2>/dev/null | grep 'composer')
+            INSTALL_PHASE=$(grep -A4 '\[phases.install\]' "$NIXPACKS_FILE" 2>/dev/null | grep 'composer')
             if [[ -n "$INSTALL_PHASE" ]] && ! echo "$INSTALL_PHASE" | grep -q '\-\-no-scripts'; then
                 log "  ${RED}❌ Nixpacks install phase runs composer WITHOUT --no-scripts${NC}"
                 log "     ${RED}This causes RouteGroup errors in Docker. Add --no-scripts to install phase.${NC}"
