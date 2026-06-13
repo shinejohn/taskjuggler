@@ -133,10 +133,10 @@ export const useIssuesStore = defineStore('issues', () => {
   }
 
   async function createTaskFromIssue(issueId: number, options?: {
-    assignee_id?: number;
-    project_id?: number;
+    assignee_id?: string;
+    project_id?: string;
     due_date?: string;
-    priority?: 'low' | 'medium' | 'high' | 'urgent';
+    priority?: 'low' | 'normal' | 'high' | 'urgent';
   }) {
     const issue = issues.value.find(i => i.id === issueId);
     if (!issue) throw new Error('Issue not found');
@@ -157,8 +157,8 @@ export const useIssuesStore = defineStore('issues', () => {
   }
 
   async function createTasksFromIssues(issueIds: number[], options?: {
-    project_id?: number;
-    assignee_id?: number;
+    project_id?: string;
+    assignee_id?: string;
   }) {
     const selectedIssues = issues.value.filter(i => issueIds.includes(i.id));
     if (selectedIssues.length === 0) throw new Error('No issues found');
@@ -166,7 +166,7 @@ export const useIssuesStore = defineStore('issues', () => {
     const tasks = await tasksStore.createTasksFromIssues(selectedIssues, options);
     
     // Update issues with task_ids
-    tasks.forEach((task: any) => {
+    tasks.forEach((task: { id: string; metadata?: { issue_id?: number } }) => {
       const issueId = task.metadata?.issue_id;
       if (issueId) {
         const index = issues.value.findIndex(i => i.id === issueId);

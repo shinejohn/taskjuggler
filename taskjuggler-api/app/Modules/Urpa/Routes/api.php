@@ -63,8 +63,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/prerecorded/{id}/used', [VoiceController::class, 'logUsage']);
     });
 
-    // Vapi webhook (no auth required for webhooks)
-    Route::post('/voice/vapi/webhook', [VoiceController::class, 'vapiWebhook']);
+});
+
+// Vapi webhook — outside auth:sanctum so Vapi can POST call events
+Route::post('/voice/vapi/webhook', [VoiceController::class, 'vapiWebhook']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
 
     // Vapi API endpoints
     Route::prefix('voice/vapi')->group(function () {

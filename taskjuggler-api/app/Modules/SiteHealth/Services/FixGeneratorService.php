@@ -12,7 +12,7 @@ class FixGeneratorService
 
     public function __construct()
     {
-        $this->claudeApiKey = config('services.claude.api_key', env('CLAUDE_API_KEY'));
+        $this->claudeApiKey = config('services.claude.api_key');
     }
 
     public function generate(Issue $issue): array

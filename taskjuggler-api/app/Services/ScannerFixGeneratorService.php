@@ -12,7 +12,7 @@ class ScannerFixGeneratorService
 
     public function __construct()
     {
-        $this->apiKey = config('services.claude.api_key', env('ANTHROPIC_API_KEY', ''));
+        $this->apiKey = config('services.claude.api_key', '');
     }
 
     public function generate(Issue $issue): array

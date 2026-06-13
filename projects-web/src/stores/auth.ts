@@ -18,8 +18,9 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem('auth_token', token.value)
       }
       return response
-    } catch (error: any) {
-      throw error.response?.data || error
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: unknown } }
+      throw axiosError.response?.data || error
     }
   }
 
@@ -32,16 +33,17 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem('auth_token', token.value)
       }
       return response
-    } catch (error: any) {
-      throw error.response?.data || error
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: unknown } }
+      throw axiosError.response?.data || error
     }
   }
 
   async function logout() {
     try {
       await authApi.logout()
-    } catch (error) {
-      console.error('Logout error:', error)
+    } catch {
+      // Logout API failure is non-critical; clear local state regardless
     } finally {
       token.value = null
       user.value = null
@@ -56,8 +58,9 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const userData = await authApi.getUser()
       user.value = userData
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { status?: number } }
+      if (axiosError.response?.status === 401) {
         logout()
       }
     }

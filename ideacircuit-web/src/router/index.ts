@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
 // Lazy load pages
@@ -17,7 +18,7 @@ const ProfilePage = () => import('@/pages/ProfilePage.vue');
 const SchedulePage = () => import('@/pages/SchedulePage.vue');
 
 // Auth guard
-const requireAuth = (_to: any, _from: any, next: any) => {
+const requireAuth = (_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
   const authStore = useAuthStore();
   // Auth bypass only in local Vite dev builds — never in production bundles
   const isTestingMode = import.meta.env.DEV && import.meta.env.VITE_DEV_MODE === 'true';

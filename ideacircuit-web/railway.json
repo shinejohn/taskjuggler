@@ -3,7 +3,8 @@
     "build": {
         "builder": "NIXPACKS",
         "buildCommand": "npm install && npm run build -w shared-ui && npm run build -w ideacircuit-web",
-        "startCommand": "npm start"
+        "startCommand": "npm start",
+        "watchPatterns": ["ideacircuit-web/**", "shared-ui/**"]
     },
     "deploy": {
         "numReplicas": 1,

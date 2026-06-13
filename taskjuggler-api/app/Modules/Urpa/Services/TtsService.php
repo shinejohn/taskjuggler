@@ -16,7 +16,7 @@ class TtsService
 
     public function __construct()
     {
-        $this->elevenlabsApiKey = config('services.elevenlabs.api_key', env('ELEVENLABS_API_KEY'));
+        $this->elevenlabsApiKey = config('services.elevenlabs.api_key');
         $this->elevenlabsBaseUrl = config('services.elevenlabs.base_url', 'https://api.elevenlabs.io/v1');
         $this->elevenlabsVoiceId = config('services.elevenlabs.default_voice_id', '21m00Tcm4TlvDq8ikWAM');
         $this->elevenlabsModelId = config('services.elevenlabs.model_id', 'eleven_multilingual_v2');

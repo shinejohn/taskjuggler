@@ -13,7 +13,7 @@ class TaskJugglerSyncService
 
     public function __construct()
     {
-        $this->taskjugglerApiUrl = config('services.taskjuggler.api_url', env('TASKJUGGLER_API_URL', 'http://localhost:8000/api'));
+        $this->taskjugglerApiUrl = config('services.taskjuggler.api_url');
     }
 
     /**

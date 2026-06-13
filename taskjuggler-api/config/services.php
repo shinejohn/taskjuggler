@@ -132,6 +132,14 @@ return [
         'secret' => env('PROVISIONING_SECRET'),
     ],
 
+    'mcp' => [
+        'server_url' => env('MCP_SERVER_URL', 'https://mcp.taskjuggler.com'),
+    ],
+
+    'taskjuggler' => [
+        'api_url' => env('TASKJUGGLER_API_URL', 'http://localhost:8000/api'),
+    ],
+
     'publishing' => [
         // Multisite publishing platform (Day-News). Base URL includes /api/v1.
         'base_url' => env('PUBLISHING_API_URL'),
