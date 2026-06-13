@@ -10,7 +10,8 @@ use App\Modules\Doctors\Controllers\DocConnectController;
 use App\Modules\Doctors\Controllers\PatientPortalController;
 
 Route::middleware(['auth:sanctum'])->prefix('doctors')->group(function () {
-    // ... dashboard and other routes ...
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
     // =====================================================
     // Patient Portal
