@@ -79,21 +79,21 @@
         <EmailWidget
           title="📧 Email"
           :emails="filteredEmails"
-          @view-all="navigateTo('/email')"
+          :show-view-all="false"
         />
 
         <!-- Tasks Widget -->
         <TaskWidget
           title="Tasks"
           :tasks="filteredTasks"
-          @view-all="navigateTo('/tasks')"
+          :show-view-all="false"
         />
 
         <!-- Voicemail Widget -->
         <VoicemailWidget
           title="Voicemail"
           :voicemails="filteredVoicemails"
-          @view-all="navigateTo('/voicemail')"
+          :show-view-all="false"
         />
       </div>
 
@@ -216,7 +216,7 @@ const fetchDashboardData = async () => {
     }
 
   } catch (error) {
-    console.error('Failed to fetch dashboard data:', error);
+    // error handled by headerMessage below
     headerMessage.value = 'Failed to load dashboard data.';
   } finally {
     isLoading.value = false;
@@ -264,11 +264,11 @@ const toggleFilter = (mode: URPAMode) => {
 };
 
 const activateVoice = () => {
-  console.log('Voice activated');
+  // TODO: hook up voice activation when the URPA voice API is available
 };
 
 const sendMessage = () => {
-  console.log('Sending message to URPA');
+  // TODO: send message via URPA chat API when available
 };
 </script>
 

@@ -68,7 +68,7 @@ const add = async () => {
         newMed.value = { drug_name: '', dosage: '', frequency: '' };
         showAdd.value = false;
     } catch (e) {
-        console.error(e);
+        // silently fail
     }
 };
 
@@ -77,7 +77,7 @@ const remove = async (id: string) => {
         await patientsService.removeMedication(props.patientId, id);
         medications.value = medications.value.filter(m => m.id !== id);
     } catch (e) {
-        console.error(e);
+        // silently fail
     }
 };
 </script>

@@ -73,9 +73,11 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Activity } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/auth';
+import { useToast } from '@/composables/useToast';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const toast = useToast();
 
 const name = ref('');
 const email = ref('');
@@ -92,8 +94,7 @@ const handleSignUp = async () => {
         });
         router.push('/subscribe');
     } catch (error) {
-        console.error('Registration failed', error);
-        alert('Registration failed. Please try again.');
+        toast.error('Registration failed. Please try again.');
     }
 };
 </script>

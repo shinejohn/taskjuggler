@@ -32,8 +32,16 @@
 
           <div>
             <label for="password" class="block text-sm font-medium text-slate-700"> Password </label>
-            <div class="mt-1">
-              <input id="password" v-model="password" name="password" type="password" autocomplete="current-password" required class="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+            <div class="mt-1 relative">
+              <input id="password" v-model="password" name="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required class="appearance-none block w-full px-3 py-2 pr-10 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+              <button
+                type="button"
+                :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-slate-600"
+                @click="showPassword = !showPassword"
+              >
+                <component :is="showPassword ? EyeOff : Eye" class="w-4 h-4" />
+              </button>
             </div>
           </div>
 
@@ -44,7 +52,7 @@
             </div>
 
             <div class="text-sm">
-              <a href="#" class="font-medium text-blue-600 hover:text-blue-500"> Forgot your password? </a>
+              <router-link to="/forgot-password" class="font-medium text-blue-600 hover:text-blue-500"> Forgot your password? </router-link>
             </div>
           </div>
 
@@ -62,22 +70,24 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Activity } from 'lucide-vue-next';
+import { Activity, Eye, EyeOff } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/auth';
+import { useToast } from '@/composables/useToast';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const toast = useToast();
 
 const email = ref('');
 const password = ref('');
+const showPassword = ref(false);
 
 const handleLogin = async () => {
     try {
         await authStore.login(email.value, password.value);
         router.push('/dashboard');
     } catch (error) {
-        console.error('Login failed', error);
-        alert('Login failed. Please try again.');
+        toast.error('Login failed. Please check your email and password.');
     }
 };
 </script>

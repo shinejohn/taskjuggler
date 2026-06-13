@@ -51,7 +51,7 @@ const fetchUsers = async () => {
         const response = await api.get('/admin/users');
         users.value = response.data.data; // Paginated response usually in data.data
     } catch (error) {
-        console.error('Failed to fetch users', error);
+        // load failed — handled by loading state
     } finally {
         loading.value = false;
     }

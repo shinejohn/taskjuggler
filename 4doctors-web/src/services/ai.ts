@@ -7,7 +7,7 @@ export const aiService = {
      * @param action Action name (e.g. 'create', 'list')
      * @param params Additional parameters for the action
      */
-    executeTool: async (tool: string, action: string, params: any = {}) => {
+    executeTool: async (tool: string, action: string, params: Record<string, unknown> = {}) => {
         try {
             const response = await api.post(`/ai/v1/tools/${tool}`, {
                 action,
@@ -15,7 +15,6 @@ export const aiService = {
             });
             return response.data?.result;
         } catch (error) {
-            console.error(`AI Tool Execution Failed: ${tool}/${action}`, error);
             throw error;
         }
     },
@@ -23,7 +22,7 @@ export const aiService = {
     /**
      * Create a task using AI infrastructure
      */
-    createTask: async (title: string, description?: string, params: any = {}) => {
+    createTask: async (title: string, description?: string, params: Record<string, unknown> = {}) => {
         return aiService.executeTool('task', 'create', {
             title,
             description,
@@ -34,7 +33,7 @@ export const aiService = {
     /**
      * List projects using AI infrastructure
      */
-    listProjects: async (params: any = {}) => {
+    listProjects: async (params: Record<string, unknown> = {}) => {
         return aiService.executeTool('project', 'list', params);
     },
 

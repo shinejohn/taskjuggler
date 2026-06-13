@@ -73,13 +73,19 @@
         of <span class="font-bold text-slate-700">{{ patients.length }}</span> patients
       </p>
       <div class="flex items-center gap-2">
-        <button 
+        <button
+          type="button"
+          aria-label="Table view"
+          :aria-pressed="viewMode === 'table'"
           :class="['p-2 rounded-lg transition-colors', viewMode === 'table' ? 'bg-slate-200' : 'hover:bg-slate-100']"
           @click="viewMode = 'table'"
         >
           <List class="w-4 h-4 text-slate-600" />
         </button>
-        <button 
+        <button
+          type="button"
+          aria-label="Card view"
+          :aria-pressed="viewMode === 'cards'"
           :class="['p-2 rounded-lg transition-colors', viewMode === 'cards' ? 'bg-slate-200' : 'hover:bg-slate-100']"
           @click="viewMode = 'cards'"
         >
@@ -88,8 +94,18 @@
       </div>
     </div>
 
+    <!-- Load Error -->
+    <div v-if="loadError" class="bg-white rounded-xl shadow-sm border border-red-200 p-12 text-center">
+      <AlertTriangle class="w-12 h-12 text-red-400 mx-auto mb-4" />
+      <h3 class="text-lg font-bold text-slate-700 mb-1">Couldn't load patients</h3>
+      <p class="text-sm text-slate-500 mb-4">Check your connection and try again.</p>
+      <button type="button" @click="loadPatients" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700">
+        Retry
+      </button>
+    </div>
+
     <!-- Table View -->
-    <div v-if="viewMode === 'table'" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div v-else-if="viewMode === 'table'" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       <div v-if="loading" class="p-12 text-center text-slate-400">Loading patients...</div>
       <table v-else class="min-w-full divide-y divide-slate-200">
         <thead class="bg-slate-50">
@@ -121,8 +137,8 @@
               <div class="text-xs text-slate-400">{{ calculateAge(patient.dob) }} yrs</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-slate-600">{{ patient.phone || 'N/A' }}</div>
-              <div class="text-xs text-slate-400 truncate max-w-[150px]">{{ patient.email }}</div>
+              <div class="text-sm text-slate-600">{{ maskPhone(patient.phone) }}</div>
+              <div class="text-xs text-slate-400 truncate max-w-[150px]">{{ maskEmail(patient.email) }}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span class="text-sm text-slate-600">{{ patient.insurance || 'Self Pay' }}</span>
@@ -151,7 +167,7 @@
     </div>
 
     <!-- Card View -->
-    <div v-if="viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div v-else-if="viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div 
         v-for="patient in filteredPatients" :key="patient.id"
         @click="viewChart(patient.id)"
@@ -181,7 +197,7 @@
           </div>
           <div>
             <p class="text-slate-400">Phone</p>
-            <p class="font-medium text-slate-700">{{ patient.phone || 'N/A' }}</p>
+            <p class="font-medium text-slate-700">{{ maskPhone(patient.phone) }}</p>
           </div>
           <div>
             <p class="text-slate-400">Last Visit</p>
@@ -197,9 +213,10 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { patientsService, type Patient } from '@/services/patients';
-import { UserPlus, Users, List, LayoutGrid } from 'lucide-vue-next';
+import { UserPlus, Users, List, LayoutGrid, AlertTriangle } from 'lucide-vue-next';
 import SearchInput from '@/components/ui/SearchInput.vue';
 import FilterPanel from '@/components/ui/FilterPanel.vue';
+import { maskPhone, maskEmail } from '@/utils/phi';
 
 const router = useRouter();
 const patients = ref<Patient[]>([]);
@@ -215,16 +232,21 @@ const filters = reactive({
   provider: ''
 });
 
-onMounted(async () => {
+const loadError = ref(false);
+
+const loadPatients = async () => {
   loading.value = true;
+  loadError.value = false;
   try {
     patients.value = await patientsService.getPatients();
   } catch (e) {
-    console.error('Failed to load patients', e);
+    loadError.value = true;
   } finally {
     loading.value = false;
   }
-});
+};
+
+onMounted(loadPatients);
 
 const activeFilterCount = computed(() => {
   let count = 0;
@@ -267,9 +289,8 @@ const clearFilters = () => {
   filters.provider = '';
 };
 
-const handleSearch = (query: string) => {
+const handleSearch = (_query: string) => {
   // Could trigger API search here for larger datasets
-  console.log('Searching:', query);
 };
 
 const viewChart = (id: string) => {

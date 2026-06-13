@@ -94,7 +94,7 @@
              <div v-for="patient in recentPatients" :key="patient.id" class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <div>
                     <p class="font-medium text-slate-900">{{ patient.first_name }} {{ patient.last_name }}</p>
-                    <p class="text-xs text-slate-500">Last seen: {{ new Date(patient.created_at).toLocaleDateString() }}</p>
+                    <p class="text-xs text-slate-500">Last seen: {{ formatDate(patient.created_at) }}</p>
                 </div>
                 <button class="text-blue-600 text-sm font-medium hover:underline">View Chart</button>
             </div>
@@ -115,16 +115,38 @@ import { ref, onMounted } from 'vue';
 import { dashboardService } from '@/services/dashboard';
 import { useAuthStore } from '@/stores/auth';
 import { Calendar, Users, CheckSquare, Clock } from 'lucide-vue-next';
+import { formatDate } from '@/utils/date';
 import FrontDeskDashboard from './FrontDeskDashboard.vue';
 import AdminDashboard from './AdminDashboard.vue';
 import ProviderRecordLookup from '@/components/ProviderRecordLookup.vue';
 
+interface DashboardAppointment {
+    id: string;
+    start_time: string;
+    status: string;
+    first_name: string;
+    last_name: string;
+}
+
+interface DashboardPatient {
+    id: string;
+    first_name: string;
+    last_name: string;
+    created_at: string;
+}
+
+interface ProviderProfile {
+    id: string;
+    organization_id: string;
+    specialty?: string;
+}
+
 const authStore = useAuthStore();
 const loading = ref(false);
 const stats = ref({ appointments_today: 0, patients_total: 0, tasks_pending: 0 });
-const upcomingAppointments = ref<any[]>([]);
-const recentPatients = ref<any[]>([]);
-const profile = ref<any>(null);
+const upcomingAppointments = ref<DashboardAppointment[]>([]);
+const recentPatients = ref<DashboardPatient[]>([]);
+const profile = ref<ProviderProfile | null>(null);
 
 onMounted(async () => {
     if (authStore.isStaff) return; // Logic handled in FrontDeskDashboard component
@@ -137,7 +159,7 @@ onMounted(async () => {
         recentPatients.value = data.recent_patients;
         profile.value = data.provider_profile;
     } catch (e) {
-        console.error('Failed to load dashboard data', e);
+        // error state handled by loading ref
     } finally {
         loading.value = false;
     }

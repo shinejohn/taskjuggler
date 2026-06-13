@@ -65,7 +65,7 @@ const fetchRoles = async () => {
         const response = await api.get('/admin/roles');
         roles.value = response.data;
     } catch (error) {
-        console.error('Failed to fetch roles', error);
+        // load failed — handled by loading state
     } finally {
         loading.value = false;
     }

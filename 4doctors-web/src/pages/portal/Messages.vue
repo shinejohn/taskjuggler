@@ -52,8 +52,9 @@
           placeholder="Type your message to the clinic..."
           class="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/5 transition-all"
         />
-        <button 
+        <button
           type="submit"
+          aria-label="Send message"
           :disabled="!newMessage.trim() || isSending"
           class="p-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
@@ -108,7 +109,7 @@ const handleSend = async () => {
     await nextTick();
     scrollToBottom();
   } catch (error) {
-    console.error('Failed to send message', error);
+    // send failed — message stays in input
   } finally {
     isSending.value = false;
   }

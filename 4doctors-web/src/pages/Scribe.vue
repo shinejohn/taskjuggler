@@ -9,8 +9,20 @@
     </header>
 
     <div class="max-w-3xl mx-auto">
+      <!-- No Patient Selected -->
+      <div v-if="!patientId" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-600 mb-6">
+          <UserSearch class="w-8 h-8" />
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">Select a Patient</h2>
+        <p class="text-slate-500 mb-8">A documentation session must be linked to a patient chart. Choose a patient to begin.</p>
+        <router-link to="/patients" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+          Go to Patients
+        </router-link>
+      </div>
+
       <!-- Recording Interface -->
-      <div v-if="!generatedNote" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center transition-all duration-500" :class="{'border-red-400 ring-4 ring-red-50': isRecording}">
+      <div v-else-if="!generatedNote" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center transition-all duration-500" :class="{'border-red-400 ring-4 ring-red-50': isRecording}">
         
         <div class="relative inline-block mb-8">
             <div v-if="isRecording" class="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-75"></div>
@@ -66,16 +78,21 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Mic, Square, Sparkles } from 'lucide-vue-next';
+import { useRoute } from 'vue-router';
+import { Mic, Square, Sparkles, UserSearch } from 'lucide-vue-next';
 import { scribeService } from '@/services/scribe';
+import type { ScribeSession } from '@/services/scribe';
 // Simple markdown parser or just newline replacement for now
 const parseMarkdown = (text: string) => {
     return text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 };
 
+const route = useRoute();
+const patientId = computed(() => (typeof route.query.patient === 'string' ? route.query.patient : ''));
+
 const isRecording = ref(false);
 const generatedNote = ref<string | null>(null);
-const currentSession = ref<any>(null);
+const currentSession = ref<ScribeSession | null>(null);
 
 const formattedNote = computed(() => {
     return generatedNote.value ? parseMarkdown(generatedNote.value) : '';
@@ -84,15 +101,13 @@ const formattedNote = computed(() => {
 async function toggleRecording() {
     if (!isRecording.value) {
         // Start Recording
+        if (!patientId.value) return;
         try {
-            // Hardcoded patient ID for prototype - in real app would select from list
-            // Using a fake UUID for safety if DB is empty, or fetch real one
-            const patientId = '00000000-0000-0000-0000-000000000000'; 
             isRecording.value = true;
-            const session = await scribeService.startRecording(patientId);
+            const session = await scribeService.startRecording(patientId.value);
             currentSession.value = session;
         } catch (e) {
-            console.error('Failed to start recording', e);
+            // recording start failed — isRecording reset below
             isRecording.value = false;
         }
     } else {
@@ -105,7 +120,7 @@ async function toggleRecording() {
                 const result = await scribeService.generateNote(currentSession.value.note_id);
                 generatedNote.value = result.generated_note || "Failed to generate note content.";
             } catch (e) {
-                console.error('Failed to generate note', e);
+                // generation failed — generatedNote stays empty
             }
         }
     }

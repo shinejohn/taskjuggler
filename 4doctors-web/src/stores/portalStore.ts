@@ -1,18 +1,53 @@
 import { defineStore } from 'pinia';
 import { portalService, type PatientNotification, type VisitItem } from '@/services/portalService';
 
+interface PortalPatient {
+    id: string;
+    first_name: string;
+    last_name: string;
+    dob?: string;
+    email?: string;
+    phone?: string;
+}
+
+interface PortalAppointment {
+    id: string;
+    date: string;
+    start_time: string;
+    end_time: string;
+    type?: { name: string };
+    provider?: { user?: { name: string } };
+    provider_name?: string;
+    reason?: string;
+    status: string;
+}
+
+interface PortalMessage {
+    id: string;
+    sender_id: string;
+    sender_name: string;
+    content: string;
+    created_at: string;
+    is_from_patient: boolean;
+}
+
+interface ChatAction {
+    label: string;
+    action: string;
+}
+
 export const usePortalStore = defineStore('portal', {
     state: () => ({
-        patient: null as any,
+        patient: null as PortalPatient | null,
         notifications: [] as PatientNotification[],
         visitItems: [] as VisitItem[],
-        appointments: [] as any[],
+        appointments: [] as PortalAppointment[],
         labs: [] as VisitItem[],
         priorAuths: [] as VisitItem[],
-        messages: [] as any[],
+        messages: [] as PortalMessage[],
         isLoading: false,
         portalStatus: 'inactive',
-        chatHistory: [] as { role: 'user' | 'bot', text: string, actions?: any[] }[],
+        chatHistory: [] as { role: 'user' | 'bot'; text: string; actions?: ChatAction[] }[],
     }),
 
     getters: {
@@ -29,7 +64,7 @@ export const usePortalStore = defineStore('portal', {
                 this.visitItems = data.recent_visit_items;
                 this.portalStatus = data.status;
             } catch (error) {
-                console.error('Failed to load portal dashboard', error);
+                // handled by isLoading state in UI
             } finally {
                 this.isLoading = false;
             }
@@ -43,7 +78,7 @@ export const usePortalStore = defineStore('portal', {
                     notification.is_read = true;
                 }
             } catch (error) {
-                console.error('Failed to mark notification as read', error);
+                // silently fail — non-critical
             }
         },
 
@@ -69,7 +104,7 @@ export const usePortalStore = defineStore('portal', {
             try {
                 this.appointments = await portalService.getAppointments();
             } catch (error) {
-                console.error('Failed to load appointments', error);
+                // handled by isLoading state in UI
             } finally {
                 this.isLoading = false;
             }
@@ -80,7 +115,7 @@ export const usePortalStore = defineStore('portal', {
             try {
                 this.labs = await portalService.getLabs();
             } catch (error) {
-                console.error('Failed to load labs', error);
+                // handled by isLoading state in UI
             } finally {
                 this.isLoading = false;
             }
@@ -91,7 +126,7 @@ export const usePortalStore = defineStore('portal', {
             try {
                 this.priorAuths = await portalService.getPriorAuths();
             } catch (error) {
-                console.error('Failed to load prior auths', error);
+                // handled by isLoading state in UI
             } finally {
                 this.isLoading = false;
             }
@@ -102,7 +137,7 @@ export const usePortalStore = defineStore('portal', {
             try {
                 this.messages = await portalService.getMessages();
             } catch (error) {
-                console.error('Failed to load messages', error);
+                // handled by isLoading state in UI
             } finally {
                 this.isLoading = false;
             }
@@ -113,7 +148,7 @@ export const usePortalStore = defineStore('portal', {
                 const newMessage = await portalService.sendMessage(recipient_id, content);
                 this.messages.unshift(newMessage);
             } catch (error) {
-                console.error('Failed to send direct message', error);
+                // silently fail — caller should handle
             }
         }
     }

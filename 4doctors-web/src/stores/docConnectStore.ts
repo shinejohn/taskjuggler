@@ -1,10 +1,19 @@
 import { defineStore } from 'pinia';
-import { docConnectService, type Post, type Peer } from '@/services/docConnect';
+import { docConnectService, type Post, type Peer, type CreateReferralData } from '@/services/docConnect';
+
+interface Referral {
+    id: string;
+    patient_id: string;
+    provider_id: string;
+    reason?: string;
+    status: string;
+    created_at: string;
+}
 
 export const useDocConnectStore = defineStore('docConnect', {
     state: () => ({
         feed: [] as Post[],
-        referrals: [] as any[],
+        referrals: [] as Referral[],
         onlinePeers: [] as Peer[],
         isLoading: false,
         currentStatus: 'off' as 'on' | 'off' | 'busy' | 'away',
@@ -29,28 +38,26 @@ export const useDocConnectStore = defineStore('docConnect', {
             try {
                 this.onlinePeers = await docConnectService.getOnlinePeers();
             } catch (error) {
-                console.error('Failed to load online peers', error);
+                // silently fail — peers sidebar is non-critical
             }
         },
 
-        async createPost(content: string, visibility = 'public', attachments: any[] = []) {
+        async createPost(content: string, visibility = 'public') {
             try {
-                const newPost = await docConnectService.createPost({ content, visibility, attachments });
+                const newPost = await docConnectService.createPost({ content, visibility });
                 this.feed.unshift(newPost);
                 return newPost;
             } catch (error) {
-                console.error('Failed to create post', error);
                 throw error;
             }
         },
 
-        async sendReferral(referralData: any) {
+        async sendReferral(referralData: CreateReferralData) {
             try {
                 const referral = await docConnectService.createReferral(referralData);
                 this.referrals.push(referral);
                 return referral;
             } catch (error) {
-                console.error('Failed to send referral', error);
                 throw error;
             }
         },
@@ -60,16 +67,15 @@ export const useDocConnectStore = defineStore('docConnect', {
                 await docConnectService.updateStatus(status);
                 this.currentStatus = status;
             } catch (error) {
-                console.error('Failed to update status', error);
+                // silently fail — status update is non-critical
             }
         },
 
-        async searchDirectory(filters: any) {
+        async searchDirectory(filters: Record<string, string>) {
             try {
                 const response = await docConnectService.searchDirectory(filters);
                 return response;
             } catch (error) {
-                console.error('Failed to search directory', error);
                 throw error;
             }
         }

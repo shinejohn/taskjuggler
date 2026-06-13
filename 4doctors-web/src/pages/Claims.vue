@@ -12,7 +12,7 @@
           @search="handleSearch"
           class="w-64"
         />
-        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 flex items-center gap-2 shadow-md shadow-blue-200">
+        <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 flex items-center gap-2 shadow-md shadow-blue-200">
           <Plus class="w-4 h-4" /> New Claim
         </button>
       </div>
@@ -102,15 +102,26 @@
         <span class="mx-2">•</span>
         Total: <span class="font-bold text-emerald-600">${{ totalBilled.toLocaleString() }}</span>
       </p>
-      <button @click="refreshClaims" class="px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 flex items-center gap-1">
+      <button type="button" @click="refreshClaims" class="px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 flex items-center gap-1">
         <RefreshCw class="w-3 h-3" /> Sync Status
       </button>
     </div>
 
+    <!-- Load Error -->
+    <div v-if="loadError" class="bg-white rounded-xl shadow-sm border border-red-200 p-12 text-center">
+      <AlertTriangle class="w-12 h-12 text-red-400 mx-auto mb-4" />
+      <h3 class="text-lg font-bold text-slate-700 mb-1">Couldn't load claims</h3>
+      <p class="text-sm text-slate-500 mb-4">Check your connection and try again.</p>
+      <button type="button" @click="refreshClaims" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700">
+        Retry
+      </button>
+    </div>
+
     <!-- Claims Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div v-else class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       <div v-if="loading" class="p-12 text-center text-slate-400">Loading claims...</div>
-      <table v-else class="min-w-full divide-y divide-slate-200">
+      <div v-else class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200">
         <thead class="bg-slate-50">
           <tr>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Claim ID</th>
@@ -187,7 +198,8 @@
           </tr>
         </tbody>
       </table>
-      
+      </div>
+
       <div v-if="!loading && filteredClaims.length === 0" class="p-12 text-center">
         <FileText class="w-12 h-12 text-slate-300 mx-auto mb-4" />
         <h3 class="text-lg font-bold text-slate-700 mb-1">No claims found</h3>
@@ -203,6 +215,9 @@ import { claimsService, type Claim } from '@/services/claims';
 import { AlertTriangle, Plus, RefreshCw, FileText } from 'lucide-vue-next';
 import SearchInput from '@/components/ui/SearchInput.vue';
 import FilterPanel from '@/components/ui/FilterPanel.vue';
+import { useToast } from '@/composables/useToast';
+
+const toast = useToast();
 
 const claims = ref<Claim[]>([]);
 const loading = ref(false);
@@ -219,12 +234,15 @@ onMounted(async () => {
   await refreshClaims();
 });
 
+const loadError = ref(false);
+
 const refreshClaims = async () => {
   loading.value = true;
+  loadError.value = false;
   try {
     claims.value = await claimsService.getClaims();
   } catch (e) {
-    console.error('Failed to load claims', e);
+    loadError.value = true;
   } finally {
     loading.value = false;
   }
@@ -293,8 +311,8 @@ const clearFilters = () => {
   filters.amount = '';
 };
 
-const handleSearch = (query: string) => {
-  console.log('Searching claims:', query);
+const handleSearch = (_query: string) => {
+  // Could trigger API search here for larger datasets
 };
 
 const getStatusClass = (status: string) => {
@@ -311,18 +329,18 @@ const getStatusClass = (status: string) => {
 const submitClaim = async (id: string) => {
   try {
     await claimsService.submitClaim(id);
-    alert('Claim submitted!');
+    toast.success('Claim submitted.');
     await refreshClaims();
   } catch (e) {
-    alert('Failed to submit claim');
+    toast.error('Failed to submit claim.');
   }
 };
 
 const initiateAuth = (id: string) => {
-  alert(`Connecting to Payer Portal for Prior Authorization (Claim ${id})...`);
+  toast.info(`Connecting to Payer Portal for Prior Authorization (Claim ${id})...`);
 };
 
 const appealClaim = (id: string) => {
-  alert(`Opening appeal workflow for Claim ${id}...`);
+  toast.info(`Opening appeal workflow for Claim ${id}...`);
 };
 </script>

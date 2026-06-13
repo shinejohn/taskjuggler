@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="mb-6 flex items-center justify-between">
        <div class="flex items-center gap-4">
-           <button @click="$router.back()" class="p-2 hover:bg-slate-200 rounded-lg text-slate-500">
+           <button type="button" aria-label="Go back" @click="$router.back()" class="p-2 hover:bg-slate-200 rounded-lg text-slate-500">
                <ArrowLeft class="w-5 h-5" />
            </button>
            <div>
@@ -23,7 +23,11 @@
        </div>
     </header>
 
-    <div v-if="loading || !patient" class="text-center py-12 text-slate-400">Loading chart...</div>
+    <div v-if="loadError" class="text-center py-12">
+        <p class="text-slate-600 font-medium mb-4">Couldn't load this patient chart.</p>
+        <button type="button" @click="loadChart" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Retry</button>
+    </div>
+    <div v-else-if="loading || !patient" class="text-center py-12 text-slate-400">Loading chart...</div>
     <div v-else class="grid grid-cols-12 gap-6 max-w-7xl mx-auto">
         
         <!-- Left Column: Summary & Meds -->
@@ -117,43 +121,57 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { patientsService } from '@/services/patients';
+import type { PatientChartData } from '@/services/patients';
 import { claimsService } from '@/services/claims';
 import { ArrowLeft, Mic, AlertOctagon } from 'lucide-vue-next';
 import MedicationList from '@/components/patient/MedicationList.vue';
 import VitalsChart from '@/components/patient/VitalsChart.vue';
 import DocumentManager from '@/components/patient/DocumentManager.vue';
+import { useToast } from '@/composables/useToast';
+import { useConfirm } from '@/composables/useConfirm';
+
+const toast = useToast();
+const { confirm } = useConfirm();
 
 const route = useRoute();
 const router = useRouter();
-const patient = ref<any>(null);
+const patient = ref<PatientChartData | null>(null);
 const loading = ref(false);
 const activeHistoryTab = ref('local');
 
-onMounted(async () => {
+const loadError = ref(false);
+
+const loadChart = async () => {
     loading.value = true;
+    loadError.value = false;
     try {
         const id = route.params.id as string;
         patient.value = await patientsService.getPatient(id);
     } catch (e) {
-        console.error('Failed to load chart', e);
+        loadError.value = true;
     } finally {
         loading.value = false;
     }
-});
+};
 
-const startScribe = (id: string) => {
-    console.log('Starting Scribe for patient', id);
-    router.push('/scribe');
+onMounted(loadChart);
+
+const startScribe = (id?: string) => {
+    router.push(id ? { path: '/scribe', query: { patient: id } } : '/scribe');
 };
 
 const generateClaim = async (encounterId: string) => {
+    const confirmed = await confirm({
+        title: 'Generate Claim',
+        message: 'Generate a claim for this encounter?',
+        confirmLabel: 'Generate',
+    });
+    if (!confirmed) return;
     try {
-        if(confirm('Generate claim for this encounter?')) {
-             await claimsService.generateClaim(encounterId);
-             router.push('/claims');
-        }
+        await claimsService.generateClaim(encounterId);
+        router.push('/claims');
     } catch (e) {
-        alert('Failed to generate claim');
+        toast.error('Failed to generate claim.');
     }
 }
 </script>

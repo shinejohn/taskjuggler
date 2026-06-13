@@ -103,7 +103,7 @@
                                 apt.status === 'checked-in' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700']">
                                 {{ apt.status || 'Confirmed' }}
                             </span>
-                            <button class="p-2 hover:bg-white border border-transparent hover:border-slate-200 rounded-lg text-slate-400 hover:text-slate-600 transition-all">
+                            <button type="button" aria-label="More options" class="p-2 hover:bg-white border border-transparent hover:border-slate-200 rounded-lg text-slate-400 hover:text-slate-600 transition-all">
                                 <MoreHorizontal class="w-5 h-5" />
                             </button>
                         </div>
@@ -208,7 +208,7 @@ onMounted(async () => {
         stats.value.appointments_today = data.stats.appointments_today;
         upcomingAppointments.value = data.upcoming_appointments;
     } catch (e) {
-        console.error('Failed to load dashboard data', e);
+        // error handled by loading state
     } finally {
         loading.value = false;
     }

@@ -60,7 +60,6 @@ export const useAuthStore = defineStore('auth', () => {
     function setDevRole(role: string) {
         if (DEV_MODE) {
             user.value = mockUsers[role] || null;
-            console.log(`[DEV] Switched to ${role} role:`, user.value);
         }
     }
 
@@ -69,7 +68,7 @@ export const useAuthStore = defineStore('auth', () => {
         error.value = null;
         try {
             const response = await api.post<LoginResponse>('/auth/login', { email, password });
-            const responseData: any = response.data;
+            const responseData = response.data as LoginResponse & { data?: LoginResponse };
             // Handle potentially wrapped/unwrapped responses from platform
             const data = responseData.data || responseData;
 
@@ -81,20 +80,21 @@ export const useAuthStore = defineStore('auth', () => {
             }
 
             return data;
-        } catch (err: any) {
-            error.value = err.response?.data?.message || 'Login failed';
+        } catch (err: unknown) {
+            const axiosErr = err as { response?: { data?: { message?: string } } };
+            error.value = axiosErr.response?.data?.message || 'Login failed';
             throw err;
         } finally {
             loading.value = false;
         }
     }
 
-    async function register(data: any): Promise<LoginResponse> {
+    async function register(registrationData: { name: string; email: string; password: string; password_confirmation: string }): Promise<LoginResponse> {
         loading.value = true;
         error.value = null;
         try {
-            const response = await api.post<LoginResponse>('/auth/register', data);
-            const responseData: any = response.data;
+            const response = await api.post<LoginResponse>('/auth/register', registrationData);
+            const responseData = response.data as LoginResponse & { data?: LoginResponse };
             const result = responseData.data || responseData;
 
             token.value = result.token;
@@ -105,8 +105,9 @@ export const useAuthStore = defineStore('auth', () => {
             }
 
             return result;
-        } catch (err: any) {
-            error.value = err.response?.data?.message || 'Registration failed';
+        } catch (err: unknown) {
+            const axiosErr = err as { response?: { data?: { message?: string } } };
+            error.value = axiosErr.response?.data?.message || 'Registration failed';
             throw err;
         } finally {
             loading.value = false;

@@ -63,7 +63,7 @@
              <div :class="`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${getStatusClass(appt.status)}`">
                 {{ appt.status }}
              </div>
-             <button class="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
+             <button type="button" aria-label="Appointment options" class="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
                 <MoreVertical class="w-5 h-5" />
              </button>
           </div>
@@ -77,6 +77,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { usePortalStore } from '@/stores/portalStore';
+import { formatDate as formatDateShared } from '@/utils/date';
 import { 
   Calendar, CalendarPlus, User, Clock, 
   MoreVertical 
@@ -92,7 +93,7 @@ const formatDate = (date: string, format: string) => {
   if (format === 'MMM') return d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
   if (format === 'DD') return d.getDate();
   if (format === 'h:mm A') return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-  return d.toLocaleDateString();
+  return formatDateShared(date);
 };
 
 const getStatusClass = (status: string) => {

@@ -232,7 +232,7 @@ onMounted(async () => {
         procedureCodes.value = data.procedures || [];
         meds.value = data.medications || [];
     } catch (e) {
-        console.error('API Error:', e);
+        // API failed — fall back to demo data below
         // Fallback for demo if API fails
          transcript.value = [
             { role: 'Doctor', time: '0:01', text: "Good morning, Sarah. How’s that blood pressure medication working out?" },
@@ -254,8 +254,8 @@ const finalize = () => {
     router.push('/docboard');
 };
 
-const highlightNote = (msg: any) => {
-    console.log('Sync highlighting for:', msg.text);
+const highlightNote = (_msg: { text: string }) => {
+    // TODO: sync transcript highlighting with note sections when implemented
 };
 
 const insertSmartPhrase = () => {

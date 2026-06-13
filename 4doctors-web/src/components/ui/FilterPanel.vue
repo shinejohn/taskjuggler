@@ -1,7 +1,8 @@
 <template>
   <div>
     <!-- Filter Toggle Button -->
-    <button 
+    <button
+      type="button"
       v-if="collapsible"
       @click="isOpen = !isOpen"
       class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
@@ -32,14 +33,16 @@
           
           <!-- Actions -->
           <div class="flex gap-2 ml-auto">
-            <button 
+            <button
+              type="button"
               v-if="activeFilterCount > 0"
               @click="clearAll"
               class="px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
             >
               Clear All
             </button>
-            <button 
+            <button
+              type="button"
               v-if="showApply"
               @click="emit('apply')"
               class="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"

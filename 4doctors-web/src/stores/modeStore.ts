@@ -57,22 +57,8 @@ export const useModeStore = defineStore('mode', () => {
         try {
             await api.post('/urpa/mode/switch', { mode });
         } catch (error) {
-            console.error('Failed to sync mode with backend:', error);
-            // Optional: Revert mode if strict sync is required
+            // Mode is already persisted locally; backend sync is best-effort
         }
-    }
-
-    async function logModeSwitch(from: URPAMode, to: URPAMode) {
-        // HIPAA audit logging for Practice mode transitions
-        console.log(`[HIPAA Audit] Mode switch: ${from} -> ${to}`);
-
-        // TODO: Send to backend audit log when API is available
-        // await api.post('/api/urpa/audit', {
-        //   action: 'MODE_SWITCH',
-        //   from_mode: from,
-        //   to_mode: to,
-        //   timestamp: new Date().toISOString()
-        // });
     }
 
     function getModeIcon(mode: URPAMode): string {

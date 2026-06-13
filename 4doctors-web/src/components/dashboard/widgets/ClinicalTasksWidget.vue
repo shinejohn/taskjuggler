@@ -54,7 +54,7 @@ onMounted(async () => {
   try {
     tasks.value = await urpaDashboardApi.getTasks();
   } catch (e) {
-    console.error('Failed to fetch clinical tasks:', e);
+    // load failed — tasks stay empty
   }
 });
 

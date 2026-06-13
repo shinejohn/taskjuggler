@@ -159,7 +159,7 @@ onMounted(async () => {
         isLoading.value = false;
      }, 1000);
   } catch (e) {
-      console.error(e);
+      // load failed — loading state handles UI
       isLoading.value = false;
   }
 });

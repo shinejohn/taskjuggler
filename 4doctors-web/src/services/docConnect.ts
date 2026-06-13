@@ -1,6 +1,16 @@
-import axios from 'axios';
+import api from '@/utils/api';
 
-const API_BASE = '/api/doctors/docconnect';
+export interface PostAttachment {
+    file_name: string;
+    file_type: string;
+    file_size: string;
+}
+
+export interface PostComment {
+    id: string;
+    content: string;
+    created_at: string;
+}
 
 export interface Post {
     id: string;
@@ -17,8 +27,8 @@ export interface Post {
             avatar?: string;
         };
     };
-    attachments: any[];
-    comments: any[];
+    attachments: PostAttachment[];
+    comments: PostComment[];
 }
 
 export interface Peer {
@@ -34,34 +44,55 @@ export interface Peer {
     };
 }
 
+export interface CreatePostData {
+    content: string;
+    visibility: string;
+}
+
+export interface CreateReferralData {
+    patient_id: string;
+    provider_id?: string;
+    specialty?: string;
+    reason?: string;
+    urgency?: string;
+    requires_prior_auth?: boolean;
+    prior_auth_type?: string;
+}
+
+export interface DirectoryFilters {
+    specialty?: string;
+    name?: string;
+    location?: string;
+}
+
 export const docConnectService = {
-    async getFeed(params = {}) {
-        const { data } = await axios.get(`${API_BASE}/feed`, { params });
+    async getFeed(params: Record<string, string> = {}) {
+        const { data } = await api.get('/doctors/docconnect/feed', { params });
         return data;
     },
 
-    async createPost(postData: any) {
-        const { data } = await axios.post(`${API_BASE}/posts`, postData);
+    async createPost(postData: CreatePostData) {
+        const { data } = await api.post('/doctors/docconnect/posts', postData);
         return data;
     },
 
-    async createReferral(referralData: any) {
-        const { data } = await axios.post(`${API_BASE}/referrals`, referralData);
+    async createReferral(referralData: CreateReferralData) {
+        const { data } = await api.post('/doctors/docconnect/referrals', referralData);
         return data;
     },
 
     async getOnlinePeers() {
-        const { data } = await axios.get(`${API_BASE}/peers`);
+        const { data } = await api.get('/doctors/docconnect/peers');
         return data;
     },
 
     async updateStatus(status: 'on' | 'off' | 'busy' | 'away') {
-        const { data } = await axios.patch(`${API_BASE}/status`, { status });
+        const { data } = await api.patch('/doctors/docconnect/status', { status });
         return data;
     },
 
-    async searchDirectory(filters: any) {
-        const { data } = await axios.get(`${API_BASE}/directory/search`, { params: filters });
+    async searchDirectory(filters: DirectoryFilters) {
+        const { data } = await api.get('/doctors/docconnect/directory/search', { params: filters });
         return data;
     }
 };

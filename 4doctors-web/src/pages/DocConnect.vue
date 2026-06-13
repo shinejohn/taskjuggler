@@ -49,7 +49,7 @@
               ></textarea>
               <div class="mt-4 flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                  <button class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                  <button type="button" aria-label="Attach file" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                     <FileText class="w-4 h-4" />
                   </button>
                   <select v-model="newPostVisibility" class="bg-transparent text-xs font-bold text-slate-500 outline-none cursor-pointer">
@@ -115,10 +115,10 @@
                       <FileText class="w-5 h-5" />
                     </div>
                     <div>
-                      <p class="text-xs font-bold text-slate-900">{{ post.attachments[0].file_name }}</p>
-                      <p class="text-[10px] text-slate-400 uppercase font-black">{{ post.attachments[0].file_type }} · {{ post.attachments[0].file_size }}</p>
+                      <p class="text-xs font-bold text-slate-900">{{ post.attachments?.[0]?.file_name }}</p>
+                      <p class="text-[10px] text-slate-400 uppercase font-black">{{ post.attachments?.[0]?.file_type }} · {{ post.attachments?.[0]?.file_size }}</p>
                     </div>
-                    <button class="ml-auto p-2 hover:bg-slate-200 rounded-lg text-slate-400" @click.stop>
+                    <button type="button" aria-label="Download attachment" class="ml-auto p-2 hover:bg-slate-200 rounded-lg text-slate-400" @click.stop>
                       <Download class="w-4 h-4" />
                     </button>
                   </div>
@@ -216,7 +216,7 @@
                 <p class="text-xs font-bold text-slate-900">{{ peer.user.name }}</p>
                 <p class="text-[10px] text-slate-400">{{ peer.specialty }}</p>
               </div>
-              <button class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded-lg text-slate-400 transition-colors">
+              <button type="button" aria-label="Message peer" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded-lg text-slate-400 transition-colors">
                 <MessageSquare class="w-4 h-4" />
               </button>
             </div>
@@ -365,7 +365,7 @@
             placeholder="Write a peer response..." 
             class="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500"
           >
-          <button class="p-3 bg-blue-600 text-white rounded-xl shadow-md">
+          <button type="button" aria-label="Send response" class="p-3 bg-blue-600 text-white rounded-xl shadow-md">
             <Send class="w-5 h-5" />
           </button>
         </div>
@@ -429,6 +429,9 @@ import {
 import Modal from '@/components/ui/Modal.vue';
 import { useDocConnectStore } from '@/stores/docConnectStore';
 import { patientsService, type Patient } from '@/services/patients';
+import { useToast } from '@/composables/useToast';
+
+const toast = useToast();
 
 const store = useDocConnectStore();
 const { feed, onlinePeers, isLoading, currentStatus } = storeToRefs(store);
@@ -461,9 +464,9 @@ const handleCreatePost = async () => {
   try {
     await store.createPost(newPostContent.value, newPostVisibility.value);
     newPostContent.value = '';
-    alert('Case shared with peers.');
+    toast.success('Case shared with peers.');
   } catch (error) {
-    alert('Failed to share case.');
+    toast.error('Failed to share case.');
   }
 };
 
@@ -473,7 +476,7 @@ const openReferralDetail = (_referral: any) => {
 
 const submitReferral = async () => {
   if (!selectedPatientId.value || !receivingSpecialty.value || !referralReason.value) {
-    alert('Please fill in all required fields.');
+    toast.error('Please fill in all required fields.');
     return;
   }
 
@@ -495,13 +498,13 @@ const submitReferral = async () => {
       createdAuthId.value = match ? match[0] : 'PENDING';
       showPriorAuthConfirm.value = true;
     } else {
-      alert('Referral sent successfully.');
+      toast.success('Referral sent successfully.');
     }
-    
+
     // Reset form
     resetReferralForm();
   } catch (error) {
-    alert('Failed to send referral. Please try again.');
+    toast.error('Failed to send referral. Please try again.');
   }
 };
 

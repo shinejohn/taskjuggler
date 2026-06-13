@@ -131,7 +131,7 @@ export function useAudioCapture(options: AudioCaptureOptions) {
                 }
             }
         } catch (err) {
-            console.error('Failed to send audio chunk:', err);
+            options.onError?.(err instanceof Error ? err : new Error('Failed to send audio chunk'));
         }
     }
 

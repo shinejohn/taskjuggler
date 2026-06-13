@@ -144,7 +144,20 @@ const filters = reactive({
   insurance: ''
 });
 
-const results = ref<any[]>([]);
+interface DirectoryProvider {
+  id: string;
+  specialty: string;
+  credential?: string;
+  location?: string;
+  user?: { first_name?: string; last_name?: string; name?: string; avatar?: string };
+  organization?: { name?: string; city?: string; state?: string };
+  is_accepting_referrals?: boolean;
+  online_status?: { status: string };
+  rating?: number;
+  tags?: string[];
+}
+
+const results = ref<DirectoryProvider[]>([]);
 const isLoading = ref(false);
 const hasSearched = ref(false);
 
@@ -157,7 +170,7 @@ const handleSearch = async () => {
     const response = await store.searchDirectory(filters);
     results.value = response.data; // Paginated response
   } catch (error) {
-    console.error(error);
+    // search failed — results stay empty
   } finally {
     isLoading.value = false;
   }

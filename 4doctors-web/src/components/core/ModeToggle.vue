@@ -1,6 +1,7 @@
 <template>
   <div class="mode-toggle-container">
-    <button 
+    <button
+      type="button"
       class="mode-toggle-button"
       :class="[`mode-${currentMode}`, { 'compact': compact }]"
       @click="showDropdown = !showDropdown"
@@ -31,7 +32,7 @@
         
         <div class="mode-divider"></div>
         
-        <button class="mode-option settings" @click="openModeSettings">
+        <button type="button" class="mode-option settings" @click="openModeSettings">
           <Settings class="settings-icon" />
           <span>Mode Settings</span>
         </button>
