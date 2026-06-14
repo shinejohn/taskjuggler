@@ -122,4 +122,29 @@ return [
         'provider' => env('PHONE_NUMBER_PROVIDER', 'twilio'), // 'twilio' or 'aws'
     ],
 
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+    ],
+
+    'ai' => [
+        'anthropic_key' => env('ANTHROPIC_API_KEY', ''),
+        'whisper_endpoint' => env('AI_WHISPER_ENDPOINT', 'https://api.openai.com/v1/audio/transcriptions'),
+    ],
+
+    'claude' => [
+        'api_key' => env('CLAUDE_API_KEY'),
+    ],
+
+    'fibonacci' => [
+        'api_url' => env('FIBONACCI_API_URL'),
+    ],
+
+    'taskjuggler' => [
+        'api_url' => env('TASKJUGGLER_API_URL'),
+    ],
+
+    'mcp' => [
+        'server_url' => env('MCP_SERVER_URL', 'https://mcp.taskjuggler.com'),
+    ],
+
 ];

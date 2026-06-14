@@ -196,16 +196,13 @@ class AiToolExecutor
             'openai/gpt-3.5-turbo' => [0.50, 1.50],
             
             // Anthropic models
-            'anthropic/claude-3-opus' => [15.00, 75.00],
-            'anthropic/claude-3.5-sonnet' => [3.00, 15.00],
-            'anthropic/claude-3-sonnet' => [3.00, 15.00],
-            'anthropic/claude-3-haiku' => [0.25, 1.25],
-            'anthropic/claude-3-5-haiku' => [0.80, 4.00],
-            
+            'anthropic/claude-opus-4' => [15.00, 75.00],
+            'anthropic/claude-sonnet-4' => [3.00, 15.00],
+            'anthropic/claude-haiku-4.5' => [0.80, 4.00],
+
             // Google models
             'google/gemini-2.5-flash' => [0.15, 0.60],
-            'google/gemini-pro' => [0.50, 1.50],
-            'google/gemini-ultra' => [1.25, 5.00],
+            'google/gemini-2.5-pro' => [1.25, 5.00],
             
             // Mistral models
             'mistralai/mistral-large-2' => [2.00, 6.00],
