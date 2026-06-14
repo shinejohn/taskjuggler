@@ -69,11 +69,10 @@ cmds = [
 [phases.build]
 cmds = [
     "cd taskjuggler-api && php artisan package:discover --ansi || true",
-    "cd taskjuggler-api && php artisan config:cache || true",
     "cd taskjuggler-api && php artisan route:cache || true",
     "cd taskjuggler-api && php artisan view:cache || true",
     "cd taskjuggler-api && php artisan event:cache || true"
 ]
 
 [start]
-cmd = "cd taskjuggler-api && php artisan migrate:fresh --force --no-interaction && (php artisan storage:link --force || true) && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+cmd = "cd taskjuggler-api && php artisan config:cache && php artisan migrate:fresh --force --no-interaction && (php artisan storage:link --force || true) && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
