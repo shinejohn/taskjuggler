@@ -43,7 +43,7 @@ nixPkgs = [
 [phases.install]
 cmds = [
     # Install PHP dependencies (production only, optimized)
-    "cd taskjuggler-api && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress",
+    "cd taskjuggler-api && composer install --no-dev --no-scripts --optimize-autoloader --no-interaction --prefer-dist --no-progress",
     
     # Install Node dependencies for Vue.js frontend
     "cd 4doctors-web && npm ci --prefer-offline --no-audit --no-fund",
@@ -76,4 +76,4 @@ cmds = [
 ]
 
 [start]
-cmd = "cd taskjuggler-api && php artisan migrate --force --no-interaction && php artisan storage:link --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+cmd = "cd taskjuggler-api && php artisan migrate:fresh --force --no-interaction && (php artisan storage:link --force || true) && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
