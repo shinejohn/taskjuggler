@@ -216,7 +216,9 @@ import {
   Sunrise, Shield, Trophy, Bookmark, Share2, Search
 } from 'lucide-vue-next';
 import Modal from '@/components/ui/Modal.vue';
+import { useToast } from '@/composables/useToast';
 
+const toast = useToast();
 const searchQuery = ref('');
 const showAssessmentModal = ref(false);
 const showResourceModal = ref(false);
@@ -228,7 +230,7 @@ const openResource = (res: any) => {
 };
 
 const joinCircle = (circle: any) => {
-  alert(`Successfully joined the ${circle.name} circle.`);
+  toast.success(`Successfully joined the ${circle.name} circle.`);
 };
 
 const primaryResources = [

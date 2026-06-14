@@ -8,7 +8,7 @@
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="modelValue" class="fixed inset-0 z-50 overflow-y-auto">
+      <div v-if="modelValue" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
         <!-- Backdrop -->
         <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="close"></div>
 
@@ -32,6 +32,8 @@
                   <slot name="title">{{ title }}</slot>
                 </h3>
                 <button
+                  type="button"
+                  aria-label="Close dialog"
                   @click="close"
                   class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
                 >
@@ -57,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { X } from 'lucide-vue-next';
 
 const props = withDefaults(defineProps<{
@@ -95,5 +97,18 @@ watch(() => props.modelValue, (val) => {
   } else {
     document.body.style.overflow = '';
   }
+});
+
+// Close on Escape
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && props.modelValue) {
+    close();
+  }
+};
+
+onMounted(() => window.addEventListener('keydown', handleKeydown));
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown);
+  document.body.style.overflow = '';
 });
 </script>

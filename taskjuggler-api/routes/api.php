@@ -21,6 +21,13 @@ use App\Http\Controllers\Api\TEF\MessageController;
 use App\Http\Controllers\Api\TEF\ConversationController;
 use App\Http\Controllers\Api\IoT\DeviceController;
 use App\Http\Controllers\Api\AI\AgentController;
+use App\Http\Controllers\IdeaCircuit\MeetingController as IdeaCircuitMeetingController;
+use App\Http\Controllers\IdeaCircuit\MessageController as IdeaCircuitMessageController;
+use App\Http\Controllers\IdeaCircuit\NoteController as IdeaCircuitNoteController;
+use App\Http\Controllers\IdeaCircuit\TranscriptController as IdeaCircuitTranscriptController;
+use App\Http\Controllers\IdeaCircuit\AnalyticsController as IdeaCircuitAnalyticsController;
+use App\Http\Controllers\IdeaCircuit\AIController as IdeaCircuitAIController;
+use App\Http\Controllers\IdeaCircuit\UserController as IdeaCircuitUserController;
 use App\Modules\SiteHealth\Http\Controllers\SiteController;
 use App\Modules\SiteHealth\Http\Controllers\ScanController;
 use App\Modules\SiteHealth\Http\Controllers\IssueController;
@@ -38,6 +45,7 @@ use App\Modules\Core\Controllers\StripeWebhookController;
 
 // Note: Auth routes are now in app/Modules/Core/Routes/api.php
 // Note: Task routes are now in app/Modules/Tasks/Routes/api.php
+// Note: /api/health (Railway healthcheckPath) is defined in app/Modules/Core/Routes/api.php
 
 // Load Core module routes (auth, profiles)
 require base_path('app/Modules/Core/Routes/api.php');
@@ -68,6 +76,36 @@ require base_path('app/Modules/Doctors/Routes/api.php');
 // Load URPA module routes
 Route::prefix('urpa')->group(function () {
     require base_path('app/Modules/Urpa/Routes/api.php');
+});
+
+// IdeaCircuit routes
+Route::prefix('ideacircuit')->middleware('auth:sanctum')->name('ideacircuit.')->group(function () {
+    Route::apiResource('meetings', IdeaCircuitMeetingController::class);
+
+    Route::post('meetings/{id}/join', [IdeaCircuitMeetingController::class, 'join'])->name('meetings.join');
+    Route::post('meetings/{id}/end', [IdeaCircuitMeetingController::class, 'end'])->name('meetings.end');
+
+    Route::get('meetings/{id}/tasks', [IdeaCircuitMeetingController::class, 'getTasks'])->name('meetings.tasks.index');
+    Route::post('meetings/{id}/tasks', [IdeaCircuitMeetingController::class, 'createTask'])->name('meetings.tasks.store');
+    Route::get('meetings/{id}/appointments', [IdeaCircuitMeetingController::class, 'getAppointments'])->name('meetings.appointments.index');
+    Route::post('meetings/{id}/appointments', [IdeaCircuitMeetingController::class, 'createAppointment'])->name('meetings.appointments.store');
+
+    Route::post('meetings/{id}/chime/meeting', [IdeaCircuitMeetingController::class, 'createChimeMeeting'])->name('meetings.chime.meeting');
+    Route::post('meetings/{id}/chime/attendee', [IdeaCircuitMeetingController::class, 'createChimeAttendee'])->name('meetings.chime.attendee');
+    Route::get('meetings/{id}/chime/credentials', [IdeaCircuitMeetingController::class, 'getChimeCredentials'])->name('meetings.chime.credentials');
+
+    Route::get('meetings/{meetingId}/messages', [IdeaCircuitMessageController::class, 'index'])->name('meetings.messages.index');
+    Route::post('meetings/{meetingId}/messages', [IdeaCircuitMessageController::class, 'store'])->name('meetings.messages.store');
+    Route::get('meetings/{meetingId}/notes', [IdeaCircuitNoteController::class, 'index'])->name('meetings.notes.index');
+    Route::post('meetings/{meetingId}/notes', [IdeaCircuitNoteController::class, 'store'])->name('meetings.notes.store');
+    Route::get('meetings/{meetingId}/transcript', [IdeaCircuitTranscriptController::class, 'show'])->name('meetings.transcript.show');
+
+    Route::get('analytics', [IdeaCircuitAnalyticsController::class, 'index'])->name('analytics.index');
+    Route::post('ai/chat', [IdeaCircuitAIController::class, 'chat'])->name('ai.chat');
+
+    Route::get('user/profile', [IdeaCircuitUserController::class, 'profile'])->name('user.profile');
+    Route::put('user/profile', [IdeaCircuitUserController::class, 'updateProfile'])->name('user.profile.update');
+    Route::get('user/activity', [IdeaCircuitUserController::class, 'activity'])->name('user.activity');
 });
 
 // Broadcasting authentication routes (must be before auth middleware)

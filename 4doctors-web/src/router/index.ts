@@ -67,6 +67,16 @@ const router = createRouter({
                     path: 'messages',
                     name: 'portal-messages',
                     component: () => import('@/pages/portal/Messages.vue')
+                },
+                {
+                    path: 'chat',
+                    name: 'portal-chat',
+                    component: () => import('@/pages/portal/Chat.vue')
+                },
+                {
+                    path: 'forms',
+                    name: 'portal-forms',
+                    component: () => import('@/pages/portal/Forms.vue')
                 }
             ]
         },
@@ -86,6 +96,24 @@ const router = createRouter({
             path: '/signup',
             name: 'signup',
             component: SignUp,
+            meta: { layout: 'div' }
+        },
+        {
+            path: '/subscribe',
+            name: 'subscribe',
+            component: () => import('@/pages/Subscribe.vue'),
+            meta: { layout: 'div' }
+        },
+        {
+            path: '/forgot-password',
+            name: 'forgot-password',
+            component: () => import('@/pages/ForgotPassword.vue'),
+            meta: { layout: 'div' }
+        },
+        {
+            path: '/reset-password',
+            name: 'reset-password',
+            component: () => import('@/pages/ResetPassword.vue'),
             meta: { layout: 'div' }
         },
         {
@@ -356,6 +384,13 @@ const router = createRouter({
             name: 'onboarding',
             component: () => import('@/pages/onboarding/OnboardingWizard.vue'),
             meta: { layout: 'div' } // No MainLayout, standalone wizard
+        },
+        // 404 Catch-All (must be last)
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'not-found',
+            component: () => import('@/pages/NotFound.vue'),
+            meta: { layout: 'div' }
         }
     ]
 })
@@ -363,7 +398,7 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
     const authStore = useAuthStore()
 
-    const publicPages = ['login', 'signup', 'landing', 'portal-login']
+    const publicPages = ['login', 'signup', 'landing', 'portal-login', 'forgot-password', 'reset-password', 'not-found']
     const authRequired = !publicPages.includes(to.name as string)
 
     if (authRequired && !authStore.isAuthenticated) {

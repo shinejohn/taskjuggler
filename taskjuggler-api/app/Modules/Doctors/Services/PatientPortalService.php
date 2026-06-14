@@ -55,14 +55,21 @@ class PatientPortalService
      */
     public function handleBotQuery(string $patientId, string $message): array
     {
-        // For Phase 5, we provide a structured mock response
-        // In the next turn, we can connect this to a real AI service
+        // Mock Response has been removed per user request.
+        // TODO: Integrate with real AI Service (Phase 5)
+        /*
         return [
             'reply' => "I understand you're asking about '{$message}'. As your HealthBot assistant, I can see your last visit was focused on respiratory health. Would you like me to check if your prescription was sent to the pharmacy?",
             'suggested_actions' => [
                 ['label' => 'Check Prescription Status', 'action' => 'check_rx'],
                 ['label' => 'Book Follow-up', 'action' => 'book_appt']
             ]
+        ];
+        */
+
+        return [
+            'reply' => "The AI HealthBot is currently offline for maintenance. Please use the 'Messages' tab to contact your care team directly.",
+            'suggested_actions' => []
         ];
     }
 

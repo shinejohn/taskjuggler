@@ -19,7 +19,7 @@
            <!-- ALL MODES Section -->
            <div class="px-4">
                <div v-if="!collapsed" class="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
-                 📊 All Modes
+                 <BarChart3 class="w-3.5 h-3.5" /> All Modes
                </div>
                <nav class="space-y-1">
                    <router-link to="/dashboard" :class="navLinkClass()">
@@ -40,7 +40,7 @@
            <!-- PRACTICE MODE Section (HIPAA) - Filtered -->
            <div class="px-4" v-if="authStore.hasPracticeAccess && (currentMode === 'practice' || currentMode === 'all')">
                <div v-if="!collapsed" class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2 px-2" :class="sectionHeaderClass('practice')">
-                 🔒 Practice
+                 <Lock class="w-3.5 h-3.5" /> Practice
                  <span v-if="currentMode === 'practice'" class="ml-auto text-[10px] bg-violet-600 text-white px-1.5 py-0.5 rounded">HIPAA</span>
                </div>
                <nav class="space-y-1">
@@ -83,7 +83,7 @@
            <!-- BUSINESS MODE Section - Filtered -->
            <div class="px-4" v-if="authStore.hasBusinessAccess && (currentMode === 'business' || currentMode === 'all')">
                <div v-if="!collapsed" class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2 px-2" :class="sectionHeaderClass('business')">
-                 💼 Business
+                 <Briefcase class="w-3.5 h-3.5" /> Business
                </div>
                <nav class="space-y-1">
                    <router-link to="/claims" :class="navLinkClass('business')">
@@ -112,7 +112,7 @@
            <!-- PERSONAL MODE Section - Filtered -->
            <div class="px-4" v-if="(authStore.isClinical || authStore.isAdmin) && (currentMode === 'personal' || currentMode === 'all')">
                <div v-if="!collapsed" class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2 px-2" :class="sectionHeaderClass('personal')">
-                 🏠 Personal
+                 <Home class="w-3.5 h-3.5" /> Personal
                </div>
                <nav class="space-y-1">
                    <router-link to="/travel" :class="navLinkClass('personal')">
@@ -137,7 +137,7 @@
            <!-- Ecosystem Section -->
            <div class="px-4" v-if="!authStore.isPatient">
                <div v-if="!collapsed" class="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
-                 🌐 Ecosystem
+                 <Globe class="w-3.5 h-3.5" /> Ecosystem
                </div>
                <nav class="space-y-1">
                     <router-link to="/doclife" :class="navLinkClass()">
@@ -188,12 +188,9 @@
                        <option value="patient">Patient</option>
                    </select>
                </div>
-               <button class="p-2 text-slate-400 hover:bg-slate-100 rounded-full relative">
+               <button type="button" aria-label="Notifications" class="p-2 text-slate-400 hover:bg-slate-100 rounded-full relative">
                    <Bell class="w-5 h-5" />
                    <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-               </button>
-               <button class="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800">
-                   + Quick Action
                </button>
             </div>
         </header>
@@ -208,6 +205,8 @@
             <router-view></router-view>
         </div>
     </main>
+
+    <SessionTimeout />
   </div>
 </template>
 
@@ -219,10 +218,12 @@ import { useMode } from '@/composables/useMode';
 import type { URPAMode } from '@/types/mode';
 import ModeToggle from '@/components/core/ModeToggle.vue';
 import HIPAABanner from '@/components/core/HIPAABanner.vue';
+import SessionTimeout from '@/components/core/SessionTimeout.vue';
 import { 
     LayoutDashboard, Users, Calendar, Mic, DollarSign, Settings, 
     CheckSquare, Bot, ShoppingBag, Heart, Globe, Bell, Shield, Pill, Wand2,
-    UserCog, Building2, Plane, Target, MessageCircle, FolderOpen
+    UserCog, Building2, Plane, Target, MessageCircle, FolderOpen,
+    BarChart3, Lock, Briefcase, Home
 } from 'lucide-vue-next';
 
 const router = useRouter();

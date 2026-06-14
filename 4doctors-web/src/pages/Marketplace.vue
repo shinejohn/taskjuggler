@@ -181,7 +181,9 @@ import {
   Check, X
 } from 'lucide-vue-next';
 import Modal from '@/components/ui/Modal.vue';
+import { useToast } from '@/composables/useToast';
 
+const toast = useToast();
 const showDetailModal = ref(false);
 const selectedItem = ref<any>(null);
 
@@ -191,7 +193,7 @@ const openDetail = (item: any) => {
 };
 
 const installTool = (tool: any) => {
-  alert(`Installing ${tool.name}. This will be available in your core platform shortly.`);
+  toast.success(`Installing ${tool.name}. This will be available in your core platform shortly.`);
   showDetailModal.value = false;
 };
 

@@ -11,6 +11,9 @@ class AuthApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Auth endpoints require the X-App-Context header (see AppContext middleware). */
+    private const APP_CONTEXT_HEADERS = ['X-App-Context' => 'taskjuggler'];
+
     public function test_user_can_register(): void
     {
         $response = $this->postJson('/api/auth/register', [
@@ -18,7 +21,7 @@ class AuthApiTest extends TestCase
             'email' => 'test@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ]);
+        ], self::APP_CONTEXT_HEADERS);
 
         $response->assertStatus(201)
             ->assertJsonStructure([
@@ -45,7 +48,7 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
-        ]);
+        ], self::APP_CONTEXT_HEADERS);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -94,7 +97,7 @@ class AuthApiTest extends TestCase
             'email' => 'invalid-email',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ]);
+        ], self::APP_CONTEXT_HEADERS);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['email']);
@@ -110,7 +113,7 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/auth/login', [
             'email' => 'test@example.com',
             'password' => 'wrong-password',
-        ]);
+        ], self::APP_CONTEXT_HEADERS);
 
         // Laravel ValidationException returns 422, not 401
         $response->assertStatus(422)

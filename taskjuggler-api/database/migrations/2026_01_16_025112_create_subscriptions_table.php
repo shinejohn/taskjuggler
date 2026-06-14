@@ -11,8 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // The real subscriptions table is created by app/Modules/Core/Migrations/2024_01_01_000003_create_subscriptions_table.php
+        // (loaded via ModuleServiceProvider and ordered before this file). Guard to keep fresh migrations idempotent.
+        if (Schema::hasTable('subscriptions')) {
+            return;
+        }
+
         Schema::create('subscriptions', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->timestamps();
         });
     }

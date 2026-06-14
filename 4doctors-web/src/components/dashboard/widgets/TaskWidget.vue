@@ -28,7 +28,7 @@
       </div>
     </div>
     
-    <button class="widget-footer-btn" @click="$emit('viewAll')">
+    <button v-if="showViewAll" type="button" class="widget-footer-btn" @click="$emit('viewAll')">
       View All Tasks →
     </button>
   </div>
@@ -48,10 +48,11 @@ interface Task {
   dueDate?: Date;
 }
 
-defineProps<{
+withDefaults(defineProps<{
   title?: string;
   tasks: Task[];
-}>();
+  showViewAll?: boolean;
+}>(), { showViewAll: true });
 
 defineEmits(['viewAll', 'toggleTask']);
 

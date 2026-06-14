@@ -48,7 +48,7 @@ class McpController extends Controller
                 'name' => $user->name,
             ],
             'api_key' => $apiKey,
-            'mcp_server_url' => config('app.mcp_server_url', env('MCP_SERVER_URL', 'https://mcp.taskjuggler.com')),
+            'mcp_server_url' => config('services.mcp.server_url'),
         ], 201);
     }
 
@@ -88,7 +88,7 @@ class McpController extends Controller
                 'name' => $user->name,
             ],
             'api_key' => $apiKey,
-            'mcp_server_url' => config('app.mcp_server_url', env('MCP_SERVER_URL', 'https://mcp.taskjuggler.com')),
+            'mcp_server_url' => config('services.mcp.server_url'),
         ]);
     }
 
@@ -102,7 +102,7 @@ class McpController extends Controller
 
         return response()->json([
             'api_key' => $apiKey,
-            'mcp_server_url' => config('app.mcp_server_url', env('MCP_SERVER_URL', 'https://mcp.taskjuggler.com')),
+            'mcp_server_url' => config('services.mcp.server_url'),
         ]);
     }
 

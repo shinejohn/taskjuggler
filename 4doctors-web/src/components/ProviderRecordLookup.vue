@@ -79,8 +79,10 @@ import { ref } from 'vue';
 import { Search, Link as LinkIcon, Loader2, X, AlertCircle, CheckCircle } from 'lucide-vue-next';
 import api from '@/utils/api';
 import { useRouter } from 'vue-router';
+import { useToast } from '@/composables/useToast';
 
 const router = useRouter();
+const toast = useToast();
 const sharingCode = ref('');
 const loading = ref(false);
 const requesting = ref(false);
@@ -104,7 +106,7 @@ const handleLookup = async () => {
             hasAccess.value = false;
         }
     } catch (e) {
-        alert('Patient not found or invalid Health ID.');
+        toast.error('Patient not found or invalid Health ID.');
     } finally {
         loading.value = false;
     }
@@ -115,7 +117,7 @@ const handleRequestAccess = async () => {
     // Simulate requesting access
     // In production, this would create a 'consent_request' record
     setTimeout(() => {
-        alert('Access request sent to patient portal.');
+        toast.success('Access request sent to patient portal.');
         requesting.value = false;
     }, 1500);
 };

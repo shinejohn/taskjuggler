@@ -85,7 +85,7 @@ class ScannerIssueController extends Controller
     {
         $validated = $request->validate([
             'issue_ids' => 'required|array',
-            'issue_ids.*' => 'required|integer',
+            'issue_ids.*' => 'required|uuid',
             'status' => 'required|in:open,resolved,ignored',
         ]);
         

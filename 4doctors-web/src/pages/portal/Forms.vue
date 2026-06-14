@@ -151,9 +151,7 @@ const handleIntakeDone = () => {
     // Potentially refresh dashboard sharing code here
 };
 
-const handleFormSubmit = async (data: any) => {
-    console.log('Submitted Data:', data);
-    
+const handleFormSubmit = async (_data: Record<string, unknown>) => {
     const idx = pendingForms.value.findIndex(f => f.id === activeForm.value.id);
     if (idx !== -1) {
         completedForms.value.push(pendingForms.value[idx]);

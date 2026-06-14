@@ -70,6 +70,7 @@
 import { onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { usePortalStore } from '@/stores/portalStore';
+import { formatDate as formatDateShared } from '@/utils/date';
 import { 
   ShieldAlert, ClipboardCheck, Info, 
   Zap 
@@ -80,8 +81,7 @@ const { priorAuths, isLoading } = storeToRefs(store);
 
 const formatDate = (date: string) => {
   if (!date) return 'Recently';
-  const d = new Date(date);
-  return d.toLocaleDateString();
+  return formatDateShared(date);
 };
 
 const getStatusClass = (status: string | undefined) => {

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->string('invited_email')->nullable();
             $table->string('invited_phone')->nullable();
             $table->string('invited_name')->nullable();
-            $table->enum('status', ['pending', 'accepted', 'declined', 'expired'])->default('pending');
-            $table->enum('role', ['owner', 'watcher', 'collaborator'])->default('owner');
+            $table->string('status')->default('pending'); // pending|accepted|declined|expired
+            $table->string('role')->default('owner'); // owner|watcher|collaborator
             $table->uuid('invited_by_user_id');
             $table->uuid('accepted_by_user_id')->nullable();
             $table->timestamp('accepted_at')->nullable();

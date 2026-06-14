@@ -2,7 +2,7 @@
   <div class="max-w-4xl mx-auto space-y-6">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-8">
-        <button @click="$router.back()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
+        <button type="button" aria-label="Go back" @click="$router.back()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
             <ArrowLeft class="w-6 h-6" />
         </button>
         <div>

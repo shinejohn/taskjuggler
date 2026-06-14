@@ -74,7 +74,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('invite_code', 32)->unique();
             $table->uuid('invited_by');
-            $table->enum('status', ['pending', 'accepted', 'declined', 'expired'])->default('pending');
+            $table->string('status')->default('pending'); // pending|accepted|declined|expired
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
 

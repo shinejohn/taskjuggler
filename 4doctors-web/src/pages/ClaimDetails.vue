@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-slate-50 font-sans p-6">
     <header class="mb-6 flex items-center justify-between">
        <div class="flex items-center gap-4">
-           <button @click="$router.back()" class="p-2 hover:bg-slate-200 rounded-lg text-slate-500">
+           <button type="button" aria-label="Go back" @click="$router.back()" class="p-2 hover:bg-slate-200 rounded-lg text-slate-500">
                <ArrowLeft class="w-5 h-5" />
            </button>
            <div>

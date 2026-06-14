@@ -21,6 +21,27 @@ export interface ClinicalEncounter {
     status: string;
 }
 
+export interface NetworkEncounter {
+    id: string;
+    encounter_date: string;
+    chief_complaint?: string;
+    organization_name?: string;
+}
+
+export interface Medication {
+    id: string;
+    drug_name: string;
+    dosage?: string;
+    frequency?: string;
+    status?: string;
+}
+
+export interface PatientChartData extends Patient {
+    encounters: ClinicalEncounter[];
+    network_history: NetworkEncounter[];
+    medications: Medication[];
+}
+
 export const patientsService = {
     // Get all patients (mocking filtering/pagination for now)
     getPatients: async (): Promise<Patient[]> => {
@@ -28,29 +49,19 @@ export const patientsService = {
         return response.data;
     },
 
-    // Get single patient details (including clinical history mock)
-    getPatient: async (id: string) => {
-        // In real app, fetching patient + recent encounters
-        // Mocking response for UI development until generic show endpoint is ready
+    // Get single patient chart (patient record + encounters + federated network history)
+    getPatient: async (id: string): Promise<PatientChartData> => {
+        const response = await api.get<{
+            patient: Patient;
+            encounters: ClinicalEncounter[];
+            network_history: NetworkEncounter[];
+        }>(`/doctors/patients/${id}`);
+        const { patient, encounters, network_history } = response.data;
         return {
-            id: id,
-            first_name: 'John',
-            last_name: 'Doe',
-            dob: '1980-05-12',
-            email: 'john.doe@example.com',
-            phone: '555-0123',
-            encounters: [
-                { id: 'e1', encounter_date: '2026-01-20', type: 'office_visit', chief_complaint: 'Cough', status: 'signed' },
-                { id: 'e2', encounter_date: '2025-11-15', type: 'follow_up', chief_complaint: 'BP Check', status: 'signed' }
-            ],
-            vitals: {
-                bp: '120/80',
-                hr: '72',
-                temp: '98.6'
-            },
-            medications: [
-                { id: 'm1', drug_name: 'Lisinopril', dosage: '10mg', frequency: 'daily', status: 'active' }
-            ]
+            ...patient,
+            encounters: encounters ?? [],
+            network_history: network_history ?? [],
+            medications: [],
         };
     },
 
@@ -60,15 +71,13 @@ export const patientsService = {
     },
 
     // Medication Management
-    addMedication: async (patientId: string, medication: any) => {
-        // api.post(`/doctors/patients/${patientId}/medications`, medication);
-        console.log(`Adding medication for patient ${patientId}`, medication);
-        return { ...medication, id: Math.random().toString(36).substr(2, 9) };
+    addMedication: async (patientId: string, medication: Omit<Medication, 'id'>): Promise<Medication> => {
+        // TODO: api.post(`/doctors/patients/${patientId}/medications`, medication);
+        return { ...medication, id: Math.random().toString(36).slice(2, 11) };
     },
 
     removeMedication: async (patientId: string, medicationId: string) => {
-        // api.delete(`/doctors/patients/${patientId}/medications/${medicationId}`);
-        console.log(`Removing medication ${medicationId} for patient ${patientId}`);
+        // TODO: api.delete(`/doctors/patients/${patientId}/medications/${medicationId}`);
         return true;
     }
 };

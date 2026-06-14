@@ -28,7 +28,7 @@ class DashboardTest extends TestCase
         $response = $this->postJson('/api/auth/login', [
             'email' => $this->user->email,
             'password' => 'password',
-        ]);
+        ], ['X-App-Context' => 'coordinator']);
         $response->assertStatus(200);
         $this->token = $response->json('data.token') ?? '';
     }

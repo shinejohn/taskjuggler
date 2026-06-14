@@ -11,7 +11,7 @@ class FibonacciPublishingService
 
     public function __construct()
     {
-        $this->fibonacciApiUrl = config('services.fibonacci.api_url', env('FIBONACCI_API_URL', 'http://localhost:8000/api'));
+        $this->fibonacciApiUrl = (string) config('services.fibonacci.api_url');
     }
 
     /**

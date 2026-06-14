@@ -59,7 +59,7 @@
                <p class="text-xs text-slate-400 truncate max-w-[200px]">{{ ref.clinical_reason }}</p>
              </td>
              <td class="px-6 py-4 text-sm text-slate-500">
-               {{ new Date(ref.created_at).toLocaleDateString() }}
+               {{ formatDate(ref.created_at) }}
                <div v-if="ref.urgency === 'stat'" class="text-xs font-bold text-rose-600 uppercase mt-1">S T A T</div>
              </td>
              <td class="px-6 py-4">
@@ -71,7 +71,7 @@
                </div>
              </td>
              <td class="px-6 py-4 text-right">
-               <button class="p-2 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-blue-600 transition-colors">
+               <button type="button" aria-label="View referral details" class="p-2 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-blue-600 transition-colors">
                  <ChevronRight class="w-4 h-4" />
                </button>
              </td>
@@ -85,6 +85,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Plus, ShieldCheck, ChevronRight } from 'lucide-vue-next';
+import { formatDate } from '@/utils/date';
 
 const currentTab = ref('incoming');
 

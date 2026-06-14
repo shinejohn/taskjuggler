@@ -21,9 +21,9 @@
 
         <!-- User Profile/Menu -->
         <div class="flex items-center gap-4">
-          <button class="p-2 text-slate-400 hover:bg-slate-100 rounded-full relative">
+          <button type="button" aria-label="Notifications" class="p-2 text-slate-400 hover:bg-slate-100 rounded-full relative">
             <Bell class="w-5 h-5" />
-            <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <span v-if="notifications.some(n => !n.is_read)" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
           
           <router-link 
@@ -31,10 +31,10 @@
             class="flex items-center gap-2 px-2 py-1 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <div class="h-8 w-8 rounded-full bg-teal-100 border border-teal-200 flex items-center justify-center text-teal-700 font-bold text-sm">
-              JD
+              {{ patient?.first_name?.[0] || 'U' }}{{ patient?.last_name?.[0] || '' }}
             </div>
             <div class="hidden lg:block text-left">
-              <p class="text-sm font-medium text-slate-700">John Doe</p>
+              <p class="text-sm font-medium text-slate-700">{{ patient?.first_name }} {{ patient?.last_name }}</p>
               <p class="text-xs text-slate-400">View Profile</p>
             </div>
           </router-link>
@@ -44,7 +44,14 @@
 
     <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <router-view></router-view>
+
+      <p class="mt-10 mb-16 md:mb-0 flex items-center justify-center gap-1.5 text-xs text-slate-400">
+        <ShieldCheck class="w-3.5 h-3.5" />
+        Your health information is encrypted and all access is logged (HIPAA).
+      </p>
     </main>
+
+    <SessionTimeout />
 
     <!-- Mobile Bottom Nav -->
     <div class="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-200 pb-safe flex justify-around py-3 z-30">
@@ -69,7 +76,13 @@
 </template>
 
 <script setup lang="ts">
-import { Bell, Home, Calendar, MessageCircle, FileText } from 'lucide-vue-next';
+import { Bell, Home, Calendar, MessageCircle, FileText, ShieldCheck } from 'lucide-vue-next';
+import { storeToRefs } from 'pinia';
+import { usePortalStore } from '@/stores/portalStore';
+import SessionTimeout from '@/components/core/SessionTimeout.vue';
+
+const store = usePortalStore();
+const { patient, notifications } = storeToRefs(store);
 </script>
 
 <style scoped>

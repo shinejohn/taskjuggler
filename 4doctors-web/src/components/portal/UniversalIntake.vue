@@ -156,6 +156,9 @@ import {
   Ear, Wind, Smile 
 } from 'lucide-vue-next';
 import api from '@/utils/api';
+import { useToast } from '@/composables/useToast';
+
+const toast = useToast();
 
 const emit = defineEmits(['done', 'submit']);
 
@@ -227,7 +230,7 @@ const submitForm = async () => {
     sharingCode.value = response.data.sharing_code;
     currentStep.value++;
   } catch (error) {
-    alert('Failed to submit intake. Please try again.');
+    toast.error('Failed to submit intake. Please try again.');
   } finally {
     isSubmitting.value = false;
   }

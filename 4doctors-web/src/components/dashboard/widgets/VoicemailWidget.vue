@@ -40,7 +40,7 @@
       </div>
     </div>
     
-    <button class="widget-footer-btn" @click="$emit('viewAll')">
+    <button v-if="showViewAll" type="button" class="widget-footer-btn" @click="$emit('viewAll')">
       View All Voicemails →
     </button>
   </div>
@@ -48,6 +48,7 @@
 
 <script setup lang="ts">
 import { Phone, User, Play } from 'lucide-vue-next';
+import { formatDate } from '@/utils/date';
 import ModeBadge from '@/components/core/ModeBadge.vue';
 import type { URPAMode } from '@/types/mode';
 
@@ -62,10 +63,11 @@ interface Voicemail {
   receivedAt: Date;
 }
 
-defineProps<{
+withDefaults(defineProps<{
   title?: string;
   voicemails: Voicemail[];
-}>();
+  showViewAll?: boolean;
+}>(), { showViewAll: true });
 
 defineEmits(['viewAll', 'play']);
 
@@ -83,7 +85,7 @@ function formatTime(date: Date): string {
   
   if (hours < 1) return 'Just now';
   if (hours < 24) return `${hours}h ago`;
-  return d.toLocaleDateString();
+  return formatDate(d);
 }
 </script>
 

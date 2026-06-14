@@ -16,7 +16,7 @@ class VapiService
     public function __construct(
         private ?AiService $aiService = null
     ) {
-        $this->apiKey = config('services.vapi.api_key', env('VAPI_API_KEY'));
+        $this->apiKey = (string) config('services.vapi.api_key', '');
     }
 
     /**

@@ -105,7 +105,6 @@ const removeLocation = (idx: number) => {
 
 const save = () => {
     // Mock save
-    console.log('Saving Organization:', form.value);
     // In real app: await api.post('/organizations', form.value);
     router.push('/dashboard');
 };

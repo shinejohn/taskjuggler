@@ -57,9 +57,9 @@
       <!-- Mini Month Picker (sidebar) -->
       <div class="w-72 bg-white rounded-xl border border-slate-200 p-4 hidden lg:block">
         <div class="flex items-center justify-between mb-4">
-          <button @click="prevMonth" class="p-1 hover:bg-slate-100 rounded"><ChevronLeft class="w-4 h-4" /></button>
+          <button type="button" aria-label="Previous month" @click="prevMonth" class="p-1 hover:bg-slate-100 rounded"><ChevronLeft class="w-4 h-4" /></button>
           <span class="text-sm font-bold text-slate-900">{{ monthYearLabel }}</span>
-          <button @click="nextMonth" class="p-1 hover:bg-slate-100 rounded"><ChevronRight class="w-4 h-4" /></button>
+          <button type="button" aria-label="Next month" @click="nextMonth" class="p-1 hover:bg-slate-100 rounded"><ChevronRight class="w-4 h-4" /></button>
         </div>
         <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 mb-2">
           <div v-for="d in ['S','M','T','W','T','F','S']" :key="d">{{ d }}</div>
@@ -291,6 +291,9 @@ import { useRouter } from 'vue-router';
 import { Search, Plus, ChevronLeft, ChevronRight, Calendar, CalendarSearch } from 'lucide-vue-next';
 import { scheduleService, type Appointment } from '@/services/schedule';
 import Modal from '@/components/ui/Modal.vue';
+import { useToast } from '@/composables/useToast';
+
+const toast = useToast();
 
 const router = useRouter();
 const selectedDate = ref(new Date());
@@ -502,7 +505,7 @@ const openNewAppointment = (hour?: number) => {
 const createAppointment = async () => {
   // In production: API call
   showNewAppointmentModal.value = false;
-  alert(`Appointment scheduled for ${newApt.patient_name} on ${newApt.date} at ${newApt.startTime}`);
+  toast.success(`Appointment scheduled for ${newApt.patient_name} on ${newApt.date} at ${newApt.startTime}`);
   // Refresh
   appointments.value = await scheduleService.getAppointments(selectedDate.value.toISOString());
 };

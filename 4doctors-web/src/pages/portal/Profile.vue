@@ -281,7 +281,9 @@ import {
   User, Phone, AlertCircle, CreditCard, Settings, Shield, 
   Lock, Smartphone, Link, Heart, Activity, Edit3, Save
 } from 'lucide-vue-next';
+import { useToast } from '@/composables/useToast';
 
+const toast = useToast();
 const editing = ref(false);
 
 const profile = reactive({
@@ -325,6 +327,6 @@ const inputClass = computed(() => {
 
 const saveProfile = () => {
   editing.value = false;
-  alert('Profile saved successfully!');
+  toast.success('Profile saved successfully.');
 };
 </script>

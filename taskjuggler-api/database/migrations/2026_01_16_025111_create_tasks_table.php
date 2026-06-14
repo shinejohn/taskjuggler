@@ -11,8 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // The real tasks table is created by app/Modules/Tasks/Migrations/2024_01_02_000001_create_tasks_table.php
+        // (loaded via ModuleServiceProvider and ordered before this file). Guard to keep fresh migrations idempotent.
+        if (Schema::hasTable('tasks')) {
+            return;
+        }
+
         Schema::create('tasks', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->timestamps();
         });
     }

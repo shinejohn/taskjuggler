@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-6 flex-shrink-0">
         <div class="flex items-center gap-4">
-            <button @click="$router.back()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
+            <button type="button" aria-label="Go back" @click="$router.back()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
                 <ArrowLeft class="w-6 h-6" />
             </button>
             <div>

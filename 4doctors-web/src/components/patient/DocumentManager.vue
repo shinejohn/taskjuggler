@@ -20,7 +20,7 @@
                     <div class="text-xs text-slate-500">{{ doc.date }} • {{ doc.type }}</div>
                 </div>
             </div>
-            <button class="text-slate-400 hover:text-blue-600">
+            <button type="button" aria-label="Download document" class="text-slate-400 hover:text-blue-600">
                 <Download class="w-4 h-4" />
             </button>
         </li>

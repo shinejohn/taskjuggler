@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
 use App\Services\AI\McpServerService;
 
@@ -20,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Point password reset emails at the SPA reset page
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+            return config('app.url').'/reset-password?token='.$token.'&email='.urlencode($user->email);
+        });
+
         // Register MCP tools for AI agents
         if (class_exists(\PhpMcp\Laravel\Facades\Mcp::class)) {
             try {

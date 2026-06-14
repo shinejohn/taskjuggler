@@ -232,10 +232,12 @@
 <script setup lang="ts">
 import { ref, computed, reactive } from 'vue';
 import { 
-    FileText, Pill, FlaskConical, MessageSquare, AlertCircle, 
+    FileText, Pill, FlaskConical, MessageSquare, AlertCircle,
     ChevronDown, CheckCircle, Search
 } from 'lucide-vue-next';
+import { useToast } from '@/composables/useToast';
 
+const toast = useToast();
 const searchQuery = ref('');
 const urgencyFilter = ref('');
 
@@ -409,7 +411,7 @@ const acknowledgeResult = (task: Task) => {
 
 const orderFollowUp = (task: Task) => {
     // In production: Navigate to ordering or open order modal
-    alert(`Opening order workflow for ${task.patient}`);
+    toast.info(`Opening order workflow for ${task.patient}`);
 };
 
 const getTaskIcon = (type: string) => {

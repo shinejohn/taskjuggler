@@ -86,6 +86,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import SignaturePad from './SignaturePad.vue';
+import { useToast } from '@/composables/useToast';
+
+const toast = useToast();
 // ... rest of script
 
 interface Field {
@@ -118,7 +121,7 @@ const handleSubmit = () => {
     // Basic validation
     for (const field of props.fields) {
         if (field.required && !formData.value[field.id]) {
-            alert(`Please complete the field: ${field.label}`);
+            toast.error(`Please complete the field: ${field.label}`);
             return;
         }
     }

@@ -26,7 +26,7 @@
       </div>
     </div>
     
-    <button class="widget-footer-btn" @click="$emit('viewAll')">
+    <button v-if="showViewAll" type="button" class="widget-footer-btn" @click="$emit('viewAll')">
       View All Emails →
     </button>
   </div>
@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import { Mail } from 'lucide-vue-next';
+import { formatDate } from '@/utils/date';
 import ModeBadge from '@/components/core/ModeBadge.vue';
 import type { URPAMode } from '@/types/mode';
 
@@ -46,10 +47,11 @@ interface Email {
   receivedAt: Date;
 }
 
-defineProps<{
+withDefaults(defineProps<{
   title?: string;
   emails: Email[];
-}>();
+  showViewAll?: boolean;
+}>(), { showViewAll: true });
 
 defineEmits(['viewAll']);
 
@@ -60,7 +62,7 @@ function formatTime(date: Date): string {
   
   if (hours < 1) return 'Just now';
   if (hours < 24) return `${hours}h ago`;
-  return new Date(date).toLocaleDateString();
+  return formatDate(date);
 }
 </script>
 

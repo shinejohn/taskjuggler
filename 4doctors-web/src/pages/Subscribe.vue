@@ -131,11 +131,9 @@ function selectPlan(plan: string) {
 
 function handleSubscribe() {
     if (selectedPlan.value === 'hospital') {
-        // Redirect to contact form
-        console.log('Contact sales');
+        // TODO: Redirect to contact-sales form when available
     } else {
         // Proceed to payment/dashboard
-        console.log('Subscribing to', selectedPlan.value);
         router.push('/dashboard');
     }
 }

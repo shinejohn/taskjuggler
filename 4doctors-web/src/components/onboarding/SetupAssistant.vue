@@ -74,7 +74,9 @@
           placeholder="Ask for help..."
           class="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
         >
-        <button 
+        <button
+          type="button"
+          aria-label="Send message"
           @click="sendMessage"
           class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
           :disabled="!inputMessage.trim()"

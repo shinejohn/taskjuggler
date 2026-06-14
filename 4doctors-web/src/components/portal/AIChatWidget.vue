@@ -63,8 +63,9 @@
           placeholder="Type your message..." 
           class="flex-1 px-4 py-2 border border-slate-300 rounded-full focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
         />
-        <button 
-          type="submit" 
+        <button
+          type="submit"
+          aria-label="Send message"
           :disabled="!newMessage.trim()"
           class="p-2 bg-teal-600 text-white rounded-full hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >

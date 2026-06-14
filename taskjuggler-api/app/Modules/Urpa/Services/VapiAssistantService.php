@@ -18,7 +18,7 @@ class VapiAssistantService
         private FunctionCallService $functionCallService,
         private VoiceResponseService $voiceResponseService
     ) {
-        $this->apiKey = config('services.vapi.api_key', env('VAPI_API_KEY'));
+        $this->apiKey = (string) config('services.vapi.api_key', '');
     }
 
     /**
@@ -63,7 +63,7 @@ class VapiAssistantService
             'firstMessage' => $this->getFirstMessage($prerecordedResponses),
             'functions' => $this->formatFunctionsForVapi($functions),
             'serverUrl' => config('app.url') . '/api/urpa/voice/vapi/webhook',
-            'serverUrlSecret' => config('services.vapi.webhook_secret', env('VAPI_WEBHOOK_SECRET')),
+            'serverUrlSecret' => config('services.vapi.webhook_secret'),
         ];
 
         // Check if assistant already exists

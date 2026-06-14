@@ -63,14 +63,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     }
 
     async function completeOnboarding() {
-        // TODO: Save to backend
-        console.log('Saving onboarding data...', {
-            profile: profileSettings.value,
-            urpa: urpaSettings.value,
-            calls: callsSettings.value
-        });
-
-        // Mark as complete in backend
+        // TODO: Save profile/urpa/calls settings to backend when API is available
         // await api.post('/onboarding/complete');
 
         return true;
