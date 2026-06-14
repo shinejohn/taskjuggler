@@ -1,13 +1,12 @@
 <?php
 
+use App\Models\InboxItem;
+use App\Models\Notification;
+use App\Models\Task;
+use Carbon\Carbon;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-use App\Console\Commands\UpdateTaskColorStates;
-use App\Models\Notification;
-use App\Models\InboxItem;
-use App\Models\Task;
-use Carbon\Carbon;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -34,7 +33,7 @@ Schedule::call(function () {
         ->where('status', '!=', 'cancelled')
         ->where('updated_at', '<', Carbon::now()->subDays(7))
         ->count();
-    
+
     if ($staleCount > 0) {
         \Log::info("Found {$staleCount} stale tasks requiring attention");
     }
@@ -56,3 +55,8 @@ Schedule::call(function () {
         app(\App\Modules\Processes\Services\ProcessTriggerService::class)->handleScheduled();
     }
 })->everyMinute()->name('run-scheduled-processes');
+
+// Bidirectional URPA <-> TaskJuggler task sync (URPA module)
+Schedule::call(function () {
+    app(\App\Modules\Urpa\Services\TaskJugglerSyncService::class)->syncAllLinked();
+})->everyFifteenMinutes()->name('urpa-taskjuggler-sync')->withoutOverlapping();

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UrpaTaskjugglerLink extends Model
 {
-    use HasUuids, HasFactory;
+    use HasFactory, HasUuids;
 
     protected $table = 'urpa_taskjuggler_link';
 
@@ -22,6 +22,7 @@ class UrpaTaskjugglerLink extends Model
         'auto_create_tasks',
         'urpa_originated',
         'tj_originated',
+        'last_synced_at',
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class UrpaTaskjugglerLink extends Model
         'auto_create_tasks' => 'boolean',
         'urpa_originated' => 'boolean',
         'tj_originated' => 'boolean',
+        'last_synced_at' => 'datetime',
     ];
 
     // Relationships
@@ -49,4 +51,3 @@ class UrpaTaskjugglerLink extends Model
         return $this->taskjuggler_user_id !== null;
     }
 }
-

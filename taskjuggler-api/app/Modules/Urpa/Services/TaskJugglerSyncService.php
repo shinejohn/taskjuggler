@@ -1,23 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Modules\Urpa\Services;
 
+use App\Events\TaskCreated;
+use App\Models\Task;
+use App\Models\User;
+use App\Modules\Urpa\Models\UrpaActivity;
 use App\Modules\Urpa\Models\UrpaAiTask;
 use App\Modules\Urpa\Models\UrpaTaskjugglerLink;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class TaskJugglerSyncService
+/**
+ * Syncs tasks between URPA and TaskJuggler.
+ *
+ * URPA and TaskJuggler are modules of the same Laravel monolith sharing one
+ * database and one users table, so this service talks to the Task model
+ * directly instead of making authenticated HTTP calls back into our own API.
+ */
+final class TaskJugglerSyncService
 {
-    private string $taskjugglerApiUrl;
-
-    public function __construct()
-    {
-        $this->taskjugglerApiUrl = config('services.taskjuggler.api_url');
-    }
-
     /**
-     * Sync URPA AI tasks to TaskJuggler
+     * Sync a user's not-yet-synced URPA AI tasks into TaskJuggler tasks.
+     *
+     * @return array{synced: int, skipped: int}
      */
     public function syncAITasks(string $userId): array
     {
@@ -25,7 +32,7 @@ class TaskJugglerSyncService
             ->whereNotNull('taskjuggler_user_id')
             ->first();
 
-        if (!$link || !$link->sync_tasks) {
+        if (! $link || ! $link->sync_tasks) {
             return ['synced' => 0, 'skipped' => 0];
         }
 
@@ -39,21 +46,18 @@ class TaskJugglerSyncService
 
         foreach ($tasks as $task) {
             try {
-                $taskjugglerTaskId = $this->createTaskInTaskJugglerFromAiTask($link, $task);
-                
-                if ($taskjugglerTaskId) {
-                    $task->markAsSynced($taskjugglerTaskId);
-                    $synced++;
-                } else {
-                    $skipped++;
-                }
-            } catch (\Exception $e) {
-                Log::error("Failed to sync task {$task->id} to TaskJuggler", [
+                $taskjugglerTaskId = $this->createTaskFromAiTask($link, $task);
+                $task->markAsSynced($taskjugglerTaskId);
+                $synced++;
+            } catch (\Throwable $e) {
+                Log::error("Failed to sync URPA AI task {$task->id} to TaskJuggler", [
                     'error' => $e->getMessage(),
                 ]);
                 $skipped++;
             }
         }
+
+        $link->update(['last_synced_at' => now()]);
 
         return [
             'synced' => $synced,
@@ -62,63 +66,56 @@ class TaskJugglerSyncService
     }
 
     /**
-     * Create task in TaskJuggler from AI task
+     * Create a TaskJuggler task from a URPA AI task and return its id.
      */
-    private function createTaskInTaskJugglerFromAiTask(UrpaTaskjugglerLink $link, UrpaAiTask $task): ?string
+    private function createTaskFromAiTask(UrpaTaskjugglerLink $link, UrpaAiTask $task): string
     {
-        return $this->createTaskInTaskJuggler($link, $task);
-    }
-
-    /**
-     * Create task in TaskJuggler
-     */
-    private function createTaskInTaskJuggler(UrpaTaskjugglerLink $link, UrpaAiTask $task): ?string
-    {
-        // TODO: Get auth token for TaskJuggler user
-        $token = $this->getTaskJugglerToken($link->taskjuggler_user_id);
-
-        if (!$token) {
-            return null;
-        }
-
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-            'Content-Type' => 'application/json',
-        ])->post($this->taskjugglerApiUrl . '/tasks', [
+        $created = $this->createTask($link, [
             'title' => $task->title,
             'description' => $task->description,
-            'status' => 'pending',
-            'priority' => 'normal',
-            'due_date' => $task->due_at?->toIso8601String(),
+            'due_date' => $task->due_at,
             'source_type' => 'urpa',
-            'source_channel' => 'urpa_ai',
             'source_channel_ref' => $task->id,
         ]);
 
-        if ($response->failed()) {
-            Log::error("TaskJuggler API error", [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
-            return null;
-        }
-
-        $taskjugglerTask = $response->json();
-        return $taskjugglerTask['id'] ?? null;
+        return $created->id;
     }
 
     /**
-     * Get TaskJuggler auth token
+     * Create a TaskJuggler task owned by the linked TaskJuggler user.
+     *
+     * @param array{
+     *     title: string,
+     *     description?: string|null,
+     *     priority?: string|null,
+     *     due_date?: \DateTimeInterface|string|null,
+     *     source_type?: string|null,
+     *     source_channel_ref?: string|null
+     * } $attributes
      */
-    private function getTaskJugglerToken(string $userId): ?string
+    public function createTask(UrpaTaskjugglerLink $link, array $attributes): Task
     {
-        // TODO: Implement token retrieval
-        // This might require storing tokens or using OAuth
-        return null;
+        $task = Task::create([
+            'title' => $attributes['title'],
+            'description' => $attributes['description'] ?? null,
+            'status' => Task::STATUS_PENDING,
+            'priority' => $this->normalizePriority($attributes['priority'] ?? null),
+            'requestor_id' => $link->taskjuggler_user_id,
+            'due_date' => $attributes['due_date'] ?? null,
+            'source_type' => $attributes['source_type'] ?? 'urpa',
+            'source_channel' => 'urpa_ai',
+            'source_channel_ref' => $attributes['source_channel_ref'] ?? null,
+        ]);
+
+        event(new TaskCreated($task));
+
+        return $task;
     }
 
     /**
-     * Sync TaskJuggler tasks to URPA
+     * Sync TaskJuggler tasks belonging to the linked user into URPA activities.
+     *
+     * @return array{synced: int}
      */
     public function syncFromTaskJuggler(string $userId): array
     {
@@ -126,140 +123,140 @@ class TaskJugglerSyncService
             ->whereNotNull('taskjuggler_user_id')
             ->first();
 
-        if (!$link || !$link->sync_tasks) {
+        if (! $link || ! $link->sync_tasks) {
             return ['synced' => 0];
         }
 
-        $token = $this->getTaskJugglerToken($link->taskjuggler_user_id);
-        if (!$token) {
-            Log::warning("No token available for TaskJuggler sync for user: {$userId}");
-            return ['synced' => 0];
-        }
+        $tjUserId = $link->taskjuggler_user_id;
 
-        try {
-            // Fetch tasks from TaskJuggler API
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-                'Content-Type' => 'application/json',
-            ])->get($this->taskjugglerApiUrl . '/tasks', [
-                'status' => 'pending',
-                'per_page' => 100,
-            ]);
+        $tasks = Task::where(function ($q) use ($tjUserId) {
+            $q->where('requestor_id', $tjUserId)
+                ->orWhere('owner_id', $tjUserId);
+        })
+            // Don't mirror tasks that originated in URPA back into URPA.
+            ->where(function ($q) {
+                $q->whereNull('source_type')
+                    ->orWhere('source_type', '!=', 'urpa');
+            })
+            ->orderBy('updated_at', 'desc')
+            ->limit(200)
+            ->get();
 
-            if ($response->failed()) {
-                Log::error("TaskJuggler API error fetching tasks", [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-                return ['synced' => 0];
-            }
+        $synced = 0;
 
-            $tasks = $response->json()['data'] ?? [];
-            $synced = 0;
-
-            foreach ($tasks as $task) {
-                try {
-                    // Check if activity already exists
-                    $existing = \App\Modules\Urpa\Models\UrpaActivity::where('user_id', $userId)
-                        ->where('external_id', $task['id'])
-                        ->where('source', 'taskjuggler')
-                        ->first();
-
-                    if ($existing) {
-                        continue;
-                    }
-
-                    // Create URPA activity from TaskJuggler task
-                    \App\Modules\Urpa\Models\UrpaActivity::create([
+        foreach ($tasks as $task) {
+            try {
+                UrpaActivity::updateOrCreate(
+                    [
                         'user_id' => $userId,
-                        'activity_type' => 'task',
                         'source' => 'taskjuggler',
-                        'title' => $task['title'] ?? 'Untitled Task',
-                        'description' => $task['description'] ?? null,
-                        'status' => $this->mapTaskJugglerStatus($task['status'] ?? 'pending'),
-                        'external_id' => $task['id'],
-                        'raw_content' => $task,
-                        'activity_timestamp' => $task['created_at'] ?? now(),
-                    ]);
+                        'external_id' => $task->id,
+                    ],
+                    [
+                        'activity_type' => 'task',
+                        'title' => $task->title ?? 'Untitled Task',
+                        'description' => $task->description,
+                        'status' => $this->mapTaskJugglerStatus($task->status ?? 'pending'),
+                        'raw_content' => $task->only(['id', 'title', 'description', 'status', 'priority', 'due_date']),
+                        'activity_timestamp' => $task->updated_at ?? now(),
+                    ]
+                );
 
-                    $synced++;
-                } catch (\Exception $e) {
-                    Log::error("Failed to create URPA activity from TaskJuggler task", [
-                        'task_id' => $task['id'] ?? null,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
+                $synced++;
+            } catch (\Throwable $e) {
+                Log::error('Failed to create URPA activity from TaskJuggler task', [
+                    'task_id' => $task->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
-
-            return ['synced' => $synced];
-        } catch (\Exception $e) {
-            Log::error("TaskJuggler sync failed", [
-                'error' => $e->getMessage(),
-            ]);
-            return ['synced' => 0];
         }
+
+        $link->update(['last_synced_at' => now()]);
+
+        return ['synced' => $synced];
     }
 
     /**
-     * Fetch tasks from TaskJuggler for a user
+     * Fetch upcoming TaskJuggler tasks for a user (used by the URPA assistant).
+     *
+     * @return array<int, array{id: string, title: string, description: ?string, priority: string, status: string, due_date: ?string}>
      */
-    public function fetchTasks(\App\Models\User $user, int $limit = 10): array
+    public function fetchTasks(User $user, int $limit = 10): array
     {
         $link = UrpaTaskjugglerLink::where('urpa_user_id', $user->id)
             ->whereNotNull('taskjuggler_user_id')
             ->first();
 
-        if (!$link || !$link->sync_tasks) {
+        if (! $link || ! $link->sync_tasks) {
             return [];
         }
 
-        $token = $this->getTaskJugglerToken($link->taskjuggler_user_id);
-        if (!$token) {
-            return [];
-        }
+        $tjUserId = $link->taskjuggler_user_id;
 
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-                'Content-Type' => 'application/json',
-            ])->get($this->taskjugglerApiUrl . '/tasks', [
-                'status' => 'pending',
-                'per_page' => $limit,
-            ]);
+        return Task::where(function ($q) use ($tjUserId) {
+            $q->where('requestor_id', $tjUserId)
+                ->orWhere('owner_id', $tjUserId);
+        })
+            ->where('status', Task::STATUS_PENDING)
+            ->orderBy('due_date', 'asc')
+            ->limit($limit)
+            ->get()
+            ->map(fn (Task $task): array => [
+                'id' => $task->id,
+                'title' => $task->title ?? 'Untitled Task',
+                'description' => $task->description,
+                'priority' => $task->priority ?? Task::PRIORITY_NORMAL,
+                'status' => $task->status,
+                'due_date' => $task->due_date?->toIso8601String(),
+            ])
+            ->all();
+    }
 
-            if ($response->failed()) {
-                return [];
+    /**
+     * Run bidirectional sync for every linked, sync-enabled user.
+     * Invoked by the scheduler.
+     */
+    public function syncAllLinked(): void
+    {
+        $links = UrpaTaskjugglerLink::whereNotNull('taskjuggler_user_id')
+            ->where('sync_tasks', true)
+            ->get();
+
+        foreach ($links as $link) {
+            try {
+                $this->syncAITasks($link->urpa_user_id);
+                $this->syncFromTaskJuggler($link->urpa_user_id);
+            } catch (\Throwable $e) {
+                Log::error("Scheduled URPA<->TaskJuggler sync failed for link {$link->id}", [
+                    'error' => $e->getMessage(),
+                ]);
             }
-
-            $tasks = $response->json()['data'] ?? [];
-
-            return array_map(function ($task) {
-                return [
-                    'id' => $task['id'],
-                    'title' => $task['title'] ?? 'Untitled Task',
-                    'description' => $task['description'] ?? null,
-                    'priority' => $task['priority'] ?? 'medium',
-                    'status' => $task['status'] ?? 'pending',
-                    'due_date' => $task['due_date'] ?? null,
-                ];
-            }, $tasks);
-        } catch (\Exception $e) {
-            Log::error('Failed to fetch tasks from TaskJuggler', ['error' => $e->getMessage()]);
-            return [];
         }
     }
 
     /**
-     * Map TaskJuggler status to URPA activity status
+     * Normalize an arbitrary priority string to a valid Task priority.
+     */
+    private function normalizePriority(?string $priority): string
+    {
+        return match ($priority) {
+            Task::PRIORITY_LOW => Task::PRIORITY_LOW,
+            Task::PRIORITY_HIGH => Task::PRIORITY_HIGH,
+            Task::PRIORITY_URGENT => Task::PRIORITY_URGENT,
+            // 'medium' (legacy) and anything unknown collapse to normal.
+            default => Task::PRIORITY_NORMAL,
+        };
+    }
+
+    /**
+     * Map a TaskJuggler task status to a URPA activity status.
      */
     private function mapTaskJugglerStatus(string $status): string
     {
-        return match($status) {
-            'completed', 'done' => 'completed',
-            'urgent', 'high' => 'urgent',
-            'archived' => 'archived',
+        return match ($status) {
+            Task::STATUS_COMPLETED => 'completed',
+            Task::STATUS_CANCELLED, Task::STATUS_DECLINED => 'archived',
             default => 'pending',
         };
     }
 }
-

@@ -3,16 +3,19 @@
 namespace App\Modules\Urpa\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Urpa\Models\UrpaTaskjugglerLink;
+use App\Modules\Urpa\Models\UrpaActivity;
 use App\Modules\Urpa\Models\UrpaAiTask;
+use App\Modules\Urpa\Models\UrpaTaskjugglerLink;
 use App\Modules\Urpa\Services\TaskJugglerSyncService;
-use Illuminate\Http\Request;
+use App\Modules\Urpa\Services\WebhookService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TaskJugglerController extends Controller
 {
     public function __construct(
-        private TaskJugglerSyncService $syncService
+        private TaskJugglerSyncService $syncService,
+        private WebhookService $webhookService
     ) {}
 
     /**
@@ -22,7 +25,7 @@ class TaskJugglerController extends Controller
     public function status(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $link = UrpaTaskjugglerLink::where('urpa_user_id', $user->id)->first();
 
         return response()->json([
@@ -67,12 +70,12 @@ class TaskJugglerController extends Controller
     public function sync(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $link = UrpaTaskjugglerLink::where('urpa_user_id', $user->id)
             ->whereNotNull('taskjuggler_user_id')
             ->first();
 
-        if (!$link) {
+        if (! $link) {
             return response()->json([
                 'error' => 'TaskJuggler account not linked',
             ], 400);
@@ -90,22 +93,21 @@ class TaskJugglerController extends Controller
     public function tasks(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $link = UrpaTaskjugglerLink::where('urpa_user_id', $user->id)
             ->whereNotNull('taskjuggler_user_id')
             ->first();
 
-        if (!$link) {
+        if (! $link) {
             return response()->json([
                 'error' => 'TaskJuggler account not linked',
             ], 400);
         }
 
-        $syncService = app(\App\Modules\Urpa\Services\TaskJugglerSyncService::class);
-        $result = $syncService->syncFromTaskJuggler($user->id);
-        
+        $result = $this->syncService->syncFromTaskJuggler($user->id);
+
         // Fetch URPA activities created from TaskJuggler
-        $activities = \App\Modules\Urpa\Models\UrpaActivity::where('user_id', $user->id)
+        $activities = UrpaActivity::where('user_id', $user->id)
             ->where('source', 'taskjuggler')
             ->orderBy('activity_timestamp', 'desc')
             ->limit(50)
@@ -133,27 +135,18 @@ class TaskJugglerController extends Controller
         ]);
 
         $user = $request->user();
-        
+
         $link = UrpaTaskjugglerLink::where('urpa_user_id', $user->id)
             ->whereNotNull('taskjuggler_user_id')
             ->first();
 
-        if (!$link) {
+        if (! $link) {
             return response()->json([
                 'error' => 'TaskJuggler account not linked',
             ], 400);
         }
 
-        // Create task in TaskJuggler via API
-        $syncService = app(\App\Modules\Urpa\Services\TaskJugglerSyncService::class);
-        $taskjugglerTaskId = $syncService->createTaskInTaskJuggler($link, [
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'priority' => $validated['priority'] ?? 'normal',
-            'due_date' => $validated['due_date'],
-        ]);
-
-        // Create URPA AI task and mark as synced
+        // Create the URPA AI task first so the TaskJuggler task can reference it.
         $aiTask = UrpaAiTask::create([
             'user_id' => $user->id,
             'title' => $validated['title'],
@@ -161,12 +154,22 @@ class TaskJugglerController extends Controller
             'status' => 'pending',
             'source_type' => $validated['source_type'] ?? 'manual',
             'source_id' => $validated['source_id'] ?? null,
-            'taskjuggler_task_id' => $taskjugglerTaskId,
-            'synced_to_taskjuggler' => $taskjugglerTaskId !== null,
         ]);
 
+        // Create the matching TaskJuggler task via a direct in-process service call.
+        $task = $this->syncService->createTask($link, [
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'priority' => $validated['priority'] ?? 'normal',
+            'due_date' => $validated['due_date'] ?? null,
+            'source_type' => 'urpa',
+            'source_channel_ref' => $aiTask->id,
+        ]);
+
+        $aiTask->markAsSynced($task->id);
+
         // Dispatch webhook
-        app(WebhookService::class)->dispatch('ai_task.created', [
+        $this->webhookService->dispatch('ai_task.created', [
             'id' => $aiTask->id,
             'title' => $aiTask->title,
             'description' => $aiTask->description,
@@ -178,4 +181,3 @@ class TaskJugglerController extends Controller
         return response()->json($aiTask, 201);
     }
 }
-
