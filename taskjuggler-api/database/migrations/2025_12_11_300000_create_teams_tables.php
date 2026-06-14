@@ -85,12 +85,14 @@ return new class extends Migration
             $table->index('email');
         });
 
-        // Add team_id to tasks
-        Schema::table('tasks', function (Blueprint $table) {
-            $table->uuid('team_id')->nullable()->after('owner_id');
-            $table->foreign('team_id')->references('id')->on('teams')->nullOnDelete();
-            $table->index('team_id');
-        });
+        // Add team_id to tasks (skip if module migration already added it)
+        if (Schema::hasTable('tasks') && !Schema::hasColumn('tasks', 'team_id')) {
+            Schema::table('tasks', function (Blueprint $table) {
+                $table->uuid('team_id')->nullable()->after('owner_id');
+                $table->foreign('team_id')->references('id')->on('teams')->nullOnDelete();
+                $table->index('team_id');
+            });
+        }
     }
 
     public function down(): void

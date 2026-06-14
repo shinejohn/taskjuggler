@@ -52,9 +52,15 @@ class AppServiceProvider extends ServiceProvider
         // Load migrations from coordinator subdirectory
         $this->loadMigrationsFrom(database_path('migrations/coordinator'));
 
-        // Load migrations from Processes, Projects, and Communications modules
-        $this->loadMigrationsFrom(app_path('Modules/Processes/Migrations'));
-        $this->loadMigrationsFrom(app_path('Modules/Projects/Migrations'));
-        $this->loadMigrationsFrom(app_path('Modules/Communications/Migrations'));
+        // Load module migrations only when their feature flags are enabled
+        if (config('modules.projects_enabled')) {
+            $this->loadMigrationsFrom(app_path('Modules/Projects/Migrations'));
+        }
+        if (config('modules.processes_enabled')) {
+            $this->loadMigrationsFrom(app_path('Modules/Processes/Migrations'));
+        }
+        if (config('modules.communications_enabled')) {
+            $this->loadMigrationsFrom(app_path('Modules/Communications/Migrations'));
+        }
     }
 }
