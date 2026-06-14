@@ -192,6 +192,66 @@ if [[ "$MODE" == "force" ]]; then
 fi
 
 # ============================================================================
+# PHASE 0: UNTRACKED FILE CHECK (prevents "works locally, fails on Railway")
+# ============================================================================
+log "${BOLD}${BLUE}━━━ Phase 0: Untracked File Check ━━━${NC}"
+phase_start
+
+UNTRACKED_IMPORTS=0
+if [[ -n "$FRONTEND_DIR" && -d "$FRONTEND_DIR/src" ]]; then
+    # Find all untracked files in the frontend src directory
+    UNTRACKED=$(cd "$PROJECT_ROOT" && git ls-files --others --exclude-standard "$FRONTEND_DIR/src/" 2>/dev/null | grep -E '\.(vue|ts|tsx|js|jsx)$' || true)
+    if [[ -n "$UNTRACKED" ]]; then
+        # Check if any of these untracked files are actually imported somewhere
+        while IFS= read -r untracked_file; do
+            # Get the filename without extension for import matching
+            basename_no_ext=$(basename "$untracked_file" | sed 's/\.\(vue\|ts\|tsx\|js\|jsx\)$//')
+            # Check if this file is imported by any tracked file
+            if git grep -l "$basename_no_ext" -- "$FRONTEND_DIR/src/" 2>/dev/null | head -1 > /dev/null 2>&1; then
+                if [[ $UNTRACKED_IMPORTS -eq 0 ]]; then
+                    log "  ${RED}❌ Untracked files that are imported (will fail on deploy):${NC}"
+                fi
+                log "     ${RED}$untracked_file${NC}"
+                UNTRACKED_IMPORTS=$((UNTRACKED_IMPORTS + 1))
+            fi
+        done <<< "$UNTRACKED"
+    fi
+fi
+if [[ -n "$BACKEND_DIR" && -d "$BACKEND_DIR/app" ]]; then
+    UNTRACKED_BE=$(cd "$PROJECT_ROOT" && git ls-files --others --exclude-standard "$BACKEND_DIR/app/" "$BACKEND_DIR/database/" 2>/dev/null | grep -E '\.php$' || true)
+    if [[ -n "$UNTRACKED_BE" ]]; then
+        while IFS= read -r untracked_file; do
+            basename_no_ext=$(basename "$untracked_file" .php)
+            if git grep -l "$basename_no_ext" -- "$BACKEND_DIR/app/" "$BACKEND_DIR/routes/" 2>/dev/null | head -1 > /dev/null 2>&1; then
+                if [[ $UNTRACKED_IMPORTS -eq 0 ]]; then
+                    log "  ${RED}❌ Untracked files that are imported (will fail on deploy):${NC}"
+                fi
+                log "     ${RED}$untracked_file${NC}"
+                UNTRACKED_IMPORTS=$((UNTRACKED_IMPORTS + 1))
+            fi
+        done <<< "$UNTRACKED_BE"
+    fi
+fi
+if [[ $UNTRACKED_IMPORTS -gt 0 ]]; then
+    log "  ${RED}   → $UNTRACKED_IMPORTS untracked file(s) are imported by tracked code${NC}"
+    log "  ${RED}   → Run: git add <files> to fix${NC}"
+    inc_errors
+else
+    log "  ${GREEN}✓${NC} No untracked files referenced by imports"
+fi
+
+# Also check for unstaged modifications to tracked files
+UNSTAGED_MODIFIED=$(cd "$PROJECT_ROOT" && git diff --name-only 2>/dev/null | grep -E '\.(vue|ts|tsx|php)$' | wc -l | tr -d ' ')
+if [[ "$UNSTAGED_MODIFIED" -gt 0 ]]; then
+    log "  ${YELLOW}⚠${NC}  $UNSTAGED_MODIFIED modified file(s) not staged — deploy won't include these changes"
+    inc_warnings
+else
+    log "  ${GREEN}✓${NC} All modifications are staged"
+fi
+
+phase_end
+
+# ============================================================================
 # PHASE 1: STAGING SAFETY
 # ============================================================================
 log "${BOLD}${BLUE}━━━ Phase 1: Staging Safety ━━━${NC}"
