@@ -25,5 +25,19 @@ return [
         'business' => 10,
         'enterprise' => -1, // unlimited
     ],
-];
 
+    /*
+    | Mobile app module entitlements by subscription plan.
+    | Module IDs match backend module names and taskjuggler-app/config/modules.ts.
+    */
+    'mobile_entitlements' => [
+        'tasks' => ['free', 'starter', 'pro', 'business', 'enterprise'],
+        'processes' => ['pro', 'business', 'enterprise'],
+        'projects' => ['business', 'enterprise'],
+        'coordinator' => ['business', 'enterprise'],
+        'sitehealth' => ['pro', 'business', 'enterprise'],
+        'urpa' => ['starter', 'pro', 'business', 'enterprise'],
+        'ideacircuit' => ['starter', 'pro', 'business', 'enterprise'],
+        'officialnotice' => ['enterprise'],
+    ],
+];

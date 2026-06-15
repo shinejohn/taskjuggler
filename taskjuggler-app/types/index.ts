@@ -4,8 +4,9 @@ export interface User {
   name: string;
   phone?: string;
   timezone: string;
-  plan: 'free' | 'starter' | 'pro' | 'business';
-  settings: Record<string, any>;
+  plan: 'free' | 'starter' | 'pro' | 'business' | 'enterprise';
+  enabled_modules?: string[];
+  settings?: Record<string, unknown>;
 }
 
 export interface Task {
@@ -55,8 +56,8 @@ export interface InboxItem {
   from_name?: string;
   subject?: string;
   body: string;
-  attachments?: any[];
-  extracted_data?: any;
+  attachments?: unknown[];
+  extracted_data?: ExtractedData;
   processing_status?: string;
   processing_error?: string;
   routed_to_task_id?: string;
@@ -107,7 +108,7 @@ export interface RuleConditions {
 export interface RuleCondition {
   field: string;
   operator: string;
-  value: any;
+  value: unknown;
 }
 
 export interface RuleActions {
@@ -134,7 +135,7 @@ export interface TeamMember {
   phone?: string;
   role?: string;
   can_receive_tasks: boolean;
-  notification_preferences?: Record<string, any>;
+  notification_preferences?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
   user?: User;
@@ -148,7 +149,7 @@ export interface MarketplaceListing {
   description?: string;
   category: string;
   location_required: boolean;
-  location?: any;
+  location?: Record<string, unknown>;
   location_radius_miles?: number;
   budget_type: 'fixed' | 'hourly' | 'quote';
   budget_min?: number;
@@ -209,7 +210,7 @@ export interface ContactListMember {
   name: string;
   phone?: string;
   email?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }

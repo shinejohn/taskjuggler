@@ -1,11 +1,13 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../stores/auth';
+import { useModulesStore } from '../../stores/modules';
 import { showToast } from '../../utils/toast';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const entitledModules = useModulesStore((s) => s.entitledModules);
 
   const handleLogout = async () => {
     await logout();
@@ -34,6 +36,37 @@ export default function SettingsScreen() {
               <Text className="text-base font-medium capitalize">{user?.plan || 'N/A'}</Text>
             </View>
           </View>
+        </View>
+
+        <View className="bg-white rounded-lg p-4 shadow-sm mb-4">
+          <Text className="text-lg font-semibold mb-4">Platform Apps</Text>
+          {entitledModules.length === 0 ? (
+            <Text className="text-sm text-gray-500">No apps on your plan yet.</Text>
+          ) : (
+            entitledModules.map((module) => {
+              const Icon = module.icon;
+              return (
+                <View
+                  key={module.id}
+                  className="border-b border-gray-200 pb-3 mb-3 flex-row items-center"
+                >
+                  <View
+                    className="w-10 h-10 rounded-lg items-center justify-center mr-3"
+                    style={{ backgroundColor: `${module.color}20` }}
+                  >
+                    <Icon color={module.color} size={20} />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-medium">{module.name}</Text>
+                    <Text className="text-sm text-gray-500">{module.description}</Text>
+                  </View>
+                  <Text className="text-xs text-gray-400">
+                    {module.ready ? 'Active' : 'Coming soon'}
+                  </Text>
+                </View>
+              );
+            })
+          )}
         </View>
 
         <View className="bg-white rounded-lg p-4 shadow-sm mb-4">
@@ -66,9 +99,7 @@ export default function SettingsScreen() {
             <Text className="text-base">Marketplace</Text>
             <Text className="text-sm text-gray-500">Browse and manage marketplace listings</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/contacts')}
-          >
+          <TouchableOpacity onPress={() => router.push('/contacts')}>
             <Text className="text-base">Contact Lists</Text>
             <Text className="text-sm text-gray-500">Manage contact lists and import contacts</Text>
           </TouchableOpacity>
@@ -77,6 +108,8 @@ export default function SettingsScreen() {
         <TouchableOpacity
           className="bg-red-600 rounded-lg p-4"
           onPress={handleLogout}
+          accessibilityRole="button"
+          accessibilityLabel="Log out"
         >
           <Text className="text-white text-center font-semibold">Logout</Text>
         </TouchableOpacity>

@@ -177,6 +177,55 @@ final class TaskJugglerSyncService
     }
 
     /**
+     * Mirror a single TaskJuggler task update into URPA activities for linked users.
+     */
+    public function syncTaskUpdateToUrpa(Task $task): void
+    {
+        if ($task->source_type === 'urpa') {
+            return;
+        }
+
+        $userIds = array_filter([
+            $task->requestor_id,
+            $task->owner_id,
+        ]);
+
+        if ($userIds === []) {
+            return;
+        }
+
+        $links = UrpaTaskjugglerLink::whereIn('taskjuggler_user_id', $userIds)
+            ->where('sync_tasks', true)
+            ->get();
+
+        foreach ($links as $link) {
+            try {
+                UrpaActivity::updateOrCreate(
+                    [
+                        'user_id' => $link->urpa_user_id,
+                        'source' => 'taskjuggler',
+                        'external_id' => $task->id,
+                    ],
+                    [
+                        'activity_type' => 'task',
+                        'title' => $task->title ?? 'Untitled Task',
+                        'description' => $task->description,
+                        'status' => $this->mapTaskJugglerStatus($task->status ?? 'pending'),
+                        'raw_content' => $task->only(['id', 'title', 'description', 'status', 'priority', 'due_date']),
+                        'activity_timestamp' => $task->updated_at ?? now(),
+                    ]
+                );
+            } catch (\Throwable $e) {
+                Log::error('Failed to sync TaskJuggler task update to URPA', [
+                    'task_id' => $task->id,
+                    'link_id' => $link->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    /**
      * Fetch upcoming TaskJuggler tasks for a user (used by the URPA assistant).
      *
      * @return array<int, array{id: string, title: string, description: ?string, priority: string, status: string, due_date: ?string}>

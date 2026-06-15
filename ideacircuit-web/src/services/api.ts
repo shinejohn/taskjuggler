@@ -81,6 +81,14 @@ class ApiService {
     return this.client.post(`/ideacircuit/meetings/${meetingId}/end`);
   }
 
+  async joinLiveKit(meetingId: string) {
+    return this.client.post(`/ideacircuit/meetings/${meetingId}/livekit/join`);
+  }
+
+  async endLiveKit(meetingId: string) {
+    return this.client.post(`/ideacircuit/meetings/${meetingId}/livekit/end`);
+  }
+
   // Notes methods
   async getNotes(meetingId: string) {
     return this.client.get(`/ideacircuit/meetings/${meetingId}/notes`);

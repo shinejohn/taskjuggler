@@ -22,9 +22,16 @@
         <div class="h-1/3">
           <Facilitator :is-visible="isFacilitatorPresent" :is-video-off="isVideoOff" />
         </div>
-        <!-- Presenter (middle) -->
+        <!-- Presenter (middle) — LiveKit video when meetingId is real -->
         <div class="h-1/3">
-          <Presenter :is-video-off="isVideoOff" />
+          <LiveKitVideo
+            v-if="props.meetingId && props.meetingId !== 'current-meeting'"
+            ref="liveKitRef"
+            :meeting-id="props.meetingId"
+            @connected="onVideoConnected"
+            @error="onVideoError"
+          />
+          <Presenter v-else :is-video-off="isVideoOff" />
         </div>
         <!-- Voice Controls (bottom) -->
         <div class="flex-1">
@@ -117,6 +124,7 @@ import { useRouter } from 'vue-router';
 import { VideoIcon, MessageCircleIcon, MicIcon } from 'lucide-vue-next';
 import { Button } from '@/components/ui';
 import Presenter from './Presenter.vue';
+import LiveKitVideo from './LiveKitVideo.vue';
 import Facilitator from './Facilitator.vue';
 import Participants from './Participants.vue';
 import NotesPanel from './NotesPanel.vue';
@@ -151,6 +159,8 @@ const transcript = ref('');
 const recordingData = ref(null);
 const isFacilitatorPresent = ref(true);
 const meetingDuration = ref(0);
+const liveKitRef = ref<InstanceType<typeof LiveKitVideo> | null>(null);
+const videoConnected = ref(false);
 
 let durationInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -179,12 +189,34 @@ const handleRecordingComplete = (data: any) => {
 
 const handleEndCall = async () => {
   try {
-    await api.endMeeting(props.meetingId);
+    if (props.meetingId && props.meetingId !== 'current-meeting') {
+      await api.post(`/ideacircuit/meetings/${props.meetingId}/livekit/end`).catch(() =>
+        api.endMeeting(props.meetingId)
+      );
+    } else {
+      await api.endMeeting(props.meetingId);
+    }
     router.push('/');
-  } catch (error) {
-    console.error('Error ending meeting:', error);
+  } catch {
+    router.push('/');
   }
 };
+
+const onVideoConnected = () => {
+  videoConnected.value = true;
+};
+
+const onVideoError = () => {
+  videoConnected.value = false;
+};
+
+watch(isMuted, (muted) => {
+  liveKitRef.value?.setMicrophoneEnabled(!muted);
+});
+
+watch(isVideoOff, (off) => {
+  liveKitRef.value?.setCameraEnabled(!off);
+});
 
 const chatMessages = computed(() => {
   return messages.value.map(msg => ({

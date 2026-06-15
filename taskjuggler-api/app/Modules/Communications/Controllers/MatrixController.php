@@ -40,4 +40,22 @@ final class MatrixController extends Controller
             'Matrix session'
         );
     }
+
+    /**
+     * GET /api/matrix/dm/{userId} — room for direct messages with another user
+     */
+    public function directRoom(Request $request, string $userId): JsonResponse
+    {
+        $other = \App\Models\User::findOrFail($userId);
+        $roomId = $this->matrix->ensureDirectRoom($request->user(), $other);
+
+        if (! $roomId) {
+            return $this->error('Matrix DM room unavailable', 503);
+        }
+
+        return $this->success([
+            'room_id' => $roomId,
+            'session' => $this->matrix->clientSession($request->user()),
+        ]);
+    }
 }

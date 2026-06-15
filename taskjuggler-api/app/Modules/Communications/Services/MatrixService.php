@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\Communications\Services;
 
 use App\Models\Conversation;
+use App\Models\DirectMessage;
 use App\Models\Task;
 use App\Models\User;
 use App\Modules\Communications\Models\MatrixAccount;
+use App\Modules\Communications\Models\MatrixDirectRoom;
 use App\Modules\Tasks\Models\TaskMessage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -154,13 +156,72 @@ final class MatrixService
             return;
         }
 
-        $eventId = $event['event_id'] ?? null;
-        if ($eventId && TaskMessage::where('source_channel_ref', $eventId)->exists()) {
+        $conversation = Conversation::where('matrix_room_id', $roomId)->first();
+        if ($conversation?->task_id) {
+            $this->handleInboundTaskMessage($event, $conversation, $senderMxid, $body);
+
             return;
         }
 
-        $conversation = Conversation::where('matrix_room_id', $roomId)->first();
-        if (! $conversation?->task_id) {
+        $directRoom = MatrixDirectRoom::where('matrix_room_id', $roomId)->first();
+        if ($directRoom) {
+            $this->handleInboundDirectMessage($event, $directRoom, $senderMxid, $body);
+        }
+    }
+
+    /**
+     * Create or return a Matrix DM room between two users.
+     */
+    public function ensureDirectRoom(User $currentUser, User $otherUser): ?string
+    {
+        if (! $this->isEnabled()) {
+            return null;
+        }
+
+        [$low, $high] = strcmp((string) $currentUser->id, (string) $otherUser->id) < 0
+            ? [$currentUser, $otherUser]
+            : [$otherUser, $currentUser];
+
+        $existing = MatrixDirectRoom::where('user_low_id', $low->id)
+            ->where('user_high_id', $high->id)
+            ->first();
+
+        if ($existing) {
+            return $existing->matrix_room_id;
+        }
+
+        $account = $this->ensureUserRegistered($currentUser);
+        if (! $account?->access_token) {
+            return null;
+        }
+
+        $roomId = $this->createRoom(
+            $account->access_token,
+            'DM: '.$currentUser->name.' & '.$otherUser->name,
+            'dm-'.str_replace('-', '', (string) $low->id).'-'.str_replace('-', '', (string) $high->id)
+        );
+
+        if ($roomId === null) {
+            return null;
+        }
+
+        MatrixDirectRoom::create([
+            'user_low_id' => $low->id,
+            'user_high_id' => $high->id,
+            'matrix_room_id' => $roomId,
+        ]);
+
+        return $roomId;
+    }
+
+    private function handleInboundTaskMessage(
+        array $event,
+        Conversation $conversation,
+        string $senderMxid,
+        string $body
+    ): void {
+        $eventId = $event['event_id'] ?? null;
+        if ($eventId && TaskMessage::where('source_channel_ref', $eventId)->exists()) {
             return;
         }
 
@@ -186,7 +247,34 @@ final class MatrixService
             'content' => $body,
             'content_type' => TaskMessage::CONTENT_TEXT,
             'source_channel' => 'matrix',
-            'source_channel_ref' => $event['event_id'] ?? null,
+            'source_channel_ref' => $eventId,
+        ]);
+    }
+
+    private function handleInboundDirectMessage(
+        array $event,
+        MatrixDirectRoom $directRoom,
+        string $senderMxid,
+        string $body
+    ): void {
+        $eventId = $event['event_id'] ?? null;
+        if ($eventId && DirectMessage::where('content', $body)->where('created_at', '>=', now()->subMinute())->exists()) {
+            return;
+        }
+
+        $account = MatrixAccount::where('matrix_user_id', $senderMxid)->first();
+        if (! $account) {
+            return;
+        }
+
+        $recipientId = $account->user_id === $directRoom->user_low_id
+            ? $directRoom->user_high_id
+            : $directRoom->user_low_id;
+
+        DirectMessage::create([
+            'sender_id' => $account->user_id,
+            'recipient_id' => $recipientId,
+            'content' => $body,
         ]);
     }
 

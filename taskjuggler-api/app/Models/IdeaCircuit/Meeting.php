@@ -35,6 +35,7 @@ class Meeting extends Model
         'chime_region',
         'chime_external_id',
         'chime_media_placement',
+        'livekit_room_name',
         'ai_participant_enabled',
         'ai_script_id',
         'ai_voice_enabled',

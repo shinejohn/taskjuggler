@@ -5,7 +5,8 @@ import { useContactListsStore } from '../stores/contactLists';
 import { showToast } from '../utils/toast';
 import * as DocumentPicker from 'expo-document-picker';
 import api from '../utils/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import { TOKEN_KEY } from '../utils/api';
 
 export default function ContactsScreen() {
   const router = useRouter();
@@ -46,10 +47,10 @@ export default function ContactsScreen() {
         uri: file.uri,
         type: file.mimeType || 'application/octet-stream',
         name: file.name,
-      } as any);
+      } as unknown as Blob);
       formData.append('list_id', listId);
 
-      const token = await AsyncStorage.getItem('token');
+      const token = await SecureStore.getItemAsync(TOKEN_KEY);
       const response = await fetch(`${api.defaults.baseURL}/contact-lists/import`, {
         method: 'POST',
         headers: {
@@ -68,8 +69,8 @@ export default function ContactsScreen() {
       showToast.success(`Imported ${result_data.imported} contacts`);
       setSelectedList(null);
       await fetchContactLists();
-    } catch (error: any) {
-      showToast.error(error.message || 'Failed to import contacts');
+    } catch (error) {
+      showToast.error(error instanceof Error ? error.message : 'Failed to import contacts');
     } finally {
       setImporting(false);
     }

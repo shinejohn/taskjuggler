@@ -137,7 +137,7 @@ return [
     ],
 
     'taskjuggler' => [
-        'api_url' => env('TASKJUGGLER_API_URL', 'http://localhost:8000/api'),
+        'api_url' => env('TASKJUGGLER_API_URL', 'https://ai-tools-api-production-2c1e.up.railway.app/api'),
     ],
 
     'publishing' => [

@@ -66,6 +66,8 @@ Route::prefix('ideacircuit')->middleware('auth:sanctum')->group(function () {
     Route::delete('meetings/{id}', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'destroy']);
     Route::post('meetings/{id}/join', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'join']);
     Route::post('meetings/{id}/end', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'end']);
+    Route::post('meetings/{id}/livekit/join', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'livekitJoin']);
+    Route::post('meetings/{id}/livekit/end', [\App\Http\Controllers\IdeaCircuit\MeetingController::class, 'livekitEnd']);
     Route::get('meetings/{id}/notes', [\App\Http\Controllers\IdeaCircuit\NoteController::class, 'index']);
     Route::post('meetings/{id}/notes', [\App\Http\Controllers\IdeaCircuit\NoteController::class, 'store']);
     Route::get('meetings/{id}/messages', [\App\Http\Controllers\IdeaCircuit\MessageController::class, 'index']);

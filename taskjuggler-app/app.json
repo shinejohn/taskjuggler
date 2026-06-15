@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Task Juggler",
-    "slug": "taskjuggler",
+    "name": "Fibonacco AI",
+    "slug": "fibonacco-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,21 +14,21 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.taskjuggler.app"
+      "bundleIdentifier": "com.fibonacco.ai"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2563eb"
       },
-      "package": "com.taskjuggler.app",
+      "package": "com.fibonacco.ai",
       "intentFilters": [
         {
           "action": "VIEW",
           "autoVerify": true,
           "data": [
             {
-              "scheme": "taskjuggler"
+              "scheme": "fibonacco"
             }
           ],
           "category": [
@@ -41,7 +41,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "taskjuggler",
+    "scheme": "fibonacco",
     "plugins": [
       "expo-router",
       [
@@ -50,13 +50,14 @@
           "icon": "./assets/icon.png",
           "color": "#2563eb"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "apiUrl": "https://taskjuggler-production.up.railway.app/api",
+      "apiUrl": "https://ai-tools-api-production-2c1e.up.railway.app/api",
       "eas": {
         "projectId": ""
       }

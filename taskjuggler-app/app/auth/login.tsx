@@ -1,6 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
+import { isAxiosError } from 'axios';
 import { useAuthStore } from '../../stores/auth';
 import { showToast } from '../../utils/toast';
 
@@ -20,14 +21,17 @@ export default function LoginScreen() {
       await login(email, password);
       showToast.success('Login successful');
       router.replace('/(tabs)');
-    } catch (error: any) {
-      showToast.error(error.response?.data?.message || 'Invalid email or password');
+    } catch (error) {
+      const message = isAxiosError(error)
+        ? error.response?.data?.message
+        : undefined;
+      showToast.error(message || 'Invalid email or password');
     }
   };
 
   return (
     <View className="flex-1 items-center justify-center p-6 bg-white">
-      <Text className="text-3xl font-bold mb-8">Task Juggler</Text>
+      <Text className="text-3xl font-bold mb-8">Fibonacco AI</Text>
       <TextInput
         className="w-full border border-gray-300 rounded-lg p-3 mb-4"
         placeholder="Email"

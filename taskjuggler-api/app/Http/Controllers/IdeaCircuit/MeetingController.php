@@ -10,6 +10,7 @@ use App\Models\IdeaCircuit\MeetingParticipant;
 use App\Models\Task;
 use App\Models\Appointment;
 use App\Services\IdeaCircuit\ChimeService;
+use App\Services\IdeaCircuit\LiveKitService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -515,5 +516,83 @@ class MeetingController extends Controller
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Join meeting via LiveKit (preferred over Chime when LIVEKIT_ENABLED=true)
+     * POST /api/ideacircuit/meetings/{id}/livekit/join
+     */
+    public function livekitJoin(string $id)
+    {
+        $liveKit = app(LiveKitService::class);
+        if (! $liveKit->isEnabled()) {
+            return response()->json([
+                'error' => 'LiveKit not enabled',
+                'message' => 'Set LIVEKIT_ENABLED=true and configure LIVEKIT_URL',
+            ], 503);
+        }
+
+        $meeting = Meeting::findOrFail($id);
+        $user = Auth::user();
+        $userId = Auth::id();
+
+        $isHost = (string) $meeting->user_id === (string) $userId;
+        $isParticipant = $meeting->participants()->where('user_id', $userId)->exists();
+
+        if (! $isHost && ! $isParticipant) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (! $isParticipant && $isHost) {
+            $meeting->participants()->create([
+                'meeting_id' => $meeting->id,
+                'user_id' => $userId,
+                'display_name' => $user->name ?? 'Host',
+                'name' => $user->name ?? 'Host',
+                'role' => 'host',
+                'is_active' => true,
+                'connection_status' => 'connected',
+                'joined_at' => now(),
+            ]);
+        }
+
+        if ($meeting->status === 'scheduled') {
+            $meeting->update(['status' => 'active', 'started_at' => now()]);
+        }
+
+        return response()->json([
+            'data' => $liveKit->joinCredentials($meeting, $user),
+            'provider' => 'livekit',
+        ]);
+    }
+
+    /**
+     * End meeting and optionally tear down LiveKit room
+     */
+    public function livekitEnd(string $id)
+    {
+        $meeting = Meeting::findOrFail($id);
+
+        if ((string) $meeting->user_id !== (string) Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $liveKit = app(LiveKitService::class);
+        if ($liveKit->isEnabled() && $meeting->livekit_room_name) {
+            try {
+                $liveKit->deleteRoom($meeting->livekit_room_name);
+            } catch (\Throwable) {
+                // Non-fatal
+            }
+        }
+
+        $meeting->update([
+            'status' => 'ended',
+            'ended_at' => now(),
+        ]);
+
+        event(new MeetingEnded($meeting));
+
+        return response()->json(['data' => $meeting->fresh()]);
     }
 }

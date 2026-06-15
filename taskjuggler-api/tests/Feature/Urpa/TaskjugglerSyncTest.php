@@ -165,4 +165,45 @@ class TaskjugglerSyncTest extends TestCase
 
         $response->assertStatus(400);
     }
+
+    public function test_task_update_syncs_to_urpa_activity(): void
+    {
+        $link = $this->link();
+
+        $task = Task::factory()->create([
+            'requestor_id' => $this->user->id,
+            'source_type' => null,
+            'status' => Task::STATUS_PENDING,
+            'title' => 'Original title',
+        ]);
+
+        app(TaskJugglerSyncService::class)->syncTaskUpdateToUrpa($task);
+
+        $activity = UrpaActivity::where('user_id', $this->user->id)
+            ->where('external_id', $task->id)
+            ->first();
+
+        $this->assertNotNull($activity);
+        $this->assertSame('Original title', $activity->title);
+
+        $task->update(['title' => 'Updated title', 'status' => Task::STATUS_COMPLETED]);
+        app(TaskJugglerSyncService::class)->syncTaskUpdateToUrpa($task->fresh());
+
+        $activity->refresh();
+        $this->assertSame('Updated title', $activity->title);
+        $this->assertSame('completed', $activity->status);
+    }
+
+    public function test_auth_user_includes_enabled_modules(): void
+    {
+        $this->user->update(['plan' => 'pro']);
+
+        $response = $this->getJson('/api/auth/user');
+
+        $response->assertOk();
+        $modules = $response->json('data.enabled_modules');
+        $this->assertContains('tasks', $modules);
+        $this->assertContains('processes', $modules);
+        $this->assertContains('sitehealth', $modules);
+    }
 }

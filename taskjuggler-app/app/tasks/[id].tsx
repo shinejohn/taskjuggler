@@ -5,7 +5,7 @@ import { useTasksStore } from '../../stores/tasks';
 import { useMessagesStore } from '../../stores/messages';
 import { showToast } from '../../utils/toast';
 import api from '../../utils/api';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 export default function TaskDetailScreen() {
   const router = useRouter();
@@ -58,7 +58,7 @@ export default function TaskDetailScreen() {
     return `${year}-${month}-${day}`;
   };
 
-  const handleDateChange = (event: any, date?: Date) => {
+  const handleDateChange = (event: DateTimePickerEvent, date?: Date) => {
     if (Platform.OS === 'android') {
       setShowDatePicker(false);
     }
@@ -106,7 +106,9 @@ export default function TaskDetailScreen() {
     try {
       // For mobile, we'll open the download URL directly
       // The browser/calendar app will handle the .ics file
-      const apiUrl = api.defaults.baseURL?.replace('/api', '') || 'https://taskjuggler-production.up.railway.app';
+      const apiUrl =
+        api.defaults.baseURL?.replace('/api', '') ||
+        'https://ai-tools-api-production-2c1e.up.railway.app';
       const url = `${apiUrl}/api/tasks/${id}/export/ical`;
       
       // Try to open the URL - on mobile, this will trigger download or open in calendar app
