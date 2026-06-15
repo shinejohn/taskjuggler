@@ -10,9 +10,26 @@ Laravel (`taskjuggler-api`) is the **only public entry point**. The homeserver r
 
 ## Deploy on Railway
 
-1. Create a new service `matrix-dendrite` from this directory
-2. Attach a PostgreSQL database (dedicated or shared)
-3. Set environment variables:
+Services are deployed on **Fibonacco AI Tools** (production):
+
+| Service | URL |
+|---------|-----|
+| pipecat-agent | https://pipecat-agent-production-d0f6.up.railway.app |
+| livekit-server | wss://livekit-server-production-0f2e.up.railway.app |
+| matrix-dendrite | https://matrix-dendrite-production.up.railway.app |
+
+Deploy or redeploy from this directory:
+
+```bash
+railway link -p ca3879ff-fd72-4239-983d-32ade6cace83 -e production -s pipecat-agent
+railway up -d
+```
+
+Or run the full stack script from repo root:
+
+```bash
+./infrastructure/deploy-comms.sh
+```
 
 | Variable | Description |
 |----------|-------------|

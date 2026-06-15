@@ -4,12 +4,20 @@ Phase 3 of the [Comms Modernization Plan](../../docs/fibonacco-comms-modernizati
 
 ## Deploy
 
-1. Create Railway service `livekit-server` using [LiveKit Cloud](https://livekit.io) or self-hosted:
-   ```bash
-   docker compose up -d
-   ```
+Production (Fibonacco AI Tools):
 
-2. Set on **API** (`taskjuggler-api`):
+- **URL:** `wss://livekit-server-production-0f2e.up.railway.app`
+- **API key:** set on `ai-tools-api` as `LIVEKIT_API_KEY` / `LIVEKIT_API_SECRET`
+
+Redeploy:
+
+```bash
+cd infrastructure/livekit-server
+railway link -p ca3879ff-fd72-4239-983d-32ade6cace83 -e production -s livekit-server
+railway up -d
+```
+
+Self-hosted local:
    ```env
    LIVEKIT_ENABLED=true
    LIVEKIT_URL=wss://your-livekit-host
