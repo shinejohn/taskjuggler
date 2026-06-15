@@ -2,6 +2,14 @@
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-6">Direct Messages</h1>
 
+    <div
+      v-if="matrixEnabled"
+      class="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900"
+    >
+      Matrix messaging is active — real-time sync will replace this view when the
+      homeserver is fully connected.
+    </div>
+
     <div v-if="loading && conversations.length === 0" class="text-center py-8">Loading...</div>
     <div v-else-if="conversations.length === 0" class="text-center py-8 text-gray-500">
       No conversations yet. Start messaging someone!
@@ -43,15 +51,20 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useMessagesStore } from '@/stores/messages';
+import { useMatrix } from '@/composables/useMatrix';
 
 const messagesStore = useMessagesStore();
+const { loadSession, isEnabled } = useMatrix();
+const matrixEnabled = ref(false);
 
 const conversations = computed(() => messagesStore.conversations);
 const loading = computed(() => messagesStore.loading);
 
 onMounted(async () => {
+  const session = await loadSession();
+  matrixEnabled.value = isEnabled.value && session.provisioned === true;
   await messagesStore.fetchConversations();
   await messagesStore.fetchDirectUnreadCount();
 });

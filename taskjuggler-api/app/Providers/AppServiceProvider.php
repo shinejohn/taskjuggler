@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\AI\McpServerService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,8 +38,18 @@ class AppServiceProvider extends ServiceProvider
         );
 
         \Illuminate\Support\Facades\Event::listen(
+            \App\Events\TaskCreated::class,
+            \App\Listeners\ProvisionMatrixOnTaskCreated::class
+        );
+
+        \Illuminate\Support\Facades\Event::listen(
             \App\Events\TaskUpdated::class,
             \App\Listeners\TriggerProcessOnTaskUpdated::class
+        );
+
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\TaskUpdated::class,
+            \App\Listeners\SyncTaskToUrpaOnUpdate::class
         );
 
         // Load migrations from coordinator subdirectory

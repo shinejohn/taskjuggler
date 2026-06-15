@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Task;
-use App\Models\Message;
 
 class Conversation extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
         'task_id',
         'participants',
         'message_count',
         'last_message_at',
+        'matrix_room_id',
     ];
 
     protected $casts = [
@@ -44,7 +46,7 @@ class Conversation extends Model
     public function addParticipant(string $actorId): void
     {
         $participants = $this->participants ?? [];
-        if (!in_array($actorId, $participants)) {
+        if (! in_array($actorId, $participants)) {
             $participants[] = $actorId;
             $this->participants = $participants;
             $this->save();
@@ -61,4 +63,3 @@ class Conversation extends Model
         $this->save();
     }
 }
-

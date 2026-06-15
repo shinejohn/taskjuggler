@@ -1,0 +1,13 @@
+services:
+  dendrite:
+    image: matrixdotorg/dendrite-monolith:latest
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./config:/etc/dendrite
+      - dendrite_data:/var/lib/dendrite
+    environment:
+      DENDRITE_SERVER_NAME: localhost
+
+volumes:
+  dendrite_data:

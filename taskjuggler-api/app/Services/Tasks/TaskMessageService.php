@@ -2,19 +2,21 @@
 
 namespace App\Services\Tasks;
 
+use App\Jobs\MirrorMessageToMatrix;
 use App\Models\Task;
 use App\Models\TaskMessage;
 use App\Models\User;
+use App\Modules\Communications\Services\MatrixService;
 use App\Services\MessageRouter\MessageRouter;
 use App\Services\Notifications\NotificationService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class TaskMessageService
 {
     public function __construct(
         private NotificationService $notifications,
-        private ?MessageRouter $messageRouter = null
+        private ?MessageRouter $messageRouter = null,
+        private ?MatrixService $matrixService = null
     ) {}
 
     /**
@@ -43,6 +45,10 @@ class TaskMessageService
 
         // Notify other participants
         $this->notifyParticipants($task, $message, $sender);
+
+        if ($this->matrixService?->isEnabled()) {
+            MirrorMessageToMatrix::dispatch($message->id);
+        }
 
         return $message;
     }
@@ -74,7 +80,7 @@ class TaskMessageService
             ->where('user_id', $user->id)
             ->value('last_read_at');
 
-        if (!$lastRead) {
+        if (! $lastRead) {
             return $task->messages()->count();
         }
 
@@ -90,13 +96,13 @@ class TaskMessageService
     public function markAsRead(Task $task, User $user, ?TaskMessage $upToMessage = null): void
     {
         $messageId = $upToMessage?->id ?? $task->messages()->latest()->value('id');
-        
+
         // Check if record exists
         $existing = DB::table('task_message_reads')
             ->where('task_id', $task->id)
             ->where('user_id', $user->id)
             ->first();
-        
+
         if ($existing) {
             // Update existing
             DB::table('task_message_reads')

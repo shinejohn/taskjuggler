@@ -2,15 +2,19 @@
 
 namespace App\Modules\Core\Controllers;
 
-use App\Modules\Core\Traits\ApiResponses;
-use App\Modules\Core\Models\Profile;
+use App\Jobs\RegisterMatrixUser;
 use App\Models\User;
+use App\Modules\Communications\Services\MatrixService;
+use App\Modules\Core\Models\Profile;
+use App\Modules\Core\Services\ModuleEntitlementService;
+use App\Modules\Core\Traits\ApiResponses;
+use App\Modules\Urpa\Models\UrpaTaskjugglerLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -30,15 +34,16 @@ class AuthController extends \App\Http\Controllers\Controller
             ]);
         } catch (ValidationException $e) {
             // Re-throw validation exceptions so Laravel handles them properly
-            \Log::error('Validation failed: ' . json_encode($e->errors()));
+            \Log::error('Validation failed: '.json_encode($e->errors()));
             throw $e;
         } catch (\Exception $e) {
-            \Log::error('Registration error: ' . $e->getMessage(), [
+            \Log::error('Registration error: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-            return $this->error('Registration failed: ' . $e->getMessage(), 500);
+
+            return $this->error('Registration failed: '.$e->getMessage(), 500);
         }
 
         try {
@@ -64,7 +69,7 @@ class AuthController extends \App\Http\Controllers\Controller
                     // Set current_profile_id on user
                     $user->update(['current_profile_id' => $profile->id]);
                 } catch (\Exception $e) {
-                    Log::warning('Could not create profile for new user: ' . $e->getMessage());
+                    Log::warning('Could not create profile for new user: '.$e->getMessage());
                 }
             }
 
@@ -72,15 +77,15 @@ class AuthController extends \App\Http\Controllers\Controller
             if (Schema::hasTable('teams')) {
                 try {
                     $team = \App\Modules\Core\Models\Team::create([
-                        'name' => $validated['name'] . "'s Team",
-                        'slug' => Str::slug($validated['name']) . '-' . uniqid(),
+                        'name' => $validated['name']."'s Team",
+                        'slug' => Str::slug($validated['name']).'-'.uniqid(),
                         'owner_id' => $user->id,
                         'created_by' => $user->id,
                     ]);
                     $team->addMember($user, true);
                     $user->update(['current_team_id' => $team->id]);
                 } catch (\Exception $e) {
-                    Log::warning('Could not create personal team for new user: ' . $e->getMessage());
+                    Log::warning('Could not create personal team for new user: '.$e->getMessage());
                 }
             }
 
@@ -90,26 +95,30 @@ class AuthController extends \App\Http\Controllers\Controller
             // Create token with app context in abilities
             $token = $user->createToken('auth-token', ['app_context' => $appContext])->plainTextToken;
 
+            $this->ensureUrpaTaskjugglerLink($user, $appContext);
+            $this->provisionMatrixUser($user);
+
             // Load profiles with user if table exists
             try {
                 if (Schema::hasTable('profiles')) {
                     $user->load('profiles');
                 }
             } catch (\Exception $e) {
-                Log::warning('Could not load profiles for user: ' . $e->getMessage());
+                Log::warning('Could not load profiles for user: '.$e->getMessage());
             }
 
             return $this->created([
-                'user' => $user,
+                'user' => $this->formatAuthUser($user),
                 'token' => $token,
             ], 'User registered successfully');
         } catch (\Exception $e) {
-            \Log::error('Registration error: ' . $e->getMessage(), [
+            \Log::error('Registration error: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-            return $this->error('Registration failed: ' . $e->getMessage(), 500);
+
+            return $this->error('Registration failed: '.$e->getMessage(), 500);
         }
     }
 
@@ -123,7 +132,7 @@ class AuthController extends \App\Http\Controllers\Controller
 
             $user = User::where('email', $request->email)->first();
 
-            if (!$user || !Hash::check($request->password, $user->password)) {
+            if (! $user || ! Hash::check($request->password, $user->password)) {
                 throw ValidationException::withMessages([
                     'email' => ['The provided credentials are incorrect.'],
                 ]);
@@ -135,6 +144,9 @@ class AuthController extends \App\Http\Controllers\Controller
             // Create token with app context in token name for reference and as ability
             $token = $user->createToken("auth-token-{$appContext}", ['app_context' => $appContext])->plainTextToken;
 
+            $this->ensureUrpaTaskjugglerLink($user, $appContext);
+            $this->provisionMatrixUser($user);
+
             // Load profiles if table exists, otherwise skip
             try {
                 if (Schema::hasTable('profiles')) {
@@ -142,22 +154,23 @@ class AuthController extends \App\Http\Controllers\Controller
                 }
             } catch (\Exception $e) {
                 // Profiles table doesn't exist or relationship fails - continue without it
-                Log::warning('Could not load profiles for user: ' . $e->getMessage());
+                Log::warning('Could not load profiles for user: '.$e->getMessage());
             }
 
             return $this->success([
-                'user' => $user,
+                'user' => $this->formatAuthUser($user),
                 'token' => $token,
             ], 'Logged in successfully');
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
-            Log::error('Login error: ' . $e->getMessage(), [
+            Log::error('Login error: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-            return $this->error('Login failed: ' . $e->getMessage(), 500);
+
+            return $this->error('Login failed: '.$e->getMessage(), 500);
         }
     }
 
@@ -171,7 +184,8 @@ class AuthController extends \App\Http\Controllers\Controller
     public function user(Request $request)
     {
         $user = $request->user()->load('profiles');
-        return $this->success($user, 'User retrieved successfully');
+
+        return $this->success($this->formatAuthUser($user), 'User retrieved successfully');
     }
 
     /**
@@ -183,7 +197,7 @@ class AuthController extends \App\Http\Controllers\Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'sometimes|required|email|max:255|unique:users,email,'.$user->id,
             'phone' => 'nullable|string|max:20',
             'timezone' => 'nullable|string|max:50',
             'avatar_url' => 'nullable|string|max:2048',
@@ -219,7 +233,7 @@ class AuthController extends \App\Http\Controllers\Controller
     {
         $clientId = config('services.google.client_id');
 
-        if (!$clientId) {
+        if (! $clientId) {
             return $this->error('Google OAuth is not configured', 503);
         }
 
@@ -239,7 +253,7 @@ class AuthController extends \App\Http\Controllers\Controller
             'prompt' => 'consent',
         ]);
 
-        $url = 'https://accounts.google.com/o/oauth2/v2/auth?' . $params;
+        $url = 'https://accounts.google.com/o/oauth2/v2/auth?'.$params;
 
         return $this->success(['url' => $url], 'Google OAuth URL generated');
     }
@@ -253,13 +267,13 @@ class AuthController extends \App\Http\Controllers\Controller
         $state = $request->get('state');
 
         // Verify state
-        if (!$state || $state !== $request->session()->get('oauth_state')) {
+        if (! $state || $state !== $request->session()->get('oauth_state')) {
             return $this->error('Invalid state parameter', 400);
         }
 
         $request->session()->forget('oauth_state');
 
-        if (!$code) {
+        if (! $code) {
             return $this->error('Authorization code not provided', 400);
         }
 
@@ -276,8 +290,9 @@ class AuthController extends \App\Http\Controllers\Controller
             'grant_type' => 'authorization_code',
         ]);
 
-        if (!$tokenResponse->successful()) {
+        if (! $tokenResponse->successful()) {
             Log::error('Google OAuth token exchange failed', ['response' => $tokenResponse->body()]);
+
             return $this->error('Failed to exchange authorization code', 500);
         }
 
@@ -287,8 +302,9 @@ class AuthController extends \App\Http\Controllers\Controller
         // Get user info from Google
         $userResponse = Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v2/userinfo');
 
-        if (!$userResponse->successful()) {
+        if (! $userResponse->successful()) {
             Log::error('Google user info fetch failed', ['response' => $userResponse->body()]);
+
             return $this->error('Failed to fetch user information', 500);
         }
 
@@ -297,7 +313,7 @@ class AuthController extends \App\Http\Controllers\Controller
         // Find or create user
         $user = User::where('email', $googleUser['email'])->first();
 
-        if (!$user) {
+        if (! $user) {
             // Create new user
             $user = User::create([
                 'name' => $googleUser['name'] ?? $googleUser['email'],
@@ -326,9 +342,11 @@ class AuthController extends \App\Http\Controllers\Controller
 
         $token = $user->createToken("auth-token-{$appContext}")->plainTextToken;
         $user->load('profiles');
+        $this->ensureUrpaTaskjugglerLink($user, $appContext);
+        $this->provisionMatrixUser($user);
 
         return $this->success([
-            'user' => $user,
+            'user' => $this->formatAuthUser($user),
             'token' => $token,
         ], 'Logged in successfully with Google');
     }
@@ -379,5 +397,45 @@ class AuthController extends \App\Http\Controllers\Controller
 
         return $this->error('Unable to reset password. The token may be invalid or expired.', 400);
     }
-}
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function formatAuthUser(User $user): array
+    {
+        $data = $user->toArray();
+        $data['enabled_modules'] = app(ModuleEntitlementService::class)
+            ->getEnabledMobileModuleIds($user);
+
+        return $data;
+    }
+
+    private function ensureUrpaTaskjugglerLink(User $user, string $appContext): void
+    {
+        if (! in_array($appContext, ['urpa', 'fibonacco'], true)) {
+            return;
+        }
+
+        if (! Schema::hasTable('urpa_taskjuggler_link')) {
+            return;
+        }
+
+        UrpaTaskjugglerLink::updateOrCreate(
+            ['urpa_user_id' => $user->id],
+            [
+                'taskjuggler_user_id' => $user->id,
+                'sync_tasks' => true,
+                'sync_projects' => true,
+                'auto_create_tasks' => true,
+                'urpa_originated' => true,
+            ]
+        );
+    }
+
+    private function provisionMatrixUser(User $user): void
+    {
+        if (app(MatrixService::class)->isEnabled()) {
+            RegisterMatrixUser::dispatch($user->id);
+        }
+    }
+}
