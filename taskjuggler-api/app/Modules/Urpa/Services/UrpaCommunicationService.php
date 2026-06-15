@@ -2,15 +2,15 @@
 
 namespace App\Modules\Urpa\Services;
 
-use App\Modules\Communications\Services\AwsConnectService;
-use App\Modules\Communications\Services\AwsSmsService;
-use App\Modules\Communications\Services\AwsS3Service;
-use App\Modules\Communications\Services\AwsTranscribeService;
-use App\Modules\Communications\Models\CommunicationCall;
-use App\Modules\Communications\Models\CommunicationSms;
-use App\Modules\Urpa\Models\UrpaPhoneCall;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
+use App\Modules\Communications\Models\CommunicationCall;
+use App\Modules\Communications\Services\AwsConnectService;
+use App\Modules\Communications\Services\AwsS3Service;
+use App\Modules\Communications\Services\AwsSmsService;
+use App\Modules\Communications\Services\AwsTranscribeService;
+use App\Modules\Urpa\Models\UrpaPhoneCall;
+use App\Services\IdeaCircuit\LiveKitService;
+use Illuminate\Support\Str;
 
 class UrpaCommunicationService
 {
@@ -18,17 +18,26 @@ class UrpaCommunicationService
         private AwsConnectService $connectService,
         private AwsSmsService $smsService,
         private AwsS3Service $s3Service,
-        private AwsTranscribeService $transcribeService
+        private AwsTranscribeService $transcribeService,
+        private PipecatBridgeService $pipecatBridge,
+        private LiveKitService $liveKit
     ) {}
 
     /**
-     * Initiate a call for URPA user
+     * Initiate a call for URPA user (Pipecat/LiveKit when enabled, else AWS Connect)
      */
     public function initiateCall(User $user, string $to, array $config = []): array
     {
+        $useAi = $config['use_ai'] ?? false;
+        $assistantId = $config['assistant_id'] ?? null;
+
+        if ($useAi && $assistantId && $this->pipecatBridge->shouldReplaceVapi()) {
+            return $this->initiatePipecatCall($user, $to, $assistantId, $config);
+        }
+
         $from = $config['from'] ?? $user->urpaProfile->phone_number ?? null;
-        
-        if (!$from) {
+
+        if (! $from) {
             throw new \Exception('No phone number configured for user');
         }
 
@@ -36,7 +45,6 @@ class UrpaCommunicationService
             'user_id' => $user->id,
         ]));
 
-        // Create URPA phone call record linked to communication call
         $urpaCall = UrpaPhoneCall::create([
             'user_id' => $user->id,
             'communication_call_id' => $result['call_id'],
@@ -44,14 +52,60 @@ class UrpaCommunicationService
             'caller_number' => $from,
             'callee_number' => $to,
             'status' => 'initiated',
-            'handled_by_ai' => $config['use_ai'] ?? false,
+            'handled_by_ai' => $useAi,
             'started_at' => now(),
         ]);
 
         return [
+            'provider' => 'aws_connect',
             'urpa_call_id' => $urpaCall->id,
             'communication_call_id' => $result['call_id'],
             'contact_id' => $result['contact_id'],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $config
+     * @return array<string, mixed>
+     */
+    private function initiatePipecatCall(User $user, string $to, string $assistantId, array $config): array
+    {
+        $roomName = 'urpa-call-'.Str::replace('-', '', (string) Str::uuid());
+
+        $session = $this->pipecatBridge->startVoiceSession([
+            'room_name' => $roomName,
+            'customer_number' => $to,
+            'user_id' => $user->id,
+            'assistant_id' => $assistantId,
+            'metadata' => array_merge($config['metadata'] ?? [], ['user_id' => $user->id]),
+            'livekit' => $this->liveKit->isEnabled()
+                ? $this->liveKit->agentJoinCredentials($roomName)
+                : null,
+        ]);
+
+        $urpaCall = UrpaPhoneCall::create([
+            'user_id' => $user->id,
+            'callee_number' => $to,
+            'direction' => 'outbound',
+            'status' => 'initiated',
+            'handled_by_ai' => true,
+            'vapi_assistant_id' => $assistantId,
+            'actions_taken' => [
+                'provider' => 'pipecat',
+                'room_name' => $roomName,
+                'session' => $session,
+            ],
+            'started_at' => now(),
+        ]);
+
+        return [
+            'provider' => 'pipecat',
+            'urpa_call_id' => $urpaCall->id,
+            'room_name' => $roomName,
+            'livekit' => $this->liveKit->isEnabled()
+                ? $this->liveKit->agentJoinCredentials($roomName)
+                : null,
+            'session' => $session,
         ];
     }
 
@@ -61,10 +115,8 @@ class UrpaCommunicationService
     public function sendSms(User $user, string $to, string $message): array
     {
         $from = $user->urpaProfile->phone_number ?? null;
-        
-        $result = $this->smsService->sendSms($to, $message, $from);
 
-        return $result;
+        return $this->smsService->sendSms($to, $message, $from);
     }
 
     /**
@@ -111,7 +163,7 @@ class UrpaCommunicationService
         $transcriptions = [];
         foreach ($calls as $call) {
             $transcription = $this->transcribeService->getTranscription($call->transcription_id);
-            
+
             if ($transcription) {
                 $transcriptions[] = [
                     'call_id' => $call->id,
@@ -136,4 +188,3 @@ class UrpaCommunicationService
         ]);
     }
 }
-

@@ -85,6 +85,18 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/messages',
+      name: 'messages',
+      component: () => import('@/pages/MessagesPage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/messages/:userId',
+      name: 'direct-message',
+      component: () => import('@/pages/DirectMessagePage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/webhooks',
       name: 'webhooks',
       component: () => import('@/pages/Webhooks.vue'),

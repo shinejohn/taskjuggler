@@ -24,7 +24,7 @@ final class PipecatBridgeService
     /**
      * Start a voice session on the Pipecat agent (LiveKit room + STT/LLM/TTS pipeline).
      *
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      * @return array<string, mixed>
      */
     public function startVoiceSession(array $config): array
@@ -43,6 +43,7 @@ final class PipecatBridgeService
                 'user_id' => $config['user_id'] ?? null,
                 'assistant_id' => $config['assistant_id'] ?? null,
                 'metadata' => $config['metadata'] ?? [],
+                'livekit' => $config['livekit'] ?? null,
             ]);
 
         if ($response->failed()) {

@@ -111,11 +111,11 @@ done
 # Edit before ./ship.sh --use-manifest when the batch changes.
 if [[ "$USE_MANIFEST" == true ]]; then
     COMMIT_MSG=$(cat <<'SHIP_MANIFEST_EOF'
-feat: comms stack — Matrix SDK, LiveKit video, Pipecat voice scaffold
+feat: deploy comms infra on Railway + URPA Matrix + Pipecat pipeline
 
-Matrix: DM rooms, matrix-js-sdk in taskjuggler-web, webhook sync.
-LiveKit: JWT tokens, IdeaCircuit VideoCall, join/end API.
-Pipecat: agent service scaffold, URPA routes to Pipecat when PIPECAT_REPLACE_VAPI=true.
+Railway: pipecat-agent, livekit-server, matrix-dendrite deployed with API env wired.
+URPA: Matrix messaging pages, Pipecat webhook, UrpaCommunicationService routing.
+LiveKit: remote participant video grid in IdeaCircuit.
 SHIP_MANIFEST_EOF
 )
 fi

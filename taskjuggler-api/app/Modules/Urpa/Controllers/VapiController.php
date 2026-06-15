@@ -48,6 +48,9 @@ final class VapiController extends Controller
                 'user_id' => $user->id,
                 'assistant_id' => $validated['assistant_id'],
                 'metadata' => $metadata,
+                'livekit' => $this->liveKit->isEnabled()
+                    ? $this->liveKit->agentJoinCredentials($roomName)
+                    : null,
             ]);
 
             UrpaPhoneCall::create([

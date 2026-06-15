@@ -10,12 +10,13 @@
     "start": "vite preview --host 0.0.0.0 --port ${PORT:-5173}"
   },
   "dependencies": {
-    "@taskjuggler/ui": "file:../shared-ui",
     "@headlessui/vue": "^1.7.23",
+    "@taskjuggler/ui": "file:../shared-ui",
     "autoprefixer": "^10.4.23",
     "axios": "^1.13.2",
     "laravel-echo": "^2.2.7",
     "lucide-vue-next": "^0.562.0",
+    "matrix-js-sdk": "^41.7.0",
     "pinia": "^3.0.4",
     "postcss": "^8.5.6",
     "pusher-js": "^8.4.0",

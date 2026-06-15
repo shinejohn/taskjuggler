@@ -4,7 +4,7 @@
     <div class="glass-subtle border-b border-border p-4 flex justify-between items-center">
       <h1 class="text-headline font-semibold text-text-primary">AI-Assisted Meeting</h1>
       <div class="flex space-x-2 items-center">
-        <span v-if="isConnected" class="px-3 py-1 bg-status-completed/10 text-status-completed rounded-full text-label font-medium border border-status-completed/30">
+        <span v-if="isConnected || videoConnected" class="px-3 py-1 bg-status-completed/10 text-status-completed rounded-full text-label font-medium border border-status-completed/30">
           Live
         </span>
         <span class="px-3 py-1 bg-bg-secondary text-text-secondary rounded-full text-label font-medium">

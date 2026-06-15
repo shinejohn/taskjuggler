@@ -13,7 +13,7 @@ export const useUiStore = defineStore('ui', () => {
     // Default Navigation Items
     const navItems = ref<NavItem[]>([
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, to: '/dashboard' },
-        { id: 'inbox', label: 'Inbox', icon: MessageSquare, to: '/dashboard' },
+        { id: 'inbox', label: 'Messages', icon: MessageSquare, to: '/messages' },
         { id: 'calendar', label: 'Calendar', icon: Calendar, to: '/dashboard' },
         { id: 'calls', label: 'Phone', icon: Phone, to: '/dashboard' },
         { id: 'settings', label: 'Settings', icon: Settings, to: '/profile' },

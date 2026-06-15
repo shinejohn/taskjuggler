@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Urpa\Controllers\ActivityController;
-use App\Modules\Urpa\Controllers\ContactController;
 use App\Modules\Urpa\Controllers\AiController;
-use App\Modules\Urpa\Controllers\VoiceController;
-use App\Modules\Urpa\Controllers\PhoneController;
-use App\Modules\Urpa\Controllers\IntegrationController;
-use App\Modules\Urpa\Controllers\TaskJugglerController;
+use App\Modules\Urpa\Controllers\ContactController;
 use App\Modules\Urpa\Controllers\FibonaccoController;
+use App\Modules\Urpa\Controllers\IntegrationController;
+use App\Modules\Urpa\Controllers\PhoneController;
+use App\Modules\Urpa\Controllers\TaskJugglerController;
+use App\Modules\Urpa\Controllers\VoiceController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ use App\Modules\Urpa\Controllers\FibonaccoController;
 */
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    
+
     // Activities
     Route::prefix('activities')->group(function () {
         Route::get('/', [ActivityController::class, 'index']);
@@ -68,6 +68,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 // Vapi webhook — outside auth:sanctum so Vapi can POST call events
 Route::post('/voice/vapi/webhook', [VoiceController::class, 'vapiWebhook']);
 
+// Pipecat agent session events
+Route::post('/voice/pipecat/webhook', [\App\Modules\Urpa\Controllers\PipecatWebhookController::class, 'handle']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
 
     // Vapi API endpoints
@@ -95,20 +98,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/{id}', [IntegrationController::class, 'destroy']);
         Route::post('/{id}/sync', [IntegrationController::class, 'sync']);
         Route::get('/{id}/sync-status', [IntegrationController::class, 'syncStatus']);
-        
+
         // Webhook registration
         Route::post('/webhooks', [IntegrationController::class, 'registerWebhook']);
         Route::get('/webhooks', [IntegrationController::class, 'listWebhooks']);
         Route::put('/webhooks/{id}', [IntegrationController::class, 'updateWebhook']);
         Route::delete('/webhooks/{id}', [IntegrationController::class, 'deleteWebhook']);
-        
+
         // Webhook events
         Route::prefix('webhooks/events')->group(function () {
             Route::get('/', [\App\Modules\Urpa\Controllers\WebhookEventController::class, 'index']);
             Route::get('/{id}', [\App\Modules\Urpa\Controllers\WebhookEventController::class, 'show']);
             Route::post('/{id}/retry', [\App\Modules\Urpa\Controllers\WebhookEventController::class, 'retry']);
         });
-        
+
         // OAuth flows
         Route::get('/oauth/{provider}/redirect', [IntegrationController::class, 'oauthRedirect']);
         Route::get('/oauth/{provider}/callback', [IntegrationController::class, 'oauthCallback']);
@@ -125,7 +128,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Fibonacco
         Route::prefix('fibonacco')->group(function () {
             Route::get('/status', [FibonaccoController::class, 'status']);
-            
+
             // CRM
             Route::prefix('crm')->group(function () {
                 Route::post('/link', [FibonaccoController::class, 'linkCrm']);
@@ -145,4 +148,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
     });
 });
-
