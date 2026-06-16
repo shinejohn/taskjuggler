@@ -9,7 +9,7 @@ Last updated: 2026-06-16. Tracks remaining work to reach production-ready state 
 | ai-tools-api | Production | Integration hub — all features |
 | livekit-server | wss://livekit-server-production-0f2e.up.railway.app | IdeaCircuit video, Pipecat voice |
 | pipecat-agent | https://pipecat-agent-production-d0f6.up.railway.app | URPA/4Calls AI voice |
-| matrix-dendrite | https://matrix-dendrite-production.up.railway.app | All messaging |
+| matrix-dendrite | https://matrix-dendrite-production.up.railway.app | All messaging | ✅ HTTP 200 |
 | openclaw-connector | https://openclaw-connector-production.up.railway.app | Telegram/WhatsApp/etc. |
 
 ## Phase Status
@@ -24,7 +24,7 @@ Last updated: 2026-06-16. Tracks remaining work to reach production-ready state 
 **Done:** MatrixService, webhooks, DM rooms, task room provisioning, matrix-js-sdk in taskjuggler-web + urpa-web, `/api/matrix/conversations`
 
 **Remaining:**
-- [ ] **Dendrite running on Railway** (blocker — config/key generation fix in progress)
+- [x] **Dendrite running on Railway** (generate-keys + generate-config fix)
 - [ ] `MATRIX_ADMIN_TOKEN` or verify open registration works for user provisioning
 - [ ] End-to-end test: register user → DM → webhook → DirectMessage row
 - [ ] Task-scoped Matrix rooms in taskjuggler-web UI (messages on task detail page)
