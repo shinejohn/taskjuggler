@@ -22,10 +22,12 @@ Route::prefix('communications/webhooks')->group(function () {
 
 // Matrix messaging (Phase 2 comms modernization)
 Route::post('/matrix/webhook', [MatrixWebhookController::class, 'handle']);
+Route::put('/matrix/webhook/transactions/{txnId}', [MatrixWebhookController::class, 'handleTransaction']);
 
 Route::middleware('auth:sanctum')->prefix('matrix')->group(function () {
     Route::get('/status', [MatrixController::class, 'status']);
     Route::get('/session', [MatrixController::class, 'session']);
     Route::get('/conversations', [MatrixController::class, 'conversations']);
     Route::get('/dm/{userId}', [MatrixController::class, 'directRoom']);
+    Route::get('/task/{taskId}', [MatrixController::class, 'taskRoom']);
 });

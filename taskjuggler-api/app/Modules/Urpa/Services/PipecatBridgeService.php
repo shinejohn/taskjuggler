@@ -42,6 +42,7 @@ final class PipecatBridgeService
                 'customer_number' => $config['customer_number'] ?? null,
                 'user_id' => $config['user_id'] ?? null,
                 'assistant_id' => $config['assistant_id'] ?? null,
+                'system_prompt' => $config['system_prompt'] ?? null,
                 'metadata' => $config['metadata'] ?? [],
                 'livekit' => $config['livekit'] ?? null,
             ]);
@@ -55,6 +56,19 @@ final class PipecatBridgeService
         }
 
         return $response->json();
+    }
+
+    public function stopVoiceSession(string $sessionId): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        $url = rtrim((string) config('pipecat.agent_url'), '/');
+
+        Http::timeout(15)
+            ->withHeaders($this->authHeaders())
+            ->post("{$url}/v1/sessions/{$sessionId}/stop");
     }
 
     /**

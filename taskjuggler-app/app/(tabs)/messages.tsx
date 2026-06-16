@@ -1,10 +1,9 @@
 import { View, Text, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { useMessagesStore } from '../stores/messages';
-import { showToast } from '../utils/toast';
+import { useMessagesStore } from '../../stores/messages';
 
-export default function MessagesScreen() {
+export default function MessagesTabScreen() {
   const router = useRouter();
   const { conversations, loading, fetchConversations, fetchDirectUnreadCount } = useMessagesStore();
   const [refreshing, setRefreshing] = useState(false);
@@ -52,7 +51,6 @@ export default function MessagesScreen() {
           </View>
         ) : conversations.length === 0 ? (
           <View className="py-12 items-center">
-            <Text className="text-4xl mb-4">💬</Text>
             <Text className="text-lg font-semibold text-gray-700 mb-2">No conversations yet</Text>
             <Text className="text-gray-500 text-center">Start messaging someone!</Text>
           </View>
@@ -63,6 +61,8 @@ export default function MessagesScreen() {
                 key={conv.user.id}
                 className="bg-white rounded-lg p-4 shadow-sm"
                 onPress={() => router.push(`/messages/${conv.user.id}`)}
+                accessibilityRole="button"
+                accessibilityLabel={`Open conversation with ${conv.user.name}`}
               >
                 <View className="flex-row items-center gap-3">
                   <View className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center">
@@ -79,7 +79,7 @@ export default function MessagesScreen() {
                         </View>
                       )}
                     </View>
-                    <Text className="text-sm text-gray-600 truncate" numberOfLines={1}>
+                    <Text className="text-sm text-gray-600" numberOfLines={1}>
                       {conv.last_message.content}
                     </Text>
                     <Text className="text-xs text-gray-400 mt-1">

@@ -85,9 +85,13 @@ final class MatrixServiceTest extends TestCase
             'https://matrix.test/_matrix/client/v3/createRoom' => Http::response([
                 'room_id' => '!room123:matrix.test',
             ], 200),
+            'https://matrix.test/_matrix/client/v3/rooms/*' => Http::response([], 200),
         ]);
 
-        $task = Task::factory()->create(['requestor_id' => $this->user->id]);
+        $task = Task::factory()->create([
+            'requestor_id' => $this->user->id,
+            'owner_id' => $this->user->id,
+        ]);
         $roomId = app(MatrixService::class)->ensureTaskRoom($task);
 
         $this->assertSame('!room123:matrix.test', $roomId);
@@ -146,5 +150,84 @@ final class MatrixServiceTest extends TestCase
             'source_channel' => 'matrix',
             'source_channel_ref' => '$evt123',
         ]);
+    }
+
+    public function test_appservice_transaction_creates_task_message(): void
+    {
+        $task = Task::factory()->create(['requestor_id' => $this->user->id]);
+        Conversation::create([
+            'task_id' => $task->id,
+            'participants' => [$this->user->id],
+            'matrix_room_id' => '!room456:matrix.test',
+        ]);
+
+        MatrixAccount::create([
+            'user_id' => $this->user->id,
+            'matrix_user_id' => '@tj-test:fibonacco.ai',
+            'access_token' => 'token',
+            'provisioned_at' => now(),
+        ]);
+
+        Config::set('matrix.appservice_token', 'as-token-test');
+
+        $response = $this->putJson('/api/matrix/webhook/transactions/txn-001', [
+            'events' => [[
+                'type' => 'm.room.message',
+                'event_id' => '$evt456',
+                'room_id' => '!room456:matrix.test',
+                'sender' => '@tj-test:fibonacco.ai',
+                'content' => ['body' => 'AS transaction message'],
+            ]],
+        ], ['Authorization' => 'Bearer as-token-test']);
+
+        $response->assertOk();
+        $this->assertDatabaseHas('task_messages', [
+            'task_id' => $task->id,
+            'content' => 'AS transaction message',
+            'source_channel_ref' => '$evt456',
+        ]);
+    }
+
+    public function test_appservice_transaction_rejects_invalid_token(): void
+    {
+        Config::set('matrix.enabled', true);
+        Config::set('matrix.appservice_token', 'as-token-test');
+
+        $response = $this->putJson('/api/matrix/webhook/transactions/txn-002', [
+            'events' => [],
+        ], ['Authorization' => 'Bearer wrong-token']);
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_task_room_endpoint(): void
+    {
+        Config::set('matrix.enabled', true);
+        Config::set('matrix.homeserver_url', 'https://matrix.test');
+        Config::set('matrix.server_name', 'fibonacco.ai');
+
+        MatrixAccount::create([
+            'user_id' => $this->user->id,
+            'matrix_user_id' => '@tj-test:fibonacco.ai',
+            'access_token' => 'syt_test_token',
+            'provisioned_at' => now(),
+        ]);
+
+        Http::fake([
+            'https://matrix.test/_matrix/client/v3/createRoom' => Http::response([
+                'room_id' => '!taskroom:matrix.test',
+            ], 200),
+            'https://matrix.test/_matrix/client/v3/rooms/*' => Http::response([], 200),
+        ]);
+
+        $task = Task::factory()->create([
+            'requestor_id' => $this->user->id,
+            'owner_id' => $this->user->id,
+        ]);
+
+        $response = $this->getJson("/api/matrix/task/{$task->id}");
+
+        $response->assertOk();
+        $response->assertJsonPath('data.room_id', '!taskroom:matrix.test');
     }
 }

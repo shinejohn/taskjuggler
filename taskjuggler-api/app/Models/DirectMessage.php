@@ -16,6 +16,7 @@ class DirectMessage extends Model
         'recipient_id',
         'content',
         'read_at',
+        'source_channel_ref',
     ];
 
     protected $casts = [

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import api from '@/utils/api';
 import { initializeEcho } from '@/utils/echo';
+import { useMatrix } from '@/composables/useMatrix';
 import type { User } from '@/types';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -68,6 +69,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
+    useMatrix().resetSession();
     user.value = null;
     token.value = null;
     localStorage.removeItem('token');

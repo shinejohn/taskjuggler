@@ -75,7 +75,8 @@ Route::post('/voice/pipecat/webhook', [\App\Modules\Urpa\Controllers\PipecatWebh
 Route::post('/channels/message', [\App\Modules\Urpa\Controllers\ChannelMessageController::class, 'ingest']);
 
 // Twilio inbound voice
-Route::post('/voice/twilio/inbound', [\App\Modules\Urpa\Controllers\TwilioVoiceController::class, 'inbound']);
+Route::post('/voice/twilio/inbound', [\App\Modules\Urpa\Controllers\TwilioVoiceController::class, 'inbound'])
+    ->middleware('twilio.signature');
 
 Route::middleware(['auth:sanctum'])->group(function () {
 

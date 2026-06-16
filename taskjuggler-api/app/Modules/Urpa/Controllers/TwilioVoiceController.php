@@ -5,23 +5,24 @@ declare(strict_types=1);
 namespace App\Modules\Urpa\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Modules\Urpa\Models\UrpaPhoneCall;
 use App\Modules\Urpa\Models\UrpaUserProfile;
+use App\Modules\Urpa\Services\ContextBuilderService;
 use App\Modules\Urpa\Services\PipecatBridgeService;
-use App\Services\IdeaCircuit\LiveKitService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
 /**
- * Twilio voice webhooks — routes inbound calls to Pipecat/LiveKit when enabled.
+ * Twilio voice webhooks — routes inbound calls to Pipecat when enabled.
  */
 final class TwilioVoiceController extends Controller
 {
     public function __construct(
         private PipecatBridgeService $pipecatBridge,
-        private LiveKitService $liveKit
+        private ContextBuilderService $contextBuilder
     ) {}
 
     /**
@@ -33,17 +34,24 @@ final class TwilioVoiceController extends Controller
         $to = $request->input('To', '');
         $callSid = $request->input('CallSid', '');
 
-        if ($this->pipecatBridge->shouldReplaceVapi() && $this->liveKit->isEnabled()) {
+        if ($this->pipecatBridge->shouldReplaceVapi()) {
             $roomName = 'urpa-inbound-'.Str::replace('-', '', (string) Str::uuid());
+            $userId = UrpaUserProfile::where('phone_number', $to)->value('user_id');
+            $systemPrompt = $this->buildSystemPrompt($userId);
 
             $session = $this->pipecatBridge->startVoiceSession([
                 'room_name' => $roomName,
                 'customer_number' => $from,
-                'metadata' => ['direction' => 'inbound', 'twilio_call_sid' => $callSid, 'to' => $to],
-                'livekit' => $this->liveKit->agentJoinCredentials($roomName),
+                'user_id' => $userId,
+                'system_prompt' => $systemPrompt,
+                'metadata' => [
+                    'direction' => 'inbound',
+                    'twilio_call_sid' => $callSid,
+                    'to' => $to,
+                ],
             ]);
 
-            $userId = UrpaUserProfile::where('phone_number', $to)->value('user_id');
+            $sessionId = is_string($session['session_id'] ?? null) ? $session['session_id'] : '';
 
             if ($userId) {
                 UrpaPhoneCall::create([
@@ -63,10 +71,19 @@ final class TwilioVoiceController extends Controller
                 ]);
             }
 
-            // TwiML: connect caller audio stream to LiveKit SIP bridge (future) or hold message
+            $agentUrl = rtrim((string) config('pipecat.agent_url'), '/');
+            $streamUrl = str_replace(['https://', 'http://'], ['wss://', 'ws://'], $agentUrl)
+                .'/ws/twilio';
+
             $twiml = '<?xml version="1.0" encoding="UTF-8"?>'
-                .'<Response><Say voice="Polly.Joanna">Connecting you to your AI assistant.</Say>'
-                .'<Pause length="60"/></Response>';
+                .'<Response>'
+                .'<Connect>'
+                .'<Stream url="'.htmlspecialchars($streamUrl, ENT_XML1).'">'
+                .'<Parameter name="session_id" value="'.htmlspecialchars($sessionId, ENT_XML1).'" />'
+                .'<Parameter name="room_name" value="'.htmlspecialchars($roomName, ENT_XML1).'" />'
+                .'</Stream>'
+                .'</Connect>'
+                .'</Response>';
 
             return response($twiml, 200)->header('Content-Type', 'text/xml');
         }
@@ -75,5 +92,21 @@ final class TwilioVoiceController extends Controller
             .'<Response><Say voice="Polly.Joanna">URPA voice is not configured. Please try again later.</Say></Response>';
 
         return response($twiml, 200)->header('Content-Type', 'text/xml');
+    }
+
+    private function buildSystemPrompt(?string $userId): string
+    {
+        if (! $userId) {
+            return 'You are URPA, a concise AI phone assistant. Keep responses under 2 sentences.';
+        }
+
+        $user = User::find($userId);
+        if (! $user) {
+            return 'You are URPA, a concise AI phone assistant. Keep responses under 2 sentences.';
+        }
+
+        $context = $this->contextBuilder->buildCallContext($user);
+
+        return $this->contextBuilder->buildSystemPrompt($user, $context);
     }
 }

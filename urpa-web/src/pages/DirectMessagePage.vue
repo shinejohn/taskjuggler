@@ -146,7 +146,7 @@ async function loadUser(userId: string) {
 
 async function loadLegacyMessages(userId: string) {
   try {
-    const response = await api.get(`/messages/direct/${userId}`);
+    const response = await api.get(`/messages/with/${userId}`);
     const data = response.data?.data ?? response.data;
     const messages = Array.isArray(data) ? data : data?.messages ?? [];
     legacyMessages.value = messages.map((m: { id: string; sender_id: string; content: string; created_at: string }) => ({
@@ -172,7 +172,7 @@ async function sendMessage() {
     if (useMatrixChat.value && matrixRoomId.value) {
       await sendRoomMessage(matrixRoomId.value, text);
     } else {
-      await api.post(`/messages/direct/${route.params.userId}`, { content: text });
+      await api.post(`/messages/to/${route.params.userId}`, { content: text });
       legacyMessages.value = [
         ...legacyMessages.value,
         {

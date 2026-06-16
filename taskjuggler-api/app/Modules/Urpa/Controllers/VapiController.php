@@ -93,13 +93,28 @@ final class VapiController extends Controller
      */
     public function endCall(Request $request, string $callId): JsonResponse
     {
-        $phoneCall = UrpaPhoneCall::where('vapi_call_id', $callId)
-            ->orWhere('id', $callId)
-            ->where('user_id', $request->user()->id)
+        $userId = $request->user()->id;
+
+        $phoneCall = UrpaPhoneCall::query()
+            ->where('user_id', $userId)
+            ->where(function ($query) use ($callId) {
+                $query->where('vapi_call_id', $callId)
+                    ->orWhere('id', $callId);
+            })
             ->firstOrFail();
 
         if (($phoneCall->actions_taken['provider'] ?? 'vapi') === 'pipecat') {
             $roomName = $phoneCall->actions_taken['room_name'] ?? null;
+            $sessionId = $phoneCall->actions_taken['session']['session_id'] ?? null;
+
+            if ($sessionId) {
+                try {
+                    $this->pipecatBridge->stopVoiceSession($sessionId);
+                } catch (\Throwable) {
+                    Log::warning('Failed to stop Pipecat session', ['session_id' => $sessionId]);
+                }
+            }
+
             if ($roomName && $this->liveKit->isEnabled()) {
                 try {
                     $this->liveKit->deleteRoom($roomName);
@@ -138,9 +153,14 @@ final class VapiController extends Controller
      */
     public function getCallStatus(Request $request, string $callId): JsonResponse
     {
-        $phoneCall = UrpaPhoneCall::where('vapi_call_id', $callId)
-            ->orWhere('id', $callId)
-            ->where('user_id', $request->user()->id)
+        $userId = $request->user()->id;
+
+        $phoneCall = UrpaPhoneCall::query()
+            ->where('user_id', $userId)
+            ->where(function ($query) use ($callId) {
+                $query->where('vapi_call_id', $callId)
+                    ->orWhere('id', $callId);
+            })
             ->firstOrFail();
 
         return response()->json($phoneCall);

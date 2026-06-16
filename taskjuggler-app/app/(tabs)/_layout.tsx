@@ -3,18 +3,21 @@ import { useInboxStore } from '../../stores/inbox';
 import { useTasksStore } from '../../stores/tasks';
 import { useModulesStore } from '../../stores/modules';
 import { useAuthStore } from '../../stores/auth';
+import { useMessagesStore } from '../../stores/messages';
 import { useEffect } from 'react';
-import { Home, CheckSquare, Inbox, Settings } from 'lucide-react-native';
+import { Home, CheckSquare, Inbox, MessageCircle, Settings } from 'lucide-react-native';
 
 export default function TabLayout() {
   const { inboxItems, fetchInboxItems } = useInboxStore();
   const { tasks, fetchTasks } = useTasksStore();
   const { setEnabledModuleIds } = useModulesStore();
   const { user } = useAuthStore();
+  const { directUnreadCount, fetchDirectUnreadCount } = useMessagesStore();
 
   useEffect(() => {
     fetchInboxItems();
     fetchTasks();
+    fetchDirectUnreadCount();
   }, []);
 
   useEffect(() => {
@@ -67,6 +70,21 @@ export default function TabLayout() {
               : undefined,
           tabBarIcon: ({ color, size }) => (
             <Inbox color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="messages"
+        options={{
+          title: 'Messages',
+          tabBarBadge:
+            directUnreadCount > 0
+              ? directUnreadCount > 9
+                ? '9+'
+                : directUnreadCount
+              : undefined,
+          tabBarIcon: ({ color, size }) => (
+            <MessageCircle color={color} size={size} />
           ),
         }}
       />

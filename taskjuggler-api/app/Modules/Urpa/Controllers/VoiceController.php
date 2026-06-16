@@ -138,6 +138,16 @@ class VoiceController extends Controller
      */
     public function vapiWebhook(Request $request): JsonResponse
     {
+        $secret = config('services.vapi.webhook_secret');
+        if (is_string($secret) && $secret !== '') {
+            $provided = $request->header('X-Vapi-Secret', $request->input('secret', ''));
+            if (! hash_equals($secret, (string) $provided)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+        } elseif (app()->isProduction()) {
+            return response()->json(['error' => 'Webhook secret not configured'], 503);
+        }
+
         $event = $request->all();
         Log::info('Vapi webhook received', ['event' => $event]);
 

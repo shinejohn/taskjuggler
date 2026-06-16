@@ -23,3 +23,7 @@ Thumbs.db
 .env.*.local
 node_modules
 magic/
+
+# Python
+__pycache__/
+.venv/

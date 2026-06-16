@@ -12,6 +12,8 @@ class UrpaPhoneCall extends Model
 {
     use HasUuids, HasFactory;
 
+    public $timestamps = false;
+
     protected $table = 'urpa_phone_calls';
 
     protected $fillable = [

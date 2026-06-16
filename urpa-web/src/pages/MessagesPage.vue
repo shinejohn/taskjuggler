@@ -59,7 +59,7 @@ interface Conversation {
   unread_count: number;
 }
 
-const { loadSession, isEnabled } = useMatrix();
+const { loadSession, isEnabled, isProvisioned, loadConversations } = useMatrix();
 const matrixEnabled = ref(false);
 const loading = ref(true);
 const conversations = ref<Conversation[]>([]);
@@ -68,14 +68,18 @@ onMounted(async () => {
   const session = await loadSession();
   matrixEnabled.value = isEnabled.value && session.provisioned === true;
 
-  try {
-    const response = await api.get('/messages/conversations');
-    const data = response.data?.data ?? response.data;
-    conversations.value = Array.isArray(data) ? data : data?.conversations ?? [];
-  } catch {
-    conversations.value = [];
-  } finally {
-    loading.value = false;
+  if (isProvisioned.value) {
+    conversations.value = await loadConversations();
+  } else {
+    try {
+      const response = await api.get('/messages/conversations');
+      const data = response.data?.data ?? response.data;
+      conversations.value = Array.isArray(data) ? data : data?.conversations ?? [];
+    } catch {
+      conversations.value = [];
+    }
   }
+
+  loading.value = false;
 });
 </script>

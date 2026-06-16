@@ -19,7 +19,11 @@
         </div>
         <!-- Presenter (middle) -->
         <div class="h-1/3 mb-2">
-          <Presenter :is-video-off="isVideoOff" />
+          <MeetingVideoPanel
+            ref="videoPanelRef"
+            :meeting-id="meetingId"
+            :is-video-off="isVideoOff"
+          />
         </div>
         <!-- Voice Controls (bottom) -->
         <div class="flex-1">
@@ -84,15 +88,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { VideoIcon, MessageCircleIcon, MicIcon } from 'lucide-vue-next';
-import Presenter from '@/components/Presenter.vue';
+import MeetingVideoPanel from '@/components/MeetingVideoPanel.vue';
 import Facilitator from '@/components/Facilitator.vue';
 import Participants from '@/components/Participants.vue';
 import BusinessProfileForm from '@/components/BusinessProfileForm.vue';
 import ExpandableChat from '@/components/ExpandableChat.vue';
 import VoiceControls from '@/components/VoiceControls.vue';
 import NavigationMenu from '@/components/NavigationMenu.vue';
+import { useIdeacircuitMeeting } from '@/composables/useIdeacircuitMeeting';
+
+const { meetingId } = useIdeacircuitMeeting('Business Profile', 'presentation');
+const videoPanelRef = ref<InstanceType<typeof MeetingVideoPanel> | null>(null);
 
 const isMuted = ref(false);
 const isVideoOff = ref(false);
@@ -101,41 +109,16 @@ const isListening = ref(false);
 const transcript = ref('');
 const isFacilitatorPresent = ref(true);
 
-const messages = ref([
-  {
-    sender: 'AI Assistant',
-    text: 'Welcome to the business profile analysis. How can I help you understand this company better?',
-    isAI: true
-  },
-  {
-    sender: 'You',
-    text: 'Can you tell me more about their financial performance?',
-    isAI: false
-  },
-  {
-    sender: 'AI Assistant',
-    text: 'TechSolutions has shown strong financial growth with a CAGR of 18.7% over the last 3 years. Their revenue increased from $4.2M in 2020 to $5.9M in 2022, with improving gross margins from 62% to 68%. Their EBITDA margin of 22.4% is above the industry average.',
-    isAI: true
-  }
-]);
+watch(isMuted, (muted) => {
+  videoPanelRef.value?.setMicrophoneEnabled(!muted);
+});
 
-const participants = ref([
-  {
-    id: 1,
-    name: 'John Doe',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  },
-  {
-    id: 3,
-    name: 'Alex Johnson',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  }
-]);
+watch(isVideoOff, (off) => {
+  videoPanelRef.value?.setCameraEnabled(!off);
+});
+
+const messages = ref<Array<{ sender: string; text: string; isAI: boolean }>>([]);
+const participants = ref<Array<{ id: number; name: string; image: string }>>([]);
 
 const addMessage = (message: any) => {
   messages.value.push(message);

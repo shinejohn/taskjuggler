@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import api from '@/utils/api';
 import type { User, LoginResponse, RegisterData } from '@/types/user';
 import { disconnectEcho } from '@/utils/echo';
+import { useMatrix } from '@/composables/useMatrix';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
@@ -56,6 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       // Continue with logout even if API call fails
     } finally {
+      useMatrix().resetSession();
       disconnectEcho();
       token.value = null;
       user.value = null;

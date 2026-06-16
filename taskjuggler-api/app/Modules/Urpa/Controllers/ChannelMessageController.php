@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Urpa\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Communications\Support\WebhookSecretAuth;
 use App\Modules\Urpa\Services\UrpaChannelBridgeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,8 +21,7 @@ final class ChannelMessageController extends Controller
      */
     public function ingest(Request $request): JsonResponse
     {
-        $secret = config('urpa.channel_webhook_secret');
-        if ($secret && $request->header('X-Channel-Secret') !== $secret) {
+        if (! WebhookSecretAuth::authorized($request, 'urpa.channel_webhook_secret', 'X-Channel-Secret')) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 

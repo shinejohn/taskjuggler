@@ -73,4 +73,34 @@ final class MatrixController extends Controller
             'Matrix conversations'
         );
     }
+
+    /**
+     * GET /api/matrix/task/{taskId} — room for task-scoped messaging
+     */
+    public function taskRoom(Request $request, string $taskId): JsonResponse
+    {
+        $task = \App\Models\Task::findOrFail($taskId);
+        $user = $request->user();
+
+        $isParticipant = in_array((string) $user->id, [
+            (string) $task->requestor_id,
+            (string) $task->owner_id,
+        ], true);
+
+        if (! $isParticipant) {
+            return $this->error('Unauthorized', 403);
+        }
+
+        $roomId = $this->matrix->ensureTaskRoom($task);
+
+        if (! $roomId) {
+            return $this->error('Matrix task room unavailable', 503);
+        }
+
+        return $this->success([
+            'room_id' => $roomId,
+            'task_id' => $task->id,
+            'session' => $this->matrix->clientSession($user),
+        ]);
+    }
 }

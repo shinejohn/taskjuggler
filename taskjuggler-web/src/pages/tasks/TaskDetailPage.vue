@@ -35,10 +35,15 @@
 
       <!-- Task Messages -->
       <div class="card">
-        <h2 class="text-lg font-semibold mb-4">Messages</h2>
+        <h2 class="text-lg font-semibold mb-4">
+          Messages
+          <span v-if="useMatrixChat" class="text-xs font-normal text-blue-600 ml-2">Matrix · real-time</span>
+        </h2>
+        <div v-if="matrixLoading" class="text-center text-gray-500 py-4">Connecting to Matrix...</div>
+        <template v-else>
         <div class="border rounded-lg p-4 max-h-96 overflow-y-auto mb-4 space-y-3">
           <div
-            v-for="message in messages"
+            v-for="message in displayMessages"
             :key="message.id"
             :class="[
               'p-3 rounded-lg',
@@ -51,7 +56,7 @@
             </div>
             <p class="text-sm">{{ message.content }}</p>
           </div>
-          <div v-if="messages.length === 0" class="text-center text-gray-500 py-4">
+          <div v-if="displayMessages.length === 0" class="text-center text-gray-500 py-4">
             No messages yet. Start the conversation!
           </div>
         </div>
@@ -62,9 +67,11 @@
             placeholder="Type a message..."
             class="input flex-1"
             required
+            aria-label="Task message"
           />
           <button type="submit" class="btn btn-primary">Send</button>
         </form>
+        </template>
       </div>
 
       <!-- Invite Modal -->
@@ -148,22 +155,59 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue'
+import { onMounted, onUnmounted, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks'
 import { useMessagesStore } from '@/stores/messages'
+import { useAuthStore } from '@/stores/auth'
+import { useMatrix, type MatrixChatMessage } from '@/composables/useMatrix'
 import api from '@/utils/api'
+
+interface TaskMessageDisplay {
+  id: string
+  content: string
+  created_at: string
+  sender_type?: string
+  sender?: { name: string }
+}
 
 const route = useRoute()
 const router = useRouter()
 const tasksStore = useTasksStore()
 const messagesStore = useMessagesStore()
+const authStore = useAuthStore()
+const {
+  loadSession,
+  isProvisioned,
+  loadRoomMessages,
+  subscribeToRoom,
+  sendRoomMessage,
+} = useMatrix()
 
 const task = computed(() => tasksStore.currentTask)
 const loading = computed(() => tasksStore.loading)
-const messages = computed(() => messagesStore.taskMessages[route.params.id as string] || [])
+const restMessages = computed(() => messagesStore.taskMessages[route.params.id as string] || [])
+const matrixMessages = ref<MatrixChatMessage[]>([])
+const matrixRoomId = ref<string | null>(null)
+const useMatrixChat = ref(false)
+const matrixLoading = ref(true)
 const messageInput = ref('')
 const showInviteModal = ref(false)
+let unsubscribe: (() => void) | null = null
+
+const displayMessages = computed<TaskMessageDisplay[]>(() => {
+  if (useMatrixChat.value) {
+    return matrixMessages.value.map((m) => ({
+      id: m.id,
+      content: m.content,
+      created_at: m.created_at,
+      sender: {
+        name: m.is_mine ? (authStore.user?.name ?? 'You') : 'Participant',
+      },
+    }))
+  }
+  return restMessages.value
+})
 const inviteForm = ref({
   email: '',
   name: '',
@@ -174,8 +218,35 @@ const inviteUrl = ref('')
 onMounted(async () => {
   const taskId = route.params.id as string
   await tasksStore.fetchTask(taskId)
-  await messagesStore.fetchTaskMessages(taskId)
-  await messagesStore.markTaskMessagesRead(taskId)
+
+  await loadSession()
+  if (isProvisioned.value) {
+    try {
+      const response = await api.get(`/matrix/task/${taskId}`)
+      const data = response.data?.data ?? response.data
+      if (data?.room_id) {
+        useMatrixChat.value = true
+        matrixRoomId.value = data.room_id
+        matrixMessages.value = await loadRoomMessages(data.room_id)
+        unsubscribe = subscribeToRoom(data.room_id, (msg) => {
+          matrixMessages.value = [...matrixMessages.value, msg]
+        })
+      }
+    } catch {
+      useMatrixChat.value = false
+    }
+  }
+
+  if (!useMatrixChat.value) {
+    await messagesStore.fetchTaskMessages(taskId)
+    await messagesStore.markTaskMessagesRead(taskId)
+  }
+
+  matrixLoading.value = false
+})
+
+onUnmounted(() => {
+  unsubscribe?.()
 })
 
 async function completeTask() {
@@ -276,12 +347,18 @@ async function exportTef() {
 
 async function sendMessage() {
   if (!task.value || !messageInput.value.trim()) return
-  
+
+  const text = messageInput.value.trim()
+  messageInput.value = ''
+
   try {
-    await messagesStore.sendTaskMessage(task.value.id, messageInput.value)
-    messageInput.value = ''
-  } catch (error) {
-    // Error handled by API interceptor
+    if (useMatrixChat.value && matrixRoomId.value) {
+      await sendRoomMessage(matrixRoomId.value, text)
+    } else {
+      await messagesStore.sendTaskMessage(task.value.id, text)
+    }
+  } catch {
+    messageInput.value = text
   }
 }
 

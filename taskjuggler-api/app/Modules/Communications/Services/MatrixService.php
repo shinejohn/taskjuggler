@@ -103,6 +103,13 @@ final class MatrixService
             return null;
         }
 
+        if ($task->owner_id && (string) $task->owner_id !== (string) $requestor->id) {
+            $ownerAccount = $this->ensureUserRegistered($task->owner);
+            if ($ownerAccount?->matrix_user_id) {
+                $this->inviteUserToRoom($account->access_token, $roomId, $ownerAccount->matrix_user_id);
+            }
+        }
+
         $conversation->update(['matrix_room_id' => $roomId]);
 
         return $roomId;
@@ -314,6 +321,11 @@ final class MatrixService
             return null;
         }
 
+        $otherAccount = $this->ensureUserRegistered($otherUser);
+        if ($otherAccount?->matrix_user_id) {
+            $this->inviteUserToRoom($account->access_token, $roomId, $otherAccount->matrix_user_id);
+        }
+
         MatrixDirectRoom::create([
             'user_low_id' => $low->id,
             'user_high_id' => $high->id,
@@ -367,7 +379,7 @@ final class MatrixService
         string $body
     ): void {
         $eventId = $event['event_id'] ?? null;
-        if ($eventId && DirectMessage::where('content', $body)->where('created_at', '>=', now()->subMinute())->exists()) {
+        if ($eventId && DirectMessage::where('source_channel_ref', $eventId)->exists()) {
             return;
         }
 
@@ -384,6 +396,7 @@ final class MatrixService
             'sender_id' => $account->user_id,
             'recipient_id' => $recipientId,
             'content' => $body,
+            'source_channel_ref' => $eventId,
         ]);
     }
 
@@ -416,22 +429,16 @@ final class MatrixService
     private function registerOnHomeserver(string $localpart, string $password): ?string
     {
         $url = rtrim((string) config('matrix.homeserver_url'), '/');
-        $adminToken = config('matrix.admin_token');
+        $sharedSecret = config('matrix.registration_shared_secret');
 
-        if ($adminToken) {
-            $response = Http::withToken($adminToken)
-                ->post("{$url}/_synapse/admin/v1/register", [
-                    'username' => $localpart,
-                    'password' => $password,
-                    'admin' => false,
-                ]);
-
-            if ($response->successful()) {
-                return $response->json('access_token');
+        if (is_string($sharedSecret) && $sharedSecret !== '') {
+            $token = $this->registerWithSharedSecret($url, $localpart, $password, $sharedSecret);
+            if ($token !== null) {
+                return $token;
             }
         }
 
-        // Fallback: open registration (dev / Dendrite with m.login.dummy)
+        // Open registration (Dendrite dev / m.login.dummy)
         $response = Http::post("{$url}/_matrix/client/v3/register", [
             'username' => $localpart,
             'password' => $password,
@@ -449,6 +456,55 @@ final class MatrixService
         ]);
 
         return null;
+    }
+
+    private function registerWithSharedSecret(
+        string $url,
+        string $localpart,
+        string $password,
+        string $sharedSecret
+    ): ?string {
+        $sessionResponse = Http::post("{$url}/_matrix/client/v3/register", [
+            'username' => $localpart,
+            'password' => $password,
+        ]);
+
+        $session = $sessionResponse->json('session');
+        if (! is_string($session) || $session === '') {
+            return null;
+        }
+
+        $mac = hash_hmac(
+            'sha1',
+            $session."\0".$localpart."\0".$password."\0".'notadmin',
+            $sharedSecret
+        );
+
+        $response = Http::post("{$url}/_matrix/client/v3/register", [
+            'username' => $localpart,
+            'password' => $password,
+            'auth' => [
+                'type' => 'm.login.shared_secret',
+                'session' => $session,
+                'mac' => $mac,
+            ],
+        ]);
+
+        if ($response->successful()) {
+            return $response->json('access_token');
+        }
+
+        return null;
+    }
+
+    private function inviteUserToRoom(string $accessToken, string $roomId, string $matrixUserId): void
+    {
+        $url = rtrim((string) config('matrix.homeserver_url'), '/');
+
+        Http::withToken($accessToken)->post(
+            "{$url}/_matrix/client/v3/rooms/".urlencode($roomId).'/invite',
+            ['user_id' => $matrixUserId]
+        );
     }
 
     private function createRoom(string $accessToken, string $name, string $aliasLocalpart): ?string
