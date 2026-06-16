@@ -111,11 +111,9 @@ done
 # Edit before ./ship.sh --use-manifest when the batch changes.
 if [[ "$USE_MANIFEST" == true ]]; then
     COMMIT_MSG=$(cat <<'SHIP_MANIFEST_EOF'
-feat: Matrix conversations API, OpenClaw connector, channel bridge
+fix: Dendrite official config generation + openclaw Docker build
 
-Matrix: fix Dendrite entrypoint, channel rooms, /api/matrix/conversations.
-URPA: openclaw-connector sidecar (Telegram), channel ingest + Twilio inbound stub.
-taskjuggler-web: MessagesPage uses Matrix conversation list when provisioned.
+Use generate-keys/generate-config per Dendrite docs. Add COMMS-COMPLETION-CHECKLIST.
 SHIP_MANIFEST_EOF
 )
 fi
