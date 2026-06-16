@@ -3,13 +3,55 @@ set -e
 
 CONFIG_DIR="/etc/dendrite"
 DATA_DIR="/var/lib/dendrite"
+PORT="${PORT:-8008}"
+BINARY="/usr/bin/dendrite-monolith-server"
+GENERATE_KEYS="/usr/bin/generate-keys"
 
 mkdir -p "$CONFIG_DIR" "$DATA_DIR"
 
-if [ ! -f "$CONFIG_DIR/dendrite.yaml" ]; then
-  if [ -z "$MATRIX_SERVER_NAME" ]; then
-    echo "MATRIX_SERVER_NAME is required"
+if [ -z "${MATRIX_SERVER_NAME:-}" ]; then
+  echo "MATRIX_SERVER_NAME is required"
+  exit 1
+fi
+
+if [ -z "${DATABASE_URL:-}" ]; then
+  echo "DATABASE_URL is required"
+  exit 1
+fi
+
+if [ ! -f "$CONFIG_DIR/server.key" ]; then
+  if [ -x "$GENERATE_KEYS" ]; then
+    "$GENERATE_KEYS" -privatekey "$CONFIG_DIR/server.key"
+  else
+    echo "generate-keys not found in image"
     exit 1
+  fi
+fi
+
+if [ ! -f "$CONFIG_DIR/dendrite.yaml" ]; then
+  APPSERVICE_BLOCK=""
+  if [ -n "${MATRIX_APPSERVICE_URL:-}" ]; then
+    cat > "$CONFIG_DIR/appservice.yaml" <<AS_EOF
+id: fibonacco-laravel
+url: ${MATRIX_APPSERVICE_URL}
+as_token: ${MATRIX_APPSERVICE_TOKEN:-fibonacco-as-token}
+hs_token: ${MATRIX_HOMESERVER_TOKEN:-fibonacco-hs-token}
+sender_localpart: laravel
+namespaces:
+  users:
+    - exclusive: false
+      regex: "@.*"
+  rooms:
+    - exclusive: false
+      regex: ".*"
+  aliases:
+    - exclusive: false
+      regex: ".*"
+AS_EOF
+    APPSERVICE_BLOCK="
+appservice_api:
+  config_files:
+    - ${CONFIG_DIR}/appservice.yaml"
   fi
 
   cat > "$CONFIG_DIR/dendrite.yaml" <<EOF
@@ -58,45 +100,12 @@ relay_api:
     connection_string: ${DATABASE_URL}
     max_open_conns: 10
     max_idle_conns: 2
-
-appservice_api:
-  config_files:
-    - ${CONFIG_DIR}/appservice.yaml
+${APPSERVICE_BLOCK}
 
 logging:
   - type: std
     level: info
 EOF
-
-  if [ -n "$MATRIX_APPSERVICE_URL" ]; then
-    cat > "$CONFIG_DIR/appservice.yaml" <<EOF
-id: fibonacco-laravel
-url: ${MATRIX_APPSERVICE_URL}
-as_token: ${MATRIX_APPSERVICE_TOKEN:-fibonacco-as-token}
-hs_token: ${MATRIX_HOMESERVER_TOKEN:-fibonacco-hs-token}
-sender_localpart: laravel
-namespaces:
-  users:
-    - exclusive: false
-      regex: "@.*"
-  rooms:
-    - exclusive: false
-      regex: ".*"
-  aliases:
-    - exclusive: false
-      regex: ".*"
-EOF
-  fi
-
-  if [ ! -f "$CONFIG_DIR/server.key" ]; then
-    /usr/bin/dendrite-monolith-server --version >/dev/null 2>&1 || true
-    # Generate signing key via dendrite if available
-    if command -v generate-keys >/dev/null 2>&1; then
-      generate-keys -privatekey "$CONFIG_DIR/server.key"
-    else
-      openssl genrsa -out "$CONFIG_DIR/server.key" 4096
-    fi
-  fi
 fi
 
-exec /usr/bin/dendrite-monolith-server --config "$CONFIG_DIR/dendrite.yaml" --http-bind-address 0.0.0.0:8008
+exec "$BINARY" --config "$CONFIG_DIR/dendrite.yaml" --http-bind-address "0.0.0.0:${PORT}"

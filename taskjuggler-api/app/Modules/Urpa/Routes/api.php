@@ -71,6 +71,12 @@ Route::post('/voice/vapi/webhook', [VoiceController::class, 'vapiWebhook']);
 // Pipecat agent session events
 Route::post('/voice/pipecat/webhook', [\App\Modules\Urpa\Controllers\PipecatWebhookController::class, 'handle']);
 
+// Channel connector (openclaw-connector sidecar)
+Route::post('/channels/message', [\App\Modules\Urpa\Controllers\ChannelMessageController::class, 'ingest']);
+
+// Twilio inbound voice
+Route::post('/voice/twilio/inbound', [\App\Modules\Urpa\Controllers\TwilioVoiceController::class, 'inbound']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
 
     // Vapi API endpoints

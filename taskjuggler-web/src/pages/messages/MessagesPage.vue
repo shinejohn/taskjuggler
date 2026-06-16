@@ -6,8 +6,7 @@
       v-if="matrixEnabled"
       class="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900"
     >
-      Matrix messaging is active — real-time sync will replace this view when the
-      homeserver is fully connected.
+      Matrix messaging active — conversations sync in real time.
     </div>
 
     <div v-if="loading && conversations.length === 0" class="text-center py-8">Loading...</div>
@@ -51,30 +50,47 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useMessagesStore } from '@/stores/messages';
 import { useMatrix } from '@/composables/useMatrix';
 
-const messagesStore = useMessagesStore();
-const { loadSession, isEnabled } = useMatrix();
-const matrixEnabled = ref(false);
+interface ConversationItem {
+  user: { id: string; name: string; email?: string };
+  last_message: { content: string; sent_at: string };
+  unread_count: number;
+}
 
-const conversations = computed(() => messagesStore.conversations);
-const loading = computed(() => messagesStore.loading);
+const messagesStore = useMessagesStore();
+const { loadSession, isEnabled, isProvisioned, loadConversations } = useMatrix();
+const matrixEnabled = ref(false);
+const loading = ref(true);
+const conversations = ref<ConversationItem[]>([]);
 
 onMounted(async () => {
   const session = await loadSession();
   matrixEnabled.value = isEnabled.value && session.provisioned === true;
-  await messagesStore.fetchConversations();
-  await messagesStore.fetchDirectUnreadCount();
+
+  if (isProvisioned.value) {
+    conversations.value = await loadConversations();
+  } else {
+    await messagesStore.fetchConversations();
+    conversations.value = messagesStore.conversations.map((c) => ({
+      user: { ...c.user, email: '' },
+      last_message: {
+        content: c.last_message.content,
+        sent_at: c.last_message.sent_at,
+      },
+      unread_count: c.unread_count,
+    }));
+    await messagesStore.fetchDirectUnreadCount();
+  }
+
+  loading.value = false;
 });
 
 function formatTime(dateString: string): string {
   const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  
+  const diffMins = Math.floor((Date.now() - date.getTime()) / 60000);
   if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
@@ -84,6 +100,6 @@ function formatTime(dateString: string): string {
 
 <script lang="ts">
 export default {
-  name: 'MessagesPage'
-}
+  name: 'MessagesPage',
+};
 </script>

@@ -58,4 +58,19 @@ final class MatrixController extends Controller
             'session' => $this->matrix->clientSession($request->user()),
         ]);
     }
+
+    /**
+     * GET /api/matrix/conversations — DM list backed by MatrixDirectRoom
+     */
+    public function conversations(Request $request): JsonResponse
+    {
+        if (! $this->matrix->isEnabled()) {
+            return $this->error('Matrix is not enabled', 503);
+        }
+
+        return $this->success(
+            $this->matrix->listDirectConversations($request->user()),
+            'Matrix conversations'
+        );
+    }
 }

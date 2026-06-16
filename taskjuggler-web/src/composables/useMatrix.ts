@@ -167,6 +167,28 @@ export function useMatrix() {
       }));
   }
 
+  async function loadConversations(): Promise<
+    Array<{
+      user: { id: string; name: string; email: string };
+      last_message: { content: string; sent_at: string };
+      unread_count: number;
+      room_id?: string;
+    }>
+  > {
+    await loadSession();
+    if (!isProvisioned.value) {
+      return [];
+    }
+
+    try {
+      const response = await api.get('/matrix/conversations');
+      const data = response.data?.data ?? response.data;
+      return Array.isArray(data) ? data : [];
+    } catch {
+      return [];
+    }
+  }
+
   function resetSession(): void {
     client?.stopClient();
     client = null;
@@ -189,6 +211,7 @@ export function useMatrix() {
     loadRoomMessages,
     subscribeToRoom,
     sendRoomMessage,
+    loadConversations,
     resetSession,
   };
 }

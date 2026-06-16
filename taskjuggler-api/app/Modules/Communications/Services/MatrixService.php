@@ -9,6 +9,7 @@ use App\Models\DirectMessage;
 use App\Models\Task;
 use App\Models\User;
 use App\Modules\Communications\Models\MatrixAccount;
+use App\Modules\Communications\Models\MatrixChannelRoom;
 use App\Modules\Communications\Models\MatrixDirectRoom;
 use App\Modules\Tasks\Models\TaskMessage;
 use Illuminate\Support\Facades\Http;
@@ -167,6 +168,114 @@ final class MatrixService
         if ($directRoom) {
             $this->handleInboundDirectMessage($event, $directRoom, $senderMxid, $body);
         }
+    }
+
+    /**
+     * Matrix room for an external channel conversation (Telegram, WhatsApp, etc.).
+     */
+    public function ensureChannelRoom(User $user, string $channel, string $externalChatId): ?string
+    {
+        if (! $this->isEnabled()) {
+            return null;
+        }
+
+        $existing = MatrixChannelRoom::where('user_id', $user->id)
+            ->where('channel', $channel)
+            ->where('external_chat_id', $externalChatId)
+            ->first();
+
+        if ($existing) {
+            return $existing->matrix_room_id;
+        }
+
+        $account = $this->ensureUserRegistered($user);
+        if (! $account?->access_token) {
+            return null;
+        }
+
+        $alias = 'ch-'.substr(str_replace('-', '', (string) $user->id), 0, 8)
+            .'-'.$channel.'-'.preg_replace('/[^a-z0-9]/', '', strtolower($externalChatId));
+
+        $roomId = $this->createRoom(
+            $account->access_token,
+            ucfirst($channel).' · '.$externalChatId,
+            substr($alias, 0, 64)
+        );
+
+        if ($roomId === null) {
+            return null;
+        }
+
+        MatrixChannelRoom::create([
+            'user_id' => $user->id,
+            'channel' => $channel,
+            'external_chat_id' => $externalChatId,
+            'matrix_room_id' => $roomId,
+        ]);
+
+        return $roomId;
+    }
+
+    public function sendToRoomAsUser(User $user, string $roomId, string $body): void
+    {
+        $account = $this->ensureUserRegistered($user);
+        if (! $account?->access_token) {
+            return;
+        }
+
+        $this->sendTextMessage($account->access_token, $roomId, $body);
+    }
+
+    /**
+     * @return array<int, array{user: array{id: string, name: string, email: string}, last_message: array{content: string, sent_at: string}, unread_count: int, room_id: string}>
+     */
+    public function listDirectConversations(User $user): array
+    {
+        $rooms = MatrixDirectRoom::query()
+            ->where('user_low_id', $user->id)
+            ->orWhere('user_high_id', $user->id)
+            ->get();
+
+        $conversations = [];
+        foreach ($rooms as $room) {
+            $otherId = $room->user_low_id === $user->id ? $room->user_high_id : $room->user_low_id;
+            $other = User::find($otherId);
+            if (! $other) {
+                continue;
+            }
+
+            $lastMessage = DirectMessage::query()
+                ->where(function ($q) use ($user, $other) {
+                    $q->where('sender_id', $user->id)->where('recipient_id', $other->id);
+                })
+                ->orWhere(function ($q) use ($user, $other) {
+                    $q->where('sender_id', $other->id)->where('recipient_id', $user->id);
+                })
+                ->orderByDesc('created_at')
+                ->first();
+
+            $unread = DirectMessage::query()
+                ->where('sender_id', $other->id)
+                ->where('recipient_id', $user->id)
+                ->whereNull('read_at')
+                ->count();
+
+            $conversations[] = [
+                'room_id' => $room->matrix_room_id,
+                'user' => [
+                    'id' => $other->id,
+                    'name' => $other->name ?? 'User',
+                    'email' => $other->email ?? '',
+                ],
+                'last_message' => [
+                    'content' => $lastMessage?->content ?? '',
+                    'sent_at' => ($lastMessage?->created_at ?? now())->toIso8601String(),
+                ],
+                'unread_count' => $unread,
+            ];
+        }
+
+        return $conversations;
     }
 
     /**
