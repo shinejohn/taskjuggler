@@ -68,6 +68,46 @@ final class MatrixServiceTest extends TestCase
         ]);
     }
 
+    public function test_registers_user_via_shared_secret_admin_endpoint(): void
+    {
+        Config::set('matrix.enabled', true);
+        Config::set('matrix.homeserver_url', 'https://matrix.test');
+        Config::set('matrix.server_name', 'fibonacco.ai');
+        Config::set('matrix.registration_shared_secret', 'shhh-secret');
+
+        // GET reads `nonce`; POST reads `access_token` — one fake serves both.
+        Http::fake([
+            'https://matrix.test/_synapse/admin/v1/register' => Http::response([
+                'nonce' => 'test-nonce',
+                'user_id' => '@tj-test:fibonacco.ai',
+                'access_token' => 'syt_shared_secret_token',
+                'device_id' => 'shared_secret_registration',
+            ], 200),
+        ]);
+
+        $account = app(MatrixService::class)->ensureUserRegistered($this->user);
+
+        $this->assertNotNull($account);
+        $this->assertSame('syt_shared_secret_token', $account->access_token);
+
+        // The provisioning POST must carry the HMAC-SHA1(nonce\0user\0pw\0notadmin) mac.
+        Http::assertSent(function ($request) {
+            if ($request->method() !== 'POST'
+                || $request->url() !== 'https://matrix.test/_synapse/admin/v1/register') {
+                return false;
+            }
+            $expectedMac = hash_hmac(
+                'sha1',
+                'test-nonce'."\0".$request['username']."\0".$request['password']."\0".'notadmin',
+                'shhh-secret'
+            );
+
+            return $request['nonce'] === 'test-nonce'
+                && $request['admin'] === false
+                && $request['mac'] === $expectedMac;
+        });
+    }
+
     public function test_creates_matrix_room_for_task(): void
     {
         Config::set('matrix.enabled', true);

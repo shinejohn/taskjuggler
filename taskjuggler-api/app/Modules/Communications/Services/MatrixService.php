@@ -482,30 +482,34 @@ final class MatrixService
         string $password,
         string $sharedSecret
     ): ?string {
-        $sessionResponse = Http::timeout($this->httpTimeout())->post("{$url}/_matrix/client/v3/register", [
-            'username' => $localpart,
-            'password' => $password,
-        ]);
+        // Dendrite (and Synapse) provision accounts via the admin nonce endpoint, NOT the
+        // legacy `m.login.shared_secret` UIA stage on /_matrix/client/v3/register — that stage
+        // is unsupported by Dendrite and is rejected with 403 once open registration is
+        // disabled. Flow: GET a nonce, HMAC-SHA1 it with the shared secret, POST to register.
+        $nonceResponse = Http::timeout($this->httpTimeout())->get("{$url}/_synapse/admin/v1/register");
 
-        $session = $sessionResponse->json('session');
-        if (! is_string($session) || $session === '') {
+        $nonce = $nonceResponse->json('nonce');
+        if (! is_string($nonce) || $nonce === '') {
+            Log::warning('Matrix shared-secret registration failed: no nonce', [
+                'localpart' => $localpart,
+                'status' => $nonceResponse->status(),
+            ]);
+
             return null;
         }
 
         $mac = hash_hmac(
             'sha1',
-            $session."\0".$localpart."\0".$password."\0".'notadmin',
+            $nonce."\0".$localpart."\0".$password."\0".'notadmin',
             $sharedSecret
         );
 
-        $response = Http::timeout($this->httpTimeout())->post("{$url}/_matrix/client/v3/register", [
+        $response = Http::timeout($this->httpTimeout())->post("{$url}/_synapse/admin/v1/register", [
+            'nonce' => $nonce,
             'username' => $localpart,
             'password' => $password,
-            'auth' => [
-                'type' => 'm.login.shared_secret',
-                'session' => $session,
-                'mac' => $mac,
-            ],
+            'admin' => false,
+            'mac' => $mac,
         ]);
 
         if ($response->successful()) {
