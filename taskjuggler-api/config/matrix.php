@@ -27,4 +27,8 @@ return [
 
     /** Default room visibility: private | public */
     'room_visibility' => env('MATRIX_ROOM_VISIBILITY', 'private'),
+
+    /** Per-request HTTP timeout (seconds) for homeserver calls — keeps a slow/down
+     *  Dendrite from blocking task and message creation. */
+    'http_timeout' => env('MATRIX_HTTP_TIMEOUT', 5),
 ];

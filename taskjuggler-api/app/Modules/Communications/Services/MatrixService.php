@@ -361,15 +361,19 @@ final class MatrixService
             return;
         }
 
-        TaskMessage::create([
-            'task_id' => $task->id,
-            'sender_id' => $sender->id,
-            'sender_type' => TaskMessage::SENDER_HUMAN,
-            'content' => $body,
-            'content_type' => TaskMessage::CONTENT_TEXT,
-            'source_channel' => 'matrix',
-            'source_channel_ref' => $eventId,
-        ]);
+        try {
+            TaskMessage::create([
+                'task_id' => $task->id,
+                'sender_id' => $sender->id,
+                'sender_type' => TaskMessage::SENDER_HUMAN,
+                'content' => $body,
+                'content_type' => TaskMessage::CONTENT_TEXT,
+                'source_channel' => 'matrix',
+                'source_channel_ref' => $eventId,
+            ]);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            // A concurrent appservice retry already stored this event — safe to ignore.
+        }
     }
 
     private function handleInboundDirectMessage(
@@ -392,12 +396,16 @@ final class MatrixService
             ? $directRoom->user_high_id
             : $directRoom->user_low_id;
 
-        DirectMessage::create([
-            'sender_id' => $account->user_id,
-            'recipient_id' => $recipientId,
-            'content' => $body,
-            'source_channel_ref' => $eventId,
-        ]);
+        try {
+            DirectMessage::create([
+                'sender_id' => $account->user_id,
+                'recipient_id' => $recipientId,
+                'content' => $body,
+                'source_channel_ref' => $eventId,
+            ]);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            // A concurrent appservice retry already stored this event — safe to ignore.
+        }
     }
 
     /**
@@ -438,8 +446,18 @@ final class MatrixService
             }
         }
 
-        // Open registration (Dendrite dev / m.login.dummy)
-        $response = Http::post("{$url}/_matrix/client/v3/register", [
+        // Open registration (m.login.dummy) is only safe for local development.
+        // In production, account provisioning MUST go through the shared secret so the
+        // Dendrite homeserver can keep open registration disabled (no anonymous signups).
+        if (app()->isProduction()) {
+            Log::error('Matrix user provisioning failed: no registration_shared_secret configured (open registration is disabled in production)', [
+                'localpart' => $localpart,
+            ]);
+
+            return null;
+        }
+
+        $response = Http::timeout($this->httpTimeout())->post("{$url}/_matrix/client/v3/register", [
             'username' => $localpart,
             'password' => $password,
             'auth' => ['type' => 'm.login.dummy'],
@@ -464,7 +482,7 @@ final class MatrixService
         string $password,
         string $sharedSecret
     ): ?string {
-        $sessionResponse = Http::post("{$url}/_matrix/client/v3/register", [
+        $sessionResponse = Http::timeout($this->httpTimeout())->post("{$url}/_matrix/client/v3/register", [
             'username' => $localpart,
             'password' => $password,
         ]);
@@ -480,7 +498,7 @@ final class MatrixService
             $sharedSecret
         );
 
-        $response = Http::post("{$url}/_matrix/client/v3/register", [
+        $response = Http::timeout($this->httpTimeout())->post("{$url}/_matrix/client/v3/register", [
             'username' => $localpart,
             'password' => $password,
             'auth' => [
@@ -494,29 +512,69 @@ final class MatrixService
             return $response->json('access_token');
         }
 
+        Log::warning('Matrix shared-secret registration failed', [
+            'localpart' => $localpart,
+            'status' => $response->status(),
+        ]);
+
         return null;
     }
 
-    private function inviteUserToRoom(string $accessToken, string $roomId, string $matrixUserId): void
+    private function inviteUserToRoom(string $accessToken, string $roomId, string $matrixUserId): bool
     {
         $url = rtrim((string) config('matrix.homeserver_url'), '/');
 
-        Http::withToken($accessToken)->post(
-            "{$url}/_matrix/client/v3/rooms/".urlencode($roomId).'/invite',
-            ['user_id' => $matrixUserId]
-        );
+        try {
+            $response = Http::withToken($accessToken)
+                ->timeout($this->httpTimeout())
+                ->post(
+                    "{$url}/_matrix/client/v3/rooms/".urlencode($roomId).'/invite',
+                    ['user_id' => $matrixUserId]
+                );
+        } catch (\Throwable $e) {
+            Log::warning('Matrix room invite request failed', [
+                'room_id' => $roomId,
+                'invitee' => $matrixUserId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+
+        if ($response->successful()) {
+            return true;
+        }
+
+        Log::warning('Matrix room invite rejected', [
+            'room_id' => $roomId,
+            'invitee' => $matrixUserId,
+            'status' => $response->status(),
+        ]);
+
+        return false;
     }
 
     private function createRoom(string $accessToken, string $name, string $aliasLocalpart): ?string
     {
         $url = rtrim((string) config('matrix.homeserver_url'), '/');
 
-        $response = Http::withToken($accessToken)->post("{$url}/_matrix/client/v3/createRoom", [
-            'name' => $name,
-            'room_alias_name' => $aliasLocalpart,
-            'preset' => 'private_chat',
-            'visibility' => config('matrix.room_visibility', 'private'),
-        ]);
+        try {
+            $response = Http::withToken($accessToken)
+                ->timeout($this->httpTimeout())
+                ->post("{$url}/_matrix/client/v3/createRoom", [
+                    'name' => $name,
+                    'room_alias_name' => $aliasLocalpart,
+                    'preset' => 'private_chat',
+                    'visibility' => config('matrix.room_visibility', 'private'),
+                ]);
+        } catch (\Throwable $e) {
+            Log::warning('Matrix room creation request failed', [
+                'alias' => $aliasLocalpart,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
 
         if ($response->successful()) {
             return $response->json('room_id');
@@ -531,18 +589,45 @@ final class MatrixService
         return null;
     }
 
-    private function sendTextMessage(string $accessToken, string $roomId, string $body): void
+    private function sendTextMessage(string $accessToken, string $roomId, string $body): bool
     {
         $url = rtrim((string) config('matrix.homeserver_url'), '/');
         $txnId = Str::uuid()->toString();
 
-        Http::withToken($accessToken)->put(
-            "{$url}/_matrix/client/v3/rooms/".urlencode($roomId)."/send/m.room.message/{$txnId}",
-            [
-                'msgtype' => 'm.text',
-                'body' => $body,
-            ]
-        );
+        try {
+            $response = Http::withToken($accessToken)
+                ->timeout($this->httpTimeout())
+                ->put(
+                    "{$url}/_matrix/client/v3/rooms/".urlencode($roomId)."/send/m.room.message/{$txnId}",
+                    [
+                        'msgtype' => 'm.text',
+                        'body' => $body,
+                    ]
+                );
+        } catch (\Throwable $e) {
+            Log::warning('Matrix message send request failed', [
+                'room_id' => $roomId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+
+        if ($response->successful()) {
+            return true;
+        }
+
+        Log::warning('Matrix message send rejected', [
+            'room_id' => $roomId,
+            'status' => $response->status(),
+        ]);
+
+        return false;
+    }
+
+    private function httpTimeout(): int
+    {
+        return (int) config('matrix.http_timeout', 5);
     }
 
     private function localpartForUser(User $user): string

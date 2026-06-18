@@ -59,5 +59,14 @@ EOF
   fi
 fi
 
+# Lock down account creation on every boot (idempotent), so an already-generated
+# config is also corrected on restart. Open (anonymous) registration stays OFF;
+# Laravel provisions accounts via the registration shared secret only.
+sed -i "s|registration_disabled: .*|registration_disabled: true|" "$CONFIG_DIR/dendrite.yaml" 2>/dev/null || true
+if [ -n "${MATRIX_REGISTRATION_SHARED_SECRET:-}" ]; then
+  sed -i "s|registration_shared_secret: .*|registration_shared_secret: \"${MATRIX_REGISTRATION_SHARED_SECRET}\"|" \
+    "$CONFIG_DIR/dendrite.yaml" 2>/dev/null || true
+fi
+
 # Dendrite monolith binary (image default)
 exec /usr/bin/dendrite --config "$CONFIG_DIR/dendrite.yaml" --http-bind-address "0.0.0.0:${PORT}"

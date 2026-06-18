@@ -12,6 +12,35 @@ Last updated: 2026-06-16. Tracks remaining work to reach production-ready state 
 | matrix-dendrite | https://matrix-dendrite-production.up.railway.app | All messaging | ✅ HTTP 200 |
 | openclaw-connector | https://openclaw-connector-production.up.railway.app | Telegram/WhatsApp/etc. |
 
+## Security & Ops Guarantees (must hold in production)
+
+These are hard requirements, not nice-to-haves. The hardening pass (2026-06-16) depends on them.
+
+- **Matrix access tokens are exposed to the browser.** `GET /api/matrix/session` returns the
+  user's raw Matrix `access_token` so matrix-js-sdk can talk to the homeserver directly from
+  the SPA. That token grants full account access. Therefore:
+  - Dendrite's client-server API must be reachable **only over HTTPS** (never plain HTTP), and
+    the homeserver must enforce per-device tokens so one leaked token can be revoked without
+    rotating the whole account.
+  - Do **not** log `access_token` anywhere (Laravel or frontend). The session endpoint must
+    stay authenticated (Sanctum) and per-user.
+  - If a broader isolation posture is wanted later, front Dendrite with a token-scoping proxy;
+    until then, treat the browser token as the trust boundary and keep `MATRIX_ROOM_VISIBILITY=private`.
+- **Open Matrix registration stays OFF in production.** `dendrite.yaml` is forced to
+  `registration_disabled: true` on every boot (entrypoint sed, idempotent). Accounts are
+  provisioned only via `MATRIX_REGISTRATION_SHARED_SECRET`, which must be **identical** on
+  `matrix-dendrite` and `ai-tools-api` (deploy-comms.sh generates it once and sets both).
+  `MatrixService::registerOnHomeserver()` refuses the `m.login.dummy` fallback when
+  `app()->isProduction()`.
+- **Homeserver calls are time-boxed.** All `MatrixService` HTTP calls use
+  `config('matrix.http_timeout')` (default 5s) so a slow/down Dendrite cannot block task or
+  message creation. The frontend mirrors this: `connectClient()` races a 5s timeout and the
+  task/DM pages fall back to legacy REST messaging instead of spinning forever.
+- **Inbound events are idempotent at the database.** Partial unique indexes on
+  `task_messages` / `direct_messages` (`source_channel_ref`) guarantee a duplicate Matrix
+  `event_id` can never double-insert under concurrent appservice retries; the insert path
+  catches `UniqueConstraintViolationException` and no-ops.
+
 ## Phase Status
 
 ### Phase 1 — URPA ↔ TaskJuggler sync ✅ DONE
@@ -25,7 +54,8 @@ Last updated: 2026-06-16. Tracks remaining work to reach production-ready state 
 
 **Remaining:**
 - [x] **Dendrite running on Railway** (generate-keys + generate-config fix)
-- [ ] `MATRIX_ADMIN_TOKEN` or verify open registration works for user provisioning
+- [x] Registration locked down: open registration forced OFF on boot, shared-secret
+      provisioning only, production refuses `m.login.dummy` fallback (see Security & Ops Guarantees)
 - [ ] End-to-end test: register user → DM → webhook → DirectMessage row
 - [ ] Task-scoped Matrix rooms in taskjuggler-web UI (messages on task detail page)
 - [ ] Matrix bridges: Slack, Teams, Discord (separate bridge services)

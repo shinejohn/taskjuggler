@@ -35,3 +35,13 @@ export { Alert, AlertDescription, AlertTitle } from './components/ui/alert';
 export { Toaster as Sonner } from './components/ui/sonner';
 export { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from './components/ui/form';
 export { useFormField } from './components/ui/form/useFormField';
+
+// Composables
+export {
+  createUseMatrix,
+  type UseMatrixOptions,
+  type UseMatrixReturn,
+  type MatrixSession,
+  type MatrixChatMessage,
+  type MatrixConversation,
+} from './composables/useMatrix';

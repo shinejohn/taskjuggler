@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Tasks;
 
 use App\Jobs\MirrorMessageToMatrix;
@@ -11,7 +13,7 @@ use App\Services\MessageRouter\MessageRouter;
 use App\Services\Notifications\NotificationService;
 use Illuminate\Support\Facades\DB;
 
-class TaskMessageService
+final class TaskMessageService
 {
     public function __construct(
         private NotificationService $notifications,

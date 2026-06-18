@@ -7,6 +7,17 @@ ENVIRONMENT="production"
 API_SERVICE="ai-tools-api"
 API_URL="${API_URL:-https://ai-tools-api-production-2c1e.up.railway.app}"
 
+# Dendrite needs its own PostgreSQL. Provide a Railway reference to the Postgres
+# service that backs Matrix, e.g. DENDRITE_DATABASE_URL='${{Postgres.DATABASE_URL}}'.
+# (Default references a service literally named "Postgres" — override if yours differs.)
+DENDRITE_DATABASE_URL="${DENDRITE_DATABASE_URL:-\${{Postgres.DATABASE_URL}}}"
+
+# Pipecat voice pipeline keys — without these the agent boots but /health reports
+# "missing_api_keys" and sessions fail at runtime. Pass them in the environment.
+DEEPGRAM_API_KEY="${DEEPGRAM_API_KEY:-}"
+ELEVENLABS_API_KEY="${ELEVENLABS_API_KEY:-}"
+OPENAI_API_KEY="${OPENAI_API_KEY:-}"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -14,6 +25,7 @@ NC='\033[0m'
 
 log() { echo -e "${CYAN}$*${NC}"; }
 ok() { echo -e "${GREEN}✓ $*${NC}"; }
+warn() { echo -e "${RED}! $*${NC}"; }
 fail() { echo -e "${RED}✗ $*${NC}"; exit 1; }
 
 command -v railway >/dev/null || fail "Railway CLI not installed"
@@ -54,14 +66,22 @@ if [[ "${ROTATE_SECRETS:-false}" == "true" ]]; then
   MATRIX_WEBHOOK_SECRET=$(openssl rand -hex 24)
   MATRIX_AS_TOKEN=$(openssl rand -hex 24)
   MATRIX_HS_TOKEN=$(openssl rand -hex 24)
+  # Generate ONCE and reuse on both Dendrite and the API — they must match for
+  # shared-secret account provisioning to work.
+  MATRIX_REG_SECRET=$(openssl rand -hex 16)
   CHANNEL_SECRET=$(openssl rand -hex 24)
   LIVEKIT_KEY="fibonacco"
   LIVEKIT_SECRET=$(openssl rand -hex 32)
 
   log "Setting pipecat-agent variables..."
+  [ -z "$DEEPGRAM_API_KEY" ] && warn "DEEPGRAM_API_KEY not provided — pipecat /health will report missing_api_keys"
+  [ -z "$ELEVENLABS_API_KEY" ] && warn "ELEVENLABS_API_KEY not provided — pipecat TTS will fail at runtime"
   railway variables -s pipecat-agent \
     --set "PIPECAT_WEBHOOK_SECRET=${PIPECAT_SECRET}" \
     --set "LARAVEL_CALLBACK_URL=${API_URL}/api/urpa/voice/pipecat/webhook" \
+    --set "DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}" \
+    --set "ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}" \
+    --set "OPENAI_API_KEY=${OPENAI_API_KEY}" \
     --set "PORT=8080" 2>/dev/null || true
 
   log "Setting livekit-server variables..."
@@ -71,10 +91,11 @@ if [[ "${ROTATE_SECRETS:-false}" == "true" ]]; then
   log "Setting matrix-dendrite variables..."
   railway variables -s matrix-dendrite \
     --set "MATRIX_SERVER_NAME=fibonacco.ai" \
+    --set "DATABASE_URL=${DENDRITE_DATABASE_URL}" \
     --set "MATRIX_APPSERVICE_URL=${API_URL}/api/matrix/webhook" \
     --set "MATRIX_APPSERVICE_TOKEN=${MATRIX_AS_TOKEN}" \
     --set "MATRIX_HOMESERVER_TOKEN=${MATRIX_HS_TOKEN}" \
-    --set "MATRIX_REGISTRATION_SHARED_SECRET=$(openssl rand -hex 16)" 2>/dev/null || true
+    --set "MATRIX_REGISTRATION_SHARED_SECRET=${MATRIX_REG_SECRET}" 2>/dev/null || true
 
   log "Setting openclaw-connector variables..."
   railway variables -s openclaw-connector \
@@ -93,17 +114,24 @@ if [[ "${ROTATE_SECRETS:-false}" == "true" ]]; then
     --set "MATRIX_ENABLED=true" \
     --set "MATRIX_WEBHOOK_SECRET=${MATRIX_WEBHOOK_SECRET}" \
     --set "MATRIX_APPSERVICE_TOKEN=${MATRIX_AS_TOKEN}" \
-    --set "MATRIX_REGISTRATION_SHARED_SECRET=$(openssl rand -hex 16)" \
+    --set "MATRIX_REGISTRATION_SHARED_SECRET=${MATRIX_REG_SECRET}" \
     --set "URPA_CHANNEL_WEBHOOK_SECRET=${CHANNEL_SECRET}" 2>/dev/null || true
 else
   log "Skipping secret rotation (set ROTATE_SECRETS=true to regenerate)."
-  log "Ensuring pipecat LARAVEL_CALLBACK_URL and openclaw PORT are set..."
+  log "Ensuring non-secret service config is set..."
   railway variables -s pipecat-agent \
     --set "LARAVEL_CALLBACK_URL=${API_URL}/api/urpa/voice/pipecat/webhook" \
     --set "PORT=8080" 2>/dev/null || true
   railway variables -s openclaw-connector \
     --set "LARAVEL_API_URL=${API_URL}/api/urpa" \
     --set "PORT=8090" 2>/dev/null || true
+  # Dendrite cannot boot without DATABASE_URL — ensure it on every run.
+  railway variables -s matrix-dendrite \
+    --set "DATABASE_URL=${DENDRITE_DATABASE_URL}" 2>/dev/null || true
+  # Set pipecat API keys only when explicitly provided (don't blank existing ones).
+  [ -n "$DEEPGRAM_API_KEY" ] && railway variables -s pipecat-agent --set "DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}" 2>/dev/null || true
+  [ -n "$ELEVENLABS_API_KEY" ] && railway variables -s pipecat-agent --set "ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}" 2>/dev/null || true
+  [ -n "$OPENAI_API_KEY" ] && railway variables -s pipecat-agent --set "OPENAI_API_KEY=${OPENAI_API_KEY}" 2>/dev/null || true
 fi
 
 ok "Comms infra deploy complete."

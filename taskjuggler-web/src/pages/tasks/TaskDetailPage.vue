@@ -179,6 +179,7 @@ const authStore = useAuthStore()
 const {
   loadSession,
   isProvisioned,
+  connectClient,
   loadRoomMessages,
   subscribeToRoom,
   sendRoomMessage,
@@ -224,7 +225,9 @@ onMounted(async () => {
     try {
       const response = await api.get(`/matrix/task/${taskId}`)
       const data = response.data?.data ?? response.data
-      if (data?.room_id) {
+      // Only commit to Matrix if the client connects in time; otherwise fall
+      // back to legacy REST messaging instead of spinning forever.
+      if (data?.room_id && (await connectClient())) {
         useMatrixChat.value = true
         matrixRoomId.value = data.room_id
         matrixMessages.value = await loadRoomMessages(data.room_id)

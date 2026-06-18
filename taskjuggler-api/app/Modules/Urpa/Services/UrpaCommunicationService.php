@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Modules\Urpa\Services;
 
 use App\Models\User;
@@ -12,7 +14,7 @@ use App\Modules\Urpa\Models\UrpaPhoneCall;
 use App\Services\IdeaCircuit\LiveKitService;
 use Illuminate\Support\Str;
 
-class UrpaCommunicationService
+final class UrpaCommunicationService
 {
     public function __construct(
         private AwsConnectService $connectService,
