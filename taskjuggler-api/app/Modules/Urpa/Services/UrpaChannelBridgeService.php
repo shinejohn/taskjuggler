@@ -6,7 +6,9 @@ namespace App\Modules\Urpa\Services;
 
 use App\Models\User;
 use App\Modules\Communications\Services\MatrixService;
+use App\Modules\Urpa\Jobs\GenerateChannelReplyJob;
 use App\Modules\Urpa\Models\UrpaActivity;
+use App\Modules\Urpa\Models\UrpaChannelLink;
 use Illuminate\Support\Facades\Log;
 
 final class UrpaChannelBridgeService
@@ -30,6 +32,24 @@ final class UrpaChannelBridgeService
         array $metadata = []
     ): array {
         $user = User::findOrFail($userId);
+
+        // Bind this external identity to the user so the assistant knows who it
+        // is and where to reply. Credentials are user-managed (Option B) and
+        // set via the channel-links API, so we never overwrite them here.
+        $link = UrpaChannelLink::firstOrNew([
+            'channel' => $channel,
+            'external_user_id' => $externalUserId,
+        ]);
+        $link->fill([
+            'user_id' => $user->id,
+            'external_chat_id' => $externalChatId,
+            'last_inbound_at' => now(),
+        ]);
+        if (! $link->exists) {
+            $link->is_active = true;
+            $link->auto_reply = true;
+        }
+        $link->save();
 
         $activity = UrpaActivity::create([
             'user_id' => $user->id,
@@ -67,9 +87,18 @@ final class UrpaChannelBridgeService
             }
         }
 
+        // Generate + send the assistant's reply over the same channel (async).
+        $replyQueued = false;
+        if (config('urpa.auto_reply') && $link->is_active && $link->auto_reply) {
+            GenerateChannelReplyJob::dispatch($link->id, $text);
+            $replyQueued = true;
+        }
+
         return [
             'activity_id' => $activity->id,
+            'channel_link_id' => $link->id,
             'matrix_room_id' => $matrixRoomId,
+            'reply_queued' => $replyQueued,
             'processed' => true,
         ];
     }

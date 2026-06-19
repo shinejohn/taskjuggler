@@ -63,6 +63,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/prerecorded/{id}/used', [VoiceController::class, 'logUsage']);
     });
 
+    // Messaging channel links — each user manages their own channels/credentials
+    Route::prefix('channels/links')->group(function () {
+        Route::get('/', [\App\Modules\Urpa\Controllers\ChannelLinkController::class, 'index']);
+        Route::post('/', [\App\Modules\Urpa\Controllers\ChannelLinkController::class, 'store']);
+        Route::put('/{id}', [\App\Modules\Urpa\Controllers\ChannelLinkController::class, 'update']);
+        Route::delete('/{id}', [\App\Modules\Urpa\Controllers\ChannelLinkController::class, 'destroy']);
+        Route::post('/{id}/send', [\App\Modules\Urpa\Controllers\ChannelLinkController::class, 'send']);
+    });
+
 });
 
 // Vapi webhook — outside auth:sanctum so Vapi can POST call events

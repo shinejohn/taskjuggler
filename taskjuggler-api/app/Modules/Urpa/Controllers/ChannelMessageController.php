@@ -26,7 +26,7 @@ final class ChannelMessageController extends Controller
         }
 
         $validated = $request->validate([
-            'channel' => 'required|string|in:telegram,whatsapp,signal,imessage,google_chat',
+            'channel' => 'required|string|in:telegram,whatsapp,signal,slack,discord,google_chat,imessage',
             'external_user_id' => 'required|string',
             'external_chat_id' => 'required|string',
             'user_id' => 'required|uuid|exists:users,id',

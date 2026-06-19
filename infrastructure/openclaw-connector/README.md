@@ -1,6 +1,12 @@
 # OpenClaw Connector — Phase 2.5
 
-Thin Node sidecar that receives channel webhooks (Telegram first) and forwards normalized payloads to Laravel.
+Thin Node sidecar for URPA messaging. It receives per-user channel webhooks,
+forwards normalized inbound messages to Laravel, and delivers the assistant's
+outbound replies back to each channel's native API.
+
+**Credential model: Option B (user-managed).** Each user registers their own
+bot/credentials per channel via the Laravel API. Laravel passes those
+credentials with every `/send` call — there is no shared platform bot.
 
 ## Deploy
 
@@ -15,16 +21,53 @@ railway up -d
 | Variable | Description |
 |----------|-------------|
 | `LARAVEL_API_URL` | e.g. `https://ai-tools-api-production-2c1e.up.railway.app/api/urpa` |
-| `URPA_CHANNEL_WEBHOOK_SECRET` | Must match `URPA_CHANNEL_WEBHOOK_SECRET` on API |
-| `TELEGRAM_BOT_TOKEN` | Optional — for future polling setup |
+| `URPA_CHANNEL_WEBHOOK_SECRET` | Shared secret; must match `URPA_CHANNEL_WEBHOOK_SECRET` on the API. Used both directions. |
+| `WHATSAPP_VERIFY_TOKEN` | Optional — WhatsApp webhook verify token (defaults to the channel secret). |
 
-## Telegram webhook
+## Inbound (channel → Laravel `POST /api/urpa/channels/message`)
 
-Register with Telegram:
+Per-user webhook URLs (the `:userId` is the Fibonacco user UUID):
+
+| Channel | Webhook |
+|---------|---------|
+| Telegram | `POST /webhooks/telegram/:userId` |
+| WhatsApp | `GET+POST /webhooks/whatsapp/:userId` (Cloud API) |
+| Slack | `POST /webhooks/slack/:userId` (Events API) |
+| Any | `POST /ingest` (already-normalized payload) |
+
+Telegram registration:
 
 ```
 POST https://api.telegram.org/bot<TOKEN>/setWebhook
-  ?url=https://<openclaw-connector-domain>/webhooks/telegram/<fibonacco-user-uuid>
+  ?url=https://<connector-domain>/webhooks/telegram/<user-uuid>
 ```
 
-Laravel endpoint: `POST /api/urpa/channels/message`
+## Outbound (Laravel → connector `POST /send`)
+
+```json
+{
+  "channel": "telegram",
+  "external_chat_id": "12345",
+  "text": "Reply from your assistant",
+  "credentials": { "bot_token": "..." }
+}
+```
+
+Header `X-Channel-Secret` is required. Per-channel `credentials` shape:
+
+| Channel | Required credentials |
+|---------|----------------------|
+| `telegram` | `bot_token` |
+| `whatsapp` | `access_token`, `phone_number_id` |
+| `slack` | `bot_token` |
+| `discord` | `bot_token` (or `webhook_url`) |
+| `google_chat` | `webhook_url` |
+| `signal` | `base_url`, `number` (signal-cli REST) |
+| `imessage` | `base_url` (BlueBubbles-style bridge) |
+
+## How users connect a channel
+
+`POST /api/urpa/channels/links` (authenticated) with `channel`,
+`external_user_id`, `external_chat_id`, and the channel's `credentials`. The
+assistant auto-replies on inbound messages; users can also send on demand via
+`POST /api/urpa/channels/links/{id}/send`.
