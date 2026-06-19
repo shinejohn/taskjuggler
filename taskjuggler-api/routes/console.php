@@ -60,3 +60,11 @@ Schedule::call(function () {
 Schedule::call(function () {
     app(\App\Modules\Urpa\Services\TaskJugglerSyncService::class)->syncAllLinked();
 })->everyFifteenMinutes()->name('urpa-taskjuggler-sync')->withoutOverlapping();
+
+// Publish due scheduled social posts (URPA Social)
+Schedule::job(new \App\Modules\Urpa\Jobs\PublishScheduledPostsJob)
+    ->everyMinute()->name('urpa-social-publish')->withoutOverlapping();
+
+// Pull social engagement (comments, mentions) into the URPA activity feed
+Schedule::job(new \App\Modules\Urpa\Jobs\SyncSocialEngagementJob)
+    ->everyThirtyMinutes()->name('urpa-social-engagement-sync')->withoutOverlapping();

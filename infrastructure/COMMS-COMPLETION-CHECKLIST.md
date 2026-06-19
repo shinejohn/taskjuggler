@@ -56,7 +56,9 @@ These are hard requirements, not nice-to-haves. The hardening pass (2026-06-16) 
 - [x] **Dendrite running on Railway** (generate-keys + generate-config fix)
 - [x] Registration locked down: open registration forced OFF on boot, shared-secret
       provisioning only, production refuses `m.login.dummy` fallback (see Security & Ops Guarantees)
-- [ ] End-to-end test: register user → DM → webhook → DirectMessage row
+- [x] End-to-end test: register user → DM → webhook → DirectMessage row (verified live
+      2026-06-18: 2 users provisioned on Dendrite, DM room created, webhook delivered →
+      DirectMessage row, duplicate event_id deduped via source_channel_ref, bad secret → 401)
 - [ ] Task-scoped Matrix rooms in taskjuggler-web UI (messages on task detail page)
 - [ ] Matrix bridges: Slack, Teams, Discord (separate bridge services)
 

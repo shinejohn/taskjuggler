@@ -72,6 +72,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/{id}/send', [\App\Modules\Urpa\Controllers\ChannelLinkController::class, 'send']);
     });
 
+    // Social publishing — per-business social accounts + scheduled posts
+    Route::prefix('social')->group(function () {
+        Route::get('/accounts', [\App\Modules\Urpa\Controllers\SocialController::class, 'accounts']);
+        Route::post('/accounts', [\App\Modules\Urpa\Controllers\SocialController::class, 'connectManual']);
+        Route::put('/accounts/{id}', [\App\Modules\Urpa\Controllers\SocialController::class, 'updateAccount']);
+        Route::delete('/accounts/{id}', [\App\Modules\Urpa\Controllers\SocialController::class, 'disconnect']);
+        Route::post('/accounts/{id}/sync', [\App\Modules\Urpa\Controllers\SocialController::class, 'syncEngagement']);
+
+        Route::get('/oauth/{provider}/redirect', [\App\Modules\Urpa\Controllers\SocialController::class, 'oauthRedirect']);
+
+        Route::get('/posts', [\App\Modules\Urpa\Controllers\SocialController::class, 'posts']);
+        Route::post('/posts', [\App\Modules\Urpa\Controllers\SocialController::class, 'createPost']);
+        Route::post('/posts/generate', [\App\Modules\Urpa\Controllers\SocialController::class, 'generatePost']);
+        Route::put('/posts/{id}', [\App\Modules\Urpa\Controllers\SocialController::class, 'updatePost']);
+        Route::post('/posts/{id}/publish', [\App\Modules\Urpa\Controllers\SocialController::class, 'publishNow']);
+        Route::post('/posts/{id}/cancel', [\App\Modules\Urpa\Controllers\SocialController::class, 'cancelPost']);
+    });
+
 });
 
 // Vapi webhook — outside auth:sanctum so Vapi can POST call events
@@ -82,6 +100,10 @@ Route::post('/voice/pipecat/webhook', [\App\Modules\Urpa\Controllers\PipecatWebh
 
 // Channel connector (openclaw-connector sidecar)
 Route::post('/channels/message', [\App\Modules\Urpa\Controllers\ChannelMessageController::class, 'ingest']);
+
+// Social OAuth callback — providers redirect here without a Sanctum session;
+// the user is identified via the signed state parameter.
+Route::get('/social/oauth/{provider}/callback', [\App\Modules\Urpa\Controllers\SocialController::class, 'oauthCallback']);
 
 // Twilio inbound voice
 Route::post('/voice/twilio/inbound', [\App\Modules\Urpa\Controllers\TwilioVoiceController::class, 'inbound'])
