@@ -6,6 +6,7 @@ export interface User {
   timezone: string;
   plan: 'free' | 'starter' | 'pro' | 'business' | 'enterprise';
   settings: Record<string, any>;
+  is_admin?: boolean;
   created_at?: string;
 }
 

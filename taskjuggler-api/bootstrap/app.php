@@ -27,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'team.context' => \App\Http\Middleware\TeamContext::class,
             'scanner.limits' => \App\Http\Middleware\CheckScannerLimits::class,
             'app.context' => \App\Http\Middleware\AppContext::class,
+            'admin' => \App\Http\Middleware\EnsureIsAdmin::class,
         ]);
         
         // Add profile context middleware to API routes

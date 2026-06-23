@@ -135,6 +135,12 @@ const router = createRouter({
       component: () => import('@/pages/test-results/TestResultsPage.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/admin/metrics',
+      name: 'admin-metrics',
+      component: () => import('@/pages/admin/MetricsPage.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
   ],
 });
 
@@ -143,6 +149,8 @@ router.beforeEach((to, _from, next) => {
   
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login');
+  } else if (to.meta.requiresAdmin && !authStore.user?.is_admin) {
+    next('/dashboard');
   } else if (to.meta.guest && authStore.isAuthenticated) {
     next('/dashboard');
   } else {

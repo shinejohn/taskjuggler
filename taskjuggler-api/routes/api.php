@@ -367,3 +367,9 @@ Route::prefix('public/booking')->group(function () {
 // Public team invitation route (no auth required to view)
 // Note: Task invitation routes are now in app/Modules/Tasks/Routes/api.php
 Route::get('/teams/invite/{inviteCode}', [TeamController::class, 'getInvitation']);
+
+// Admin business-metrics API (config email allowlist via `admin` middleware)
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin/metrics')->group(function () {
+    Route::get('summary', [\App\Http\Controllers\Api\Admin\AdminMetricsController::class, 'summary'])
+        ->name('admin.metrics.summary');
+});

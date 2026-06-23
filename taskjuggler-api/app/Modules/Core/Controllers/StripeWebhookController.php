@@ -2,6 +2,7 @@
 
 namespace App\Modules\Core\Controllers;
 
+use App\Models\Transaction;
 use App\Modules\Core\Models\User;
 use App\Modules\Core\Traits\ApiResponses;
 use App\Modules\Urpa\Models\UrpaUserProfile;
@@ -120,6 +121,31 @@ class StripeWebhookController extends \App\Http\Controllers\Controller
                     'created_at' => now(),
                 ]
             );
+        }
+
+        // Revenue capture: record a single subscription Transaction for this
+        // checkout. Wrapped so a metrics write never breaks the webhook.
+        try {
+            $amountTotal = $session->amount_total ?? null;
+
+            if ($userId && $amountTotal !== null && $amountTotal > 0) {
+                $ref = $session->payment_intent ?? $session->id;
+
+                $alreadyRecorded = Transaction::where('stripe_payment_intent_id', $ref)->exists();
+
+                if (! $alreadyRecorded) {
+                    Transaction::create([
+                        'user_id' => $userId,
+                        'type' => Transaction::TYPE_SUBSCRIPTION,
+                        'amount' => $amountTotal / 100,
+                        'currency' => strtoupper($session->currency ?? 'usd'),
+                        'stripe_payment_intent_id' => $ref,
+                        'status' => Transaction::STATUS_COMPLETED,
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Failed to record subscription transaction: ' . $e->getMessage());
         }
     }
 }

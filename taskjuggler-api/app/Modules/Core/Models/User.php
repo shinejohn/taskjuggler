@@ -45,11 +45,24 @@ class User extends Authenticatable
 
     protected $hidden = ['password'];
 
+    protected $appends = ['is_admin'];
+
     protected $casts = [
         'settings' => 'array',
         'plan_expires_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Whether this user is a platform administrator (config allowlist match,
+     * case-insensitive email). No roles package required.
+     */
+    public function getIsAdminAttribute(): bool
+    {
+        $allowed = array_map('strtolower', config('admin.emails', []));
+
+        return in_array(strtolower((string) $this->email), $allowed, true);
+    }
 
     // Relationships - using aliases for now, will be updated as modules are moved
     public function tasks()

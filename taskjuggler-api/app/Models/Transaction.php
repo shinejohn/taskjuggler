@@ -9,6 +9,11 @@ class Transaction extends Model
 {
     use HasUuids;
 
+    // The transactions table has only a created_at column (no updated_at).
+    // Disable the updated_at timestamp so create()/update() don't reference a
+    // non-existent column, while keeping created_at auto-populated.
+    const UPDATED_AT = null;
+
     protected $fillable = [
         'user_id',
         'type',

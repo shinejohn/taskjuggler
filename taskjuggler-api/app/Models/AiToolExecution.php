@@ -9,6 +9,11 @@ class AiToolExecution extends Model
 {
     use HasUuids;
 
+    // The ai_tool_executions table has only a created_at column (no
+    // updated_at). Disable updated_at so create()/update() don't reference a
+    // missing column, keeping created_at auto-populated.
+    const UPDATED_AT = null;
+
     protected $fillable = [
         'task_id',
         'vendor_id',

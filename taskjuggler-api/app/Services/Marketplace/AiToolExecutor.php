@@ -5,8 +5,10 @@ namespace App\Services\Marketplace;
 use App\Models\Task;
 use App\Models\MarketplaceVendor;
 use App\Models\AiToolExecution;
+use App\Models\Transaction;
 use App\Services\AI\OpenRouterService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AiToolExecutor
 {
@@ -51,6 +53,30 @@ class AiToolExecutor
                 $result['tokens'] ?? null,
                 $result['cost'] ?? null
             );
+
+            // Revenue capture (gated, off by default): record an ai_tool
+            // Transaction for the requesting user on a successful run with a
+            // known cost. Wrapped so billing never breaks execution.
+            $cost = $result['cost'] ?? null;
+
+            if (config('marketplace.charge_per_execution') === true && $cost !== null) {
+                try {
+                    $markup = (float) config('marketplace.ai_tool_markup_percent', 0);
+                    $revenue = round((float) $cost * (1 + $markup / 100), 2);
+
+                    Transaction::create([
+                        'user_id' => $task->requestor_id,
+                        'type' => Transaction::TYPE_AI_TOOL,
+                        'amount' => $revenue,
+                        'currency' => 'USD',
+                        'task_id' => $task->id,
+                        'execution_id' => $execution->id,
+                        'status' => Transaction::STATUS_COMPLETED,
+                    ]);
+                } catch (\Throwable $e) {
+                    Log::warning('Failed to record ai_tool transaction: ' . $e->getMessage());
+                }
+            }
 
             // Attach deliverables to task
             foreach ($result['deliverables'] ?? [] as $deliverable) {
