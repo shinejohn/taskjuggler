@@ -11,6 +11,10 @@ class UrpaAiMessage extends Model
 {
     use HasUuids, HasFactory;
 
+    // Table has created_at only (no updated_at) — disable Eloquent's updated_at
+    // to prevent "no column updated_at" on insert/update.
+    const UPDATED_AT = null;
+
     protected $table = 'urpa_ai_messages';
 
     protected $fillable = [

@@ -470,7 +470,7 @@ if [[ -n "$BACKEND_DIR" ]]; then
         fi
 
         # dd(), dump(), ray()
-        DEBUG_CALLS=$(grep -nE '\b(dd|dump|ray)\s*\(' "$FILE" 2>/dev/null | grep -v '//' | head -3)
+        DEBUG_CALLS=$(grep -nE '\b(dd|dump|ray|var_dump)\s*\(' "$FILE" 2>/dev/null | grep -v '//' | head -3)
         if [[ -n "$DEBUG_CALLS" ]]; then
             log "  ${YELLOW}⚠️  Debug function in: $FILE${NC}"
             echo "$DEBUG_CALLS" | while read line; do log "     ${YELLOW}$line${NC}"; done
@@ -1164,6 +1164,221 @@ if [[ "$HAS_INERTIA" == true || "$IS_MULTIAPP" == true ]]; then
             inc_warnings
         else
             log "  ${GREEN}✓${NC} No branding leaks"
+        fi
+    fi
+
+    phase_end
+    log ""
+fi
+
+# ============================================================================
+# PHASE 8: TASKJUGGLER REGRESSION GUARDS
+# Every check here exists because this exact class of bug shipped to production
+# and had to be hot-fixed. The commit ref cites the incident. Rule for adding to
+# this phase: only after a real failure, and always cite it. (Built from the
+# 30-day fix history, June 2026.)
+# ============================================================================
+if [[ "$PROJECT_TYPE" == "taskjuggler" && -n "$BACKEND_DIR" ]]; then
+    log "${BOLD}${BLUE}━━━ Phase 8: TaskJuggler Regression Guards ━━━${NC}"
+    phase_start
+
+    rel_path() { echo "${1#"$BACKEND_DIR"/}"; }
+    ALL_MIGRATIONS=$(find "${BACKEND_DIR}/database/migrations" "${BACKEND_DIR}/app/Modules" -type f -name '*.php' 2>/dev/null | grep -iE '/migrations?/' | sort)
+
+    if [[ -z "$ALL_MIGRATIONS" ]]; then
+        log "  ${YELLOW}⚠️  No migrations found — skipping migration guards${NC}"
+    else
+        # ── Guard 1: model keeps timestamps ON but its table has no updated_at ──
+        # (commits 9756237 urpa_* tables, 0164e81 transactions + ai_tool_executions)
+        # Every insert/update 500s with "no column updated_at". Hit prod 3×.
+        TS_ERR=0; TS_WARN=0
+        while IFS= read -r MODELF; do
+            [[ -z "$MODELF" || ! -f "$MODELF" ]] && continue
+            echo "$MODELF" | grep -q '/Models/' || continue
+            grep -qE "const +UPDATED_AT *= *null|\\\$timestamps *= *false" "$MODELF" && continue
+            CLASS=$(basename "$MODELF" .php)
+            TBL=$(grep -oE "protected +\\\$table *= *'[a-z0-9_]+'" "$MODELF" | grep -oE "'[a-z0-9_]+'" | tr -d "'" | head -1)
+            if [[ -z "$TBL" ]]; then
+                SNAKE=$(echo "$CLASS" | sed -E 's/([a-z0-9])([A-Z])/\1_\2/g' | tr '[:upper:]' '[:lower:]')
+                case "$SNAKE" in
+                    *s) TBL="$SNAKE" ;;
+                    *y) TBL="${SNAKE%y}ies" ;;
+                    *)  TBL="${SNAKE}s" ;;
+                esac
+            fi
+            CREATE_MIG=$(grep -lE "Schema::create\( *'${TBL}'" $ALL_MIGRATIONS </dev/null 2>/dev/null | head -1)
+            [[ -z "$CREATE_MIG" ]] && continue
+            # create migration adds an explicit created_at but not updated_at...
+            grep -qE -e "->(timestampTz|timestamp)\( *'created_at'" "$CREATE_MIG" || continue
+            grep -qE -e "updated_at|->timestamps\(|->timestampsTz\(" "$CREATE_MIG" && continue
+            # ...and no later Schema::table alter on this table adds updated_at
+            # (e.g. the 9756237 URPA fix retro-added it). Scan all migrations.
+            SAFE=no
+            for AM in $(grep -lE "Schema::table\( *'${TBL}'" $ALL_MIGRATIONS </dev/null 2>/dev/null); do
+                grep -qE -e "updated_at" "$AM" && { SAFE=yes; break; }
+            done
+            [[ "$SAFE" == yes ]] && continue
+            # Risky. New/changed model → hard error; pre-existing → warning so a
+            # legacy latent bug doesn't block every unrelated ship.
+            if echo "$CHANGED_PHP" | grep -qF "$MODELF" 2>/dev/null; then
+                log "  ${RED}❌ ${CLASS} keeps Eloquent timestamps ON but table '${TBL}' has no updated_at — every insert/update will 500${NC}"
+                log "     ${RED}Fix: add 'const UPDATED_AT = null;' to ${CLASS}, or \$table->timestampsTz() to $(rel_path "$CREATE_MIG").${NC}"
+                inc_errors; TS_ERR=$((TS_ERR+1))
+            else
+                log "  ${YELLOW}⚠️  (pre-existing) ${CLASS} timestamps ON but '${TBL}' has no updated_at — latent 500; add 'const UPDATED_AT = null;'${NC}"
+                inc_warnings; TS_WARN=$((TS_WARN+1))
+            fi
+        done < <(grep -rlE "use .*HasUuids|extends Model|extends Authenticatable" "${BACKEND_DIR}/app" --include='*.php' 2>/dev/null)
+        [[ "$TS_ERR" -eq 0 && "$TS_WARN" -eq 0 ]] && log "  ${GREEN}✓${NC} Models with timestamps all have an updated_at column"
+
+        # ── Guard 2: morphs()/nullableMorphs() = bigint morph id vs UUID PKs ──
+        # (commit e544cd7: personal_access_tokens.tokenable_id bigint broke ALL login + registration)
+        MORPH_NEW=""; MORPH_OLD=""
+        while IFS= read -r MF; do
+            [[ -z "$MF" ]] && continue
+            if echo "$CHANGED_PHP" | grep -qF "$MF" 2>/dev/null; then MORPH_NEW+="$(rel_path "$MF") "; else MORPH_OLD+="$(rel_path "$MF") "; fi
+        done < <(grep -lE -e '->(morphs|nullableMorphs)\(' $ALL_MIGRATIONS </dev/null 2>/dev/null)
+        if [[ -n "$MORPH_NEW" ]]; then
+            log "  ${RED}❌ morphs()/nullableMorphs() makes a bigint id — UUID PKs need uuidMorphs()/nullableUuidMorphs(): ${MORPH_NEW}${NC}"
+            inc_errors
+        fi
+        if [[ -n "$MORPH_OLD" ]]; then
+            log "  ${YELLOW}⚠️  (pre-existing) bigint morphs() in: ${MORPH_OLD}— should be uuidMorphs() (patched later, but the create migration is wrong)${NC}"
+            inc_warnings
+        fi
+        [[ -z "$MORPH_NEW$MORPH_OLD" ]] && log "  ${GREEN}✓${NC} No bigint morphs() in migrations"
+
+        # ── Guard 3: GIN index on a json column (GIN needs jsonb) ──
+        # (commit 6343a81: tef_actors GIN-on-json failed inside try/catch, silently
+        #  aborting the PG transaction — table vanished, migration recorded DONE)
+        GIN_HITS=""
+        for MIG in $ALL_MIGRATIONS; do
+            if grep -qiE -e "'gin'|->index\([^)]*gin" "$MIG" && grep -qE -e "->json\(" "$MIG"; then
+                GIN_HITS+="$(rel_path "$MIG")"$'\n'
+            fi
+        done
+        if [[ -n "$GIN_HITS" ]]; then
+            log "  ${YELLOW}⚠️  Possible GIN index on a json column (GIN needs jsonb — silent-rollback risk):${NC}"
+            echo "$GIN_HITS" | sed '/^$/d' | while read -r l; do log "     ${YELLOW}$l${NC}"; done
+            inc_warnings
+        fi
+
+        # ── Guard 4: DB::statement() inside try/catch in a migration ──
+        # (commit 6343a81 root cause: a failed DB::statement aborts the PG tx, but
+        #  the catch swallows it and Laravel records the migration as DONE.)
+        TRYCATCH_HITS=""
+        for MIG in $ALL_MIGRATIONS; do
+            if grep -qE 'try *\{' "$MIG" && grep -qE 'DB::statement' "$MIG"; then
+                TRYCATCH_HITS+="$(rel_path "$MIG")"$'\n'
+            fi
+        done
+        if [[ -n "$TRYCATCH_HITS" ]]; then
+            log "  ${YELLOW}⚠️  try/catch around DB::statement in a migration (a failed statement aborts the PG tx but is recorded DONE):${NC}"
+            echo "$TRYCATCH_HITS" | sed '/^$/d' | while read -r l; do log "     ${YELLOW}$l${NC}"; done
+            inc_warnings
+        fi
+    fi
+
+    # ── Guard 5: module Migrations/ dir that is never loaded ──
+    # (commit 6343a81: Urpa + Coordinator migrations weren't in modules.enabled
+    #  and weren't loadMigrationsFrom'd → their tables were silently never created)
+    PROVIDERS=$(find "${BACKEND_DIR}/app" -name '*ServiceProvider.php' 2>/dev/null)
+    MODCFG="${BACKEND_DIR}/config/modules.php"
+    UNLOADED=""
+    if [[ -n "$PROVIDERS" ]]; then
+        while IFS= read -r MODDIR; do
+            [[ -z "$MODDIR" ]] && continue
+            MODNAME=$(echo "$MODDIR" | sed -E 's|.*/Modules/([^/]+)/.*|\1|')
+            MODLC=$(echo "$MODNAME" | tr '[:upper:]' '[:lower:]')
+            grep -rqE "loadMigrationsFrom.*Modules/${MODNAME}/" $PROVIDERS </dev/null 2>/dev/null && continue
+            grep -rqE "loadMigrationsFrom" "${BACKEND_DIR}/app/Modules/${MODNAME}" 2>/dev/null && continue
+            grep -qiE "'${MODLC}'" "$MODCFG" 2>/dev/null && continue
+            UNLOADED+="${MODNAME} "
+        done < <(find "${BACKEND_DIR}/app/Modules" -type d -iname 'migrations' 2>/dev/null)
+    fi
+    if [[ -n "$UNLOADED" ]]; then
+        log "  ${YELLOW}⚠️  Module migrations may never run (not loadMigrationsFrom'd, not in config/modules.php): ${UNLOADED}${NC}"
+        log "     ${YELLOW}A disabled module's tables are silently never created.${NC}"
+        inc_warnings
+    else
+        log "  ${GREEN}✓${NC} All module migration dirs are loaded"
+    fi
+
+    # ── Guard 6: healthcare MODULE must not reappear in this repo ──
+    # (commit 261f678: Doctors module extracted to 4healthcare-Platform for HIPAA
+    #  isolation). Only flag actual healthcare module DIRECTORIES — a passing
+    #  mention of "HIPAA" in a comment is not a healthcare feature.
+    HC_DIRS=$(find "${BACKEND_DIR}/app/Modules" -maxdepth 1 -type d -iregex '.*/\(doctors\|patients\|healthcare\|medical\)' 2>/dev/null | head -3)
+    if [[ -n "$HC_DIRS" ]]; then
+        log "  ${RED}❌ Healthcare module directory in this repo — forbidden (belongs in 4healthcare-Platform):${NC}"
+        for x in $HC_DIRS; do log "     ${RED}$(rel_path "$x")${NC}"; done
+        inc_errors
+    else
+        log "  ${GREEN}✓${NC} No healthcare module in this repo"
+    fi
+
+    # ── Guard 7: nixpacks uses phpXXExtensions.*, not phpXXPackages.* ──
+    # (commit e0f9ae5: php82Packages.pdo_pgsql is an invalid nix attr → build fails)
+    NIX=""
+    for c in "${BACKEND_DIR}/nixpacks.toml" "nixpacks.toml"; do [[ -f "$c" ]] && NIX="$c" && break; done
+    if [[ -n "$NIX" ]]; then
+        # phpXXPackages.composer is legitimate; only PHP *extensions* under
+        # Packages are the bug (e.g. php82Packages.pdo_pgsql).
+        PKG_EXT_HITS=$(grep -nE 'php[0-9]+Packages\.' "$NIX" 2>/dev/null | grep -vE 'Packages\.composer')
+        if [[ -n "$PKG_EXT_HITS" ]]; then
+            log "  ${RED}❌ nixpacks.toml puts a PHP extension under phpXXPackages.* — extensions live under phpXXExtensions.*:${NC}"
+            echo "$PKG_EXT_HITS" | head -3 | while read -r l; do log "     ${RED}$l${NC}"; done
+            inc_errors
+        else
+            log "  ${GREEN}✓${NC} nixpacks PHP extensions use phpXXExtensions.*"
+        fi
+    fi
+
+    # ── Guard 8: every frontend workspace ships a real, committed .env.production ──
+    # (commit 486570b: projects-web/.env.production was gitignored → 4projects
+    #  deployed pointing at the localhost API fallback)
+    if [[ -f "package.json" ]] && command -v node >/dev/null 2>&1; then
+        WS_LIST=$(node -p "(require('./package.json').workspaces||[]).join(' ')" 2>/dev/null) || WS_LIST=""
+        ENV_PROD_ISSUES=0
+        for WS in $WS_LIST; do
+            [[ -f "$WS/package.json" ]] || continue
+            grep -q '"build"' "$WS/package.json" 2>/dev/null || continue
+            # Only API-consuming apps need .env.production — skip libraries like
+            # shared-ui (a vite build that never calls VITE_API_URL).
+            grep -rqE 'VITE_API_URL' "$WS/src" 2>/dev/null || continue
+            EP="$WS/.env.production"
+            if [[ ! -f "$EP" ]]; then
+                log "  ${YELLOW}⚠️  ${WS} has no .env.production — Vite bakes the localhost API fallback${NC}"
+                inc_warnings; ENV_PROD_ISSUES=$((ENV_PROD_ISSUES+1)); continue
+            fi
+            if ! git ls-files --error-unmatch "$EP" &>/dev/null; then
+                log "  ${RED}❌ ${EP} exists but is gitignored/untracked — Railway won't get it (deploys with localhost API)${NC}"
+                inc_errors; ENV_PROD_ISSUES=$((ENV_PROD_ISSUES+1)); continue
+            fi
+            if grep -qE 'VITE_API_URL=.*(localhost|127\.0\.0\.1)' "$EP" 2>/dev/null; then
+                log "  ${RED}❌ ${EP} points VITE_API_URL at localhost${NC}"
+                inc_errors; ENV_PROD_ISSUES=$((ENV_PROD_ISSUES+1))
+            fi
+        done
+        [[ "$ENV_PROD_ISSUES" -eq 0 && -n "$WS_LIST" ]] && log "  ${GREEN}✓${NC} All frontend workspaces ship a committed, non-localhost .env.production"
+    fi
+
+    # ── Guard 9: lockfile is actually installable (npm ci) when it changed ──
+    # (commit d446e17: a corrupt lock from a stale node_modules made npm ci reject
+    #  with "Invalid Version" — failed ALL Railway services at once)
+    LOCK_IN_DIFF=$(
+        { git diff --name-only HEAD 2>/dev/null
+          git diff --name-only --cached 2>/dev/null
+          git diff --name-only @{upstream}..HEAD 2>/dev/null
+        } | grep -E '(^|/)package-lock\.json$' | head -1
+    )
+    if [[ -n "$LOCK_IN_DIFF" && -f "package-lock.json" ]] && command -v npm >/dev/null 2>&1; then
+        log "  ${CYAN}Validating package-lock.json is installable (npm ci --dry-run)...${NC}"
+        if npm ci --dry-run >/dev/null 2>&1; then
+            log "  ${GREEN}✓${NC} package-lock.json parses and resolves (npm ci)"
+        else
+            log "  ${RED}❌ npm ci rejects the lockfile — Railway will fail every service. Regenerate from a clean checkout.${NC}"
+            inc_errors
         fi
     fi
 

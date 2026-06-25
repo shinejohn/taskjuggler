@@ -9,6 +9,10 @@ class MarketplaceBid extends Model
 {
     use HasUuids;
 
+    // Table has created_at only (no updated_at) — disable Eloquent's updated_at
+    // to prevent "no column updated_at" on insert/update.
+    const UPDATED_AT = null;
+
     protected $fillable = [
         'listing_id',
         'vendor_id',
